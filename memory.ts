@@ -1,14 +1,13 @@
 
 module System {
-    function guuid() : string {
-        function s4() {
-            return Math.floor((1 + Math.random()) * 0x10000)
+    var guuid = (): string => {
+        var s4 = (): string =>
+            Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)
                 .substring(1);
-        }
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                s4() + '-' + s4() + s4() + s4();
-    }
+            s4() + '-' + s4() + s4() + s4();
+    };
     export class MemoryObject {
         public id: string;
         public data: DataView;
@@ -16,12 +15,15 @@ module System {
             this.id = id;
             this.data = data;
         }
-        public get(idx: number): any {
-
+        get(idx: number): any {
+            return this.data[idx];
+        }
+        set(idx: number, val: any): any {
+            return this.data[idx] = val;
         }
     };
     export class MemoryManager {
-        private memmap: Map<string, MemoryObject>;
+        private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
         private MB: number = 1024;
         private TOTAL_MEMORY;
         private memory;
@@ -37,7 +39,7 @@ module System {
                 guuid(),
                 new DataView(this.memory, this.memory_offset, this.memory_offset + n)
             );
-            this.memmap.set(buffer.id, buffer.data);
+            this.memmap.set(buffer.id, buffer);
             this.memory_offset += n;
             return buffer;
         }

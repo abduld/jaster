@@ -24,6 +24,12 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="launch.ts" />
+    <TypeScriptCompile Include="memory.ts" />
+    <TypeScriptCompile Include="thread.ts" />
+    <TypeScriptCompile Include="translate.ts" />
+    <TypeScriptCompile Include="visualization.ts" />
+    <TypeScriptCompile Include="worker.ts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="web.Debug.config">
