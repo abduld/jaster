@@ -1,16 +1,17 @@
 
-
-var _memory = new ArrayBuffer(1024);
+var MB : number = 1024;
+var TOTAL_MEMORY : number = 10 * MB;
+var _memory = new ArrayBuffer(TOTAL_MEMORY);
 var _memory_offset : number = 0;
 
 function malloc(n : number) {
-var buffer = new DataView(_memory, _memory_offset, _memory_offset + n);
+	var buffer = new DataView(_memory, _memory_offset, _memory_offset + n);
 	_memory_offset += n;
 	return buffer;
-	}
+}
 
 function free(mem) {
-mem = undefined;
+	mem = undefined;
 }
 
 function ref(obj) {
@@ -18,7 +19,7 @@ function ref(obj) {
 }
 
 function deref(mem) {
-return mem[0];
+	return mem[0];
 }
 
 

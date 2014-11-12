@@ -17,7 +17,7 @@ module.exports = function (grunt) {
         typescript: {
             base: {
                 src: ['lib/**/*.ts'],
-                dest: 'js/PixelVisionJSDemos.js',
+                dest: 'js/jaster.js',
                 options: {
                     module: 'amd',
                     target: 'es5'
