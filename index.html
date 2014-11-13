@@ -10,11 +10,12 @@
             baseUrl: ".",
             enforceDefine: true,
             paths: {
-                "react" : "http://cdnjs.cloudflare.com/ajax/libs/react/0.12.0/react"
+                "react" : "http://cdnjs.cloudflare.com/ajax/libs/react/0.12.0/react",
+                "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min"
             }
         });
-        require(["dist/index.js"], function() {
-            console.log("loaded.")
+        require(["dist/index.js"], function(ctx) {
+            ctx.main()
         });
     </script>
     <!--

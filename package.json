@@ -24,7 +24,6 @@
     "ref": "^0.3.2",
     "ref-array": "^1.0.0",
     "ref-struct": "^1.0.0",
-    "typed-react": "^2.1.2",
     "typescript": "^1.1.0-1",
     "typescript-formatter": "^0.1.4",
     "underscore": "^1.7.0"
