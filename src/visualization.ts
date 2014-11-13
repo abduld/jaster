@@ -2,121 +2,56 @@
 /// <reference path="utils.ts" />
 
 import React = require("react");
-//import utils = require("./utils");
+import ReactUtils = require("./react_utils");
+import Utils = require("./utils");
+import _ = require("underscore");
 
-class NotImplementedError implements Error {
-    public name = "NotImplementedError";
-    public message: string;
+var MAXWIDTH : number = 75;
+var MAXHEIGHT : number = 100;
 
-    constructor(methodName: string) {
-        this.message = methodName + " should be implemented by React";
-    }
-}
-interface ClassCreator<P, S> {
-    (specification: React.Specification<P, S>): React.ReactComponentFactory<P>;
-}
-
-class Component<P, S> implements React.Specification<P, S>, React.Component<P, S> {
-    public refs: {
-        [key: string]: React.DomReferencer
-    };
-    public props: P;
-    public state: S;
-
-    getDOMNode(): Element {
-        throw new NotImplementedError("getDomNode");
-    }
-
-    setState(nextState: S, callback?: () => void): void {
-        throw new NotImplementedError("setState");
-    }
-
-    replaceState(nextState: S, callback?: () => void): void {
-        throw new NotImplementedError("replaceState");
-    }
-
-    forceUpdate(callback?: () => void): void {
-        throw new NotImplementedError("forceUpdate");
-    }
-
-    isMounted(): boolean {
-        throw new NotImplementedError("isMounted");
-    }
-
-    setProps(nextProps: P, callback?: () => void): void {
-        throw new NotImplementedError("setProps");
-    }
-
-    replaceProps(nextProps: P, callback?: () => void): void {
-        throw new NotImplementedError("replaceProps");
-    }
-
-    render(): React.ReactElement<any, any> {
-        return null;
-    }
+export interface ThreadVisualizationProps {
+    blockIdx : Utils.Dim3;
+    blockDim: Utils.Dim3;
+    gridDim : Utils.Dim3;
+    threadIdx : Utils.Dim3;
 }
 
-var ILLEGAL_KEYS: {[key: string]: boolean} = {
-    constructor: true,
-    refs: true,
-    props: true,
-    state: true,
-    getDOMNode: true,
-    setState: true,
-    replaceState: true,
-    forceUpdate: true,
-    isMounted: true,
-    setProps: true,
-    replaceProps: true
-};
-interface ComponentClass<P, S> {
-    new (): Component<P, S>
-}
-function createClass<P, S>(
-    createClass: ClassCreator<P, S>,
-    clazz: ComponentClass<P, S>): React.ReactComponentFactory<P> {
-    var key: string;
-    var spec: React.Specification<P, S> = (<React.Specification<P, S>>{});
-    spec.displayName = clazz.prototype.constructor.name;
-    for (key in clazz.prototype) {
-        if (!ILLEGAL_KEYS[key]) {
-            (<any>spec)[key] = (<any>clazz.prototype)[key];
-        }
-    }
-    if (spec.componentWillMount !== undefined) {
-        var componentWillMount = spec.componentWillMount;
-        spec.componentWillMount = function() {
-            clazz.apply(this);
-            componentWillMount.apply(this);
-        };
-    } else {
-        spec.componentWillMount = function() {
-            clazz.apply(this);
-        };
-    }
-    return createClass(spec);
-}
-
-export interface CellProps {
-    threadGroup : string;
-}
-
-interface CellState {
+interface ThreadVisualizationState {
+    highlighted: boolean;
     activated : boolean;
 }
 
-class Cell extends Component<CellProps, CellState> {
-    //private draw = SVG(utils.guuid()).size(100, 100);
+class ThreadVisualization extends ReactUtils.Component<ThreadVisualizationProps, ThreadVisualizationState> {
+    private width : number;
+    private height : number;
+    private offsetX : number;
+    private offsetY : number;
 
     getInitialState() {
+
+        this.width = MAXWIDTH / (this.props.gridDim.x * this.props.blockDim.x);
+        this.height = MAXHEIGHT / (this.props.gridDim.y * this.props.blockDim.y);
+        this.offsetX = this.width * (this.props.gridDim.x * this.props.blockIdx.x + this.props.threadIdx.x);
+        this.offsetY = this.height * (this.props.gridDim.y * this.props.blockIdx.y + this.props.threadIdx.y);
         return {
+            highlighted: false,
             activated: false
         };
+    }
+    setState(state : ThreadVisualizationState) {
+        this.state = state;
     }
 
     activate() {
         this.setState({
+            highlighted: false,
             activated: true
+        });
+    }
+    highlight() {
+        this.setState({
+            highlighted: true,
+            activated: this.state.activated
         });
     }
 
@@ -128,14 +63,119 @@ class Cell extends Component<CellProps, CellState> {
         }
     }
     render() {
-        return React.DOM.rect({width: 100, height: 100, fill: this.getFill()});
+        return React.DOM.rect({
+            x: this.offsetX + "%",
+            y : this.offsetY + "%",
+            width: (this.width * 0.8) + "%",
+            height: (this.height * 0.8) + "%",
+            fill: this.getFill()
+        });
     }
 }
-export var cell = createClass<CellProps, CellState> (React.createClass, Cell);
+export var cell = ReactUtils.createClass<ThreadVisualizationProps, ThreadVisualizationState>(
+    React.createClass, ThreadVisualization);
 
-//import chai = require("chai");
+export interface BlockVisualizationProps {
+    blockIdx : Utils.Dim3;
+    blockDim : Utils.Dim3;
+    gridDim : Utils.Dim3;
+}
 
-//var expect = chai.expect;
+interface BlockVisualizationState {
+    highlighted : boolean;
+}
 
-//expect(React.renderToStaticMarkup(cell({threadGroup: utils.guuid()}))).to.equal(false);
+class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, BlockVisualizationState> {
+    private width : number;
+    private height : number;
+    private offsetX : number;
+    private offsetY : number;
+    private data : React.ReactComponentElement<ThreadVisualizationProps>[][][];
+    private makeCells() : React.ReactComponentElement<ThreadVisualizationProps>[][][] {
+        return _.range(this.props.blockDim.z).map((z) => {
+            return _.range(this.props.blockDim.y).map((y) => {
+                return _.range(this.props.blockDim.x).map((x) => {
+                    return React.createElement(cell, {
+                        blockIdx: this.props.blockIdx,
+                        blockDim: this.props.blockDim,
+                        gridDim: this.props.gridDim,
+                        threadIdx: new Utils.Dim3(x, y, z)
+                    });
+                });
+            });
+        });
+    }
+    getInitialState() {
+        this.width = MAXWIDTH / this.props.gridDim.x;
+        this.height = MAXHEIGHT / this.props.gridDim.y;
+        this.offsetX = this.width * (this.props.blockIdx.x);
+        this.offsetY = this.height * (this.props.blockIdx.y);
+        this.data = this.makeCells();
+        return {
+            highlighted: false
+        };
+    }
 
+    highlight() {
+        /*
+        _.flatten(this.data).forEach(function(c : React.ReactComponentElement<ThreadVisualizationProps>) {
+            c.highlight();
+        });
+        */
+        this.setState({
+            highlighted: true
+        });
+    }
+    render() {
+        return React.DOM.svg({
+            //x: this.offsetX,
+            //y : this.offsetY,
+            //width: this.width * 0.8,
+            //height: this.height * 0.8,
+            //fill: "black"
+        }, this.data);
+    }
+}
+
+export var blockVisualization = ReactUtils.createClass<BlockVisualizationProps, BlockVisualizationState>(
+    React.createClass, BlockVisualization);
+
+export interface GridVisualizationProps {
+    gridDim : Utils.Dim3;
+    blockDim: Utils.Dim3;
+}
+
+interface GridVisualizationState {
+}
+
+class GridVisualization extends ReactUtils.Component<GridVisualizationProps, GridVisualizationState> {
+    private data : React.ReactComponentElement<BlockVisualizationProps>[][][];
+    private makeBlocks() : React.ReactComponentElement<BlockVisualizationProps>[][][] {
+        return _.range(this.props.gridDim.z).map((z) => {
+            return _.range(this.props.gridDim.y).map((y) => {
+                return _.range(this.props.gridDim.x).map((x) => {
+                    return React.createElement(blockVisualization, {
+                        blockIdx: new Utils.Dim3(x, y, z),
+                        blockDim: this.props.blockDim,
+                        gridDim: this.props.gridDim
+                    });
+                });
+            });
+        });
+    }
+    getInitialState() {
+        this.data = this.makeBlocks();
+        return { };
+    }
+
+    render() {
+        return React.DOM.svg({
+            xmlns : "http://www.w3.org/2000/svg",
+            "xmlns:xlink" : "http://www.w3.org/1999/xlink",
+            version: 1.1
+        }, this.data);
+    }
+}
+
+export var gridVisualization = ReactUtils.createClass<GridVisualizationProps, GridVisualizationState>(
+    React.createClass, GridVisualization);

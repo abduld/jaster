@@ -7,3 +7,14 @@ export var guuid = () : string => {
     return s4() + s4() + "-" + s4() + "-" + s4() + "-" +
         s4() + "-" + s4() + s4() + s4();
 };
+
+export class Dim3 {
+    public x : number;
+    public y : number;
+    public z : number;
+    constructor(x : number, y = 1, z = 1) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+}
