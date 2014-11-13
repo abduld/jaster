@@ -6,13 +6,10 @@ import Memory = require("./memory");
 export var main = () => {
     var hostMemoryManager = new Memory.HostMemoryManager();
     var mem = hostMemoryManager.malloc(20);
-    console.log(Visualization.cell);
-    console.log(mem);
-    var dom = document.getElementById("content");
+    var dom = document.getElementById("visualization");
     var rect = Visualization.gridVisualization({
-        blockDim: new Utils.Dim3(2, 2),
-        gridDim: new Utils.Dim3(2, 2)
+        blockDim: new Utils.Dim3(4, 4),
+        gridDim: new Utils.Dim3(16, 16)
     });
-    console.log(React.render(rect, dom));
-    console.log(React.renderToString(rect));
+    React.render(rect, dom);
 };
