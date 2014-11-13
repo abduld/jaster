@@ -1,4 +1,4 @@
-
+/*
 function thread(ctx : context, call : call_obj, args : list) {
 var threadIdx;
 var blockIdx;
@@ -8,3 +8,4 @@ var gridIdx;
 	apply(call, args);
 }
 
+*/

@@ -1,0 +1,4 @@
+
+module System {
+    "use strict";
+}

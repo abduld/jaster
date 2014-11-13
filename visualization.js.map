@@ -1,1 +1,0 @@
-{"version":3,"file":"visualization.js","sourceRoot":"","sources":["visualization.ts"],"names":["cell","cell.constructor","cell.draw"],"mappings":"AAAA;IAEIA,cAAYA,MAAuBA;QAAvBC,WAAaA,GAANA,MAAMA;AAAUA,QADnCA,KAAAA,MAAMA,GAAaA,KAAKA,CAACA;QAErBA,IAAIA,CAACA,MAAMA,GAAGA,MAAMA;IACxBA,CAACA;IACDD,sBAAAA,UAAKA,GAAkBA;QACnBE,cAAcA;IAClBA,CAACA;IACLF,YAACA;AAADA,CAACA,IAAA"}

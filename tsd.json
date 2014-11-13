@@ -1,0 +1,39 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "mocha/mocha.d.ts": {
+      "commit": "b6970132c4ddf4b0ffe7952e9e3b08e23f96ea8f"
+    },
+    "chai/chai.d.ts": {
+      "commit": "b6970132c4ddf4b0ffe7952e9e3b08e23f96ea8f"
+    },
+    "react-addons/react-addons.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "underscore/underscore.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "ref/ref.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "ref-array/ref-array.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "ref-struct/ref-struct.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "node-ffi/node-ffi-buffer.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "react/react.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    },
+    "svgjs/svgjs.d.ts": {
+      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
+    }
+  }
+}
