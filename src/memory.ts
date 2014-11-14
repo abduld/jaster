@@ -27,7 +27,7 @@ module System {
     };
     export class MemoryManager {
         private addressSpace : AddressSpace;
-        private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
+	//private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
         private MB: number = 1024;
         private TOTALMEMORY : number;
         private memory : ArrayBuffer;
@@ -45,7 +45,7 @@ module System {
                 this.addressSpace,
                 new DataView(this.memory, this.memoryOffset, this.memoryOffset + n)
             );
-            this.memmap.set(buffer.id, buffer);
+	    //this.memmap.set(buffer.id, buffer);
             this.memoryOffset += n;
             return buffer;
         }

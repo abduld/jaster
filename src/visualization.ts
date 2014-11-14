@@ -137,11 +137,9 @@ class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, B
         this.forceUpdate()
     }
     highlight() {
-        /*
-        _.flatten(this.data).forEach(function(c : React.ReactComponentElement<ThreadVisualizationProps>) {
-            c.highlight();
-        });
-        */
+        React.Children.forEach(this.props.children, function(c : React.ReactComponentElement<ThreadVisualizationProps>) {
+            c.activate();
+        }.bind(this));
         this.setState({
             highlighted: true,
             activated: this.state.activated
@@ -155,7 +153,7 @@ class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, B
             width: this.width * 0.9,
             height: this.height * 0.85
             //fill: "black"
-        }, this.makeThreads());
+        }, this.props.children);
     }
 }
 
@@ -181,13 +179,29 @@ class GridVisualization extends ReactUtils.Component<GridVisualizationProps, Gri
                             blockIdx: blockIdx,
                             blockDim: this.props.blockDim,
                             gridDim: this.props.gridDim
-                        }
+                        },
+                        _.flatten(this.makeThreads(blockIdx))
                     );
                 });
             });
         });
     }
 
+    private makeThreads(blockIdx : Utils.Dim3) : React.ReactComponentElement<ThreadVisualizationProps>[][][] {
+        return _.range(this.props.blockDim.z).map((z) => {
+            return _.range(this.props.blockDim.y).map((y) => {
+                return _.range(this.props.blockDim.x).map((x) => {
+                    return React.createElement(threadVisualization, {
+                        blockIdx: blockIdx,
+                        activated: false,
+                        blockDim: this.props.blockDim,
+                        gridDim: this.props.gridDim,
+                        threadIdx: new Utils.Dim3(x, y, z)
+                    });
+                });
+            });
+        });
+    }
     getInitialState() {
         this.data = this.makeBlocks();
         return { };
