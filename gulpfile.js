@@ -77,10 +77,10 @@ gulp.task('scripts', ['clean'], function() {
       removeComments: false,
       noImplicitAny: true,
       noLib: false,
-      target: 'ES6',
+      target: 'ES5',
       module: 'amd',
       declarationFiles: true,
-      noExternalResolve: true
+      noExternalResolve: false
     }));
   ts.dts.pipe(gulp.dest(dirs.build));
   return ts.js.pipe(gulp.dest(dirs.build));

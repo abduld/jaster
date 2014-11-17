@@ -1,19 +1,18 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="utils.ts" />
-
+/// <reference path="reactutils.ts" />
 import React = require("react");
-import ReactUtils = require("./react_utils");
-import Utils = require("./utils");
+import ReactUtils = require("reactutils");
 import _ = require("underscore");
 
 var MAXWIDTH : number = 1024 ;
 var MAXHEIGHT : number = 798 ;
 
 export interface ThreadVisualizationProps {
-    blockIdx : Utils.Dim3;
-    blockDim: Utils.Dim3;
-    gridDim : Utils.Dim3;
-    threadIdx : Utils.Dim3;
+    blockIdx : Core.Dim3;
+    blockDim: Core.Dim3;
+    gridDim : Core.Dim3;
+    threadIdx : Core.Dim3;
     activated: boolean;
 }
 
@@ -85,9 +84,9 @@ export var threadVisualization = ReactUtils.createClass<ThreadVisualizationProps
     React.createClass, ThreadVisualization);
 
 export interface BlockVisualizationProps {
-    blockIdx : Utils.Dim3;
-    blockDim : Utils.Dim3;
-    gridDim : Utils.Dim3;
+    blockIdx : Core.Dim3;
+    blockDim : Core.Dim3;
+    gridDim : Core.Dim3;
 }
 
 interface BlockVisualizationState {
@@ -122,7 +121,7 @@ class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, B
                         activated: this.state.activated,
                         blockDim: this.props.blockDim,
                         gridDim: this.props.gridDim,
-                        threadIdx: new Utils.Dim3(x, y, z)
+                        threadIdx: new Core.Dim3(x, y, z)
                     });
                 });
             });
@@ -133,13 +132,8 @@ class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, B
             highlighted: this.state.highlighted,
             activated: true
         });
-        console.log("Activating...  ", this.state.activated);
-        this.forceUpdate()
     }
     highlight() {
-        React.Children.forEach(this.props.children, function(c : React.ReactComponentElement<ThreadVisualizationProps>) {
-            c.activate();
-        }.bind(this));
         this.setState({
             highlighted: true,
             activated: this.state.activated
@@ -161,8 +155,8 @@ export var blockVisualization = ReactUtils.createClass<BlockVisualizationProps, 
     React.createClass, BlockVisualization);
 
 export interface GridVisualizationProps {
-    gridDim : Utils.Dim3;
-    blockDim: Utils.Dim3;
+    gridDim : Core.Dim3;
+    blockDim: Core.Dim3;
 }
 
 interface GridVisualizationState {
@@ -174,7 +168,7 @@ class GridVisualization extends ReactUtils.Component<GridVisualizationProps, Gri
         return _.range(this.props.gridDim.z).map((z) => {
             return _.range(this.props.gridDim.y).map((y) => {
                 return _.range(this.props.gridDim.x).map((x) => {
-                    var blockIdx = new Utils.Dim3(x, y, z);
+                    var blockIdx = new (x, y, z);
                     return React.createElement(blockVisualization, {
                             blockIdx: blockIdx,
                             blockDim: this.props.blockDim,
@@ -187,7 +181,7 @@ class GridVisualization extends ReactUtils.Component<GridVisualizationProps, Gri
         });
     }
 
-    private makeThreads(blockIdx : Utils.Dim3) : React.ReactComponentElement<ThreadVisualizationProps>[][][] {
+    private makeThreads(blockIdx : Core.Dim3) : React.ReactComponentElement<ThreadVisualizationProps>[][][] {
         return _.range(this.props.blockDim.z).map((z) => {
             return _.range(this.props.blockDim.y).map((y) => {
                 return _.range(this.props.blockDim.x).map((x) => {
@@ -196,7 +190,7 @@ class GridVisualization extends ReactUtils.Component<GridVisualizationProps, Gri
                         activated: false,
                         blockDim: this.props.blockDim,
                         gridDim: this.props.gridDim,
-                        threadIdx: new Utils.Dim3(x, y, z)
+                        threadIdx: new (x, y, z)
                     });
                 });
             });
@@ -218,5 +212,5 @@ class GridVisualization extends ReactUtils.Component<GridVisualizationProps, Gri
     }
 }
 
-export var gridVisualization = ReactUtils.createClass<GridVisualizationProps, GridVisualizationState>(
+export var gridVisualization = createClass<GridVisualizationProps, GridVisualizationState>(
     React.createClass, GridVisualization);

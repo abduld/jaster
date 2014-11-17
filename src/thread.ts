@@ -1,11 +1,17 @@
-/*
-function thread(ctx : context, call : call_obj, args : list) {
-var threadIdx;
-var blockIdx;
-var blockDim;
-var gridDim;
-var gridIdx;
-	apply(call, args);
-}
 
-*/
+/// <reference path="utils.ts" />
+
+module Core {
+export class Thread {
+        private id : string;
+
+private threadIdx : Dim3;
+private blockIdx : Dim3;
+private blockDim : Dim3;
+private gridDim : Dim3;
+private gridIdx : Dim3;
+    constructor(id : string) {
+        this.id = id;
+    }
+    }
+}

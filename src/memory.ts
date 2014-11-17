@@ -1,8 +1,6 @@
 /// <reference path="utils.ts" />
 
-import utils = require("./utils");
-
-module System {
+module Core {
     "use strict";
     enum AddressSpace {
         Shared,
@@ -41,7 +39,7 @@ module System {
 
         public malloc(n: number): MemoryObject {
             var buffer = new MemoryObject(
-                utils.guuid(),
+                guuid(),
                 this.addressSpace,
                 new DataView(this.memory, this.memoryOffset, this.memoryOffset + n)
             );
@@ -76,5 +74,4 @@ module System {
     }
 }
 
-export = System;
 
