@@ -11,8 +11,8 @@ export var main = () => {
     var mem = hostMemoryManager.malloc(20);
     var dom = document.getElementById("visualization");
     var rect = Visualization.gridVisualization({
-        blockDim: new (4, 4),
-        gridDim: new (16, 16)
+        blockDim: new Core.Dim3(4, 4),
+        gridDim: new Core.Dim3(16, 16)
     });
     React.render(rect, dom);
 };
