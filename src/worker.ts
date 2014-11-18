@@ -9,15 +9,33 @@ module Parallel {
 		Cancel
 	};
 	var INIT_PAUSE_LENGTH : number = 100; // milliseconds;
-	export class Worker {
+	export class SharedWorker {
 		private id : string;
+		private master_port : MessagePort;
 		private status : WorkerStatus;
+		private chan : MessageChannel;
 		private fun : (... args : any[]) => any;
 		private pause_length : number;
 		private timeout_handle : number = -1;
-		constructor() {
+		private worker : Worker;
+		private fun_string : string;
+		constructor(fun : Function, port : MessagePort) {
 			this.id = Core.guuid();
 			this.status = WorkerStatus.Idle;
+			this.master_port = port;
+			this.chan = new MessageChannel();
+
+
+      // Build a worker from an anonymous function body
+      var blobURL = URL.createObjectURL(new Blob(
+          ['(', funcObj.toString(), ')()'],
+          {type: 'application/javascript'}
+       ));
+
+			this.worker = new Worker(blobURL);
+
+      // Won't be needing this anymore
+      URL.revokeObjectURL(blobURL);
 		}
 		private run0(init : number, end : number, inc : number) : boolean {
 			var iter : number = init;
@@ -40,7 +58,7 @@ module Parallel {
 				iter += inc;
 			}
 			this.status = WorkerStatus.Idle;
-		} 
+		}
 		public run(fun : any, start_idx : number, end_idx : number, inc? : number) : boolean {
 			this.fun = fun;
 			this.pause_length = INIT_PAUSE_LENGTH;
@@ -54,5 +72,9 @@ module Parallel {
 		public cancel() {
 			this.status = WorkerStatus.Cancel;
 		}
+		public pause() {
+		  this.status = WorkerStatus.Pause;
+		}
+		public
 	}
 }
