@@ -28,7 +28,7 @@ module Parallel {
 
       // Build a worker from an anonymous function body
       var blobURL = URL.createObjectURL(new Blob(
-          ['(', funcObj.toString(), ')()'],
+          ['(', fun.toString(), ')()'],
           {type: 'application/javascript'}
        ));
 
@@ -73,8 +73,7 @@ module Parallel {
 			this.status = WorkerStatus.Cancel;
 		}
 		public pause() {
-		  this.status = WorkerStatus.Pause;
+		  this.status = WorkerStatus.Paused;
 		}
-		public
 	}
 }
