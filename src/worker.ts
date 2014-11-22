@@ -1,5 +1,5 @@
-///<reference path="../typings/tsd.d.ts" />
-/// <reference path="utils.ts" />
+
+/// <reference path="ref.ts" />
 
 module Parallel {
 	enum WorkerStatus {

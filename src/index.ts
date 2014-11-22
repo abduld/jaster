@@ -1,10 +1,10 @@
-/// <reference path="utils.ts" />
-/// <reference path="reactutils.ts" />
-/// <reference path="visualization.ts" />
-/// <reference path="memory.ts" />
+
+/// <reference path="ref.ts" />
+
 
 import React = require("react");
-import Visualization = require("visualization"); 
+import Visualization = require("visualization");
+import Core = require("Core");
 
 export var main = () => {
     var hostMemoryManager = new Core.HostMemoryManager();

@@ -11,21 +11,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
 
     <script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.js"></script>
-    <script>
-        require.config({
-            baseUrl: ".",
-            enforceDefine: true,
-            paths: {
-                "react" : "http://cdnjs.cloudflare.com/ajax/libs/react/0.12.0/react",
-                "jquery": "//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min",
-                "underscore": "http://underscorejs.org/underscore-min",
-                "bootstrap": "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min"
-            }
-        });
-        require(["dist/index.js"], function(ctx) {
-            ctx.main()
-        });
-    </script>
+    <script src="dist/config.js"></script>
 </head>
 <body>
     <div class="container">

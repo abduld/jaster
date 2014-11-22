@@ -1,5 +1,5 @@
 
-/// <reference path="worker.ts" />
+/// <reference path="ref.ts" />
 module Parallel {
 	export class WorkerPool {
 	private num_workers : number;

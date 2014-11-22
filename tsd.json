@@ -17,18 +17,6 @@
     "underscore/underscore.d.ts": {
       "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
     },
-    "ref/ref.d.ts": {
-      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
-    },
-    "ref-array/ref-array.d.ts": {
-      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
-    },
-    "ref-struct/ref-struct.d.ts": {
-      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
-    },
-    "node-ffi/node-ffi-buffer.d.ts": {
-      "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
-    },
     "react/react.d.ts": {
       "commit": "d2cf996b272884016a3146dacd19d75155ae36ca"
     },

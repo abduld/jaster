@@ -1,5 +1,5 @@
 
-/// <reference path="utils.ts" />
+/// <reference path="ref.ts" />
 
 module Core {
 export class Thread {

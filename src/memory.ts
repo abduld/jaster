@@ -1,7 +1,7 @@
-/// <reference path="utils.ts" />
+
+/// <reference path="ref.ts" />
 
 module Core {
-    "use strict";
     enum AddressSpace {
         Shared,
         Global,
@@ -74,4 +74,4 @@ module Core {
     }
 }
 
-
+export = Core;

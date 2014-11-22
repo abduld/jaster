@@ -1,6 +1,5 @@
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="utils.ts" />
-/// <reference path="reactutils.ts" />
+
+/// <reference path="ref.ts" />
 import React = require("react");
 import ReactAddons = require("react/addons");
 import ReactUtils = require("reactutils");

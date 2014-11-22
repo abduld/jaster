@@ -1,4 +1,5 @@
 
+/// <reference path="ref.ts" />
 module Core {
 
     export var guuid = () : string => {
@@ -20,4 +21,16 @@ module Core {
             this.z = z;
         }
     }
+
+    export var rand = function (min:number, max:number):number {
+        return min + Math.random() * (max - min);
+    }
+    export function applyMixins(derivedCtor: any, baseCtors: any[]) {
+        baseCtors.forEach(baseCtor => {
+            Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+                derivedCtor.prototype[name] = baseCtor.prototype[name];
+            })
+        });
+    }
 }
+export = Core;
