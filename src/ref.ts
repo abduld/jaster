@@ -8,4 +8,5 @@
 /// <reference path="core/type/integer.ts" />
 /// <reference path="core/type/real.ts" />
 /// <reference path="core/parallel/worker.ts" />
+/// <reference path="core/cuda/cuda.ts" />
 /// <reference path="config.ts" />
