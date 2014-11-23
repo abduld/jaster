@@ -75,7 +75,7 @@ gulp.task('scripts', ['clean'], function() {
   var ts = gulp.src([files.ts, files.typings])
     .pipe(typescript({
       removeComments: false,
-      noImplicitAny: true,
+      noImplicitAny: false,
       noLib: false,
       target: 'ES5',
       module: 'amd',
