@@ -29,14 +29,14 @@ export class MemoryManager {
     private addressSpace : AddressSpace;
 //private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
     private MB: number = 1024;
-    private TOTALMEMORY : number;
+    private TOTAL_MEMORY : number;
     private memory : ArrayBuffer;
     private memoryOffset: number = 0;
 
     constructor(addressSpace : AddressSpace) {
-        this.TOTALMEMORY = 10 * this.MB;
+        this.TOTAL_MEMORY = 10 * this.MB;
         this.addressSpace = addressSpace;
-        this.memory = new ArrayBuffer(this.TOTALMEMORY);
+        this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
     }
 
     public malloc(n: number): MemoryObject {
