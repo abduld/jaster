@@ -2,15 +2,21 @@
 
 import numerics_ = require("./type/numerics");
 import memory_ = require("./mem/memory");
-
+import int8_ = require("./type/int8");
+import uint8_ = require("./type/uint8");
+import int16_ = require("./type/int16");
+import uint16_ = require("./type/uint16");
+import int32_ = require("./type/int32");
+import uint32_ = require("./type/uint32");
+import int64_ = require("./type/int64");
 
 export var VERSION : number = 0.1;
 export var numerics = numerics_;
-export var int8 = numerics_.int8;
-export var uint8 = numerics.uint8;
-export var int16 = numerics.int16;
-export var uint16 = numerics.uint16;
-export var int32 = numerics.int32;
-export var uint32 = numerics.uint32;
-export var int64 = numerics.int64;
+export var int8 = int8_;
+export var uint8 = uint8_;
+export var int16 = int16_;
+export var uint16 = uint16_;
+export var int32 = int32_;
+export var uint32 = uint32_;
+export var int64 = int64_;
 export var memory = memory_;
