@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f5c44122-b680-49ce-9428-db14c9ecb1bd" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/cuda/block.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/cuda/grid.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/cuda/thread.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/cuda/warp.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/core.ts" afterPath="$PROJECT_DIR$/src/core/core.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/type/numerics.ts" afterPath="$PROJECT_DIR$/src/core/type/numerics.ts" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/utils/debug.ts" />
     </list>
     <ignored path="jaster.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -71,10 +66,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="thread.ts" pinned="false" current-in-tab="true">
+      <file leaf-file-name="thread.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/core/cuda/thread.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="514">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="90">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
@@ -101,16 +96,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="reference.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/core/mem/reference.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="90">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="memory.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/core/mem/memory.ts">
           <provider selected="true" editor-type-id="text-editor">
@@ -124,8 +109,18 @@
       <file leaf-file-name="numerics.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/core/type/numerics.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="416" max-vertical-offset="930">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="930">
               <caret line="47" column="27" selection-start-line="47" selection-start-column="27" selection-end-line="47" selection-end-column="27" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="debug.ts" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/utils/debug.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="514">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -1041,14 +1036,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/core/type/numerics.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="416" max-vertical-offset="930">
-          <caret line="47" column="27" selection-start-line="47" selection-start-column="27" selection-end-line="47" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/viz/reactutils.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1530">
@@ -1098,6 +1085,22 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/core/cuda/thread.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="514">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/core/type/numerics.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="930">
+          <caret line="47" column="27" selection-start-line="47" selection-start-column="27" selection-end-line="47" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/utils/debug.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="514">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
