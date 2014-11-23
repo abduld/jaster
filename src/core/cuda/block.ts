@@ -1,8 +1,11 @@
 
 /// <reference path="../../ref.ts" />
-/// <reference path="cuda.ts" />
 
 import cuda = require("./cuda");
+import block = require("./block");
+import thread = require("./thread");
+import grid = require("./grid");
+import warp = require("./warp");
 import utils = require("./../../utils/utils");
 
 class Block {
@@ -10,7 +13,7 @@ class Block {
     public blockDim : utils.Dim3 = new utils.Dim3(0);
     public gridIdx : utils.Dim3 = new utils.Dim3(0);
     public gridDim : utils.Dim3 = new utils.Dim3(0);
-    public threads : cuda.Thread[] = null;
+    public threads : thread[] = null;
 }
 
 export = Block

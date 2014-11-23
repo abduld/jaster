@@ -1,6 +1,22 @@
 /// <reference path="../ref.ts" />
 module Core {
 
+    export enum ErrorCode {
+        Success,
+        MemoryOverflow,
+        IntegerOverflow,
+        Unknown
+    };
+    export class Error {
+        code : ErrorCode;
+        constructor(code ? : ErrorCode) {
+            if (code) {
+                this.code = code;
+            } else {
+                this.code = ErrorCode.Success;
+            }
+        }
+    }
     export var guuid = () : string => {
         var s4 = () : string =>
             Math.floor((1 + Math.random()) * 0x10000)
