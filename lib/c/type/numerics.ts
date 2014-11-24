@@ -17,19 +17,19 @@ if (CNumberKindMap === null) {
 }
 
 export interface CNumber {
-    MAX_VALUE : number;
-    MIN_VALUE : number;
-    KIND : CNumberKind;
-    is_signed() : boolean;
-    is_integer() : boolean;
-    is_exact() : boolean;
-    has_infinity() : boolean;
-    is_modulo() : boolean;
-    min() : CNumber;
-    max() : CNumber;
-    lowest() : CNumber;
-    highest() : CNumber;
-    infinity() : CNumber;
+    static MAX_VALUE : number;
+    static MIN_VALUE : number;
+    static KIND : CNumberKind;
+    static is_signed() : boolean;
+    static is_integer() : boolean;
+    static is_exact() : boolean;
+    static has_infinity() : boolean;
+    static is_modulo() : boolean;
+    static min() : CNumber;
+    static max() : CNumber;
+    static lowest() : CNumber;
+    static highest() : CNumber;
+    static infinity() : CNumber;
     getValue() : ArrayBufferView;
     add(n:CNumber) : CNumber;
     sub(n:CNumber) : CNumber;

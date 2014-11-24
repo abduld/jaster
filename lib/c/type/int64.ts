@@ -10,20 +10,20 @@ import Uint32 = require("./uint32");
 // this needs to be reddone, but this will serve as a template
 class Int64 implements numerics.CNumber, integer.IntegerTraits, integer.SignedIntegerTraits  {
     private value:Int32Array;
-    public MAX_VALUE:number = NaN;
-    public MIN_VALUE:number = NaN;
-    public KIND:numerics.CNumberKind = numerics.CNumberKind.Int32;
-
-    is_integer : () => boolean;
-    is_exact : () => boolean;
-    has_infinity : () => boolean;
-    is_modulo : () => boolean;
-    is_signed : () => boolean;
-    min = () => new Int64(this.MIN_VALUE);
-    max = () => new Int64(this.MAX_VALUE);
-    lowest = () => new Int64(this.MIN_VALUE);
-    highest = () => new Int64(this.MAX_VALUE);
-    infinity = () => new Int64(0);
+    static MAX_VALUE:number = NaN;
+    static MIN_VALUE:number = NaN;
+    static KIND:numerics.CNumberKind = numerics.CNumberKind.Int32;
+ 
+    static is_integer : () => boolean;
+    static is_exact : () => boolean;
+    static has_infinity : () => boolean;
+    static is_modulo : () => boolean;
+    static is_signed : () => boolean;
+    static min = () => new Int64(this.MIN_VALUE);
+    static max = () => new Int64(this.MAX_VALUE);
+    static lowest = () => new Int64(this.MIN_VALUE);
+    static highest = () => new Int64(this.MAX_VALUE);
+    static infinity = () => new Int64(0);
 
     constructor(low ?:number, high?:number) {
         this.value = new Int32Array(2);
@@ -44,13 +44,13 @@ class Int64 implements numerics.CNumber, integer.IntegerTraits, integer.SignedIn
         return this.value[1];
     }
 
-    public getValue():Int8Array {
+    getValue():Int8Array {
         return this.value;
     }
 
     // lifted from
     // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
-    public add(other:numerics.CNumber):numerics.CNumber {
+    add(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND === this.KIND) {
             var o = <Int64> other;
             var a48:number = this.getHigh() >>> 16;
@@ -84,41 +84,41 @@ class Int64 implements numerics.CNumber, integer.IntegerTraits, integer.SignedIn
         return new Int64(low.getValue()[0] & 0x7FFFFFFF, high.getValue()[0]);
     }
 
-    public addTo(other:numerics.CNumber):numerics.CNumber {
+    addTo(other:numerics.CNumber):numerics.CNumber {
         this.value = <Int32Array> this.add(other).getValue();
         return this;
     }
 
-    public sub(other:numerics.CNumber):numerics.CNumber {
+    sub(other:numerics.CNumber):numerics.CNumber {
         return this.add(other.negate());
     }
 
-    public subFrom(other:numerics.CNumber):numerics.CNumber {
+    subFrom(other:numerics.CNumber):numerics.CNumber {
         this.value = <Int32Array> this.sub(other).getValue();
         return this;
     }
 
-    public mul(other:numerics.CNumber):numerics.CNumber {
+    mul(other:numerics.CNumber):numerics.CNumber {
         throw "Unimplemented";
         return new Int64(0, 0);
     }
 
-    public mulBy(other:numerics.CNumber):numerics.CNumber {
+    mulBy(other:numerics.CNumber):numerics.CNumber {
         throw "Unimplemented";
         return this;
     }
 
-    public div(other:numerics.CNumber):numerics.CNumber {
+    div(other:numerics.CNumber):numerics.CNumber {
         throw "Unimplemented";
         return new Int64(0, 0);
     }
 
-    public divBy(other:numerics.CNumber):numerics.CNumber {
+    divBy(other:numerics.CNumber):numerics.CNumber {
         throw "Unimplemented";
         return this;
     }
 
-    public negate():numerics.CNumber {
+    negate():numerics.CNumber {
         return new Int64(-this.getLow(), -this.getHigh());
     }
 }

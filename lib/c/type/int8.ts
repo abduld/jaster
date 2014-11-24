@@ -6,20 +6,20 @@ import utils = require("./../../utils/utils");
 
 class Int8 implements numerics.CNumber, integer.IntegerTraits, integer.SignedIntegerTraits {
     private value_:Int8Array;
-    public MAX_VALUE:number = 128;
-    public MIN_VALUE:number = -128;
-    public KIND:numerics.CNumberKind = numerics.CNumberKind.Int8;
+    static MAX_VALUE:number = 128;
+    static MIN_VALUE:number = -128;
+    static KIND:numerics.CNumberKind = numerics.CNumberKind.Int8;
 
-    is_integer : () => boolean;
-    is_exact : () => boolean;
-    has_infinity : () => boolean;
-    is_modulo : () => boolean;
-    is_signed : () => boolean;
-    min = () => new Int8(this.MIN_VALUE);
-    max = () => new Int8(this.MAX_VALUE);
-    lowest = () => new Int8(this.MIN_VALUE);
-    highest = () => new Int8(this.MAX_VALUE);
-    infinity = () => new Int8(0);
+    static is_integer : () => boolean;
+    static is_exact : () => boolean;
+    static has_infinity : () => boolean;
+    static is_modulo : () => boolean;
+    static is_signed : () => boolean;
+    static min = () => new Int8(this.MIN_VALUE);
+    static max = () => new Int8(this.MAX_VALUE);
+    static lowest = () => new Int8(this.MIN_VALUE);
+    static highest = () => new Int8(this.MAX_VALUE);
+    static infinity = () => new Int8(0);
 
     constructor(n?:number) {
         this.value_ = new Int8Array(1);
@@ -30,11 +30,11 @@ class Int8 implements numerics.CNumber, integer.IntegerTraits, integer.SignedInt
         }
     }
 
-    public getValue():Int8Array {
+    getValue():Int8Array {
         return this.value_;
     }
 
-    public add(other:numerics.CNumber):numerics.CNumber {
+    add(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Int8(this.value_[0] + other.getValue()[0]);
         }
@@ -42,12 +42,12 @@ class Int8 implements numerics.CNumber, integer.IntegerTraits, integer.SignedInt
         return new typ(this.value_[0] + other.getValue()[0]);
     }
 
-    public addTo(other:numerics.CNumber):numerics.CNumber {
+    addTo(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] += other.getValue()[0];
         return this;
     }
 
-    public sub(other:numerics.CNumber):numerics.CNumber {
+    sub(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Int8(this.value_[0] - other.getValue()[0]);
         }
@@ -55,12 +55,12 @@ class Int8 implements numerics.CNumber, integer.IntegerTraits, integer.SignedInt
         return new typ(this.value_[0] - other.getValue()[0]);
     }
 
-    public subFrom(other:numerics.CNumber):numerics.CNumber {
+    subFrom(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] -= other.getValue()[0];
         return this;
     }
 
-    public mul(other:numerics.CNumber):numerics.CNumber {
+    mul(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Int8(this.value_[0] * other.getValue()[0]);
         }
@@ -68,12 +68,12 @@ class Int8 implements numerics.CNumber, integer.IntegerTraits, integer.SignedInt
         return new typ(this.value_[0] * other.getValue()[0]);
     }
 
-    public mulBy(other:numerics.CNumber):numerics.CNumber {
+    mulBy(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] *= other.getValue()[0];
         return this;
     }
 
-    public div(other:numerics.CNumber):numerics.CNumber {
+    div(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Int8(this.value_[0] / other.getValue()[0]);
         }
@@ -81,15 +81,15 @@ class Int8 implements numerics.CNumber, integer.IntegerTraits, integer.SignedInt
         return new typ(this.value_[0] / other.getValue()[0]);
     }
 
-    public divBy(other:numerics.CNumber):numerics.CNumber {
+    divBy(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] /= other.getValue()[0];
         return this;
     }
 
-    public negate():numerics.CNumber {
+    negate():numerics.CNumber {
         return new Int8(-this.value_[0]);
     }
-    public value() : number {
+    value() : number {
         return this.value_[0];
     }
 }

@@ -7,20 +7,20 @@ import utils = require("./../../utils/utils");
 
 class Uint8 implements numerics.CNumber, integer.IntegerTraits, integer.UnsignedIntegerTraits {
     private value_:Uint8Array;
-    public MAX_VALUE:number = 255;
-    public MIN_VALUE:number = 0;
-    public KIND:numerics.CNumberKind = numerics.CNumberKind.Uint8;
+    static MAX_VALUE:number = 255;
+    static MIN_VALUE:number = 0;
+    static KIND:numerics.CNumberKind = numerics.CNumberKind.Uint8;
 
-    is_integer : () => boolean;
-    is_exact : () => boolean;
-    has_infinity : () => boolean;
-    is_modulo : () => boolean;
-    is_signed : () => boolean;
-    min = () => new Uint8(this.MIN_VALUE);
-    max = () => new Uint8(this.MAX_VALUE);
-    lowest = () => new Uint8(this.MIN_VALUE);
-    highest = () => new Uint8(this.MAX_VALUE);
-    infinity = () => new Uint8(0);
+    static is_integer : () => boolean;
+    static is_exact : () => boolean;
+    static has_infinity : () => boolean;
+    static is_modulo : () => boolean;
+    static is_signed : () => boolean;
+    static min = () => new Uint8(this.MIN_VALUE);
+    static max = () => new Uint8(this.MAX_VALUE);
+    static lowest = () => new Uint8(this.MIN_VALUE);
+    static highest = () => new Uint8(this.MAX_VALUE);
+    static infinity = () => new Uint8(0);
 
     constructor(n?:number) {
         this.value_ = new Uint8Array(1);
@@ -31,11 +31,11 @@ class Uint8 implements numerics.CNumber, integer.IntegerTraits, integer.Unsigned
         }
     }
 
-    public getValue():Int8Array {
+    getValue():Int8Array {
         return this.value_;
     }
 
-    public add(other:numerics.CNumber):numerics.CNumber {
+    add(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Uint8(this.value_[0] + other.getValue()[0]);
         }
@@ -43,12 +43,12 @@ class Uint8 implements numerics.CNumber, integer.IntegerTraits, integer.Unsigned
         return new typ(this.value_[0] + other.getValue()[0]);
     }
 
-    public addTo(other:numerics.CNumber):numerics.CNumber {
+    addTo(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] += other.getValue()[0];
         return this;
     }
 
-    public sub(other:numerics.CNumber):numerics.CNumber {
+    sub(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Uint8(this.value_[0] - other.getValue()[0]);
         }
@@ -56,12 +56,12 @@ class Uint8 implements numerics.CNumber, integer.IntegerTraits, integer.Unsigned
         return new typ(this.value_[0] - other.getValue()[0]);
     }
 
-    public subFrom(other:numerics.CNumber):numerics.CNumber {
+    subFrom(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] -= other.getValue()[0];
         return this;
     }
 
-    public mul(other:numerics.CNumber):numerics.CNumber {
+    mul(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Uint8(this.value_[0] * other.getValue()[0]);
         }
@@ -69,12 +69,12 @@ class Uint8 implements numerics.CNumber, integer.IntegerTraits, integer.Unsigned
         return new typ(this.value_[0] * other.getValue()[0]);
     }
 
-    public mulBy(other:numerics.CNumber):numerics.CNumber {
+    mulBy(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] *= other.getValue()[0];
         return this;
     }
 
-    public div(other:numerics.CNumber):numerics.CNumber {
+    div(other:numerics.CNumber):numerics.CNumber {
         if (other.KIND <= this.KIND) {
             return new Uint8(this.value_[0] / other.getValue()[0]);
         }
@@ -82,15 +82,15 @@ class Uint8 implements numerics.CNumber, integer.IntegerTraits, integer.Unsigned
         return new typ(this.value_[0] / other.getValue()[0]);
     }
 
-    public divBy(other:numerics.CNumber):numerics.CNumber {
+    divBy(other:numerics.CNumber):numerics.CNumber {
         this.value_[0] /= other.getValue()[0];
         return this;
     }
 
-    public negate():numerics.CNumber {
+    negate():numerics.CNumber {
         return new Uint8(-this.value_[0]);
     }
-    public value() : number {
+    value() : number {
         return this.value_[0];
     }
 }
