@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f5c44122-b680-49ce-9428-db14c9ecb1bd" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/cuda/launch.ts" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/core/cuda/profile.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Generated_files.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Generated_files.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/cuda/block.ts" afterPath="$PROJECT_DIR$/src/core/cuda/block.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/cuda/cuda.ts" afterPath="$PROJECT_DIR$/src/core/cuda/cuda.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/cuda/grid.ts" afterPath="$PROJECT_DIR$/src/core/cuda/grid.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/viz/reactutils.ts" afterPath="$PROJECT_DIR$/src/viz/reactutils.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/cuda/thread.ts" afterPath="$PROJECT_DIR$/src/core/cuda/thread.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/utils/utils.ts" afterPath="$PROJECT_DIR$/src/utils/utils.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/core/cuda/warp.ts" afterPath="$PROJECT_DIR$/src/core/cuda/warp.ts" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="f5c44122-b680-49ce-9428-db14c9ecb1bd" name="Default" comment="" />
     <ignored path="jaster.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -96,21 +84,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="launch.ts" pinned="false" current-in-tab="false">
+      <file leaf-file-name="launch.ts" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/core/cuda/launch.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="102">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1297">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="exception.ts" pinned="false" current-in-tab="true">
+      <file leaf-file-name="exception.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/utils/exception.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.01310717" vertical-offset="0" max-vertical-offset="1297">
-              <caret line="1" column="21" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="24" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="544">
+              <caret line="26" column="14" selection-start-line="26" selection-start-column="14" selection-end-line="26" selection-end-column="14" />
               <folding />
             </state>
           </provider>
@@ -496,6 +484,28 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="type" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jaster" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jaster" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="parallel" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1264,18 +1274,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/core/cuda/launch.ts">
+    <entry file="file://$PROJECT_DIR$/src/utils/exception.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1297">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="544">
+          <caret line="26" column="14" selection-start-line="26" selection-start-column="14" selection-end-line="26" selection-end-column="14" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/utils/exception.ts">
+    <entry file="file://$PROJECT_DIR$/src/core/cuda/launch.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.01310717" vertical-offset="0" max-vertical-offset="1297">
-          <caret line="1" column="21" selection-start-line="1" selection-start-column="21" selection-end-line="1" selection-end-column="24" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1297">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
