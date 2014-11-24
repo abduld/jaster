@@ -17,14 +17,6 @@ module Core {
             }
         }
     }
-    export var guuid = () : string => {
-        var s4 = () : string =>
-            Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-        return s4() + s4() + "-" + s4() + "-" + s4() + "-" +
-            s4() + "-" + s4() + s4() + s4();
-    };
 
     export class Dim3 {
         public x : number;
@@ -34,6 +26,20 @@ module Core {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+        flattenedLength() : number {
+            return this.x * this.y * this.z;
+        }
+        dimension() : number {
+            if (this.z == 1) {
+                if (this.y == 1) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            } else {
+                return 3;
+            }
         }
     }
 

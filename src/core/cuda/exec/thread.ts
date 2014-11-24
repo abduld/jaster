@@ -31,13 +31,20 @@ class Thread {
         this.args = args;
         this.fun = fun;
     }
-    public run() {
+    run() {
+        var res : cuda.Status;
         this.status = cuda.Status.Running;
-        var res = this.fun.apply(this, this.args);
+        try {
+            res = this.fun.apply(this, this.args);
+        } catch (err) {
+            res = err.code;
+        }
         this.status = cuda.Status.Complete;
         return res;
     }
-
+    terminate() {
+        this.status = cuda.Status.Stopped;
+    }
 }
 
 export = Thread
