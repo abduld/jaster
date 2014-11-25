@@ -1,16 +1,16 @@
+﻿
+/// <reference path="logger.ts" />
 
-/// <reference path="../ref.ts" />
+import Logger = require("./logger");
 
-import log = require("./log");
-
-var logger = new log();
+var logger = new Logger();
 
 function assert(res, msg) {
-  if (!res) {
-    error('FAIL: ' + msg);
-  } else {
-    log('Pass: ' + msg);
-  }
+    if (!res) {
+        logger.error('FAIL: ' + msg);
+    } else {
+        logger.debug('Pass: ' + msg);
+    }
 }
 
 export = assert;

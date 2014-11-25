@@ -1,57 +1,23 @@
-/// <reference path="../ref.ts" />
-module Core {
+﻿
+/// <reference path="./logger.ts" />
+/// <reference path="./assert.ts" />
+/// <reference path="./rand.ts" />
+/// <reference path="./guuid.ts" />
+/// <reference path="./exception.ts" />
+/// <reference path="./error.ts" />
+/// <reference path="./timer.ts" />
+/// <reference path="./testing.ts" />
 
-    export enum ErrorCode {
-        Success,
-        MemoryOverflow,
-        IntegerOverflow,
-        Unknown
-    };
-    export class Error {
-        code : ErrorCode;
-        constructor(code ? : ErrorCode) {
-            if (code) {
-                this.code = code;
-            } else {
-                this.code = ErrorCode.Success;
-            }
-        }
-    }
+import Logger_ = require("./logger");
+import Assert_ = require("./assert");
+import Guuid_ = require("./guuid");
 
-    export class Dim3 {
-        public x : number;
-        public y : number;
-        public z : number;
-        constructor(x : number, y = 1, z = 1) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-        flattenedLength() : number {
-            return this.x * this.y * this.z;
-        }
-        dimension() : number {
-            if (this.z == 1) {
-                if (this.y == 1) {
-                    return 1;
-                } else {
-                    return 2;
-                }
-            } else {
-                return 3;
-            }
-        }
-    }
+class Utils {
+    Logger = Logger_;
+    Assert = Assert_;
+    Guuid = Guuid_;
+};
 
-    export var rand = function (min:number, max:number):number {
-        return min + Math.random() * (max - min);
-    }
-    export function applyMixins(derivedCtor: any, baseCtors: any[]) {
-        baseCtors.forEach(baseCtor => {
-            Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-                derivedCtor.prototype[name] = baseCtor.prototype[name];
-            })
-        });
-    }
-}
-export = Core;
+var utils = new Utils();
+export = utils;
+

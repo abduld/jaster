@@ -1,0 +1,13 @@
+/// <reference path="../typings/tsd.d.ts" />
+/// <reference path="core/core.ts" />
+/// <reference path="utils/utils.ts" />
+/// <reference path="viz/reactutils.ts" />
+/// <reference path="viz/visualization.ts" />
+/// <reference path="core/mem/memory.ts" />
+/// <reference path="core/type/numerics.ts" />
+/// <reference path="core/type/integer.ts" />
+/// <reference path="core/type/real.ts" />
+/// <reference path="core/parallel/worker.ts" />
+/// <reference path="core/cuda/cuda.ts" />
+/// <reference path="config.ts" />
+//# sourceMappingURL=ref.js.map

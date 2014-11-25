@@ -2,6 +2,7 @@
 obj
 *.suo
 *.user
+Scripts
 
 # Logs
 logs
