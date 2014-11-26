@@ -40,5 +40,6 @@ module lib {
                 return unparse(rnds);
             }
         }
+        export import guuid = detail.guuid;
     }
 }

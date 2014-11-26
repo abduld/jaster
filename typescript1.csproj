@@ -36,6 +36,11 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="lib\cuda\cuda.ts" />
     <TypeScriptCompile Include="lib\c\c.ts" />
+    <TypeScriptCompile Include="lib\c\lib\memcmp.ts" />
+    <TypeScriptCompile Include="lib\c\lib\memcpy.ts" />
+    <TypeScriptCompile Include="lib\c\lib\stdio.ts" />
+    <TypeScriptCompile Include="lib\c\lib\stdlib.ts" />
+    <TypeScriptCompile Include="lib\c\memory\memory.ts" />
     <TypeScriptCompile Include="lib\c\type\bool.ts" />
     <TypeScriptCompile Include="lib\c\type\float32.ts" />
     <TypeScriptCompile Include="lib\c\type\float64.ts" />
@@ -57,6 +62,7 @@
     <TypeScriptCompile Include="lib\utils\exception.ts" />
     <TypeScriptCompile Include="lib\utils\guuid.ts" />
     <TypeScriptCompile Include="lib\utils\logger.ts" />
+    <TypeScriptCompile Include="lib\utils\mixin.ts" />
     <TypeScriptCompile Include="lib\utils\rand.ts" />
     <TypeScriptCompile Include="lib\utils\testing.ts" />
     <TypeScriptCompile Include="lib\utils\timer.ts" />
@@ -84,8 +90,6 @@
   <ItemGroup>
     <Folder Include="lib\cuda\exec\" />
     <Folder Include="lib\cuda\memory\" />
-    <Folder Include="lib\c\lib\" />
-    <Folder Include="lib\c\memory\" />
     <Folder Include="lib\memory\" />
     <Folder Include="lib\viz\" />
     <Folder Include="lib\wb\" />

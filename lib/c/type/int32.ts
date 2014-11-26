@@ -99,5 +99,5 @@ module lib.c.type {
         CLiteralKindMap.set(CLiteralKind.Int32, Int32);
         utils.applyMixins(Int32, [IntegerTraits, SignedIntegerTraits]);
     }
-    import Int32 = detail.Int32;
+    export import Int32 = detail.Int32;
 }

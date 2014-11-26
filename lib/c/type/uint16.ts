@@ -98,5 +98,5 @@ module lib.c.type {
         CLiteralKindMap.set(CLiteralKind.Uint16, Uint16);
         utils.applyMixins(Uint16, [IntegerTraits, UnsignedIntegerTraits]);
     }
-    import Uint16 = detail.Uint16;
+    export import Uint16 = detail.Uint16;
 }

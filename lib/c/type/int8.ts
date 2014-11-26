@@ -99,5 +99,5 @@ module lib.c.type {
         CLiteralKindMap.set(CLiteralKind.Int8, Int8);
         utils.applyMixins(Int8, [IntegerTraits, SignedIntegerTraits]);
     }
-    import Int8 = detail.Int8;
+    export import Int8 = detail.Int8;
 }

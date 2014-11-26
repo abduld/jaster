@@ -128,5 +128,5 @@ module lib.c.type {
         utils.applyMixins(Int64, [IntegerTraits, SignedIntegerTraits]);
     }
 
-    import Int64 = detail.Int64;
+    export import Int64 = detail.Int64;
 }

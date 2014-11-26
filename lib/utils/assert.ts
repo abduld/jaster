@@ -16,5 +16,6 @@ module lib {
                 }
             }
         }
+        export import assert = detail.assert;
     }
 }

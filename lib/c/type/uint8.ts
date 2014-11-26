@@ -4,8 +4,8 @@
 
 
 module lib.c.type {
-    import utils = lib.utils;
     export module detail {
+        import utils = lib.utils;
         export class Uint8 implements CLiteral, IntegerTraits, UnsignedIntegerTraits {
             private value_: Uint8Array;
             MAX_VALUE: number = 255;
@@ -98,5 +98,5 @@ module lib.c.type {
         CLiteralKindMap.set(CLiteralKind.Uint8, Uint8);
         utils.applyMixins(Uint8, [IntegerTraits, UnsignedIntegerTraits]);
     }
-    import Uint8 = detail.Uint8;
+    export import Uint8 = detail.Uint8;
 }

@@ -20,7 +20,7 @@ module lib {
                         this._level = LogType.Debug;
                     }
                 }
-                private go(msg: string, type: LogType) {
+                private _go(msg: string, type: LogType) {
                     var color: { [id: string]: string; } = {
                         "LogType.Debug": '\033[39m',
                         "LogType.Trace": '\033[39m',
@@ -32,12 +32,14 @@ module lib {
                         console[type](color[type.toString()] + msg + color["LogType.Debug"]);
                     }
                 }
-                debug(msg) { this.go(msg, LogType.Debug); }
-                trace(msg: string) { this.go(msg, LogType.Trace); }
-                warn(msg: string) { this.go(msg, LogType.Warn); }
-                error(msg: string) { this.go(msg, LogType.Error); }
-                fatal(msg: string) { this.go(msg, LogType.Fatal); }
+                debug(msg) { this._go(msg, LogType.Debug); }
+                trace(msg: string) { this._go(msg, LogType.Trace); }
+                warn(msg: string) { this._go(msg, LogType.Warn); }
+                error(msg: string) { this._go(msg, LogType.Error); }
+                fatal(msg: string) { this._go(msg, LogType.Fatal); }
             }
         }
+
+        export var logger = new detail.Logger();
     }
 }

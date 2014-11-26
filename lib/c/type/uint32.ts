@@ -98,5 +98,5 @@ module lib.c.type {
         CLiteralKindMap.set(CLiteralKind.Uint32, Uint32);
         utils.applyMixins(Uint32, [IntegerTraits, UnsignedIntegerTraits]);
     }
-    import Uint32 = detail.Uint32;
+    export import Uint32 = detail.Uint32;
 }
