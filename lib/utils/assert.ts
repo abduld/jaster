@@ -1,16 +1,20 @@
 ﻿
 /// <reference path="logger.ts" />
 
-import Logger = require("./logger");
+module lib {
+    export module utils {
+        export module detail {
+            import Logger = lib.utils.detail.Logger;
 
-var logger = new Logger();
+            var logger = new Logger();
 
-function assert(res, msg) {
-    if (!res) {
-        logger.error('FAIL: ' + msg);
-    } else {
-        logger.debug('Pass: ' + msg);
+            export function assert(res, msg) {
+                if (!res) {
+                    logger.error('FAIL: ' + msg);
+                } else {
+                    logger.debug('Pass: ' + msg);
+                }
+            }
+        }
     }
 }
-
-export = assert;

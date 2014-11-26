@@ -1,4 +1,4 @@
-
+﻿
 /// <reference path='../../utils/utils.ts' />
 /// <reference path='detail.ts' />
 
@@ -6,25 +6,25 @@
 module lib.c.type {
     import utils = lib.utils;
     export module detail {
-        export class Int8 implements CLiteral, IntegerTraits, SignedIntegerTraits {
-            private value_: Int8Array;
-            MAX_VALUE: number = 128;
-            MIN_VALUE: number = -128;
-            KIND: CLiteralKind = CLiteralKind.Int8;
+        export class Uint8 implements CLiteral, IntegerTraits, UnsignedIntegerTraits {
+            private value_: Uint8Array;
+            MAX_VALUE: number = 255;
+            MIN_VALUE: number = 0;
+            KIND: CLiteralKind = CLiteralKind.Uint8;
 
             is_integer: () => boolean;
             is_exact: () => boolean;
             has_infinity: () => boolean;
             is_modulo: () => boolean;
             is_signed: () => boolean;
-            min = () => new Int8(this.MIN_VALUE);
-            max = () => new Int8(this.MAX_VALUE);
-            lowest = () => new Int8(this.MIN_VALUE);
-            highest = () => new Int8(this.MAX_VALUE);
-            infinity = () => new Int8(0);
+            min = () => new Uint8(this.MIN_VALUE);
+            max = () => new Uint8(this.MAX_VALUE);
+            lowest = () => new Uint8(this.MIN_VALUE);
+            highest = () => new Uint8(this.MAX_VALUE);
+            infinity = () => new Uint8(0);
 
             constructor(n?: number) {
-                this.value_ = new Int8Array(1);
+                this.value_ = new Uint8Array(1);
                 if (n) {
                     this.value_[0] = n;
                 } else {
@@ -38,7 +38,7 @@ module lib.c.type {
 
             add(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
-                    return utils.castTo<CLiteral>(new Int8(this.value_[0] + other.getValue()[0]));
+                    return utils.castTo<CLiteral>(new Uint8(this.value_[0] + other.getValue()[0]));
                 }
                 var typ = CLiteralKindMap.get(other.KIND);
                 return new typ(this.value_[0] + other.getValue()[0]);
@@ -46,12 +46,12 @@ module lib.c.type {
 
             addTo(other: CLiteral): CLiteral {
                 this.value_[0] += other.getValue()[0];
-                return utils.castTo<CLiteral>(this);
+                return this;
             }
 
             sub(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
-                    return utils.castTo<CLiteral>(new Int8(this.value_[0] - other.getValue()[0]));
+                    return utils.castTo<CLiteral>(new Uint8(this.value_[0] - other.getValue()[0]));
                 }
                 var typ = CLiteralKindMap.get(other.KIND);
                 return new typ(this.value_[0] - other.getValue()[0]);
@@ -59,12 +59,12 @@ module lib.c.type {
 
             subFrom(other: CLiteral): CLiteral {
                 this.value_[0] -= other.getValue()[0];
-                return utils.castTo<CLiteral>(this);
+                return this;
             }
 
             mul(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
-                    return utils.castTo<CLiteral>(new Int8(this.value_[0] * other.getValue()[0]));
+                    return utils.castTo<CLiteral>(new Uint8(this.value_[0] * other.getValue()[0]));
                 }
                 var typ = CLiteralKindMap.get(other.KIND);
                 return new typ(this.value_[0] * other.getValue()[0]);
@@ -72,12 +72,12 @@ module lib.c.type {
 
             mulBy(other: CLiteral): CLiteral {
                 this.value_[0] *= other.getValue()[0];
-                return utils.castTo<CLiteral>(this);
+                return this;
             }
 
             div(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
-                    return utils.castTo<CLiteral>(new Int8(this.value_[0] / other.getValue()[0]));
+                    return utils.castTo<CLiteral>(new Uint8(this.value_[0] / other.getValue()[0]));
                 }
                 var typ = CLiteralKindMap.get(other.KIND);
                 return new typ(this.value_[0] / other.getValue()[0]);
@@ -85,19 +85,18 @@ module lib.c.type {
 
             divBy(other: CLiteral): CLiteral {
                 this.value_[0] /= other.getValue()[0];
-                return utils.castTo<CLiteral>(this);
+                return this;
             }
 
             negate(): CLiteral {
-                return utils.castTo<CLiteral>(new Int8(-this.value_[0]));
+                return utils.castTo<CLiteral>(new Uint8(-this.value_[0]));
             }
             value(): number {
                 return this.value_[0];
             }
         }
-
-        CLiteralKindMap.set(CLiteralKind.Int8, Int8);
-        utils.applyMixins(Int8, [IntegerTraits, SignedIntegerTraits]);
+        CLiteralKindMap.set(CLiteralKind.Uint8, Uint8);
+        utils.applyMixins(Uint8, [IntegerTraits, UnsignedIntegerTraits]);
     }
-    import Int8 = detail.Int8;
+    import Uint8 = detail.Uint8;
 }

@@ -3,5 +3,4 @@
 
 module lib.c.type {
 
-    import int8 = lib.c.type.detail.Int8;
 }
