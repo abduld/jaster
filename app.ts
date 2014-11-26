@@ -1,34 +1,36 @@
-﻿/// <reference path="./lib/ref.ts" />
+﻿/// <reference path="./lib/utils/utils.ts" />
+/// <reference path="./lib/c/c.ts" />
 
 
-import utils = require("./lib/utils/utils");
+module app {
+    import c = lib.c;
+    export class Greeter {
+        element: HTMLElement;
+        span: HTMLElement;
+        timerToken: number;
 
-class Greeter {
-    element: HTMLElement;
-    span: HTMLElement;
-    timerToken: number;
+        constructor(element: HTMLElement) {
+            this.element = element;
+            this.element.innerHTML += "The time is: ";
+            this.span = document.createElement('span');
+            this.element.appendChild(this.span);
+            this.span.innerText = new Date().toUTCString();
+        }
 
-    constructor(element: HTMLElement) {
-        this.element = element;
-        this.element.innerHTML += "The time is: ";
-        this.span = document.createElement('span');
-        this.element.appendChild(this.span);
-        this.span.innerText = new Date().toUTCString();
+        start() {
+            this.timerToken = setInterval(() => this.span.innerHTML = new Date().toUTCString(), 500);
+        }
+
+        stop() {
+            lib.utils.assert(1 == 1, "test");
+            clearTimeout(this.timerToken);
+        }
+
     }
-
-    start() {
-        this.timerToken = setInterval(() => this.span.innerHTML = new Date().toUTCString(), 500);
-    }
-
-    stop() {
-        utils.Assert(1 == 1, "test");
-        clearTimeout(this.timerToken);
-    }
-
 }
 
 window.onload = () => {
     var el = document.getElementById('content');
-    var greeter = new Greeter(el);
+    var greeter = new app.Greeter(el);
     greeter.start();
 };

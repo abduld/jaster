@@ -36,8 +36,12 @@
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="lib\cuda\cuda.ts" />
     <TypeScriptCompile Include="lib\c\c.ts" />
+    <TypeScriptCompile Include="lib\c\type\int8.ts" />
+    <TypeScriptCompile Include="lib\c\type\detail.ts" />
+    <TypeScriptCompile Include="lib\c\type\type.ts" />
     <TypeScriptCompile Include="lib\ref.ts" />
     <TypeScriptCompile Include="lib\utils\assert.ts" />
+    <TypeScriptCompile Include="lib\utils\castTo.ts" />
     <TypeScriptCompile Include="lib\utils\error.ts" />
     <TypeScriptCompile Include="lib\utils\exception.ts" />
     <TypeScriptCompile Include="lib\utils\guuid.ts" />
@@ -71,7 +75,6 @@
     <Folder Include="lib\cuda\memory\" />
     <Folder Include="lib\c\lib\" />
     <Folder Include="lib\c\memory\" />
-    <Folder Include="lib\c\type\" />
     <Folder Include="lib\memory\" />
     <Folder Include="lib\viz\" />
     <Folder Include="lib\wb\" />
@@ -109,6 +112,7 @@
     <TypeScriptModuleKind>amd</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <TypeScriptOutFile>main.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
