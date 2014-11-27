@@ -38,7 +38,7 @@ module lib {
         var getGlobal = new Function('return this;');
         /*jshint evil: false */
 
-        var globals = getGlobal();
+        export var globals = getGlobal();
         export var global_isFinite = globals.isFinite;
         var _slice = Array.prototype.slice;
         var _indexOf = String.prototype.indexOf;
