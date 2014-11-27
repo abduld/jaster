@@ -1193,12 +1193,20 @@ var lib;
         var exec;
         (function (exec) {
             var Barrier = (function () {
-                function Barrier(dim) {
-                    this.mask = new Array(dim.flattenedLength());
+                function Barrier(lineNumber, thread) {
+                    this.lineNumber = lineNumber;
+                    this.thread = thread;
                 }
                 return Barrier;
             })();
             exec.Barrier = Barrier;
+            var BarrierGroup = (function () {
+                function BarrierGroup(dim) {
+                    this.mask = new Array(dim.flattenedLength());
+                }
+                return BarrierGroup;
+            })();
+            exec.BarrierGroup = BarrierGroup;
         })(exec = cuda.exec || (cuda.exec = {}));
     })(cuda = lib.cuda || (lib.cuda = {}));
 })(lib || (lib = {}));
@@ -1242,8 +1250,8 @@ var lib;
         (function (exec) {
             var Grid = (function () {
                 function Grid() {
-                    this.gridIdx = new lib.utils.Dim3(0);
-                    this.gridDim = new lib.utils.Dim3(0);
+                    this.gridIdx = new lib.cuda.Dim3(0);
+                    this.gridDim = new lib.cuda.Dim3(0);
                     this.blocks = null;
                 }
                 return Grid;
