@@ -1,0 +1,24 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "typings",
+  "bundle": "typings/tsd.d.ts",
+  "installed": {
+    "esprima/esprima.d.ts": {
+      "commit": "7c94fa739cdb7ef9c5fb794116e787cb13955d35"
+    },
+    "q/Q.d.ts": {
+      "commit": "7c94fa739cdb7ef9c5fb794116e787cb13955d35"
+    },
+    "lodash/lodash.d.ts": {
+      "commit": "7c94fa739cdb7ef9c5fb794116e787cb13955d35"
+    },
+    "parallel/parallel.d.ts": {
+      "commit": "7c94fa739cdb7ef9c5fb794116e787cb13955d35"
+    },
+    "assert/assert.d.ts": {
+      "commit": "7c94fa739cdb7ef9c5fb794116e787cb13955d35"
+    }
+  }
+}
