@@ -746,6 +746,119 @@ var lib;
 /// <reference path="int64.ts" />
 /// <reference path="uint64.ts" />
 /// <reference path="./type/type.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        (function (Status) {
+            Status[Status["Running"] = 0] = "Running";
+            Status[Status["Idle"] = 1] = "Idle";
+            Status[Status["Complete"] = 2] = "Complete";
+            Status[Status["Stopped"] = 3] = "Stopped";
+            Status[Status["Waiting"] = 4] = "Waiting";
+        })(cuda.Status || (cuda.Status = {}));
+        var Status = cuda.Status;
+        var Dim3 = (function () {
+            function Dim3(x, y, z) {
+                if (y === void 0) { y = 1; }
+                if (z === void 0) { z = 1; }
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+            Dim3.prototype.flattenedLength = function () {
+                return this.x * this.y * this.z;
+            };
+            Dim3.prototype.dimension = function () {
+                if (this.z == 1) {
+                    if (this.y == 1) {
+                        return 1;
+                    }
+                    else {
+                        return 2;
+                    }
+                }
+                else {
+                    return 3;
+                }
+            };
+            return Dim3;
+        })();
+        cuda.Dim3 = Dim3;
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+var lib;
+(function (lib) {
+    var parallel;
+    (function (parallel) {
+        (function (WorkerStatus) {
+            WorkerStatus[WorkerStatus["Paused"] = 0] = "Paused";
+            WorkerStatus[WorkerStatus["Idle"] = 1] = "Idle";
+            WorkerStatus[WorkerStatus["Busy"] = 2] = "Busy";
+            WorkerStatus[WorkerStatus["Cancel"] = 3] = "Cancel";
+        })(parallel.WorkerStatus || (parallel.WorkerStatus = {}));
+        var WorkerStatus = parallel.WorkerStatus;
+        ;
+        var INIT_PAUSE_LENGTH = 100; // milliseconds;
+        var ParallelWorker = (function () {
+            function ParallelWorker(fun, port) {
+                this.timeout_handle = -1;
+                this.id = lib.utils.guuid();
+                this.status = 1 /* Idle */;
+                this.master_port = port;
+                this.chan = new MessageChannel();
+                // Build a worker from an anonymous function body
+                var blobURL = URL.createObjectURL(new Blob(['(', fun.toString(), ')()'], { type: 'application/javascript' }));
+                this.worker = new Worker(blobURL);
+                // Won't be needing this anymore
+                URL.revokeObjectURL(blobURL);
+            }
+            ParallelWorker.prototype.run0 = function (init, end, inc) {
+                var iter = init;
+                if (this.status === 0 /* Paused */) {
+                    this.pause_length *= 2;
+                    setTimeout(this.run0, this.pause_length, [init, end, inc]);
+                    return false;
+                }
+                if (this.timeout_handle !== -1) {
+                    clearTimeout(this.timeout_handle);
+                }
+                while (iter < end) {
+                    this.fun(iter);
+                    if (this.status === 3 /* Cancel */) {
+                        break;
+                    }
+                    else if (this.status === 0 /* Paused */) {
+                        setTimeout(this.run0, this.pause_length, [iter + inc, end, inc]);
+                        return false;
+                    }
+                    iter += inc;
+                }
+                this.status = 1 /* Idle */;
+            };
+            ParallelWorker.prototype.run = function (fun, start_idx, end_idx, inc) {
+                this.fun = fun;
+                this.pause_length = INIT_PAUSE_LENGTH;
+                this.status = 2 /* Busy */;
+                if (inc) {
+                    return this.run0(start_idx, end_idx, inc);
+                }
+                else {
+                    return this.run0(start_idx, end_idx, 1);
+                }
+            };
+            ParallelWorker.prototype.cancel = function () {
+                this.status = 3 /* Cancel */;
+            };
+            ParallelWorker.prototype.pause = function () {
+                this.status = 0 /* Paused */;
+            };
+            return ParallelWorker;
+        })();
+        parallel.ParallelWorker = ParallelWorker;
+    })(parallel = lib.parallel || (lib.parallel = {}));
+})(lib || (lib = {}));
 /// <reference path="../ref.ts" />
 /// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
 var lib;
@@ -784,6 +897,35 @@ var lib;
             detail.guuid = guuid;
         })(detail = utils.detail || (utils.detail = {}));
         utils.guuid = detail.guuid;
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var detail;
+        (function (detail) {
+            (function (ErrorCode) {
+                ErrorCode[ErrorCode["Success"] = 0] = "Success";
+                ErrorCode[ErrorCode["MemoryOverflow"] = 1] = "MemoryOverflow";
+                ErrorCode[ErrorCode["IntegerOverflow"] = 2] = "IntegerOverflow";
+                ErrorCode[ErrorCode["Unknown"] = 3] = "Unknown";
+            })(detail.ErrorCode || (detail.ErrorCode = {}));
+            var ErrorCode = detail.ErrorCode;
+        })(detail = utils.detail || (utils.detail = {}));
+        ;
+        var Error = (function () {
+            function Error(code) {
+                if (code) {
+                    this.code = code;
+                }
+                else {
+                    this.code = 0 /* Success */;
+                }
+            }
+            return Error;
+        })();
+        utils.Error = Error;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
 var lib;
@@ -1043,16 +1185,253 @@ var lib;
         })(memory = c.memory || (c.memory = {}));
     })(c = lib.c || (lib.c = {}));
 })(lib || (lib = {}));
+/// <reference path="../../ref.ts" />
 var lib;
 (function (lib) {
     var cuda;
     (function (cuda) {
-        (function (Status) {
-            Status[Status["Running"] = 0] = "Running";
-            Status[Status["Idle"] = 1] = "Idle";
-            Status[Status["Complete"] = 2] = "Complete";
-            Status[Status["Stopped"] = 3] = "Stopped";
-        })(cuda.Status || (cuda.Status = {}));
-        var Status = cuda.Status;
+        var exec;
+        (function (exec) {
+            var Barrier = (function () {
+                function Barrier(dim) {
+                    this.mask = new Array(dim.flattenedLength());
+                }
+                return Barrier;
+            })();
+            exec.Barrier = Barrier;
+        })(exec = cuda.exec || (cuda.exec = {}));
     })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../../ref.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        var exec;
+        (function (exec) {
+            var Block = (function () {
+                function Block(grid, blockIdx, fun, args) {
+                    this.blockIdx = new lib.cuda.Dim3(0);
+                    this.blockDim = new lib.cuda.Dim3(0);
+                    this.gridIdx = new lib.cuda.Dim3(0);
+                    this.gridDim = new lib.cuda.Dim3(0);
+                    this.threads = null;
+                    this.barriers = null;
+                    this.fun = undefined;
+                    this.args = [];
+                    this.status = 1 /* Idle */;
+                    this.grid = grid;
+                    this.blockIdx = blockIdx;
+                    this.gridIdx = grid.gridIdx;
+                    this.gridDim = grid.gridDim;
+                    this.args = args;
+                    this.fun = fun;
+                }
+                return Block;
+            })();
+            exec.Block = Block;
+        })(exec = cuda.exec || (cuda.exec = {}));
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../../ref.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        var exec;
+        (function (exec) {
+            var Grid = (function () {
+                function Grid() {
+                    this.gridIdx = new lib.utils.Dim3(0);
+                    this.gridDim = new lib.utils.Dim3(0);
+                    this.blocks = null;
+                }
+                return Grid;
+            })();
+            exec.Grid = Grid;
+        })(exec = cuda.exec || (cuda.exec = {}));
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../../ref.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        var exec;
+        (function (exec) {
+            var KB = 1024;
+            var M = KB * KB;
+            var FermiArchitecture = (function () {
+                function FermiArchitecture() {
+                    this.maxGridDimensions = 3;
+                    this.warpSize = 32;
+                    this.maxXGridDimension = Math.pow(2.0, 31.0) - 1;
+                    this.maxYGridDimension = Math.pow(2.0, 31.0) - 1;
+                    this.maxZGridDimension = 65535;
+                    this.maxBlockDimensions = 3;
+                    this.maxXBlockDimension = 1024;
+                    this.maxYBlockDimension = 1024;
+                    this.maxZBlockDimension = 64;
+                    this.maxThreadsPerBlock = 1024;
+                    this.numResigersPerThread = 64 * KB;
+                    this.maxResidentBlocksPerSM = 16;
+                    this.maxResidentWarpsPerSM = 64;
+                    this.maxSharedMemoryPerSM = 48 * KB;
+                    this.numSharedMemoryBanks = 32;
+                    this.localMemorySize = 512 * KB;
+                    this.constantMemorySize = 64 * KB;
+                    this.maxNumInstructions = 512 * M;
+                    this.numWarpSchedulers = 2;
+                }
+                return FermiArchitecture;
+            })();
+            exec.FermiArchitecture = FermiArchitecture;
+            exec.ComputeCapabilityMap = undefined;
+            if (exec.ComputeCapabilityMap !== undefined) {
+                exec.ComputeCapabilityMap = new Map();
+                exec.ComputeCapabilityMap[2.0] = new FermiArchitecture();
+            }
+        })(exec = cuda.exec || (cuda.exec = {}));
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../../ref.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        var exec;
+        (function (exec) {
+            var Thread = (function () {
+                function Thread(block, threadIdx, fun, args) {
+                    this.error = new lib.utils.Error();
+                    this.threadIdx = new lib.cuda.Dim3(0);
+                    this.blockIdx = new lib.cuda.Dim3(0);
+                    this.blockDim = new lib.cuda.Dim3(0);
+                    this.gridIdx = new lib.cuda.Dim3(0);
+                    this.gridDim = new lib.cuda.Dim3(0);
+                    this.fun = undefined;
+                    this.args = [];
+                    this.status = 1 /* Idle */;
+                    this.block = block;
+                    this.blockIdx = block.blockIdx;
+                    this.gridIdx = block.gridIdx;
+                    this.gridDim = block.gridDim;
+                    this.threadIdx = threadIdx;
+                    this.args = args;
+                    this.fun = fun;
+                }
+                Thread.prototype.run = function () {
+                    var res;
+                    this.status = 0 /* Running */;
+                    try {
+                        res = this.fun.apply(this, this.args);
+                    }
+                    catch (err) {
+                        res = err.code;
+                    }
+                    this.status = 2 /* Complete */;
+                    return res;
+                };
+                Thread.prototype.terminate = function () {
+                    this.status = 3 /* Stopped */;
+                };
+                return Thread;
+            })();
+            exec.Thread = Thread;
+        })(exec = cuda.exec || (cuda.exec = {}));
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../../ref.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        var exec;
+        (function (exec) {
+            var Warp = (function () {
+                function Warp() {
+                    this.id = lib.utils.guuid();
+                    this.thread = null;
+                }
+                return Warp;
+            })();
+            exec.Warp = Warp;
+        })(exec = cuda.exec || (cuda.exec = {}));
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+var System;
+(function (System) {
+    "use strict";
+})(System || (System = {}));
+/// <reference path="../ref.ts" />
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var lib;
+(function (lib) {
+    var memory;
+    (function (memory) {
+        var detail;
+        (function (detail) {
+            detail.MemoryManager = lib.c.memory.MemoryManager;
+        })(detail = memory.detail || (memory.detail = {}));
+        memory.AddressSpace = lib.c.memory.AddressSpace;
+        var HostMemoryManager = (function (_super) {
+            __extends(HostMemoryManager, _super);
+            function HostMemoryManager() {
+                _super.call(this, 2 /* Host */);
+            }
+            return HostMemoryManager;
+        })(detail.MemoryManager);
+        memory.HostMemoryManager = HostMemoryManager;
+        var GlobalMemoryManager = (function (_super) {
+            __extends(GlobalMemoryManager, _super);
+            function GlobalMemoryManager() {
+                _super.call(this, 1 /* Global */);
+            }
+            return GlobalMemoryManager;
+        })(detail.MemoryManager);
+        memory.GlobalMemoryManager = GlobalMemoryManager;
+        var SharedMemoryManager = (function (_super) {
+            __extends(SharedMemoryManager, _super);
+            function SharedMemoryManager() {
+                _super.call(this, 0 /* Shared */);
+            }
+            return SharedMemoryManager;
+        })(detail.MemoryManager);
+        memory.SharedMemoryManager = SharedMemoryManager;
+    })(memory = lib.memory || (lib.memory = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+var lib;
+(function (lib) {
+    var parallel;
+    (function (parallel) {
+        var Thread = (function () {
+            function Thread(id) {
+                this.id = id;
+            }
+            return Thread;
+        })();
+        parallel.Thread = Thread;
+    })(parallel = lib.parallel || (lib.parallel = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+var lib;
+(function (lib) {
+    var parallel;
+    (function (parallel) {
+        var WorkerPool = (function () {
+            function WorkerPool(num_workers) {
+                this.num_workers = num_workers;
+                this.workers = new Array(num_workers);
+            }
+            return WorkerPool;
+        })();
+        parallel.WorkerPool = WorkerPool;
+    })(parallel = lib.parallel || (lib.parallel = {}));
 })(lib || (lib = {}));

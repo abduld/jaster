@@ -1,2 +1,2 @@
 
-/// <reference path="../../ref.ts" />
+/// <reference path="../ref.ts" />

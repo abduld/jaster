@@ -35,6 +35,14 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="lib\cuda\cuda.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\barrier.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\block.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\exec.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\grid.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\launch.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\profile.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\thread.ts" />
+    <TypeScriptCompile Include="lib\cuda\exec\warp.ts" />
     <TypeScriptCompile Include="lib\c\c.ts" />
     <TypeScriptCompile Include="lib\c\lib\memcmp.ts" />
     <TypeScriptCompile Include="lib\c\lib\memcpy.ts" />
@@ -55,6 +63,15 @@
     <TypeScriptCompile Include="lib\c\type\uint32.ts" />
     <TypeScriptCompile Include="lib\c\type\uint64.ts" />
     <TypeScriptCompile Include="lib\c\type\uint8.ts" />
+    <TypeScriptCompile Include="lib\memory\buffer.ts" />
+    <TypeScriptCompile Include="lib\memory\constant.ts" />
+    <TypeScriptCompile Include="lib\memory\global.ts" />
+    <TypeScriptCompile Include="lib\memory\host.ts" />
+    <TypeScriptCompile Include="lib\memory\manager.ts" />
+    <TypeScriptCompile Include="lib\memory\memory.ts" />
+    <TypeScriptCompile Include="lib\memory\reference.ts" />
+    <TypeScriptCompile Include="lib\memory\sanitizer.ts" />
+    <TypeScriptCompile Include="lib\memory\shared.ts" />
     <TypeScriptCompile Include="lib\ref.ts" />
     <TypeScriptCompile Include="lib\utils\assert.ts" />
     <TypeScriptCompile Include="lib\utils\castTo.ts" />
@@ -67,6 +84,13 @@
     <TypeScriptCompile Include="lib\utils\testing.ts" />
     <TypeScriptCompile Include="lib\utils\timer.ts" />
     <TypeScriptCompile Include="lib\utils\utils.ts" />
+    <TypeScriptCompile Include="lib\wb\file.ts" />
+    <TypeScriptCompile Include="lib\wb\wb.ts" />
+    <TypeScriptCompile Include="lib\worker\barrier.ts" />
+    <TypeScriptCompile Include="lib\worker\launch.ts" />
+    <TypeScriptCompile Include="lib\worker\thread.ts" />
+    <TypeScriptCompile Include="lib\worker\worker.ts" />
+    <TypeScriptCompile Include="lib\worker\worker_pool.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <ItemGroup>
@@ -88,12 +112,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="lib\cuda\exec\" />
     <Folder Include="lib\cuda\memory\" />
-    <Folder Include="lib\memory\" />
     <Folder Include="lib\viz\" />
-    <Folder Include="lib\wb\" />
-    <Folder Include="lib\worker\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
