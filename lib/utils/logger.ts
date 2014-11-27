@@ -29,7 +29,7 @@ module lib {
                         "LogType.Fatal": '\033[31m'
                     };
                     if (type >= this._level) {
-                        console[type](color[type.toString()] + msg + color["LogType.Debug"]);
+                        console[type](color[""+type] + msg + color["LogType.Debug"]);
                     }
                 }
                 debug(msg) { this._go(msg, LogType.Debug); }

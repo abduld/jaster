@@ -15,6 +15,21 @@ module lib {
                     logger.debug('Pass: ' + msg);
                 }
             }
+
+            export function assertUnreachable(msg: string): void {
+                var location = new Error().stack.split('\n')[1];
+                throw new Error("Reached unreachable location " + location + msg);
+            }
+
+            export function error(message: string) {
+                console.error(message);
+                throw new Error(message);
+            }
+            export function assertNotImplemented(condition: boolean, message: string) {
+                if (!condition) {
+                    error("notImplemented: " + message);
+                }
+            }
         }
         export import assert = detail.assert;
     }

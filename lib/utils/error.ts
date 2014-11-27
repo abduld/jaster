@@ -5,16 +5,28 @@ module lib.utils {
             Success,
             MemoryOverflow,
             IntegerOverflow,
-            Unknown
+            Unknown,
+            Message
         }
     };
     export class Error {
         code : detail.ErrorCode;
-        constructor(code ? : detail.ErrorCode) {
-            if (code) {
-                this.code = code;
+        message : string;
+        stack: any;
+        constructor(code ? : detail.ErrorCode);
+        constructor(str ? : string);
+        constructor(arg ? : any) {
+            if (arg) {
+                if (isString(arg)) {
+                    this.message = arg;
+                    this.code = detail.ErrorCode.Message;
+                } else {
+                    this.code = arg;
+                    this.message = arg.toString();
+                }
             } else {
                 this.code = detail.ErrorCode.Success;
+                this.message = "Success";
             }
         }
     }
