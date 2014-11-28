@@ -29,6 +29,7 @@ module lib.utils {
     var nextHandle = 1; // Spec says greater than zero
     var tasksByHandle = {};
     var currentlyRunningATask = false;
+    var global = globals;
     var doc = global.document;
     var setImmediate;
 
