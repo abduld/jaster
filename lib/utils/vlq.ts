@@ -50,16 +50,16 @@ module lib.utils {
         //   V    V
         //   101011
 
-        var VLQ_BASE_SHIFT = 5;
+        var VLQ_BASE_SHIFT: number = 5;
 
         // binary: 100000
-        var VLQ_BASE = 1 << VLQ_BASE_SHIFT;
+        var VLQ_BASE: number = 1 << VLQ_BASE_SHIFT;
 
         // binary: 011111
-        var VLQ_BASE_MASK = VLQ_BASE - 1;
+        var VLQ_BASE_MASK: number = VLQ_BASE - 1;
 
         // binary: 100000
-        var VLQ_CONTINUATION_BIT = VLQ_BASE;
+        var VLQ_CONTINUATION_BIT: number = VLQ_BASE;
 
         /**
          * Converts from a two-complement value to a value where the sign bit is
@@ -67,7 +67,7 @@ module lib.utils {
          *   1 becomes 2 (10 binary), -1 becomes 3 (11 binary)
          *   2 becomes 4 (100 binary), -2 becomes 5 (101 binary)
          */
-        function toVLQSigned(aValue) {
+        function toVLQSigned(aValue: number): number {
             return aValue < 0
                 ? ((-aValue) << 1) + 1
                 : (aValue << 1) + 0;
@@ -79,7 +79,7 @@ module lib.utils {
          *   2 (10 binary) becomes 1, 3 (11 binary) becomes -1
          *   4 (100 binary) becomes 2, 5 (101 binary) becomes -2
          */
-        function fromVLQSigned(aValue) {
+        function fromVLQSigned(aValue: number) : number {
             var isNegative = (aValue & 1) === 1;
             var shifted = aValue >> 1;
             return isNegative
@@ -110,11 +110,15 @@ module lib.utils {
             return encoded;
         };
 
+        export interface DecodeType {
+            value: number;
+            rest: string
+        }
         /**
          * Decodes the next base 64 VLQ value from the given string and returns the
          * value and the rest of the string via the out parameter.
          */
-        export function decode(aStr : string, aOutParam) {
+        export function decode(aStr : string, aOutParam : DecodeType) {
             var i = 0;
             var strLen = aStr.length;
             var result = 0;

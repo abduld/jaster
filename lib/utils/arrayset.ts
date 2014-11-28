@@ -7,7 +7,26 @@
 
 module lib {
     export module utils {
+        module internal {
 
+            /**
+             * Because behavior goes wacky when you set `__proto__` on objects, we
+             * have to prefix all the strings in our set with an arbitrary character.
+             *
+             * See https://github.com/mozilla/source-map/pull/31 and
+             * https://github.com/mozilla/source-map/issues/30
+             *
+             * @param String aStr
+             */
+            export function toSetString(aStr) {
+                return '$' + aStr;
+            }
+
+
+            export function fromSetString(aStr) {
+                return aStr.substr(1);
+            }
+        }
         /**
          * A data structure which is a combination of an array and a set. Adding a new
          * member is O(1), testing for membership is O(1), and finding the index of an
@@ -38,7 +57,7 @@ module lib {
              *
              * @param String aStr
              */
-            add(aStr : string, aAllowDuplicates : boolean) {
+            add(aStr : string, aAllowDuplicates ? : boolean) {
                 var isDuplicate = this.has(aStr);
                 var idx = this._array.length;
                 if (!isDuplicate || aAllowDuplicates) {

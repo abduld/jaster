@@ -34,6 +34,19 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="lib\ast\ast.ts" />
+    <TypeScriptCompile Include="lib\ast\eval.ts" />
+    <TypeScriptCompile Include="lib\ast\gen.ts" />
+    <TypeScriptCompile Include="lib\ast\rewrite.ts" />
+    <TypeScriptCompile Include="lib\ast\scope.ts" />
+    <TypeScriptCompile Include="lib\ast\sourcemap\consumer.ts" />
+    <TypeScriptCompile Include="lib\ast\sourcemap\gen.ts" />
+    <TypeScriptCompile Include="lib\ast\sourcemap\node.ts" />
+    <TypeScriptCompile Include="lib\ast\sourcemap\sourcemap.ts" />
+    <TypeScriptCompile Include="lib\ast\sourcemap\utils.ts" />
+    <TypeScriptCompile Include="lib\ast\traverse.ts" />
+    <TypeScriptCompile Include="lib\ast\types.ts" />
+    <TypeScriptCompile Include="lib\ast\utils.ts" />
     <TypeScriptCompile Include="lib\cuda\cuda.ts" />
     <TypeScriptCompile Include="lib\cuda\exec\barrier.ts" />
     <TypeScriptCompile Include="lib\cuda\exec\block.ts" />
@@ -73,21 +86,34 @@
     <TypeScriptCompile Include="lib\memory\sanitizer.ts" />
     <TypeScriptCompile Include="lib\memory\shared.ts" />
     <TypeScriptCompile Include="lib\ref.ts" />
+    <TypeScriptCompile Include="lib\utils\arrayset.ts" />
     <TypeScriptCompile Include="lib\utils\assert.ts" />
+    <TypeScriptCompile Include="lib\utils\base64.ts" />
     <TypeScriptCompile Include="lib\utils\castTo.ts" />
     <TypeScriptCompile Include="lib\utils\error.ts" />
     <TypeScriptCompile Include="lib\utils\exception.ts" />
+    <TypeScriptCompile Include="lib\utils\format.ts" />
+    <TypeScriptCompile Include="lib\utils\functional.ts" />
     <TypeScriptCompile Include="lib\utils\guuid.ts" />
+    <TypeScriptCompile Include="lib\utils\internal.ts" />
     <TypeScriptCompile Include="lib\utils\logger.ts" />
+    <TypeScriptCompile Include="lib\utils\map.ts" />
     <TypeScriptCompile Include="lib\utils\mixin.ts" />
     <TypeScriptCompile Include="lib\utils\rand.ts" />
+    <TypeScriptCompile Include="lib\utils\search.ts" />
+    <TypeScriptCompile Include="lib\utils\semaphore.ts" />
+    <TypeScriptCompile Include="lib\utils\setImmediate.ts" />
+    <TypeScriptCompile Include="lib\utils\shim.ts" />
     <TypeScriptCompile Include="lib\utils\testing.ts" />
     <TypeScriptCompile Include="lib\utils\timer.ts" />
     <TypeScriptCompile Include="lib\utils\utils.ts" />
+    <TypeScriptCompile Include="lib\utils\vlq.ts" />
     <TypeScriptCompile Include="lib\wb\file.ts" />
     <TypeScriptCompile Include="lib\wb\wb.ts" />
     <TypeScriptCompile Include="lib\worker\barrier.ts" />
+    <TypeScriptCompile Include="lib\worker\eval.ts" />
     <TypeScriptCompile Include="lib\worker\launch.ts" />
+    <TypeScriptCompile Include="lib\worker\parallel.ts" />
     <TypeScriptCompile Include="lib\worker\thread.ts" />
     <TypeScriptCompile Include="lib\worker\worker.ts" />
     <TypeScriptCompile Include="lib\worker\worker_pool.ts" />
@@ -112,6 +138,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="lib\ast\recast\" />
+    <Folder Include="lib\ast\types\" />
     <Folder Include="lib\cuda\memory\" />
     <Folder Include="lib\viz\" />
   </ItemGroup>

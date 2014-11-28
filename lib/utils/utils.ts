@@ -15,8 +15,8 @@ module lib {
 
     export module utils {
 
-        export var isCommonJS : boolean = typeof module !== 'undefined' && module.exports;
-        export var isNode : boolean = typeof module !== 'undefined' && module.exports;
+        export var isCommonJS: boolean = false;
+        export var isNode: boolean = false;
         /**
          * Various constant values. Enum'd so they are inlined by the TypeScript
          * compiler.
