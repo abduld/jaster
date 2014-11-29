@@ -1,4 +1,3 @@
-
 module lib.ast {
     export module recast {
 
@@ -16,7 +15,7 @@ module lib.ast {
 
         export function run(code, transformer, options) {
             var writeback = options && options.writeback || defaultWriteback;
-            transformer(parse(code, options), function(node) {
+            transformer(parse(code, options), function (node) {
                 writeback(print(node, options).code);
             });
         }

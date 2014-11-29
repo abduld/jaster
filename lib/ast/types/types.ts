@@ -272,7 +272,7 @@ module lib.ast {
         // with a particular name, those instances need to be stored in a cache.
         var defCache = Object.create(null);
 
-        class Def {
+        export class Def {
             typeNames:any;
             baseNames:any[];
             ownFields:any;
