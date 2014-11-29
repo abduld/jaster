@@ -2,7 +2,7 @@
 module lib.ast {
     export module types {
 
-        module assert {
+        export module assert {
 
             import assert = lib.utils.assert;
             export function ok(cond, msg?) {
@@ -27,6 +27,8 @@ module lib.ast {
         // true or false according to whether the value matches the type.
 
         export class Type {
+            name: any;
+            check: (val:any,deep?:any)=>any;
             constructor(check, name) {
                 var self = this;
                 assert.ok(self instanceof Type, self);
@@ -58,24 +60,13 @@ module lib.ast {
             // Like .check, except that failure triggers an AssertionError.
             assert(value, deep) {
                 if (!this.check(value, deep)) {
-                    var str = this.shallowStringify(value);
+                    var str = shallowStringify(value);
                     assert.ok(false, str + " does not match type " + this);
                     return false;
                 }
                 return true;
             }
 
-            shallowStringify(value) {
-                if (isObject.check(value))
-                    return "{" + Object.keys(value).map(function (key) {
-                        return key + ": " + value[key];
-                    }).join(", ") + "}";
-
-                if (isArray.check(value))
-                    return "[" + value.map(this.shallowStringify).join(", ") + "]";
-
-                return JSON.stringify(value);
-            }
 
             toString() {
                 var name = this.name;
@@ -91,7 +82,7 @@ module lib.ast {
 
             // Returns a type that matches the given value iff any of type1, type2,
             // etc. match the value.
-            or(...args:any[]) {
+            or(...args: any[]) {
                 var types = [];
                 var len = arguments.length;
                 for (var i = 0; i < len; ++i)
@@ -115,7 +106,7 @@ module lib.ast {
                 return toType(arr[0]).arrayOf();
             }
 
-            static arrayOf() {
+            arrayOf() {
                 var elemType = this;
                 return new Type(function (value, deep) {
                     return isArray.check(value) && value.every(function (elem) {
@@ -153,9 +144,9 @@ module lib.ast {
             }
         }
 
-        export var builtInTypes = {};
+        export var builtInTypes: { [name: string]: Type; } = {};
 
-        function defBuiltInType(example, name) {
+        function defBuiltInType(example, name) : Type {
             var objStr = objToStr.call(example);
 
             Object.defineProperty(builtInTypes, name, {
@@ -222,11 +213,11 @@ module lib.ast {
 
 
         class Field {
-            name: PropertyDescriptor;
-            type: PropertyDescriptor;
-            hidden: PropertyDescriptor;
-            defaultFn: PropertyDescriptor;
-            constructor(name, type, defaultFn, hidden) {
+            name: any;
+            type: any;
+            hidden: any;
+            defaultFn: any;
+            constructor(name, type, defaultFn?, hidden?) {
                 var self = this;
 
                 assert.ok(self instanceof Field);
@@ -238,9 +229,9 @@ module lib.ast {
                 if (isFunction.check(defaultFn)) {
                     this.defaultFn = { value: defaultFn };
                 }
-                this.name = { value: name };
-                this.type = { value: type };
-                this.hidden = { value: !!hidden };
+                this.name = name;
+                this.type = type;
+                this.hidden = !!hidden;
             }
             toString() {
                 return JSON.stringify(this.name) + ": " + this.type;
@@ -260,64 +251,321 @@ module lib.ast {
         }
 
 
+        function shallowStringify(value) {
+            if (isObject.check(value))
+                return "{" + Object.keys(value).map(function (key) {
+                    return key + ": " + value[key];
+                }).join(", ") + "}";
+
+            if (isArray.check(value))
+                return "[" + value.map(shallowStringify).join(", ") + "]";
+
+            return JSON.stringify(value);
+        }
 
         // In order to return the same Def instance every time Type.def is called
         // with a particular name, those instances need to be stored in a cache.
         var defCache = Object.create(null);
 
-        function Def(typeName) {
-            var self = this;
-            assert.ok(self instanceof Def);
+        class Def {
+            typeNames: any;
+            baseNames: any[];
+            ownFields: any;
+            allSupertypes: any[];
+            supertypeList: any[];
+            fieldNames: any[];
+            type: Type;
+            finalized: boolean = false;
+            typeName: any;
+            allFields: any[];
+            buildable: boolean = false;
+            constructor(typeName) {
+                var self = this;
+                assert.ok(self instanceof Def);
 
-            Object.defineProperties(self, {
-                typeName: { value: typeName },
-                baseNames: { value: [] },
-                ownFields: { value: Object.create(null) },
+                Object.defineProperties(self, {
+                    typeName: { value: typeName },
+                    baseNames: { value: [] },
+                    ownFields: { value: Object.create(null) },
 
-                // These two are populated during finalization.
-                allSupertypes: { value: Object.create(null) }, // Includes own typeName.
-                supertypeList: { value: [] }, // Linear inheritance hierarchy.
-                allFields: { value: Object.create(null) }, // Includes inherited fields.
-                fieldNames: { value: [] }, // Non-hidden keys of allFields.
+                    // These two are populated during finalization.
+                    allSupertypes: { value: Object.create(null) }, // Includes own typeName.
+                    supertypeList: { value: [] }, // Linear inheritance hierarchy.
+                    allFields: { value: Object.create(null) }, // Includes inherited fields.
+                    fieldNames: { value: [] }, // Non-hidden keys of allFields.
 
-                type: {
-                    value: new Type(function (value, deep) {
-                        return self.check(value, deep);
-                    }, typeName)
-                }
-            });
-        }
+                    type: {
+                        value: new Type(function (value, deep) {
+                            return self.check(value, deep);
+                        }, typeName)
+                    }
+                });
+            }
 
-        Def.fromValue = function (value) {
-            if (value && typeof value === "object") {
-                var type = value.type;
-                if (typeof type === "string" &&
-                    hasOwn.call(defCache, type)) {
-                    var d = defCache[type];
-                    if (d.finalized) {
-                        return d;
+            static fromValue(value) {
+                if (value && typeof value === "object") {
+                    var type = value.type;
+                    if (typeof type === "string" &&
+                        hasOwn.call(defCache, type)) {
+                        var d = defCache[type];
+                        if (d.finalized) {
+                            return d;
+                        }
                     }
                 }
+
+                return null;
+            }
+            isSupertypeOf(that) {
+                if (that instanceof Def) {
+                    assert.strictEqual(this.finalized, true);
+                    assert.strictEqual(that.finalized, true);
+                    return hasOwn.call(that.allSupertypes, this.typeName);
+                } else {
+                    assert.ok(false, that + " is not a Def");
+                }
             }
 
-            return null;
-        };
-
-        var Dp = Def.prototype;
-
-        Dp.isSupertypeOf = function (that) {
-            if (that instanceof Def) {
+            checkAllFields(value, deep) {
+                var allFields = this.allFields;
                 assert.strictEqual(this.finalized, true);
-                assert.strictEqual(that.finalized, true);
-                return hasOwn.call(that.allSupertypes, this.typeName);
-            } else {
-                assert.ok(false, that + " is not a Def");
+
+                function checkFieldByName(name) {
+                    var field = allFields[name];
+                    var type = field.type;
+                    var child = field.getValue(value);
+                    return type.check(child, deep);
+                }
+
+                return isObject.check(value)
+                    && Object.keys(allFields).every(checkFieldByName);
             }
-        };
+
+            check(value, deep?) {
+                assert.strictEqual(
+                    this.finalized, true,
+                    "prematurely checking unfinalized type " + this.typeName);
+
+                // A Def type can only match an object value.
+                if (!isObject.check(value))
+                    return false;
+
+                var vDef = Def.fromValue(value);
+                if (!vDef) {
+                    // If we couldn't infer the Def associated with the given value,
+                    // and we expected it to be a SourceLocation or a Position, it was
+                    // probably just missing a "type" field (because Esprima does not
+                    // assign a type property to such nodes). Be optimistic and let
+                    // this.checkAllFields make the final decision.
+                    if (this.typeName === "SourceLocation" ||
+                        this.typeName === "Position") {
+                        return this.checkAllFields(value, deep);
+                    }
+
+                    // Calling this.checkAllFields for any other type of node is both
+                    // bad for performance and way too forgiving.
+                    return false;
+                }
+
+                // If checking deeply and vDef === this, then we only need to call
+                // checkAllFields once. Calling checkAllFields is too strict when deep
+                // is false, because then we only care about this.isSupertypeOf(vDef).
+                if (deep && vDef === this)
+                    return this.checkAllFields(value, deep);
+
+                // In most cases we rely exclusively on isSupertypeOf to make O(1)
+                // subtyping determinations. This suffices in most situations outside
+                // of unit tests, since interface conformance is checked whenever new
+                // instances are created using builder functions.
+                if (!this.isSupertypeOf(vDef))
+                    return false;
+
+                // The exception is when deep is true; then, we recursively check all
+                // fields.
+                if (!deep)
+                    return true;
+
+                // Use the more specific Def (vDef) to perform the deep check, but
+                // shallow-check fields defined by the less specific Def (this).
+                return vDef.checkAllFields(value, deep)
+                    && this.checkAllFields(value, false);
+            }
+
+            bases() {
+                var bases = this.baseNames;
+
+                assert.strictEqual(this.finalized, false);
+
+                each.call(arguments, function (baseName) {
+                    isString.assert(baseName);
+
+                    // This indexOf lookup may be O(n), but the typical number of base
+                    // names is very small, and indexOf is a native Array method.
+                    if (bases.indexOf(baseName) < 0)
+                        bases.push(baseName);
+                });
+
+                return this; // For chaining.
+            }
+
+
+            finalize() {
+                // It's not an error to finalize a type more than once, but only the
+                // first call to .finalize does anything.
+                if (!this.finalized) {
+                    var allFields = this.allFields;
+                    var allSupertypes = this.allSupertypes;
+
+                    this.baseNames.forEach(function (name) {
+                        var def = defCache[name];
+                        def.finalize();
+                        extend(allFields, def.allFields);
+                        extend(allSupertypes, def.allSupertypes);
+                    });
+
+                    // TODO Warn if fields are overridden with incompatible types.
+                    extend(allFields, this.ownFields);
+                    allSupertypes[this.typeName] = this;
+
+                    this.fieldNames.length = 0;
+                    for (var fieldName in allFields) {
+                        if (hasOwn.call(allFields, fieldName) &&
+                            !allFields[fieldName].hidden) {
+                            this.fieldNames.push(fieldName);
+                        }
+                    }
+
+                    // Types are exported only once they have been finalized.
+                    Object.defineProperty(namedTypes, this.typeName, {
+                        enumerable: true,
+                        value: this.type
+                    });
+
+                    Object.defineProperty(this, "finalized", { value: true });
+
+                    // A linearization of the inheritance hierarchy.
+                    populateSupertypeList(this.typeName, this.supertypeList);
+                }
+            }
+            buildParams: any;
+            // Calling the .build method of a Def simultaneously marks the type as
+            // buildable (by defining builders[getBuilderName(typeName)]) and
+            // specifies the order of arguments that should be passed to the builder
+            // function to create an instance of the type.
+            build(/* param1, param2, ... */) {
+                var self = this;
+
+                // Calling Def.prototype.build multiple times has the effect of merely
+                // redefining this property.
+                Object.defineProperty(self, "buildParams", {
+                    value: slice.call(arguments),
+                    writable: false,
+                    enumerable: false,
+                    configurable: true
+                });
+
+                assert.strictEqual(self.finalized, false);
+                isString.arrayOf().assert(self.buildParams);
+
+                if (self.buildable) {
+                    // If this Def is already buildable, update self.buildParams and
+                    // continue using the old builder function.
+                    return self;
+                }
+
+                // Every buildable type will have its "type" field filled in
+                // automatically. This includes types that are not subtypes of Node,
+                // like SourceLocation, but that seems harmless (TODO?).
+                self.field("type", self.typeName, function () { return self.typeName });
+
+                // Override Dp.buildable for this Def instance.
+                Object.defineProperty(self, "buildable", { value: true });
+
+                Object.defineProperty(builders, getBuilderName(self.typeName), {
+                    enumerable: true,
+
+                    value: function () {
+                        var args = arguments;
+                        var argc = args.length;
+                        var built = Object.create(nodePrototype);
+
+                        assert.ok(
+                            self.finalized,
+                            "attempting to instantiate unfinalized type " + self.typeName);
+
+                        function add(param, i?) {
+                            if (hasOwn.call(built, param))
+                                return;
+
+                            var all = self.allFields;
+                            assert.ok(hasOwn.call(all, param), param);
+
+                            var field = all[param];
+                            var type = field.type;
+                            var value;
+
+                            if (isNumber.check(i) && i < argc) {
+                                value = args[i];
+                            } else if (field.defaultFn) {
+                                // Expose the partially-built object to the default
+                                // function as its `this` object.
+                                value = field.defaultFn.call(built);
+                            } else {
+                                var message = "no value or default function given for field " +
+                                    JSON.stringify(param) + " of " + self.typeName + "(" +
+                                    self.buildParams.map(function (name) {
+                                        return all[name];
+                                    }).join(", ") + ")";
+                                assert.ok(false, message);
+                            }
+
+                            if (!type.check(value)) {
+                                assert.ok(
+                                    false,
+                                    shallowStringify(value) +
+                                    " does not match field " + field +
+                                    " of type " + self.typeName
+                                    );
+                            }
+
+                            // TODO Could attach getters and setters here to enforce
+                            // dynamic type safety.
+                            built[param] = value;
+                        }
+
+                        self.buildParams.forEach(function (param, i) {
+                            add(param, i);
+                        });
+
+                        Object.keys(self.allFields).forEach(function (param) {
+                            add(param); // Use the default value.
+                        });
+
+                        // Make sure that the "type" field was filled automatically.
+                        assert.strictEqual(built.type, self.typeName);
+
+                        return built;
+                    }
+                });
+
+                return self; // For chaining.
+            }
+
+            // The reason fields are specified using .field(...) instead of an object
+            // literal syntax is somewhat subtle: the object literal syntax would
+            // support only one key and one value, but with .field(...) we can pass
+            // any number of arguments to specify the field.
+            field(name, type, defaultFn, hidden?) {
+                assert.strictEqual(this.finalized, false);
+                this.ownFields[name] = new Field(name, type, defaultFn, hidden);
+                return this; // For chaining.
+            }
+        }
+
 
         // Note that the list returned by this function is a copy of the internal
         // supertypeList, *without* the typeName itself as the first element.
-        exports.getSupertypeNames = function (typeName) {
+        export function getSupertypeNames(typeName) {
             assert.ok(hasOwn.call(defCache, typeName));
             var d = defCache[typeName];
             assert.strictEqual(d.finalized, true);
@@ -327,7 +575,7 @@ module lib.ast {
         // Returns an object mapping from every known type in the defCache to the
         // most specific supertype whose name is an own property of the candidates
         // object.
-        exports.computeSupertypeLookupTable = function (candidates) {
+        export function computeSupertypeLookupTable(candidates) {
             var table = {};
             var typeNames = Object.keys(defCache);
             var typeNameCount = typeNames.length;
@@ -348,100 +596,16 @@ module lib.ast {
             return table;
         };
 
-        Dp.checkAllFields = function (value, deep) {
-            var allFields = this.allFields;
-            assert.strictEqual(this.finalized, true);
 
-            function checkFieldByName(name) {
-                var field = allFields[name];
-                var type = field.type;
-                var child = field.getValue(value);
-                return type.check(child, deep);
-            }
 
-            return isObject.check(value)
-                && Object.keys(allFields).every(checkFieldByName);
-        };
-
-        Dp.check = function (value, deep) {
-            assert.strictEqual(
-                this.finalized, true,
-                "prematurely checking unfinalized type " + this.typeName);
-
-            // A Def type can only match an object value.
-            if (!isObject.check(value))
-                return false;
-
-            var vDef = Def.fromValue(value);
-            if (!vDef) {
-                // If we couldn't infer the Def associated with the given value,
-                // and we expected it to be a SourceLocation or a Position, it was
-                // probably just missing a "type" field (because Esprima does not
-                // assign a type property to such nodes). Be optimistic and let
-                // this.checkAllFields make the final decision.
-                if (this.typeName === "SourceLocation" ||
-                    this.typeName === "Position") {
-                    return this.checkAllFields(value, deep);
-                }
-
-                // Calling this.checkAllFields for any other type of node is both
-                // bad for performance and way too forgiving.
-                return false;
-            }
-
-            // If checking deeply and vDef === this, then we only need to call
-            // checkAllFields once. Calling checkAllFields is too strict when deep
-            // is false, because then we only care about this.isSupertypeOf(vDef).
-            if (deep && vDef === this)
-                return this.checkAllFields(value, deep);
-
-            // In most cases we rely exclusively on isSupertypeOf to make O(1)
-            // subtyping determinations. This suffices in most situations outside
-            // of unit tests, since interface conformance is checked whenever new
-            // instances are created using builder functions.
-            if (!this.isSupertypeOf(vDef))
-                return false;
-
-            // The exception is when deep is true; then, we recursively check all
-            // fields.
-            if (!deep)
-                return true;
-
-            // Use the more specific Def (vDef) to perform the deep check, but
-            // shallow-check fields defined by the less specific Def (this).
-            return vDef.checkAllFields(value, deep)
-                && this.checkAllFields(value, false);
-        };
-
-        Dp.bases = function () {
-            var bases = this.baseNames;
-
-            assert.strictEqual(this.finalized, false);
-
-            each.call(arguments, function (baseName) {
-                isString.assert(baseName);
-
-                // This indexOf lookup may be O(n), but the typical number of base
-                // names is very small, and indexOf is a native Array method.
-                if (bases.indexOf(baseName) < 0)
-                    bases.push(baseName);
-            });
-
-            return this; // For chaining.
-        };
-
-        // False by default until .build(...) is called on an instance.
-        Object.defineProperty(Dp, "buildable", { value: false });
-
-        var builders = {};
-        exports.builders = builders;
+        export var builders = {};
 
         // This object is used as prototype for any node created by a builder.
         var nodePrototype = {};
 
         // Call this function to define a new method to be shared by all AST
         // nodes. The replaced method (if any) is returned for easy wrapping.
-        exports.defineMethod = function (name, func) {
+        export function defineMethod(name, func) {
             var old = nodePrototype[name];
 
             // Pass undefined as func to delete nodePrototype[name].
@@ -461,108 +625,6 @@ module lib.ast {
             return old;
         };
 
-        // Calling the .build method of a Def simultaneously marks the type as
-        // buildable (by defining builders[getBuilderName(typeName)]) and
-        // specifies the order of arguments that should be passed to the builder
-        // function to create an instance of the type.
-        Dp.build = function (/* param1, param2, ... */) {
-            var self = this;
-
-            // Calling Def.prototype.build multiple times has the effect of merely
-            // redefining this property.
-            Object.defineProperty(self, "buildParams", {
-                value: slice.call(arguments),
-                writable: false,
-                enumerable: false,
-                configurable: true
-            });
-
-            assert.strictEqual(self.finalized, false);
-            isString.arrayOf().assert(self.buildParams);
-
-            if (self.buildable) {
-                // If this Def is already buildable, update self.buildParams and
-                // continue using the old builder function.
-                return self;
-            }
-
-            // Every buildable type will have its "type" field filled in
-            // automatically. This includes types that are not subtypes of Node,
-            // like SourceLocation, but that seems harmless (TODO?).
-            self.field("type", self.typeName, function () { return self.typeName });
-
-            // Override Dp.buildable for this Def instance.
-            Object.defineProperty(self, "buildable", { value: true });
-
-            Object.defineProperty(builders, getBuilderName(self.typeName), {
-                enumerable: true,
-
-                value: function () {
-                    var args = arguments;
-                    var argc = args.length;
-                    var built = Object.create(nodePrototype);
-
-                    assert.ok(
-                        self.finalized,
-                        "attempting to instantiate unfinalized type " + self.typeName);
-
-                    function add(param, i) {
-                        if (hasOwn.call(built, param))
-                            return;
-
-                        var all = self.allFields;
-                        assert.ok(hasOwn.call(all, param), param);
-
-                        var field = all[param];
-                        var type = field.type;
-                        var value;
-
-                        if (isNumber.check(i) && i < argc) {
-                            value = args[i];
-                        } else if (field.defaultFn) {
-                            // Expose the partially-built object to the default
-                            // function as its `this` object.
-                            value = field.defaultFn.call(built);
-                        } else {
-                            var message = "no value or default function given for field " +
-                                JSON.stringify(param) + " of " + self.typeName + "(" +
-                                self.buildParams.map(function (name) {
-                                    return all[name];
-                                }).join(", ") + ")";
-                            assert.ok(false, message);
-                        }
-
-                        if (!type.check(value)) {
-                            assert.ok(
-                                false,
-                                shallowStringify(value) +
-                                " does not match field " + field +
-                                " of type " + self.typeName
-                                );
-                        }
-
-                        // TODO Could attach getters and setters here to enforce
-                        // dynamic type safety.
-                        built[param] = value;
-                    }
-
-                    self.buildParams.forEach(function (param, i) {
-                        add(param, i);
-                    });
-
-                    Object.keys(self.allFields).forEach(function (param) {
-                        add(param); // Use the default value.
-                    });
-
-                    // Make sure that the "type" field was filled automatically.
-                    assert.strictEqual(built.type, self.typeName);
-
-                    return built;
-                }
-            });
-
-            return self; // For chaining.
-        };
 
         function getBuilderName(typeName) {
             return typeName.replace(/^[A-Z]+/, function (upperCasePrefix) {
@@ -582,21 +644,11 @@ module lib.ast {
             });
         }
 
-        // The reason fields are specified using .field(...) instead of an object
-        // literal syntax is somewhat subtle: the object literal syntax would
-        // support only one key and one value, but with .field(...) we can pass
-        // any number of arguments to specify the field.
-        Dp.field = function (name, type, defaultFn, hidden) {
-            assert.strictEqual(this.finalized, false);
-            this.ownFields[name] = new Field(name, type, defaultFn, hidden);
-            return this; // For chaining.
-        };
 
-        var namedTypes = {};
-        exports.namedTypes = namedTypes;
+        export var namedTypes = {};
 
         // Like Object.keys, but aware of what fields each AST type should have.
-        function getFieldNames(object) {
+        export function getFieldNames(object) {
             var d = Def.fromValue(object);
             if (d) {
                 return d.fieldNames.slice(0);
@@ -612,11 +664,10 @@ module lib.ast {
 
             return Object.keys(object);
         }
-        exports.getFieldNames = getFieldNames;
 
         // Get the value of an object property, taking object.type and default
         // functions into account.
-        function getFieldValue(object, fieldName) {
+        export function getFieldValue(object, fieldName) {
             var d = Def.fromValue(object);
             if (d) {
                 var field = d.allFields[fieldName];
@@ -627,13 +678,12 @@ module lib.ast {
 
             return object[fieldName];
         }
-        exports.getFieldValue = getFieldValue;
 
         // Iterate over all defined fields of an object, including those missing
         // or undefined, passing each field name and effective value (as returned
         // by getFieldValue) to the callback. If the object has no corresponding
         // Def, the callback will never be called.
-        exports.eachField = function (object, callback, context) {
+        export function eachField(object, callback, context) {
             getFieldNames(object).forEach(function (name) {
                 callback.call(this, name, getFieldValue(object, name));
             }, context);
@@ -643,54 +693,12 @@ module lib.ast {
         // callback returns a truthy value. Like Array.prototype.some, the final
         // result is either true or false to indicates whether the callback
         // returned true for any element or not.
-        exports.someField = function (object, callback, context) {
+        export function someField(object, callback, context) {
             return getFieldNames(object).some(function (name) {
                 return callback.call(this, name, getFieldValue(object, name));
             }, context);
         };
 
-        // This property will be overridden as true by individual Def instances
-        // when they are finalized.
-        Object.defineProperty(Dp, "finalized", { value: false });
-
-        Dp.finalize = function () {
-            // It's not an error to finalize a type more than once, but only the
-            // first call to .finalize does anything.
-            if (!this.finalized) {
-                var allFields = this.allFields;
-                var allSupertypes = this.allSupertypes;
-
-                this.baseNames.forEach(function (name) {
-                    var def = defCache[name];
-                    def.finalize();
-                    extend(allFields, def.allFields);
-                    extend(allSupertypes, def.allSupertypes);
-                });
-
-                // TODO Warn if fields are overridden with incompatible types.
-                extend(allFields, this.ownFields);
-                allSupertypes[this.typeName] = this;
-
-                this.fieldNames.length = 0;
-                for (var fieldName in allFields) {
-                    if (hasOwn.call(allFields, fieldName) &&
-                        !allFields[fieldName].hidden) {
-                        this.fieldNames.push(fieldName);
-                    }
-                }
-
-                // Types are exported only once they have been finalized.
-                Object.defineProperty(namedTypes, this.typeName, {
-                    enumerable: true,
-                    value: this.type
-                });
-
-                Object.defineProperty(this, "finalized", { value: true });
-
-                // A linearization of the inheritance hierarchy.
-                populateSupertypeList(this.typeName, this.supertypeList);
-            }
-        };
 
         function populateSupertypeList(typeName, list) {
             list.length = 0;

@@ -46,6 +46,9 @@
     <TypeScriptCompile Include="lib\ast\sourcemap\utils.ts" />
     <TypeScriptCompile Include="lib\ast\traverse.ts" />
     <TypeScriptCompile Include="lib\ast\types.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\def.ts" />
+    <TypeScriptCompile Include="lib\ast\types\equiv.ts" />
+    <TypeScriptCompile Include="lib\ast\types\types.ts" />
     <TypeScriptCompile Include="lib\ast\utils.ts" />
     <TypeScriptCompile Include="lib\cuda\cuda.ts" />
     <TypeScriptCompile Include="lib\cuda\exec\barrier.ts" />
@@ -139,7 +142,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="lib\ast\recast\" />
-    <Folder Include="lib\ast\types\" />
     <Folder Include="lib\cuda\memory\" />
     <Folder Include="lib\viz\" />
   </ItemGroup>

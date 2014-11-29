@@ -1,15 +1,14 @@
 
 
-module lib.ast.def {
+module lib.ast.types {
     export module equiv {
-        var assert = require("assert");
-        var types = require("../main");
+        import assert = lib.ast.types.assert;
         var getFieldNames = types.getFieldNames;
         var getFieldValue = types.getFieldValue;
-        var isArray = types.builtInTypes.array;
-        var isObject = types.builtInTypes.object;
-        var isDate = types.builtInTypes.Date;
-        var isRegExp = types.builtInTypes.RegExp;
+        var isArray = types.builtInTypes["array"];
+        var isObject = types.builtInTypes["object"];
+        var isDate = types.builtInTypes["Date"];
+        var isRegExp = types.builtInTypes["RegExp"];
         var hasOwn = Object.prototype.hasOwnProperty;
 
         export function astNodesAreEquivalent(a, b, problemPath) {
