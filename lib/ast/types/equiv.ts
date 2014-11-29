@@ -1,5 +1,3 @@
-
-
 module lib.ast.types {
     export module equiv {
         import assert = lib.ast.types.assert;
@@ -11,7 +9,7 @@ module lib.ast.types {
         var isRegExp = types.builtInTypes["RegExp"];
         var hasOwn = Object.prototype.hasOwnProperty;
 
-        export function astNodesAreEquivalent(a, b, problemPath) {
+        function _astNodesAreEquivalent(a, b, problemPath) {
             if (isArray.check(problemPath)) {
                 problemPath.length = 0;
             } else {
@@ -21,20 +19,22 @@ module lib.ast.types {
             return areEquivalent(a, b, problemPath);
         }
 
-        astNodesAreEquivalent.assert = function(a, b) {
-            var problemPath = [];
-            if (!astNodesAreEquivalent(a, b, problemPath)) {
-                if (problemPath.length === 0) {
-                    assert.strictEqual(a, b);
-                } else {
-                    assert.ok(
-                        false,
-                        "Nodes differ in the following path: " +
-                        problemPath.map(subscriptForProperty).join("")
-                    );
+        export class astNodesAreEquivalent {
+            static assert(a, b) {
+                var problemPath = [];
+                if (!_astNodesAreEquivalent(a, b, problemPath)) {
+                    if (problemPath.length === 0) {
+                        assert.strictEqual(a, b);
+                    } else {
+                        assert.ok(
+                            false,
+                            "Nodes differ in the following path: " +
+                            problemPath.map(subscriptForProperty).join("")
+                        );
+                    }
                 }
             }
-        };
+        }
 
         function subscriptForProperty(property) {
             if (/[_$a-z][_$a-z0-9]*/i.test(property)) {
@@ -180,5 +180,4 @@ module lib.ast.types {
 
 
     }
-}
 }

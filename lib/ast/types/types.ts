@@ -1,4 +1,3 @@
-
 module lib.ast {
     export module types {
 
@@ -8,18 +7,20 @@ module lib.ast {
             export function ok(cond, msg?) {
                 return assert(cond, msg);
             }
+
             export function strictEqual(a, b, msg?) {
                 return assert(a === b, msg);
             }
         }
 
-        var Ap = Array.prototype;
+        var Ap :Array<any> = Array.prototype;
         var slice = Ap.slice;
         var map = Ap.map;
         var each = Ap.forEach;
         var Op = Object.prototype;
         var objToStr = Op.toString;
-        var funObjStr = objToStr.call(function () { });
+        var funObjStr = objToStr.call(function () {
+        });
         var strObjStr = objToStr.call("");
         var hasOwn = Op.hasOwnProperty;
 
@@ -27,8 +28,9 @@ module lib.ast {
         // true or false according to whether the value matches the type.
 
         export class Type {
-            name: any;
-            check: (val:any,deep?:any)=>any;
+            name:any;
+            check:(val:any, deep?:any)=>any;
+
             constructor(check, name) {
                 var self = this;
                 assert.ok(self instanceof Type, self);
@@ -45,7 +47,7 @@ module lib.ast {
                     name + " is neither a function nor a string");
 
                 Object.defineProperties(self, {
-                    name: { value: name },
+                    name: {value: name},
                     check: {
                         value: function (value, deep) {
                             var result = check.call(self, value, deep);
@@ -58,7 +60,7 @@ module lib.ast {
             }
 
             // Like .check, except that failure triggers an AssertionError.
-            assert(value, deep) {
+            assert(value, deep?) {
                 if (!this.check(value, deep)) {
                     var str = shallowStringify(value);
                     assert.ok(false, str + " does not match type " + this);
@@ -82,7 +84,7 @@ module lib.ast {
 
             // Returns a type that matches the given value iff any of type1, type2,
             // etc. match the value.
-            or(...args: any[]) {
+            static or(...args:any[]) {
                 var types = [];
                 var len = arguments.length;
                 for (var i = 0; i < len; ++i)
@@ -94,8 +96,8 @@ module lib.ast {
                             return true;
                     return false;
                 }, function () {
-                        return types.join(" | ");
-                    });
+                    return types.join(" | ");
+                });
             }
 
             static fromArray(arr) {
@@ -110,25 +112,25 @@ module lib.ast {
                 var elemType = this;
                 return new Type(function (value, deep) {
                     return isArray.check(value) && value.every(function (elem) {
-                        return elemType.check(elem, deep);
-                    });
+                            return elemType.check(elem, deep);
+                        });
                 }, function () {
-                        return "[" + elemType + "]";
-                    });
+                    return "[" + elemType + "]";
+                });
             }
 
             static fromObject(obj) {
-                var fields = Object.keys(obj).map(function (name) {
+                var fields : Field[] = Object.keys(obj).map(function (name) {
                     return new Field(name, obj[name]);
                 });
 
                 return new Type(function (value, deep) {
-                    return isObject.check(value) && fields.every(function (field) {
-                        return field.type.check(value[field.name], deep);
-                    });
+                    return isObject.check(value) && fields.every(function (field : Field) {
+                            return field.type.check(value[field.name], deep);
+                        });
                 }, function () {
-                        return "{ " + fields.join(", ") + " }";
-                    });
+                    return "{ " + fields.join(", ") + " }";
+                });
             }
 
             // Define a type whose name is registered in a namespace (the defCache) so
@@ -136,7 +138,7 @@ module lib.ast {
             // In particular, this system allows for circular and forward definitions.
             // The Def object d returned from Type.def may be used to configure the
             // type d.type by calling methods such as d.bases, d.build, and d.field.
-            def(typeName) {
+            static def(typeName) : Def {
                 isString.assert(typeName);
                 return hasOwn.call(defCache, typeName)
                     ? defCache[typeName]
@@ -144,9 +146,9 @@ module lib.ast {
             }
         }
 
-        export var builtInTypes: { [name: string]: Type; } = {};
+        export var builtInTypes:{ [name: string]: Type; } = {};
 
-        function defBuiltInType(example, name) : Type {
+        function defBuiltInType(example, name):Type {
             var objStr = objToStr.call(example);
 
             Object.defineProperty(builtInTypes, name, {
@@ -164,7 +166,8 @@ module lib.ast {
         // that no subtyping is considered; so, for instance, isObject.check
         // returns false for [], /./, new Date, and null.
         var isString = defBuiltInType("", "string");
-        var isFunction = defBuiltInType(function () { }, "function");
+        var isFunction = defBuiltInType(function () {
+        }, "function");
         var isArray = defBuiltInType([], "array");
         var isObject = defBuiltInType({}, "object");
         var isRegExp = defBuiltInType(/./, "RegExp");
@@ -207,16 +210,17 @@ module lib.ast {
             return new Type(function (value) {
                 return value === from;
             }, isUndefined.check(name) ? function () {
-                    return from + "";
-                } : name);
+                return from + "";
+            } : name);
         }
 
 
         class Field {
-            name: any;
-            type: any;
-            hidden: any;
-            defaultFn: any;
+            name:any;
+            type:Type;
+            hidden:any;
+            defaultFn:any;
+
             constructor(name, type, defaultFn?, hidden?) {
                 var self = this;
 
@@ -227,12 +231,13 @@ module lib.ast {
 
 
                 if (isFunction.check(defaultFn)) {
-                    this.defaultFn = { value: defaultFn };
+                    this.defaultFn = {value: defaultFn};
                 }
                 this.name = name;
                 this.type = type;
                 this.hidden = !!hidden;
             }
+
             toString() {
                 return JSON.stringify(this.name) + ": " + this.type;
             }
@@ -254,8 +259,8 @@ module lib.ast {
         function shallowStringify(value) {
             if (isObject.check(value))
                 return "{" + Object.keys(value).map(function (key) {
-                    return key + ": " + value[key];
-                }).join(", ") + "}";
+                        return key + ": " + value[key];
+                    }).join(", ") + "}";
 
             if (isArray.check(value))
                 return "[" + value.map(shallowStringify).join(", ") + "]";
@@ -268,31 +273,32 @@ module lib.ast {
         var defCache = Object.create(null);
 
         class Def {
-            typeNames: any;
-            baseNames: any[];
-            ownFields: any;
-            allSupertypes: any[];
-            supertypeList: any[];
-            fieldNames: any[];
-            type: Type;
-            finalized: boolean = false;
-            typeName: any;
-            allFields: any[];
-            buildable: boolean = false;
+            typeNames:any;
+            baseNames:any[];
+            ownFields:any;
+            allSupertypes:any[];
+            supertypeList:any[];
+            fieldNames:any[];
+            type:Type;
+            finalized:boolean = false;
+            typeName:any;
+            allFields:any[];
+            buildable:boolean = false;
+
             constructor(typeName) {
                 var self = this;
                 assert.ok(self instanceof Def);
 
                 Object.defineProperties(self, {
-                    typeName: { value: typeName },
-                    baseNames: { value: [] },
-                    ownFields: { value: Object.create(null) },
+                    typeName: {value: typeName},
+                    baseNames: {value: []},
+                    ownFields: {value: Object.create(null)},
 
                     // These two are populated during finalization.
-                    allSupertypes: { value: Object.create(null) }, // Includes own typeName.
-                    supertypeList: { value: [] }, // Linear inheritance hierarchy.
-                    allFields: { value: Object.create(null) }, // Includes inherited fields.
-                    fieldNames: { value: [] }, // Non-hidden keys of allFields.
+                    allSupertypes: {value: Object.create(null)}, // Includes own typeName.
+                    supertypeList: {value: []}, // Linear inheritance hierarchy.
+                    allFields: {value: Object.create(null)}, // Includes inherited fields.
+                    fieldNames: {value: []}, // Non-hidden keys of allFields.
 
                     type: {
                         value: new Type(function (value, deep) {
@@ -316,6 +322,7 @@ module lib.ast {
 
                 return null;
             }
+
             isSupertypeOf(that) {
                 if (that instanceof Def) {
                     assert.strictEqual(this.finalized, true);
@@ -429,8 +436,7 @@ module lib.ast {
 
                     this.fieldNames.length = 0;
                     for (var fieldName in allFields) {
-                        if (hasOwn.call(allFields, fieldName) &&
-                            !allFields[fieldName].hidden) {
+                        if (hasOwn.call(allFields, fieldName) && !allFields[fieldName].hidden) {
                             this.fieldNames.push(fieldName);
                         }
                     }
@@ -441,13 +447,14 @@ module lib.ast {
                         value: this.type
                     });
 
-                    Object.defineProperty(this, "finalized", { value: true });
+                    Object.defineProperty(this, "finalized", {value: true});
 
                     // A linearization of the inheritance hierarchy.
                     populateSupertypeList(this.typeName, this.supertypeList);
                 }
             }
-            buildParams: any;
+
+            buildParams:any;
             // Calling the .build method of a Def simultaneously marks the type as
             // buildable (by defining builders[getBuilderName(typeName)]) and
             // specifies the order of arguments that should be passed to the builder
@@ -476,10 +483,12 @@ module lib.ast {
                 // Every buildable type will have its "type" field filled in
                 // automatically. This includes types that are not subtypes of Node,
                 // like SourceLocation, but that seems harmless (TODO?).
-                self.field("type", self.typeName, function () { return self.typeName });
+                self.field("type", self.typeName, function () {
+                    return self.typeName
+                });
 
                 // Override Dp.buildable for this Def instance.
-                Object.defineProperty(self, "buildable", { value: true });
+                Object.defineProperty(self, "buildable", {value: true});
 
                 Object.defineProperty(builders, getBuilderName(self.typeName), {
                     enumerable: true,
@@ -525,7 +534,7 @@ module lib.ast {
                                     shallowStringify(value) +
                                     " does not match field " + field +
                                     " of type " + self.typeName
-                                    );
+                                );
                             }
 
                             // TODO Could attach getters and setters here to enforce
@@ -555,7 +564,7 @@ module lib.ast {
             // literal syntax is somewhat subtle: the object literal syntax would
             // support only one key and one value, but with .field(...) we can pass
             // any number of arguments to specify the field.
-            field(name, type, defaultFn, hidden?) {
+            field(name, type, defaultFn?, hidden?) : Def {
                 assert.strictEqual(this.finalized, false);
                 this.ownFields[name] = new Field(name, type, defaultFn, hidden);
                 return this; // For chaining.
@@ -597,8 +606,7 @@ module lib.ast {
         };
 
 
-
-        export var builders = {};
+        export var builders : {[name:string]:Node;} = {};
 
         // This object is used as prototype for any node created by a builder.
         var nodePrototype = {};
@@ -630,22 +638,24 @@ module lib.ast {
             return typeName.replace(/^[A-Z]+/, function (upperCasePrefix) {
                 var len = upperCasePrefix.length;
                 switch (len) {
-                    case 0: return "";
+                    case 0:
+                        return "";
                     // If there's only one initial capital letter, just lower-case it.
-                    case 1: return upperCasePrefix.toLowerCase();
+                    case 1:
+                        return upperCasePrefix.toLowerCase();
                     default:
                         // If there's more than one initial capital letter, lower-case
                         // all but the last one, so that XMLDefaultDeclaration (for
                         // example) becomes xmlDefaultDeclaration.
                         return upperCasePrefix.slice(
-                            0, len - 1).toLowerCase() +
+                                0, len - 1).toLowerCase() +
                             upperCasePrefix.charAt(len - 1);
                 }
             });
         }
 
 
-        export var namedTypes = {};
+        export var namedTypes:{ [name:string]:Type;} = {};
 
         // Like Object.keys, but aware of what fields each AST type should have.
         export function getFieldNames(object) {
@@ -659,7 +669,7 @@ module lib.ast {
                     false,
                     "did not recognize object of type " +
                     JSON.stringify(object.type)
-                    );
+                );
             }
 
             return Object.keys(object);
@@ -683,7 +693,7 @@ module lib.ast {
         // or undefined, passing each field name and effective value (as returned
         // by getFieldValue) to the callback. If the object has no corresponding
         // Def, the callback will never be called.
-        export function eachField(object, callback, context) {
+        export function eachField(object, callback, context?) {
             getFieldNames(object).forEach(function (name) {
                 callback.call(this, name, getFieldValue(object, name));
             }, context);
@@ -693,7 +703,7 @@ module lib.ast {
         // callback returns a truthy value. Like Array.prototype.some, the final
         // result is either true or false to indicates whether the callback
         // returned true for any element or not.
-        export function someField(object, callback, context) {
+        export function someField(object, callback, context?) {
             return getFieldNames(object).some(function (name) {
                 return callback.call(this, name, getFieldValue(object, name));
             }, context);
