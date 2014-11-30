@@ -165,6 +165,46 @@ var lib;
         utils.applyMixins = applyMixins;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var detail;
+        (function (detail) {
+            var randArray = new Uint8Array(16);
+            var makeRandom = function () {
+                for (var i = 0, r; i < 16; i++) {
+                    if ((i & 0x03) === 0)
+                        r = Math.random() * 0x100000000;
+                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
+                }
+                return randArray;
+            };
+            // Maps for number <-> hex string conversion
+            var byteToHex = [];
+            var hexToByte = {};
+            for (var i = 0; i < 256; i++) {
+                byteToHex[i] = (i + 0x100).toString(16).substr(1);
+                hexToByte[byteToHex[i]] = i;
+            }
+            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
+            function unparse(buf) {
+                var i = 0, bth = byteToHex;
+                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
+            }
+            function guuid() {
+                var rnds = makeRandom();
+                rnds[6] = (rnds[6] & 0x0f) | 0x40;
+                rnds[8] = (rnds[8] & 0x3f) | 0x80;
+                return unparse(rnds);
+            }
+            detail.guuid = guuid;
+        })(detail = utils.detail || (utils.detail = {}));
+        utils.guuid = detail.guuid;
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
 var lib;
 (function (lib) {
     var utils;
@@ -6166,928 +6206,703 @@ var lib;
         })(recast = ast.recast || (ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/// <reference path="sourcemap/sourcemap.ts" />
-/// <reference path="types/types.ts" />
-/// <reference path="recast/recast.ts" />
-/// <reference path='../../utils/mixin.ts' />
+/*
+ Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
+ Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright
+ notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimer in the
+ documentation and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+/*jslint vars:false, bitwise:true*/
+/*jshint indent:4*/
+/*global exports:true, define:true*/
 var lib;
 (function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var detail;
-            (function (detail) {
-                var IntegerTraits = (function () {
-                    function IntegerTraits() {
-                        this.is_integer = function () { return true; };
-                        this.is_exact = function () { return true; };
-                        this.has_infinity = function () { return false; };
-                        this.is_modulo = function () { return true; };
-                    }
-                    return IntegerTraits;
-                })();
-                detail.IntegerTraits = IntegerTraits;
-                var SignedIntegerTraits = (function () {
-                    function SignedIntegerTraits() {
-                        this.is_signed = function () { return true; };
-                    }
-                    return SignedIntegerTraits;
-                })();
-                detail.SignedIntegerTraits = SignedIntegerTraits;
-                var UnsignedIntegerTraits = (function () {
-                    function UnsignedIntegerTraits() {
-                        this.is_signed = function () { return false; };
-                    }
-                    return UnsignedIntegerTraits;
-                })();
-                detail.UnsignedIntegerTraits = UnsignedIntegerTraits;
-                (function (CLiteralKind) {
-                    CLiteralKind[CLiteralKind["Int8"] = 10] = "Int8";
-                    CLiteralKind[CLiteralKind["Uint8"] = 11] = "Uint8";
-                    CLiteralKind[CLiteralKind["Int16"] = 20] = "Int16";
-                    CLiteralKind[CLiteralKind["Uint16"] = 21] = "Uint16";
-                    CLiteralKind[CLiteralKind["Int32"] = 30] = "Int32";
-                    CLiteralKind[CLiteralKind["Uint32"] = 31] = "Uint32";
-                    CLiteralKind[CLiteralKind["Int64"] = 40] = "Int64";
-                    CLiteralKind[CLiteralKind["Float"] = 52] = "Float";
-                    CLiteralKind[CLiteralKind["Double"] = 62] = "Double";
-                })(detail.CLiteralKind || (detail.CLiteralKind = {}));
-                var CLiteralKind = detail.CLiteralKind;
-                detail.CLiteralKindMap = null;
-                if (detail.CLiteralKindMap === null) {
-                    detail.CLiteralKindMap = new Map();
-                }
-            })(detail = type.detail || (type.detail = {}));
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int8 = (function () {
-                    function Int8(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 128;
-                        this.MIN_VALUE = -128;
-                        this.KIND = 10 /* Int8 */;
-                        this.min = function () { return new Int8(_this.MIN_VALUE); };
-                        this.max = function () { return new Int8(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int8(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int8(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int8(0); };
-                        this.value_ = new Int8Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Int8.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Int8.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Int8.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Int8.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Int8.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Int8.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.negate = function () {
-                        return utils.castTo(new Int8(-this.value_[0]));
-                    };
-                    Int8.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Int8;
-                })();
-                detail.Int8 = Int8;
-                detail.CLiteralKindMap.set(10 /* Int8 */, Int8);
-                utils.applyMixins(Int8, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int8 = detail.Int8;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var detail;
-            (function (detail) {
-                var utils = lib.utils;
-                var Uint8 = (function () {
-                    function Uint8(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 255;
-                        this.MIN_VALUE = 0;
-                        this.KIND = 11 /* Uint8 */;
-                        this.min = function () { return new Uint8(_this.MIN_VALUE); };
-                        this.max = function () { return new Uint8(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Uint8(_this.MIN_VALUE); };
-                        this.highest = function () { return new Uint8(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Uint8(0); };
-                        this.value_ = new Uint8Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Uint8.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Uint8.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Uint8.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Uint8.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Uint8.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Uint8.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.negate = function () {
-                        return utils.castTo(new Uint8(-this.value_[0]));
-                    };
-                    Uint8.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Uint8;
-                })();
-                detail.Uint8 = Uint8;
-                detail.CLiteralKindMap.set(11 /* Uint8 */, Uint8);
-                utils.applyMixins(Uint8, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Uint8 = detail.Uint8;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int16 = (function () {
-                    function Int16(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 3276;
-                        this.MIN_VALUE = -3276;
-                        this.KIND = 20 /* Int16 */;
-                        this.min = function () { return new Int16(_this.MIN_VALUE); };
-                        this.max = function () { return new Int16(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int16(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int16(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int16(0); };
-                        this.value_ = new Int16Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Int16.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Int16.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Int16.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Int16.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Int16.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Int16.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.negate = function () {
-                        return utils.castTo(new Int16(-this.value_[0]));
-                    };
-                    Int16.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Int16;
-                })();
-                detail.Int16 = Int16;
-                detail.CLiteralKindMap.set(20 /* Int16 */, Int16);
-                utils.applyMixins(Int16, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int16 = detail.Int16;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Uint16 = (function () {
-                    function Uint16(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 65535;
-                        this.MIN_VALUE = 0;
-                        this.KIND = 21 /* Uint16 */;
-                        this.min = function () { return new Uint16(_this.MIN_VALUE); };
-                        this.max = function () { return new Uint16(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Uint16(_this.MIN_VALUE); };
-                        this.highest = function () { return new Uint16(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Uint16(0); };
-                        this.value_ = new Uint16Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Uint16.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Uint16.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Uint16.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Uint16.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Uint16.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Uint16.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.negate = function () {
-                        return utils.castTo(new Uint16(-this.value_[0]));
-                    };
-                    Uint16.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Uint16;
-                })();
-                detail.Uint16 = Uint16;
-                detail.CLiteralKindMap.set(21 /* Uint16 */, Uint16);
-                utils.applyMixins(Uint16, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Uint16 = detail.Uint16;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int32 = (function () {
-                    function Int32(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 2147483648;
-                        this.MIN_VALUE = -2147483648;
-                        this.KIND = 30 /* Int32 */;
-                        this.min = function () { return new Int32(_this.MIN_VALUE); };
-                        this.max = function () { return new Int32(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int32(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int32(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int32(0); };
-                        this.value_ = new Int32Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Int32.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Int32.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Int32.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Int32.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Int32.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Int32.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.negate = function () {
-                        return utils.castTo(new Int32(-this.value_[0]));
-                    };
-                    Int32.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Int32;
-                })();
-                detail.Int32 = Int32;
-                detail.CLiteralKindMap.set(30 /* Int32 */, Int32);
-                utils.applyMixins(Int32, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int32 = detail.Int32;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Uint32 = (function () {
-                    function Uint32(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 4294967295;
-                        this.MIN_VALUE = 0;
-                        this.KIND = 31 /* Uint32 */;
-                        this.min = function () { return new Uint32(_this.MIN_VALUE); };
-                        this.max = function () { return new Uint32(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Uint32(_this.MIN_VALUE); };
-                        this.highest = function () { return new Uint32(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Uint32(0); };
-                        this.value_ = new Uint32Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Uint32.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Uint32.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Uint32.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Uint32.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Uint32.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Uint32.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.negate = function () {
-                        return utils.castTo(new Uint32(-this.value_[0]));
-                    };
-                    Uint32.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Uint32;
-                })();
-                detail.Uint32 = Uint32;
-                detail.CLiteralKindMap.set(31 /* Uint32 */, Uint32);
-                utils.applyMixins(Uint32, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Uint32 = detail.Uint32;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-/// <reference path='int32.ts' />
-/// <reference path='uint32.ts' />
-// We now hit the problem of numerical representation
-// this needs to be reddone, but this will serve as a template
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int64 = (function () {
-                    function Int64(low, high) {
-                        var _this = this;
-                        this.MAX_VALUE = NaN;
-                        this.MIN_VALUE = NaN;
-                        this.KIND = 30 /* Int32 */;
-                        this.min = function () { return new Int64(_this.MIN_VALUE); };
-                        this.max = function () { return new Int64(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int64(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int64(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int64(0); };
-                        this.value = new Int32Array(2);
-                        if (low && high) {
-                            this.value[0] = low;
-                            this.value[1] = high;
-                        }
-                        else {
-                            this.value[0] = (new detail.Int32()).getValue()[0];
-                            this.value[1] = (new detail.Int32()).getValue()[0];
-                        }
-                    }
-                    Int64.prototype.getLow = function () {
-                        return this.value[0];
-                    };
-                    Int64.prototype.getHigh = function () {
-                        return this.value[1];
-                    };
-                    Int64.prototype.getValue = function () {
-                        return this.value;
-                    };
-                    // lifted from
-                    // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
-                    Int64.prototype.add = function (other) {
-                        if (other.KIND === this.KIND) {
-                            var o = other;
-                            var a48 = this.getHigh() >>> 16;
-                            var a32 = this.getHigh() & 0xFFFF;
-                            var a16 = this.getLow() >>> 16;
-                            var a00 = this.getLow() & 0xFFFF;
-                            var b48 = o.getHigh() >>> 16;
-                            var b32 = o.getHigh() & 0xFFFF;
-                            var b16 = o.getLow() >>> 16;
-                            var b00 = o.getLow() & 0xFFFF;
-                            var c48 = 0, c32 = 0;
-                            var c16 = 0, c00 = 0;
-                            c00 += a00 + b00;
-                            c16 += c00 >>> 16;
-                            c00 &= 0xFFFF;
-                            c16 += a16 + b16;
-                            c32 += c16 >>> 16;
-                            c16 &= 0xFFFF;
-                            c32 += a32 + b32;
-                            c48 += c32 >>> 16;
-                            c32 &= 0xFFFF;
-                            c48 += a48 + b48;
-                            c48 &= 0xFFFF;
-                            return new Int64((c16 << 16) | c00, (c48 << 16) | c32);
-                        }
-                        var low = new detail.Uint32(((new detail.Uint32(this.getLow())).add(other.getValue()[0])).getValue()[0]);
-                        var high = new detail.Uint32(((new detail.Uint32(this.getHigh())).add(new detail.Uint32(low.getValue()[0] >> 31))).getValue()[0]);
-                        return new Int64(low.getValue()[0] & 0x7FFFFFFF, high.getValue()[0]);
-                    };
-                    Int64.prototype.addTo = function (other) {
-                        this.value = this.add(other).getValue();
-                        return this;
-                    };
-                    Int64.prototype.sub = function (other) {
-                        return this.add(other.negate());
-                    };
-                    Int64.prototype.subFrom = function (other) {
-                        this.value = this.sub(other).getValue();
-                        return this;
-                    };
-                    Int64.prototype.mul = function (other) {
-                        throw "Unimplemented";
-                        return new Int64(0, 0);
-                    };
-                    Int64.prototype.mulBy = function (other) {
-                        throw "Unimplemented";
-                        return this;
-                    };
-                    Int64.prototype.div = function (other) {
-                        throw "Unimplemented";
-                        return new Int64(0, 0);
-                    };
-                    Int64.prototype.divBy = function (other) {
-                        throw "Unimplemented";
-                        return this;
-                    };
-                    Int64.prototype.negate = function () {
-                        return new Int64(-this.getLow(), -this.getHigh());
-                    };
-                    return Int64;
-                })();
-                detail.Int64 = Int64;
-                detail.CLiteralKindMap.set(40 /* Int64 */, Int64);
-                utils.applyMixins(Int64, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int64 = detail.Int64;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path="int8.ts" />
-/// <reference path="uint8.ts" />
-/// <reference path="int16.ts" />
-/// <reference path="uint16.ts" />
-/// <reference path="int32.ts" />
-/// <reference path="uint32.ts" />
-/// <reference path="int64.ts" />
-/// <reference path="uint64.ts" />
-/// <reference path="./type/type.ts" />
-var lib;
-(function (lib) {
-    var cuda;
-    (function (cuda) {
-        (function (Status) {
-            Status[Status["Running"] = 0] = "Running";
-            Status[Status["Idle"] = 1] = "Idle";
-            Status[Status["Complete"] = 2] = "Complete";
-            Status[Status["Stopped"] = 3] = "Stopped";
-            Status[Status["Waiting"] = 4] = "Waiting";
-        })(cuda.Status || (cuda.Status = {}));
-        var Status = cuda.Status;
-        var Dim3 = (function () {
-            function Dim3(x, y, z) {
-                if (y === void 0) { y = 1; }
-                if (z === void 0) { z = 1; }
-                this.x = x;
-                this.y = y;
-                this.z = z;
+    var ast;
+    (function (ast) {
+        var traverse;
+        (function (_traverse) {
+            var Syntax, isArray, VisitorOption, VisitorKeys, objectCreate, objectKeys, BREAK, SKIP, REMOVE;
+            function ignoreJSHintError() {
             }
-            Dim3.prototype.flattenedLength = function () {
-                return this.x * this.y * this.z;
-            };
-            Dim3.prototype.dimension = function () {
-                if (this.z == 1) {
-                    if (this.y == 1) {
-                        return 1;
+            isArray = Array.isArray;
+            if (!isArray) {
+                isArray = function isArray(array) {
+                    return Object.prototype.toString.call(array) === '[object Array]';
+                };
+            }
+            function deepCopy(obj) {
+                var ret = {}, key, val;
+                for (key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        val = obj[key];
+                        if (typeof val === 'object' && val !== null) {
+                            ret[key] = deepCopy(val);
+                        }
+                        else {
+                            ret[key] = val;
+                        }
+                    }
+                }
+                return ret;
+            }
+            function shallowCopy(obj) {
+                var ret = {}, key;
+                for (key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        ret[key] = obj[key];
+                    }
+                }
+                return ret;
+            }
+            // based on LLVM libc++ upper_bound / lower_bound
+            // MIT License
+            function upperBound(array, func) {
+                var diff, len, i, current;
+                len = array.length;
+                i = 0;
+                while (len) {
+                    diff = len >>> 1;
+                    current = i + diff;
+                    if (func(array[current])) {
+                        len = diff;
                     }
                     else {
-                        return 2;
+                        i = current + 1;
+                        len -= diff + 1;
                     }
                 }
-                else {
-                    return 3;
-                }
-            };
-            return Dim3;
-        })();
-        cuda.Dim3 = Dim3;
-    })(cuda = lib.cuda || (lib.cuda = {}));
-})(lib || (lib = {}));
-/// <reference path="../ref.ts" />
-var lib;
-(function (lib) {
-    var parallel;
-    (function (parallel) {
-        (function (WorkerStatus) {
-            WorkerStatus[WorkerStatus["Paused"] = 0] = "Paused";
-            WorkerStatus[WorkerStatus["Idle"] = 1] = "Idle";
-            WorkerStatus[WorkerStatus["Busy"] = 2] = "Busy";
-            WorkerStatus[WorkerStatus["Cancel"] = 3] = "Cancel";
-        })(parallel.WorkerStatus || (parallel.WorkerStatus = {}));
-        var WorkerStatus = parallel.WorkerStatus;
-        ;
-        var INIT_PAUSE_LENGTH = 100; // milliseconds;
-        var ParallelWorker = (function () {
-            function ParallelWorker(fun, port) {
-                this.timeout_handle = -1;
-                this.id = lib.utils.guuid();
-                this.status = 1 /* Idle */;
-                this.master_port = port;
-                this.chan = new MessageChannel();
-                // Build a worker from an anonymous function body
-                var blobURL = URL.createObjectURL(new Blob(['(', fun.toString(), ')()'], { type: 'application/javascript' }));
-                this.worker = new Worker(blobURL);
-                // Won't be needing this anymore
-                URL.revokeObjectURL(blobURL);
+                return i;
             }
-            ParallelWorker.prototype.run0 = function (init, end, inc) {
-                var iter = init;
-                if (this.status === 0 /* Paused */) {
-                    this.pause_length *= 2;
-                    setTimeout(this.run0, this.pause_length, [init, end, inc]);
+            function lowerBound(array, func) {
+                var diff, len, i, current;
+                len = array.length;
+                i = 0;
+                while (len) {
+                    diff = len >>> 1;
+                    current = i + diff;
+                    if (func(array[current])) {
+                        i = current + 1;
+                        len -= diff + 1;
+                    }
+                    else {
+                        len = diff;
+                    }
+                }
+                return i;
+            }
+            objectCreate = Object.create || (function () {
+                function F() {
+                }
+                return function (o) {
+                    F.prototype = o;
+                    return new F();
+                };
+            })();
+            objectKeys = Object.keys || function (o) {
+                var keys = [], key;
+                for (key in o) {
+                    keys.push(key);
+                }
+                return keys;
+            };
+            function extend(to, from) {
+                objectKeys(from).forEach(function (key) {
+                    to[key] = from[key];
+                });
+                return to;
+            }
+            Syntax = {
+                AssignmentExpression: 'AssignmentExpression',
+                ArrayExpression: 'ArrayExpression',
+                ArrayPattern: 'ArrayPattern',
+                ArrowFunctionExpression: 'ArrowFunctionExpression',
+                BlockStatement: 'BlockStatement',
+                BinaryExpression: 'BinaryExpression',
+                BreakStatement: 'BreakStatement',
+                CallExpression: 'CallExpression',
+                CatchClause: 'CatchClause',
+                ClassBody: 'ClassBody',
+                ClassDeclaration: 'ClassDeclaration',
+                ClassExpression: 'ClassExpression',
+                ComprehensionBlock: 'ComprehensionBlock',
+                ComprehensionExpression: 'ComprehensionExpression',
+                ConditionalExpression: 'ConditionalExpression',
+                ContinueStatement: 'ContinueStatement',
+                DebuggerStatement: 'DebuggerStatement',
+                DirectiveStatement: 'DirectiveStatement',
+                DoWhileStatement: 'DoWhileStatement',
+                EmptyStatement: 'EmptyStatement',
+                ExportBatchSpecifier: 'ExportBatchSpecifier',
+                ExportDeclaration: 'ExportDeclaration',
+                ExportSpecifier: 'ExportSpecifier',
+                ExpressionStatement: 'ExpressionStatement',
+                ForStatement: 'ForStatement',
+                ForInStatement: 'ForInStatement',
+                ForOfStatement: 'ForOfStatement',
+                FunctionDeclaration: 'FunctionDeclaration',
+                FunctionExpression: 'FunctionExpression',
+                GeneratorExpression: 'GeneratorExpression',
+                Identifier: 'Identifier',
+                IfStatement: 'IfStatement',
+                ImportDeclaration: 'ImportDeclaration',
+                ImportDefaultSpecifier: 'ImportDefaultSpecifier',
+                ImportNamespaceSpecifier: 'ImportNamespaceSpecifier',
+                ImportSpecifier: 'ImportSpecifier',
+                Literal: 'Literal',
+                LabeledStatement: 'LabeledStatement',
+                LogicalExpression: 'LogicalExpression',
+                MemberExpression: 'MemberExpression',
+                MethodDefinition: 'MethodDefinition',
+                ModuleSpecifier: 'ModuleSpecifier',
+                NewExpression: 'NewExpression',
+                ObjectExpression: 'ObjectExpression',
+                ObjectPattern: 'ObjectPattern',
+                Program: 'Program',
+                Property: 'Property',
+                ReturnStatement: 'ReturnStatement',
+                SequenceExpression: 'SequenceExpression',
+                SpreadElement: 'SpreadElement',
+                SwitchStatement: 'SwitchStatement',
+                SwitchCase: 'SwitchCase',
+                TaggedTemplateExpression: 'TaggedTemplateExpression',
+                TemplateElement: 'TemplateElement',
+                TemplateLiteral: 'TemplateLiteral',
+                ThisExpression: 'ThisExpression',
+                ThrowStatement: 'ThrowStatement',
+                TryStatement: 'TryStatement',
+                UnaryExpression: 'UnaryExpression',
+                UpdateExpression: 'UpdateExpression',
+                VariableDeclaration: 'VariableDeclaration',
+                VariableDeclarator: 'VariableDeclarator',
+                WhileStatement: 'WhileStatement',
+                WithStatement: 'WithStatement',
+                YieldExpression: 'YieldExpression'
+            };
+            VisitorKeys = {
+                AssignmentExpression: ['left', 'right'],
+                ArrayExpression: ['elements'],
+                ArrayPattern: ['elements'],
+                ArrowFunctionExpression: ['params', 'defaults', 'rest', 'body'],
+                BlockStatement: ['body'],
+                BinaryExpression: ['left', 'right'],
+                BreakStatement: ['label'],
+                CallExpression: ['callee', 'arguments'],
+                CatchClause: ['param', 'body'],
+                ClassBody: ['body'],
+                ClassDeclaration: ['id', 'body', 'superClass'],
+                ClassExpression: ['id', 'body', 'superClass'],
+                ComprehensionBlock: ['left', 'right'],
+                ComprehensionExpression: ['blocks', 'filter', 'body'],
+                ConditionalExpression: ['test', 'consequent', 'alternate'],
+                ContinueStatement: ['label'],
+                DebuggerStatement: [],
+                DirectiveStatement: [],
+                DoWhileStatement: ['body', 'test'],
+                EmptyStatement: [],
+                ExportBatchSpecifier: [],
+                ExportDeclaration: ['declaration', 'specifiers', 'source'],
+                ExportSpecifier: ['id', 'name'],
+                ExpressionStatement: ['expression'],
+                ForStatement: ['init', 'test', 'update', 'body'],
+                ForInStatement: ['left', 'right', 'body'],
+                ForOfStatement: ['left', 'right', 'body'],
+                FunctionDeclaration: ['id', 'params', 'defaults', 'rest', 'body'],
+                FunctionExpression: ['id', 'params', 'defaults', 'rest', 'body'],
+                GeneratorExpression: ['blocks', 'filter', 'body'],
+                Identifier: [],
+                IfStatement: ['test', 'consequent', 'alternate'],
+                ImportDeclaration: ['specifiers', 'source'],
+                ImportDefaultSpecifier: ['id'],
+                ImportNamespaceSpecifier: ['id'],
+                ImportSpecifier: ['id', 'name'],
+                Literal: [],
+                LabeledStatement: ['label', 'body'],
+                LogicalExpression: ['left', 'right'],
+                MemberExpression: ['object', 'property'],
+                MethodDefinition: ['key', 'value'],
+                ModuleSpecifier: [],
+                NewExpression: ['callee', 'arguments'],
+                ObjectExpression: ['properties'],
+                ObjectPattern: ['properties'],
+                Program: ['body'],
+                Property: ['key', 'value'],
+                ReturnStatement: ['argument'],
+                SequenceExpression: ['expressions'],
+                SpreadElement: ['argument'],
+                SwitchStatement: ['discriminant', 'cases'],
+                SwitchCase: ['test', 'consequent'],
+                TaggedTemplateExpression: ['tag', 'quasi'],
+                TemplateElement: [],
+                TemplateLiteral: ['quasis', 'expressions'],
+                ThisExpression: [],
+                ThrowStatement: ['argument'],
+                TryStatement: ['block', 'handlers', 'handler', 'guardedHandlers', 'finalizer'],
+                UnaryExpression: ['argument'],
+                UpdateExpression: ['argument'],
+                VariableDeclaration: ['declarations'],
+                VariableDeclarator: ['id', 'init'],
+                WhileStatement: ['test', 'body'],
+                WithStatement: ['object', 'body'],
+                YieldExpression: ['argument']
+            };
+            // unique id
+            BREAK = {};
+            SKIP = {};
+            REMOVE = {};
+            VisitorOption = {
+                Break: BREAK,
+                Skip: SKIP,
+                Remove: REMOVE
+            };
+            function Reference(parent, key) {
+                this.parent = parent;
+                this.key = key;
+            }
+            Reference.prototype.replace = function replace(node) {
+                this.parent[this.key] = node;
+            };
+            Reference.prototype.remove = function remove() {
+                if (isArray(this.parent)) {
+                    this.parent.splice(this.key, 1);
+                    return true;
+                }
+                else {
+                    this.replace(null);
                     return false;
                 }
-                if (this.timeout_handle !== -1) {
-                    clearTimeout(this.timeout_handle);
+            };
+            function Element(node, path, wrap, ref) {
+                this.node = node;
+                this.path = path;
+                this.wrap = wrap;
+                this.ref = ref;
+            }
+            var Controller = (function () {
+                function Controller() {
                 }
-                while (iter < end) {
-                    this.fun(iter);
-                    if (this.status === 3 /* Cancel */) {
-                        break;
+                // API:
+                // return property path array from root to current node
+                Controller.prototype.path = function () {
+                    var i, iz, j, jz, result, element;
+                    function addToPath(result, path) {
+                        if (isArray(path)) {
+                            for (j = 0, jz = path.length; j < jz; ++j) {
+                                result.push(path[j]);
+                            }
+                        }
+                        else {
+                            result.push(path);
+                        }
                     }
-                    else if (this.status === 0 /* Paused */) {
-                        setTimeout(this.run0, this.pause_length, [iter + inc, end, inc]);
-                        return false;
+                    // root node
+                    if (!this.__current.path) {
+                        return null;
                     }
-                    iter += inc;
+                    // first node is sentinel, second node is root element
+                    result = [];
+                    for (i = 2, iz = this.__leavelist.length; i < iz; ++i) {
+                        element = this.__leavelist[i];
+                        addToPath(result, element.path);
+                    }
+                    addToPath(result, this.__current.path);
+                    return result;
+                };
+                // API:
+                // return type of current node
+                Controller.prototype.type = function () {
+                    var node = this.current();
+                    return node.type || this.__current.wrap;
+                };
+                // API:
+                // return array of parent elements
+                Controller.prototype.parents = function () {
+                    var i, iz, result;
+                    // first node is sentinel
+                    result = [];
+                    for (i = 1, iz = this.__leavelist.length; i < iz; ++i) {
+                        result.push(this.__leavelist[i].node);
+                    }
+                    return result;
+                };
+                // API:
+                // return current node
+                Controller.prototype.current = function () {
+                    return this.__current.node;
+                };
+                Controller.prototype.__execute = function (callback, element) {
+                    var previous, result;
+                    result = undefined;
+                    previous = this.__current;
+                    this.__current = element;
+                    this.__state = null;
+                    if (callback) {
+                        result = callback.call(this, element.node, this.__leavelist[this.__leavelist.length - 1].node);
+                    }
+                    this.__current = previous;
+                    return result;
+                };
+                // API:
+                // notify control skip / break
+                Controller.prototype.notify = function (flag) {
+                    this.__state = flag;
+                };
+                // API:
+                // skip child nodes of current node
+                Controller.prototype.skip = function () {
+                    this.notify(SKIP);
+                };
+                // API:
+                // break traversals
+                Controller.prototype["break"] = function () {
+                    this.notify(BREAK);
+                };
+                // API:
+                // remove node
+                Controller.prototype.remove = function () {
+                    this.notify(REMOVE);
+                };
+                Controller.prototype.__initialize = function (root, visitor) {
+                    this.visitor = visitor;
+                    this.root = root;
+                    this.__worklist = [];
+                    this.__leavelist = [];
+                    this.__current = null;
+                    this.__state = null;
+                    this.__fallback = visitor.fallback === 'iteration';
+                    this.__keys = VisitorKeys;
+                    if (visitor.keys) {
+                        this.__keys = extend(objectCreate(this.__keys), visitor.keys);
+                    }
+                };
+                Controller.prototype.traverse = function (root, visitor) {
+                    var worklist, leavelist, element, node, nodeType, ret, key, current, current2, candidates, candidate, sentinel;
+                    this.__initialize(root, visitor);
+                    sentinel = {};
+                    // reference
+                    worklist = this.__worklist;
+                    leavelist = this.__leavelist;
+                    // initialize
+                    worklist.push(new Element(root, null, null, null));
+                    leavelist.push(new Element(null, null, null, null));
+                    while (worklist.length) {
+                        element = worklist.pop();
+                        if (element === sentinel) {
+                            element = leavelist.pop();
+                            ret = this.__execute(visitor.leave, element);
+                            if (this.__state === BREAK || ret === BREAK) {
+                                return;
+                            }
+                            continue;
+                        }
+                        if (element.node) {
+                            ret = this.__execute(visitor.enter, element);
+                            if (this.__state === BREAK || ret === BREAK) {
+                                return;
+                            }
+                            worklist.push(sentinel);
+                            leavelist.push(element);
+                            if (this.__state === SKIP || ret === SKIP) {
+                                continue;
+                            }
+                            node = element.node;
+                            nodeType = element.wrap || node.type;
+                            candidates = this.__keys[nodeType];
+                            if (!candidates) {
+                                if (this.__fallback) {
+                                    candidates = objectKeys(node);
+                                }
+                                else {
+                                    throw new Error('Unknown node type ' + nodeType + '.');
+                                }
+                            }
+                            current = candidates.length;
+                            while ((current -= 1) >= 0) {
+                                key = candidates[current];
+                                candidate = node[key];
+                                if (!candidate) {
+                                    continue;
+                                }
+                                if (isArray(candidate)) {
+                                    current2 = candidate.length;
+                                    while ((current2 -= 1) >= 0) {
+                                        if (!candidate[current2]) {
+                                            continue;
+                                        }
+                                        if (isProperty(nodeType, candidates[current])) {
+                                            element = new Element(candidate[current2], [key, current2], 'Property', null);
+                                        }
+                                        else if (isNode(candidate[current2])) {
+                                            element = new Element(candidate[current2], [key, current2], null, null);
+                                        }
+                                        else {
+                                            continue;
+                                        }
+                                        worklist.push(element);
+                                    }
+                                }
+                                else if (isNode(candidate)) {
+                                    worklist.push(new Element(candidate, key, null, null));
+                                }
+                            }
+                        }
+                    }
+                };
+                Controller.prototype.replace = function (root, visitor) {
+                    function removeElem(element) {
+                        var i, key, nextElem, parent;
+                        if (element.ref.remove()) {
+                            // When the reference is an element of an array.
+                            key = element.ref.key;
+                            parent = element.ref.parent;
+                            // If removed from array, then decrease following items' keys.
+                            i = worklist.length;
+                            while (i--) {
+                                nextElem = worklist[i];
+                                if (nextElem.ref && nextElem.ref.parent === parent) {
+                                    if (nextElem.ref.key < key) {
+                                        break;
+                                    }
+                                    --nextElem.ref.key;
+                                }
+                            }
+                        }
+                    }
+                    var worklist, leavelist, node, nodeType, target, element, current, current2, candidates, candidate, sentinel, outer, key;
+                    this.__initialize(root, visitor);
+                    sentinel = {};
+                    // reference
+                    worklist = this.__worklist;
+                    leavelist = this.__leavelist;
+                    // initialize
+                    outer = {
+                        root: root
+                    };
+                    element = new Element(root, null, null, new Reference(outer, 'root'));
+                    worklist.push(element);
+                    leavelist.push(element);
+                    while (worklist.length) {
+                        element = worklist.pop();
+                        if (element === sentinel) {
+                            element = leavelist.pop();
+                            target = this.__execute(visitor.leave, element);
+                            // node may be replaced with null,
+                            // so distinguish between undefined and null in this place
+                            if (target !== undefined && target !== BREAK && target !== SKIP && target !== REMOVE) {
+                                // replace
+                                element.ref.replace(target);
+                            }
+                            if (this.__state === REMOVE || target === REMOVE) {
+                                removeElem(element);
+                            }
+                            if (this.__state === BREAK || target === BREAK) {
+                                return outer.root;
+                            }
+                            continue;
+                        }
+                        target = this.__execute(visitor.enter, element);
+                        // node may be replaced with null,
+                        // so distinguish between undefined and null in this place
+                        if (target !== undefined && target !== BREAK && target !== SKIP && target !== REMOVE) {
+                            // replace
+                            element.ref.replace(target);
+                            element.node = target;
+                        }
+                        if (this.__state === REMOVE || target === REMOVE) {
+                            removeElem(element);
+                            element.node = null;
+                        }
+                        if (this.__state === BREAK || target === BREAK) {
+                            return outer.root;
+                        }
+                        // node may be null
+                        node = element.node;
+                        if (!node) {
+                            continue;
+                        }
+                        worklist.push(sentinel);
+                        leavelist.push(element);
+                        if (this.__state === SKIP || target === SKIP) {
+                            continue;
+                        }
+                        nodeType = element.wrap || node.type;
+                        candidates = this.__keys[nodeType];
+                        if (!candidates) {
+                            if (this.__fallback) {
+                                candidates = objectKeys(node);
+                            }
+                            else {
+                                throw new Error('Unknown node type ' + nodeType + '.');
+                            }
+                        }
+                        current = candidates.length;
+                        while ((current -= 1) >= 0) {
+                            key = candidates[current];
+                            candidate = node[key];
+                            if (!candidate) {
+                                continue;
+                            }
+                            if (isArray(candidate)) {
+                                current2 = candidate.length;
+                                while ((current2 -= 1) >= 0) {
+                                    if (!candidate[current2]) {
+                                        continue;
+                                    }
+                                    if (isProperty(nodeType, candidates[current])) {
+                                        element = new Element(candidate[current2], [key, current2], 'Property', new Reference(candidate, current2));
+                                    }
+                                    else if (isNode(candidate[current2])) {
+                                        element = new Element(candidate[current2], [key, current2], null, new Reference(candidate, current2));
+                                    }
+                                    else {
+                                        continue;
+                                    }
+                                    worklist.push(element);
+                                }
+                            }
+                            else if (isNode(candidate)) {
+                                worklist.push(new Element(candidate, key, null, new Reference(node, key)));
+                            }
+                        }
+                    }
+                    return outer.root;
+                };
+                return Controller;
+            })();
+            function isNode(node) {
+                if (node == null) {
+                    return false;
                 }
-                this.status = 1 /* Idle */;
-            };
-            ParallelWorker.prototype.run = function (fun, start_idx, end_idx, inc) {
-                this.fun = fun;
-                this.pause_length = INIT_PAUSE_LENGTH;
-                this.status = 2 /* Busy */;
-                if (inc) {
-                    return this.run0(start_idx, end_idx, inc);
+                return typeof node === 'object' && typeof node.type === 'string';
+            }
+            function isProperty(nodeType, key) {
+                return (nodeType === Syntax.ObjectExpression || nodeType === Syntax.ObjectPattern) && 'properties' === key;
+            }
+            function traverse(root, visitor) {
+                var controller = new Controller();
+                return controller.traverse(root, visitor);
+            }
+            function replace(root, visitor) {
+                var controller = new Controller();
+                return controller.replace(root, visitor);
+            }
+            function extendCommentRange(comment, tokens) {
+                var target;
+                target = upperBound(tokens, function search(token) {
+                    return token.range[0] > comment.range[0];
+                });
+                comment.extendedRange = [comment.range[0], comment.range[1]];
+                if (target !== tokens.length) {
+                    comment.extendedRange[1] = tokens[target].range[0];
                 }
-                else {
-                    return this.run0(start_idx, end_idx, 1);
+                target -= 1;
+                if (target >= 0) {
+                    comment.extendedRange[0] = tokens[target].range[1];
                 }
-            };
-            ParallelWorker.prototype.cancel = function () {
-                this.status = 3 /* Cancel */;
-            };
-            ParallelWorker.prototype.pause = function () {
-                this.status = 0 /* Paused */;
-            };
-            return ParallelWorker;
-        })();
-        parallel.ParallelWorker = ParallelWorker;
-    })(parallel = lib.parallel || (lib.parallel = {}));
+                return comment;
+            }
+            function attachComments(tree, providedComments, tokens) {
+                // At first, we should calculate extended comment ranges.
+                var comments = [], comment, len, i, cursor;
+                if (!tree.range) {
+                    throw new Error('attachComments needs range information');
+                }
+                // tokens array is empty, we attach comments to tree as 'leadingComments'
+                if (!tokens.length) {
+                    if (providedComments.length) {
+                        for (i = 0, len = providedComments.length; i < len; i += 1) {
+                            comment = deepCopy(providedComments[i]);
+                            comment.extendedRange = [0, tree.range[0]];
+                            comments.push(comment);
+                        }
+                        tree.leadingComments = comments;
+                    }
+                    return tree;
+                }
+                for (i = 0, len = providedComments.length; i < len; i += 1) {
+                    comments.push(extendCommentRange(deepCopy(providedComments[i]), tokens));
+                }
+                // This is based on John Freeman's implementation.
+                cursor = 0;
+                traverse(tree, {
+                    enter: function (node) {
+                        var comment;
+                        while (cursor < comments.length) {
+                            comment = comments[cursor];
+                            if (comment.extendedRange[1] > node.range[0]) {
+                                break;
+                            }
+                            if (comment.extendedRange[1] === node.range[0]) {
+                                if (!node.leadingComments) {
+                                    node.leadingComments = [];
+                                }
+                                node.leadingComments.push(comment);
+                                comments.splice(cursor, 1);
+                            }
+                            else {
+                                cursor += 1;
+                            }
+                        }
+                        // already out of owned node
+                        if (cursor === comments.length) {
+                            return VisitorOption.Break;
+                        }
+                        if (comments[cursor].extendedRange[0] > node.range[1]) {
+                            return VisitorOption.Skip;
+                        }
+                    }
+                });
+                cursor = 0;
+                traverse(tree, {
+                    leave: function (node) {
+                        var comment;
+                        while (cursor < comments.length) {
+                            comment = comments[cursor];
+                            if (node.range[1] < comment.extendedRange[0]) {
+                                break;
+                            }
+                            if (node.range[1] === comment.extendedRange[0]) {
+                                if (!node.trailingComments) {
+                                    node.trailingComments = [];
+                                }
+                                node.trailingComments.push(comment);
+                                comments.splice(cursor, 1);
+                            }
+                            else {
+                                cursor += 1;
+                            }
+                        }
+                        // already out of owned node
+                        if (cursor === comments.length) {
+                            return VisitorOption.Break;
+                        }
+                        if (comments[cursor].extendedRange[0] > node.range[1]) {
+                            return VisitorOption.Skip;
+                        }
+                    }
+                });
+                return tree;
+            }
+        })(traverse = ast.traverse || (ast.traverse = {}));
+    })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/// <reference path="../ref.ts" />
-/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
-var lib;
-(function (lib) {
-    var utils;
-    (function (utils) {
-        var detail;
-        (function (detail) {
-            var randArray = new Uint8Array(16);
-            var makeRandom = function () {
-                for (var i = 0, r; i < 16; i++) {
-                    if ((i & 0x03) === 0)
-                        r = Math.random() * 0x100000000;
-                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
-                }
-                return randArray;
-            };
-            // Maps for number <-> hex string conversion
-            var byteToHex = [];
-            var hexToByte = {};
-            for (var i = 0; i < 256; i++) {
-                byteToHex[i] = (i + 0x100).toString(16).substr(1);
-                hexToByte[byteToHex[i]] = i;
-            }
-            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
-            function unparse(buf) {
-                var i = 0, bth = byteToHex;
-                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
-            }
-            function guuid() {
-                var rnds = makeRandom();
-                rnds[6] = (rnds[6] & 0x0f) | 0x40;
-                rnds[8] = (rnds[8] & 0x3f) | 0x80;
-                return unparse(rnds);
-            }
-            detail.guuid = guuid;
-        })(detail = utils.detail || (utils.detail = {}));
-        utils.guuid = detail.guuid;
-    })(utils = lib.utils || (lib.utils = {}));
-})(lib || (lib = {}));
-/// <reference path="./lib/ref.ts" />
-var app;
-(function (app) {
-    var Greeter = (function () {
-        function Greeter(element) {
-            this.element = element;
-            this.element.innerHTML += "The time is: ";
-            this.span = document.createElement('span');
-            this.element.appendChild(this.span);
-            this.span.innerText = new Date().toUTCString();
-        }
-        Greeter.prototype.start = function () {
-            var b = lib.ast.types.builders;
-            b["identifier"]("foo");
-        };
-        Greeter.prototype.stop = function () {
-            lib.utils.assert.ok(1 == 1, "test");
-            clearTimeout(this.timerToken);
-        };
-        return Greeter;
-    })();
-    app.Greeter = Greeter;
-})(app || (app = {}));
-window.onload = function () {
-    var el = document.getElementById('content');
-    var greeter = new app.Greeter(el);
-    greeter.start();
-};
 /*
  Copyright (C) 2012-2014 Yusuke Suzuki <utatane.tea@gmail.com>
  Copyright (C) 2014 Ivan Nikulin <ifaaan@gmail.com>
@@ -9114,6 +8929,891 @@ var lib;
         })(gen = ast.gen || (ast.gen = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+/// <reference path="sourcemap/sourcemap.ts" />
+/// <reference path="types/types.ts" />
+/// <reference path="recast/recast.ts" />
+/// <reference path="esprima.ts" />
+/// <reference path="traverse.ts" />
+/// <reference path="gen.ts" />
+/// <reference path='../../utils/mixin.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var detail;
+            (function (detail) {
+                var IntegerTraits = (function () {
+                    function IntegerTraits() {
+                        this.is_integer = function () { return true; };
+                        this.is_exact = function () { return true; };
+                        this.has_infinity = function () { return false; };
+                        this.is_modulo = function () { return true; };
+                    }
+                    return IntegerTraits;
+                })();
+                detail.IntegerTraits = IntegerTraits;
+                var SignedIntegerTraits = (function () {
+                    function SignedIntegerTraits() {
+                        this.is_signed = function () { return true; };
+                    }
+                    return SignedIntegerTraits;
+                })();
+                detail.SignedIntegerTraits = SignedIntegerTraits;
+                var UnsignedIntegerTraits = (function () {
+                    function UnsignedIntegerTraits() {
+                        this.is_signed = function () { return false; };
+                    }
+                    return UnsignedIntegerTraits;
+                })();
+                detail.UnsignedIntegerTraits = UnsignedIntegerTraits;
+                (function (CLiteralKind) {
+                    CLiteralKind[CLiteralKind["Int8"] = 10] = "Int8";
+                    CLiteralKind[CLiteralKind["Uint8"] = 11] = "Uint8";
+                    CLiteralKind[CLiteralKind["Int16"] = 20] = "Int16";
+                    CLiteralKind[CLiteralKind["Uint16"] = 21] = "Uint16";
+                    CLiteralKind[CLiteralKind["Int32"] = 30] = "Int32";
+                    CLiteralKind[CLiteralKind["Uint32"] = 31] = "Uint32";
+                    CLiteralKind[CLiteralKind["Int64"] = 40] = "Int64";
+                    CLiteralKind[CLiteralKind["Float"] = 52] = "Float";
+                    CLiteralKind[CLiteralKind["Double"] = 62] = "Double";
+                })(detail.CLiteralKind || (detail.CLiteralKind = {}));
+                var CLiteralKind = detail.CLiteralKind;
+                detail.CLiteralKindMap = null;
+                if (detail.CLiteralKindMap === null) {
+                    detail.CLiteralKindMap = new Map();
+                }
+            })(detail = type.detail || (type.detail = {}));
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int8 = (function () {
+                    function Int8(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 128;
+                        this.MIN_VALUE = -128;
+                        this.KIND = 10 /* Int8 */;
+                        this.min = function () { return new Int8(_this.MIN_VALUE); };
+                        this.max = function () { return new Int8(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int8(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int8(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int8(0); };
+                        this.value_ = new Int8Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Int8.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Int8.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Int8.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Int8.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Int8.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Int8.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.negate = function () {
+                        return utils.castTo(new Int8(-this.value_[0]));
+                    };
+                    Int8.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Int8;
+                })();
+                detail.Int8 = Int8;
+                detail.CLiteralKindMap.set(10 /* Int8 */, Int8);
+                utils.applyMixins(Int8, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int8 = detail.Int8;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var detail;
+            (function (detail) {
+                var utils = lib.utils;
+                var Uint8 = (function () {
+                    function Uint8(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 255;
+                        this.MIN_VALUE = 0;
+                        this.KIND = 11 /* Uint8 */;
+                        this.min = function () { return new Uint8(_this.MIN_VALUE); };
+                        this.max = function () { return new Uint8(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Uint8(_this.MIN_VALUE); };
+                        this.highest = function () { return new Uint8(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Uint8(0); };
+                        this.value_ = new Uint8Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Uint8.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Uint8.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Uint8.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Uint8.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Uint8.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Uint8.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.negate = function () {
+                        return utils.castTo(new Uint8(-this.value_[0]));
+                    };
+                    Uint8.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Uint8;
+                })();
+                detail.Uint8 = Uint8;
+                detail.CLiteralKindMap.set(11 /* Uint8 */, Uint8);
+                utils.applyMixins(Uint8, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Uint8 = detail.Uint8;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int16 = (function () {
+                    function Int16(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 3276;
+                        this.MIN_VALUE = -3276;
+                        this.KIND = 20 /* Int16 */;
+                        this.min = function () { return new Int16(_this.MIN_VALUE); };
+                        this.max = function () { return new Int16(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int16(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int16(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int16(0); };
+                        this.value_ = new Int16Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Int16.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Int16.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Int16.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Int16.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Int16.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Int16.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.negate = function () {
+                        return utils.castTo(new Int16(-this.value_[0]));
+                    };
+                    Int16.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Int16;
+                })();
+                detail.Int16 = Int16;
+                detail.CLiteralKindMap.set(20 /* Int16 */, Int16);
+                utils.applyMixins(Int16, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int16 = detail.Int16;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Uint16 = (function () {
+                    function Uint16(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 65535;
+                        this.MIN_VALUE = 0;
+                        this.KIND = 21 /* Uint16 */;
+                        this.min = function () { return new Uint16(_this.MIN_VALUE); };
+                        this.max = function () { return new Uint16(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Uint16(_this.MIN_VALUE); };
+                        this.highest = function () { return new Uint16(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Uint16(0); };
+                        this.value_ = new Uint16Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Uint16.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Uint16.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Uint16.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Uint16.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Uint16.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Uint16.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.negate = function () {
+                        return utils.castTo(new Uint16(-this.value_[0]));
+                    };
+                    Uint16.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Uint16;
+                })();
+                detail.Uint16 = Uint16;
+                detail.CLiteralKindMap.set(21 /* Uint16 */, Uint16);
+                utils.applyMixins(Uint16, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Uint16 = detail.Uint16;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int32 = (function () {
+                    function Int32(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 2147483648;
+                        this.MIN_VALUE = -2147483648;
+                        this.KIND = 30 /* Int32 */;
+                        this.min = function () { return new Int32(_this.MIN_VALUE); };
+                        this.max = function () { return new Int32(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int32(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int32(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int32(0); };
+                        this.value_ = new Int32Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Int32.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Int32.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Int32.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Int32.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Int32.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Int32.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.negate = function () {
+                        return utils.castTo(new Int32(-this.value_[0]));
+                    };
+                    Int32.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Int32;
+                })();
+                detail.Int32 = Int32;
+                detail.CLiteralKindMap.set(30 /* Int32 */, Int32);
+                utils.applyMixins(Int32, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int32 = detail.Int32;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Uint32 = (function () {
+                    function Uint32(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 4294967295;
+                        this.MIN_VALUE = 0;
+                        this.KIND = 31 /* Uint32 */;
+                        this.min = function () { return new Uint32(_this.MIN_VALUE); };
+                        this.max = function () { return new Uint32(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Uint32(_this.MIN_VALUE); };
+                        this.highest = function () { return new Uint32(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Uint32(0); };
+                        this.value_ = new Uint32Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Uint32.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Uint32.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Uint32.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Uint32.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Uint32.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Uint32.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.negate = function () {
+                        return utils.castTo(new Uint32(-this.value_[0]));
+                    };
+                    Uint32.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Uint32;
+                })();
+                detail.Uint32 = Uint32;
+                detail.CLiteralKindMap.set(31 /* Uint32 */, Uint32);
+                utils.applyMixins(Uint32, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Uint32 = detail.Uint32;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+/// <reference path='int32.ts' />
+/// <reference path='uint32.ts' />
+// We now hit the problem of numerical representation
+// this needs to be reddone, but this will serve as a template
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int64 = (function () {
+                    function Int64(low, high) {
+                        var _this = this;
+                        this.MAX_VALUE = NaN;
+                        this.MIN_VALUE = NaN;
+                        this.KIND = 30 /* Int32 */;
+                        this.min = function () { return new Int64(_this.MIN_VALUE); };
+                        this.max = function () { return new Int64(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int64(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int64(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int64(0); };
+                        this.value = new Int32Array(2);
+                        if (low && high) {
+                            this.value[0] = low;
+                            this.value[1] = high;
+                        }
+                        else {
+                            this.value[0] = (new detail.Int32()).getValue()[0];
+                            this.value[1] = (new detail.Int32()).getValue()[0];
+                        }
+                    }
+                    Int64.prototype.getLow = function () {
+                        return this.value[0];
+                    };
+                    Int64.prototype.getHigh = function () {
+                        return this.value[1];
+                    };
+                    Int64.prototype.getValue = function () {
+                        return this.value;
+                    };
+                    // lifted from
+                    // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
+                    Int64.prototype.add = function (other) {
+                        if (other.KIND === this.KIND) {
+                            var o = other;
+                            var a48 = this.getHigh() >>> 16;
+                            var a32 = this.getHigh() & 0xFFFF;
+                            var a16 = this.getLow() >>> 16;
+                            var a00 = this.getLow() & 0xFFFF;
+                            var b48 = o.getHigh() >>> 16;
+                            var b32 = o.getHigh() & 0xFFFF;
+                            var b16 = o.getLow() >>> 16;
+                            var b00 = o.getLow() & 0xFFFF;
+                            var c48 = 0, c32 = 0;
+                            var c16 = 0, c00 = 0;
+                            c00 += a00 + b00;
+                            c16 += c00 >>> 16;
+                            c00 &= 0xFFFF;
+                            c16 += a16 + b16;
+                            c32 += c16 >>> 16;
+                            c16 &= 0xFFFF;
+                            c32 += a32 + b32;
+                            c48 += c32 >>> 16;
+                            c32 &= 0xFFFF;
+                            c48 += a48 + b48;
+                            c48 &= 0xFFFF;
+                            return new Int64((c16 << 16) | c00, (c48 << 16) | c32);
+                        }
+                        var low = new detail.Uint32(((new detail.Uint32(this.getLow())).add(other.getValue()[0])).getValue()[0]);
+                        var high = new detail.Uint32(((new detail.Uint32(this.getHigh())).add(new detail.Uint32(low.getValue()[0] >> 31))).getValue()[0]);
+                        return new Int64(low.getValue()[0] & 0x7FFFFFFF, high.getValue()[0]);
+                    };
+                    Int64.prototype.addTo = function (other) {
+                        this.value = this.add(other).getValue();
+                        return this;
+                    };
+                    Int64.prototype.sub = function (other) {
+                        return this.add(other.negate());
+                    };
+                    Int64.prototype.subFrom = function (other) {
+                        this.value = this.sub(other).getValue();
+                        return this;
+                    };
+                    Int64.prototype.mul = function (other) {
+                        throw "Unimplemented";
+                        return new Int64(0, 0);
+                    };
+                    Int64.prototype.mulBy = function (other) {
+                        throw "Unimplemented";
+                        return this;
+                    };
+                    Int64.prototype.div = function (other) {
+                        throw "Unimplemented";
+                        return new Int64(0, 0);
+                    };
+                    Int64.prototype.divBy = function (other) {
+                        throw "Unimplemented";
+                        return this;
+                    };
+                    Int64.prototype.negate = function () {
+                        return new Int64(-this.getLow(), -this.getHigh());
+                    };
+                    return Int64;
+                })();
+                detail.Int64 = Int64;
+                detail.CLiteralKindMap.set(40 /* Int64 */, Int64);
+                utils.applyMixins(Int64, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int64 = detail.Int64;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path="int8.ts" />
+/// <reference path="uint8.ts" />
+/// <reference path="int16.ts" />
+/// <reference path="uint16.ts" />
+/// <reference path="int32.ts" />
+/// <reference path="uint32.ts" />
+/// <reference path="int64.ts" />
+/// <reference path="uint64.ts" />
+/// <reference path="./type/type.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        (function (Status) {
+            Status[Status["Running"] = 0] = "Running";
+            Status[Status["Idle"] = 1] = "Idle";
+            Status[Status["Complete"] = 2] = "Complete";
+            Status[Status["Stopped"] = 3] = "Stopped";
+            Status[Status["Waiting"] = 4] = "Waiting";
+        })(cuda.Status || (cuda.Status = {}));
+        var Status = cuda.Status;
+        var Dim3 = (function () {
+            function Dim3(x, y, z) {
+                if (y === void 0) { y = 1; }
+                if (z === void 0) { z = 1; }
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+            Dim3.prototype.flattenedLength = function () {
+                return this.x * this.y * this.z;
+            };
+            Dim3.prototype.dimension = function () {
+                if (this.z == 1) {
+                    if (this.y == 1) {
+                        return 1;
+                    }
+                    else {
+                        return 2;
+                    }
+                }
+                else {
+                    return 3;
+                }
+            };
+            return Dim3;
+        })();
+        cuda.Dim3 = Dim3;
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+var lib;
+(function (lib) {
+    var parallel;
+    (function (parallel) {
+        (function (WorkerStatus) {
+            WorkerStatus[WorkerStatus["Paused"] = 0] = "Paused";
+            WorkerStatus[WorkerStatus["Idle"] = 1] = "Idle";
+            WorkerStatus[WorkerStatus["Busy"] = 2] = "Busy";
+            WorkerStatus[WorkerStatus["Cancel"] = 3] = "Cancel";
+        })(parallel.WorkerStatus || (parallel.WorkerStatus = {}));
+        var WorkerStatus = parallel.WorkerStatus;
+        ;
+        var INIT_PAUSE_LENGTH = 100; // milliseconds;
+        var ParallelWorker = (function () {
+            function ParallelWorker(fun, port) {
+                this.timeout_handle = -1;
+                this.id = lib.utils.guuid();
+                this.status = 1 /* Idle */;
+                this.master_port = port;
+                this.chan = new MessageChannel();
+                // Build a worker from an anonymous function body
+                var blobURL = URL.createObjectURL(new Blob(['(', fun.toString(), ')()'], { type: 'application/javascript' }));
+                this.worker = new Worker(blobURL);
+                // Won't be needing this anymore
+                URL.revokeObjectURL(blobURL);
+            }
+            ParallelWorker.prototype.run0 = function (init, end, inc) {
+                var iter = init;
+                if (this.status === 0 /* Paused */) {
+                    this.pause_length *= 2;
+                    setTimeout(this.run0, this.pause_length, [init, end, inc]);
+                    return false;
+                }
+                if (this.timeout_handle !== -1) {
+                    clearTimeout(this.timeout_handle);
+                }
+                while (iter < end) {
+                    this.fun(iter);
+                    if (this.status === 3 /* Cancel */) {
+                        break;
+                    }
+                    else if (this.status === 0 /* Paused */) {
+                        setTimeout(this.run0, this.pause_length, [iter + inc, end, inc]);
+                        return false;
+                    }
+                    iter += inc;
+                }
+                this.status = 1 /* Idle */;
+            };
+            ParallelWorker.prototype.run = function (fun, start_idx, end_idx, inc) {
+                this.fun = fun;
+                this.pause_length = INIT_PAUSE_LENGTH;
+                this.status = 2 /* Busy */;
+                if (inc) {
+                    return this.run0(start_idx, end_idx, inc);
+                }
+                else {
+                    return this.run0(start_idx, end_idx, 1);
+                }
+            };
+            ParallelWorker.prototype.cancel = function () {
+                this.status = 3 /* Cancel */;
+            };
+            ParallelWorker.prototype.pause = function () {
+                this.status = 0 /* Paused */;
+            };
+            return ParallelWorker;
+        })();
+        parallel.ParallelWorker = ParallelWorker;
+    })(parallel = lib.parallel || (lib.parallel = {}));
+})(lib || (lib = {}));
+/// <reference path="./lib/ref.ts" />
+var app;
+(function (app) {
+    var Greeter = (function () {
+        function Greeter(element) {
+            this.element = element;
+            this.element.innerHTML += "The time is: ";
+            this.span = document.createElement('span');
+            this.element.appendChild(this.span);
+            this.span.innerText = new Date().toUTCString();
+        }
+        Greeter.prototype.start = function () {
+            var b = lib.ast.types.builders;
+            b["identifier"]("foo");
+        };
+        Greeter.prototype.stop = function () {
+            lib.utils.assert.ok(1 == 1, "test");
+            clearTimeout(this.timerToken);
+        };
+        return Greeter;
+    })();
+    app.Greeter = Greeter;
+})(app || (app = {}));
+window.onload = function () {
+    var el = document.getElementById('content');
+    var greeter = new app.Greeter(el);
+    greeter.start();
+};
 /// <reference path="recast.ts" />
 var lib;
 (function (lib) {
@@ -12130,703 +12830,6 @@ var lib;
         })(recast = ast.recast || (ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/*
- Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
- Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
-
- * Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- notice, this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-/*jslint vars:false, bitwise:true*/
-/*jshint indent:4*/
-/*global exports:true, define:true*/
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var traverse;
-        (function (_traverse) {
-            var Syntax, isArray, VisitorOption, VisitorKeys, objectCreate, objectKeys, BREAK, SKIP, REMOVE;
-            function ignoreJSHintError() {
-            }
-            isArray = Array.isArray;
-            if (!isArray) {
-                isArray = function isArray(array) {
-                    return Object.prototype.toString.call(array) === '[object Array]';
-                };
-            }
-            function deepCopy(obj) {
-                var ret = {}, key, val;
-                for (key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        val = obj[key];
-                        if (typeof val === 'object' && val !== null) {
-                            ret[key] = deepCopy(val);
-                        }
-                        else {
-                            ret[key] = val;
-                        }
-                    }
-                }
-                return ret;
-            }
-            function shallowCopy(obj) {
-                var ret = {}, key;
-                for (key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        ret[key] = obj[key];
-                    }
-                }
-                return ret;
-            }
-            // based on LLVM libc++ upper_bound / lower_bound
-            // MIT License
-            function upperBound(array, func) {
-                var diff, len, i, current;
-                len = array.length;
-                i = 0;
-                while (len) {
-                    diff = len >>> 1;
-                    current = i + diff;
-                    if (func(array[current])) {
-                        len = diff;
-                    }
-                    else {
-                        i = current + 1;
-                        len -= diff + 1;
-                    }
-                }
-                return i;
-            }
-            function lowerBound(array, func) {
-                var diff, len, i, current;
-                len = array.length;
-                i = 0;
-                while (len) {
-                    diff = len >>> 1;
-                    current = i + diff;
-                    if (func(array[current])) {
-                        i = current + 1;
-                        len -= diff + 1;
-                    }
-                    else {
-                        len = diff;
-                    }
-                }
-                return i;
-            }
-            objectCreate = Object.create || (function () {
-                function F() {
-                }
-                return function (o) {
-                    F.prototype = o;
-                    return new F();
-                };
-            })();
-            objectKeys = Object.keys || function (o) {
-                var keys = [], key;
-                for (key in o) {
-                    keys.push(key);
-                }
-                return keys;
-            };
-            function extend(to, from) {
-                objectKeys(from).forEach(function (key) {
-                    to[key] = from[key];
-                });
-                return to;
-            }
-            Syntax = {
-                AssignmentExpression: 'AssignmentExpression',
-                ArrayExpression: 'ArrayExpression',
-                ArrayPattern: 'ArrayPattern',
-                ArrowFunctionExpression: 'ArrowFunctionExpression',
-                BlockStatement: 'BlockStatement',
-                BinaryExpression: 'BinaryExpression',
-                BreakStatement: 'BreakStatement',
-                CallExpression: 'CallExpression',
-                CatchClause: 'CatchClause',
-                ClassBody: 'ClassBody',
-                ClassDeclaration: 'ClassDeclaration',
-                ClassExpression: 'ClassExpression',
-                ComprehensionBlock: 'ComprehensionBlock',
-                ComprehensionExpression: 'ComprehensionExpression',
-                ConditionalExpression: 'ConditionalExpression',
-                ContinueStatement: 'ContinueStatement',
-                DebuggerStatement: 'DebuggerStatement',
-                DirectiveStatement: 'DirectiveStatement',
-                DoWhileStatement: 'DoWhileStatement',
-                EmptyStatement: 'EmptyStatement',
-                ExportBatchSpecifier: 'ExportBatchSpecifier',
-                ExportDeclaration: 'ExportDeclaration',
-                ExportSpecifier: 'ExportSpecifier',
-                ExpressionStatement: 'ExpressionStatement',
-                ForStatement: 'ForStatement',
-                ForInStatement: 'ForInStatement',
-                ForOfStatement: 'ForOfStatement',
-                FunctionDeclaration: 'FunctionDeclaration',
-                FunctionExpression: 'FunctionExpression',
-                GeneratorExpression: 'GeneratorExpression',
-                Identifier: 'Identifier',
-                IfStatement: 'IfStatement',
-                ImportDeclaration: 'ImportDeclaration',
-                ImportDefaultSpecifier: 'ImportDefaultSpecifier',
-                ImportNamespaceSpecifier: 'ImportNamespaceSpecifier',
-                ImportSpecifier: 'ImportSpecifier',
-                Literal: 'Literal',
-                LabeledStatement: 'LabeledStatement',
-                LogicalExpression: 'LogicalExpression',
-                MemberExpression: 'MemberExpression',
-                MethodDefinition: 'MethodDefinition',
-                ModuleSpecifier: 'ModuleSpecifier',
-                NewExpression: 'NewExpression',
-                ObjectExpression: 'ObjectExpression',
-                ObjectPattern: 'ObjectPattern',
-                Program: 'Program',
-                Property: 'Property',
-                ReturnStatement: 'ReturnStatement',
-                SequenceExpression: 'SequenceExpression',
-                SpreadElement: 'SpreadElement',
-                SwitchStatement: 'SwitchStatement',
-                SwitchCase: 'SwitchCase',
-                TaggedTemplateExpression: 'TaggedTemplateExpression',
-                TemplateElement: 'TemplateElement',
-                TemplateLiteral: 'TemplateLiteral',
-                ThisExpression: 'ThisExpression',
-                ThrowStatement: 'ThrowStatement',
-                TryStatement: 'TryStatement',
-                UnaryExpression: 'UnaryExpression',
-                UpdateExpression: 'UpdateExpression',
-                VariableDeclaration: 'VariableDeclaration',
-                VariableDeclarator: 'VariableDeclarator',
-                WhileStatement: 'WhileStatement',
-                WithStatement: 'WithStatement',
-                YieldExpression: 'YieldExpression'
-            };
-            VisitorKeys = {
-                AssignmentExpression: ['left', 'right'],
-                ArrayExpression: ['elements'],
-                ArrayPattern: ['elements'],
-                ArrowFunctionExpression: ['params', 'defaults', 'rest', 'body'],
-                BlockStatement: ['body'],
-                BinaryExpression: ['left', 'right'],
-                BreakStatement: ['label'],
-                CallExpression: ['callee', 'arguments'],
-                CatchClause: ['param', 'body'],
-                ClassBody: ['body'],
-                ClassDeclaration: ['id', 'body', 'superClass'],
-                ClassExpression: ['id', 'body', 'superClass'],
-                ComprehensionBlock: ['left', 'right'],
-                ComprehensionExpression: ['blocks', 'filter', 'body'],
-                ConditionalExpression: ['test', 'consequent', 'alternate'],
-                ContinueStatement: ['label'],
-                DebuggerStatement: [],
-                DirectiveStatement: [],
-                DoWhileStatement: ['body', 'test'],
-                EmptyStatement: [],
-                ExportBatchSpecifier: [],
-                ExportDeclaration: ['declaration', 'specifiers', 'source'],
-                ExportSpecifier: ['id', 'name'],
-                ExpressionStatement: ['expression'],
-                ForStatement: ['init', 'test', 'update', 'body'],
-                ForInStatement: ['left', 'right', 'body'],
-                ForOfStatement: ['left', 'right', 'body'],
-                FunctionDeclaration: ['id', 'params', 'defaults', 'rest', 'body'],
-                FunctionExpression: ['id', 'params', 'defaults', 'rest', 'body'],
-                GeneratorExpression: ['blocks', 'filter', 'body'],
-                Identifier: [],
-                IfStatement: ['test', 'consequent', 'alternate'],
-                ImportDeclaration: ['specifiers', 'source'],
-                ImportDefaultSpecifier: ['id'],
-                ImportNamespaceSpecifier: ['id'],
-                ImportSpecifier: ['id', 'name'],
-                Literal: [],
-                LabeledStatement: ['label', 'body'],
-                LogicalExpression: ['left', 'right'],
-                MemberExpression: ['object', 'property'],
-                MethodDefinition: ['key', 'value'],
-                ModuleSpecifier: [],
-                NewExpression: ['callee', 'arguments'],
-                ObjectExpression: ['properties'],
-                ObjectPattern: ['properties'],
-                Program: ['body'],
-                Property: ['key', 'value'],
-                ReturnStatement: ['argument'],
-                SequenceExpression: ['expressions'],
-                SpreadElement: ['argument'],
-                SwitchStatement: ['discriminant', 'cases'],
-                SwitchCase: ['test', 'consequent'],
-                TaggedTemplateExpression: ['tag', 'quasi'],
-                TemplateElement: [],
-                TemplateLiteral: ['quasis', 'expressions'],
-                ThisExpression: [],
-                ThrowStatement: ['argument'],
-                TryStatement: ['block', 'handlers', 'handler', 'guardedHandlers', 'finalizer'],
-                UnaryExpression: ['argument'],
-                UpdateExpression: ['argument'],
-                VariableDeclaration: ['declarations'],
-                VariableDeclarator: ['id', 'init'],
-                WhileStatement: ['test', 'body'],
-                WithStatement: ['object', 'body'],
-                YieldExpression: ['argument']
-            };
-            // unique id
-            BREAK = {};
-            SKIP = {};
-            REMOVE = {};
-            VisitorOption = {
-                Break: BREAK,
-                Skip: SKIP,
-                Remove: REMOVE
-            };
-            function Reference(parent, key) {
-                this.parent = parent;
-                this.key = key;
-            }
-            Reference.prototype.replace = function replace(node) {
-                this.parent[this.key] = node;
-            };
-            Reference.prototype.remove = function remove() {
-                if (isArray(this.parent)) {
-                    this.parent.splice(this.key, 1);
-                    return true;
-                }
-                else {
-                    this.replace(null);
-                    return false;
-                }
-            };
-            function Element(node, path, wrap, ref) {
-                this.node = node;
-                this.path = path;
-                this.wrap = wrap;
-                this.ref = ref;
-            }
-            var Controller = (function () {
-                function Controller() {
-                }
-                // API:
-                // return property path array from root to current node
-                Controller.prototype.path = function () {
-                    var i, iz, j, jz, result, element;
-                    function addToPath(result, path) {
-                        if (isArray(path)) {
-                            for (j = 0, jz = path.length; j < jz; ++j) {
-                                result.push(path[j]);
-                            }
-                        }
-                        else {
-                            result.push(path);
-                        }
-                    }
-                    // root node
-                    if (!this.__current.path) {
-                        return null;
-                    }
-                    // first node is sentinel, second node is root element
-                    result = [];
-                    for (i = 2, iz = this.__leavelist.length; i < iz; ++i) {
-                        element = this.__leavelist[i];
-                        addToPath(result, element.path);
-                    }
-                    addToPath(result, this.__current.path);
-                    return result;
-                };
-                // API:
-                // return type of current node
-                Controller.prototype.type = function () {
-                    var node = this.current();
-                    return node.type || this.__current.wrap;
-                };
-                // API:
-                // return array of parent elements
-                Controller.prototype.parents = function () {
-                    var i, iz, result;
-                    // first node is sentinel
-                    result = [];
-                    for (i = 1, iz = this.__leavelist.length; i < iz; ++i) {
-                        result.push(this.__leavelist[i].node);
-                    }
-                    return result;
-                };
-                // API:
-                // return current node
-                Controller.prototype.current = function () {
-                    return this.__current.node;
-                };
-                Controller.prototype.__execute = function (callback, element) {
-                    var previous, result;
-                    result = undefined;
-                    previous = this.__current;
-                    this.__current = element;
-                    this.__state = null;
-                    if (callback) {
-                        result = callback.call(this, element.node, this.__leavelist[this.__leavelist.length - 1].node);
-                    }
-                    this.__current = previous;
-                    return result;
-                };
-                // API:
-                // notify control skip / break
-                Controller.prototype.notify = function (flag) {
-                    this.__state = flag;
-                };
-                // API:
-                // skip child nodes of current node
-                Controller.prototype.skip = function () {
-                    this.notify(SKIP);
-                };
-                // API:
-                // break traversals
-                Controller.prototype["break"] = function () {
-                    this.notify(BREAK);
-                };
-                // API:
-                // remove node
-                Controller.prototype.remove = function () {
-                    this.notify(REMOVE);
-                };
-                Controller.prototype.__initialize = function (root, visitor) {
-                    this.visitor = visitor;
-                    this.root = root;
-                    this.__worklist = [];
-                    this.__leavelist = [];
-                    this.__current = null;
-                    this.__state = null;
-                    this.__fallback = visitor.fallback === 'iteration';
-                    this.__keys = VisitorKeys;
-                    if (visitor.keys) {
-                        this.__keys = extend(objectCreate(this.__keys), visitor.keys);
-                    }
-                };
-                Controller.prototype.traverse = function (root, visitor) {
-                    var worklist, leavelist, element, node, nodeType, ret, key, current, current2, candidates, candidate, sentinel;
-                    this.__initialize(root, visitor);
-                    sentinel = {};
-                    // reference
-                    worklist = this.__worklist;
-                    leavelist = this.__leavelist;
-                    // initialize
-                    worklist.push(new Element(root, null, null, null));
-                    leavelist.push(new Element(null, null, null, null));
-                    while (worklist.length) {
-                        element = worklist.pop();
-                        if (element === sentinel) {
-                            element = leavelist.pop();
-                            ret = this.__execute(visitor.leave, element);
-                            if (this.__state === BREAK || ret === BREAK) {
-                                return;
-                            }
-                            continue;
-                        }
-                        if (element.node) {
-                            ret = this.__execute(visitor.enter, element);
-                            if (this.__state === BREAK || ret === BREAK) {
-                                return;
-                            }
-                            worklist.push(sentinel);
-                            leavelist.push(element);
-                            if (this.__state === SKIP || ret === SKIP) {
-                                continue;
-                            }
-                            node = element.node;
-                            nodeType = element.wrap || node.type;
-                            candidates = this.__keys[nodeType];
-                            if (!candidates) {
-                                if (this.__fallback) {
-                                    candidates = objectKeys(node);
-                                }
-                                else {
-                                    throw new Error('Unknown node type ' + nodeType + '.');
-                                }
-                            }
-                            current = candidates.length;
-                            while ((current -= 1) >= 0) {
-                                key = candidates[current];
-                                candidate = node[key];
-                                if (!candidate) {
-                                    continue;
-                                }
-                                if (isArray(candidate)) {
-                                    current2 = candidate.length;
-                                    while ((current2 -= 1) >= 0) {
-                                        if (!candidate[current2]) {
-                                            continue;
-                                        }
-                                        if (isProperty(nodeType, candidates[current])) {
-                                            element = new Element(candidate[current2], [key, current2], 'Property', null);
-                                        }
-                                        else if (isNode(candidate[current2])) {
-                                            element = new Element(candidate[current2], [key, current2], null, null);
-                                        }
-                                        else {
-                                            continue;
-                                        }
-                                        worklist.push(element);
-                                    }
-                                }
-                                else if (isNode(candidate)) {
-                                    worklist.push(new Element(candidate, key, null, null));
-                                }
-                            }
-                        }
-                    }
-                };
-                Controller.prototype.replace = function (root, visitor) {
-                    function removeElem(element) {
-                        var i, key, nextElem, parent;
-                        if (element.ref.remove()) {
-                            // When the reference is an element of an array.
-                            key = element.ref.key;
-                            parent = element.ref.parent;
-                            // If removed from array, then decrease following items' keys.
-                            i = worklist.length;
-                            while (i--) {
-                                nextElem = worklist[i];
-                                if (nextElem.ref && nextElem.ref.parent === parent) {
-                                    if (nextElem.ref.key < key) {
-                                        break;
-                                    }
-                                    --nextElem.ref.key;
-                                }
-                            }
-                        }
-                    }
-                    var worklist, leavelist, node, nodeType, target, element, current, current2, candidates, candidate, sentinel, outer, key;
-                    this.__initialize(root, visitor);
-                    sentinel = {};
-                    // reference
-                    worklist = this.__worklist;
-                    leavelist = this.__leavelist;
-                    // initialize
-                    outer = {
-                        root: root
-                    };
-                    element = new Element(root, null, null, new Reference(outer, 'root'));
-                    worklist.push(element);
-                    leavelist.push(element);
-                    while (worklist.length) {
-                        element = worklist.pop();
-                        if (element === sentinel) {
-                            element = leavelist.pop();
-                            target = this.__execute(visitor.leave, element);
-                            // node may be replaced with null,
-                            // so distinguish between undefined and null in this place
-                            if (target !== undefined && target !== BREAK && target !== SKIP && target !== REMOVE) {
-                                // replace
-                                element.ref.replace(target);
-                            }
-                            if (this.__state === REMOVE || target === REMOVE) {
-                                removeElem(element);
-                            }
-                            if (this.__state === BREAK || target === BREAK) {
-                                return outer.root;
-                            }
-                            continue;
-                        }
-                        target = this.__execute(visitor.enter, element);
-                        // node may be replaced with null,
-                        // so distinguish between undefined and null in this place
-                        if (target !== undefined && target !== BREAK && target !== SKIP && target !== REMOVE) {
-                            // replace
-                            element.ref.replace(target);
-                            element.node = target;
-                        }
-                        if (this.__state === REMOVE || target === REMOVE) {
-                            removeElem(element);
-                            element.node = null;
-                        }
-                        if (this.__state === BREAK || target === BREAK) {
-                            return outer.root;
-                        }
-                        // node may be null
-                        node = element.node;
-                        if (!node) {
-                            continue;
-                        }
-                        worklist.push(sentinel);
-                        leavelist.push(element);
-                        if (this.__state === SKIP || target === SKIP) {
-                            continue;
-                        }
-                        nodeType = element.wrap || node.type;
-                        candidates = this.__keys[nodeType];
-                        if (!candidates) {
-                            if (this.__fallback) {
-                                candidates = objectKeys(node);
-                            }
-                            else {
-                                throw new Error('Unknown node type ' + nodeType + '.');
-                            }
-                        }
-                        current = candidates.length;
-                        while ((current -= 1) >= 0) {
-                            key = candidates[current];
-                            candidate = node[key];
-                            if (!candidate) {
-                                continue;
-                            }
-                            if (isArray(candidate)) {
-                                current2 = candidate.length;
-                                while ((current2 -= 1) >= 0) {
-                                    if (!candidate[current2]) {
-                                        continue;
-                                    }
-                                    if (isProperty(nodeType, candidates[current])) {
-                                        element = new Element(candidate[current2], [key, current2], 'Property', new Reference(candidate, current2));
-                                    }
-                                    else if (isNode(candidate[current2])) {
-                                        element = new Element(candidate[current2], [key, current2], null, new Reference(candidate, current2));
-                                    }
-                                    else {
-                                        continue;
-                                    }
-                                    worklist.push(element);
-                                }
-                            }
-                            else if (isNode(candidate)) {
-                                worklist.push(new Element(candidate, key, null, new Reference(node, key)));
-                            }
-                        }
-                    }
-                    return outer.root;
-                };
-                return Controller;
-            })();
-            function isNode(node) {
-                if (node == null) {
-                    return false;
-                }
-                return typeof node === 'object' && typeof node.type === 'string';
-            }
-            function isProperty(nodeType, key) {
-                return (nodeType === Syntax.ObjectExpression || nodeType === Syntax.ObjectPattern) && 'properties' === key;
-            }
-            function traverse(root, visitor) {
-                var controller = new Controller();
-                return controller.traverse(root, visitor);
-            }
-            function replace(root, visitor) {
-                var controller = new Controller();
-                return controller.replace(root, visitor);
-            }
-            function extendCommentRange(comment, tokens) {
-                var target;
-                target = upperBound(tokens, function search(token) {
-                    return token.range[0] > comment.range[0];
-                });
-                comment.extendedRange = [comment.range[0], comment.range[1]];
-                if (target !== tokens.length) {
-                    comment.extendedRange[1] = tokens[target].range[0];
-                }
-                target -= 1;
-                if (target >= 0) {
-                    comment.extendedRange[0] = tokens[target].range[1];
-                }
-                return comment;
-            }
-            function attachComments(tree, providedComments, tokens) {
-                // At first, we should calculate extended comment ranges.
-                var comments = [], comment, len, i, cursor;
-                if (!tree.range) {
-                    throw new Error('attachComments needs range information');
-                }
-                // tokens array is empty, we attach comments to tree as 'leadingComments'
-                if (!tokens.length) {
-                    if (providedComments.length) {
-                        for (i = 0, len = providedComments.length; i < len; i += 1) {
-                            comment = deepCopy(providedComments[i]);
-                            comment.extendedRange = [0, tree.range[0]];
-                            comments.push(comment);
-                        }
-                        tree.leadingComments = comments;
-                    }
-                    return tree;
-                }
-                for (i = 0, len = providedComments.length; i < len; i += 1) {
-                    comments.push(extendCommentRange(deepCopy(providedComments[i]), tokens));
-                }
-                // This is based on John Freeman's implementation.
-                cursor = 0;
-                traverse(tree, {
-                    enter: function (node) {
-                        var comment;
-                        while (cursor < comments.length) {
-                            comment = comments[cursor];
-                            if (comment.extendedRange[1] > node.range[0]) {
-                                break;
-                            }
-                            if (comment.extendedRange[1] === node.range[0]) {
-                                if (!node.leadingComments) {
-                                    node.leadingComments = [];
-                                }
-                                node.leadingComments.push(comment);
-                                comments.splice(cursor, 1);
-                            }
-                            else {
-                                cursor += 1;
-                            }
-                        }
-                        // already out of owned node
-                        if (cursor === comments.length) {
-                            return VisitorOption.Break;
-                        }
-                        if (comments[cursor].extendedRange[0] > node.range[1]) {
-                            return VisitorOption.Skip;
-                        }
-                    }
-                });
-                cursor = 0;
-                traverse(tree, {
-                    leave: function (node) {
-                        var comment;
-                        while (cursor < comments.length) {
-                            comment = comments[cursor];
-                            if (node.range[1] < comment.extendedRange[0]) {
-                                break;
-                            }
-                            if (node.range[1] === comment.extendedRange[0]) {
-                                if (!node.trailingComments) {
-                                    node.trailingComments = [];
-                                }
-                                node.trailingComments.push(comment);
-                                comments.splice(cursor, 1);
-                            }
-                            else {
-                                cursor += 1;
-                            }
-                        }
-                        // already out of owned node
-                        if (cursor === comments.length) {
-                            return VisitorOption.Break;
-                        }
-                        if (comments[cursor].extendedRange[0] > node.range[1]) {
-                            return VisitorOption.Skip;
-                        }
-                    }
-                });
-                return tree;
-            }
-        })(traverse = ast.traverse || (ast.traverse = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
 /// <referench path="core.ts" />
 /// <referench path="e4x.ts" />
 /// <referench path="es6.ts" />
@@ -14318,121 +14321,6 @@ var lib;
         })(utils = ast.utils || (ast.utils = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var memory;
-        (function (memory) {
-            (function (AddressSpace) {
-                AddressSpace[AddressSpace["Shared"] = 0] = "Shared";
-                AddressSpace[AddressSpace["Global"] = 1] = "Global";
-                AddressSpace[AddressSpace["Host"] = 2] = "Host";
-            })(memory.AddressSpace || (memory.AddressSpace = {}));
-            var AddressSpace = memory.AddressSpace;
-            ;
-            var CLiteralKind = lib.c.type.detail.CLiteralKind;
-            var Reference = (function () {
-                function Reference(id, addressSpace, data) {
-                    this.id = id;
-                    this.addressSpace = addressSpace;
-                    this.data = data;
-                    this.KIND = 10 /* Int8 */;
-                }
-                Reference.prototype.get = function (idx) {
-                    switch (this.KIND) {
-                        case 10 /* Int8 */:
-                            return new lib.c.type.Int8(this.data.getInt8(idx));
-                        case 20 /* Int16 */:
-                            return new lib.c.type.Int16(this.data.getInt16(idx));
-                        case 30 /* Int32 */:
-                            return new lib.c.type.Int32(this.data.getInt32(idx));
-                        case 40 /* Int64 */:
-                            return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
-                        case 11 /* Uint8 */:
-                            return new lib.c.type.Uint8(this.data.getUint8(idx));
-                        case 21 /* Uint16 */:
-                            return new lib.c.type.Uint16(this.data.getUint16(idx));
-                        case 31 /* Uint32 */:
-                            return new lib.c.type.Uint32(this.data.getUint32(idx));
-                    }
-                };
-                Reference.prototype.set = function (idx, val) {
-                    if (val instanceof lib.c.type.Int64) {
-                        var i64 = lib.utils.castTo(val);
-                        this.data.setInt32(2 * idx, i64.getHigh());
-                        this.data.setInt32(2 * idx + 1, i64.getLow());
-                        return this.get(idx);
-                    }
-                    else if (val instanceof Object) {
-                        var tmp = lib.utils.castTo(val);
-                        val = tmp.getValue()[0];
-                    }
-                    switch (this.KIND) {
-                        case 10 /* Int8 */:
-                            this.data.setInt8(idx, val);
-                            break;
-                        case 20 /* Int16 */:
-                            this.data.setInt16(idx, val);
-                            break;
-                        case 30 /* Int32 */:
-                            this.data.setInt32(idx, val);
-                            break;
-                        case 40 /* Int64 */:
-                            this.data.setInt32(2 * idx, 0);
-                            this.data.setInt32(2 * idx + 1, val);
-                            break;
-                        case 11 /* Uint8 */:
-                            this.data.setUint8(idx, val);
-                            break;
-                        case 21 /* Uint16 */:
-                            this.data.setUint16(idx, val);
-                            break;
-                        case 31 /* Uint32 */:
-                            this.data.setUint32(idx, val);
-                            break;
-                    }
-                    return this.get(idx);
-                };
-                Reference.prototype.ref = function () {
-                    return new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.data.buffer, 0, 1));
-                };
-                Reference.prototype.deref = function () {
-                    return this.get(0);
-                };
-                return Reference;
-            })();
-            memory.Reference = Reference;
-            var MB = 1024;
-            var MemoryManager = (function () {
-                function MemoryManager(addressSpace) {
-                    this.memoryOffset = 0;
-                    this.TOTAL_MEMORY = 10 * MB;
-                    this.addressSpace = addressSpace;
-                    this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
-                }
-                MemoryManager.prototype.malloc = function (n) {
-                    var buffer = new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.memory, this.memoryOffset, this.memoryOffset + n));
-                    //this.memmap.set(buffer.id, buffer);
-                    this.memoryOffset += n;
-                    return buffer;
-                };
-                MemoryManager.prototype.free = function (mem) {
-                    mem = undefined;
-                };
-                MemoryManager.prototype.ref = function (obj) {
-                    return "todo";
-                };
-                MemoryManager.prototype.deref = function (mem) {
-                    return mem[0];
-                };
-                return MemoryManager;
-            })();
-            memory.MemoryManager = MemoryManager;
-        })(memory = c.memory || (c.memory = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
 /// <reference path="../../ref.ts" />
 var lib;
 (function (lib) {
@@ -14614,6 +14502,121 @@ var lib;
             exec.Warp = Warp;
         })(exec = cuda.exec || (cuda.exec = {}));
     })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var memory;
+        (function (memory) {
+            (function (AddressSpace) {
+                AddressSpace[AddressSpace["Shared"] = 0] = "Shared";
+                AddressSpace[AddressSpace["Global"] = 1] = "Global";
+                AddressSpace[AddressSpace["Host"] = 2] = "Host";
+            })(memory.AddressSpace || (memory.AddressSpace = {}));
+            var AddressSpace = memory.AddressSpace;
+            ;
+            var CLiteralKind = lib.c.type.detail.CLiteralKind;
+            var Reference = (function () {
+                function Reference(id, addressSpace, data) {
+                    this.id = id;
+                    this.addressSpace = addressSpace;
+                    this.data = data;
+                    this.KIND = 10 /* Int8 */;
+                }
+                Reference.prototype.get = function (idx) {
+                    switch (this.KIND) {
+                        case 10 /* Int8 */:
+                            return new lib.c.type.Int8(this.data.getInt8(idx));
+                        case 20 /* Int16 */:
+                            return new lib.c.type.Int16(this.data.getInt16(idx));
+                        case 30 /* Int32 */:
+                            return new lib.c.type.Int32(this.data.getInt32(idx));
+                        case 40 /* Int64 */:
+                            return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
+                        case 11 /* Uint8 */:
+                            return new lib.c.type.Uint8(this.data.getUint8(idx));
+                        case 21 /* Uint16 */:
+                            return new lib.c.type.Uint16(this.data.getUint16(idx));
+                        case 31 /* Uint32 */:
+                            return new lib.c.type.Uint32(this.data.getUint32(idx));
+                    }
+                };
+                Reference.prototype.set = function (idx, val) {
+                    if (val instanceof lib.c.type.Int64) {
+                        var i64 = lib.utils.castTo(val);
+                        this.data.setInt32(2 * idx, i64.getHigh());
+                        this.data.setInt32(2 * idx + 1, i64.getLow());
+                        return this.get(idx);
+                    }
+                    else if (val instanceof Object) {
+                        var tmp = lib.utils.castTo(val);
+                        val = tmp.getValue()[0];
+                    }
+                    switch (this.KIND) {
+                        case 10 /* Int8 */:
+                            this.data.setInt8(idx, val);
+                            break;
+                        case 20 /* Int16 */:
+                            this.data.setInt16(idx, val);
+                            break;
+                        case 30 /* Int32 */:
+                            this.data.setInt32(idx, val);
+                            break;
+                        case 40 /* Int64 */:
+                            this.data.setInt32(2 * idx, 0);
+                            this.data.setInt32(2 * idx + 1, val);
+                            break;
+                        case 11 /* Uint8 */:
+                            this.data.setUint8(idx, val);
+                            break;
+                        case 21 /* Uint16 */:
+                            this.data.setUint16(idx, val);
+                            break;
+                        case 31 /* Uint32 */:
+                            this.data.setUint32(idx, val);
+                            break;
+                    }
+                    return this.get(idx);
+                };
+                Reference.prototype.ref = function () {
+                    return new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.data.buffer, 0, 1));
+                };
+                Reference.prototype.deref = function () {
+                    return this.get(0);
+                };
+                return Reference;
+            })();
+            memory.Reference = Reference;
+            var MB = 1024;
+            var MemoryManager = (function () {
+                function MemoryManager(addressSpace) {
+                    this.memoryOffset = 0;
+                    this.TOTAL_MEMORY = 10 * MB;
+                    this.addressSpace = addressSpace;
+                    this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
+                }
+                MemoryManager.prototype.malloc = function (n) {
+                    var buffer = new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.memory, this.memoryOffset, this.memoryOffset + n));
+                    //this.memmap.set(buffer.id, buffer);
+                    this.memoryOffset += n;
+                    return buffer;
+                };
+                MemoryManager.prototype.free = function (mem) {
+                    mem = undefined;
+                };
+                MemoryManager.prototype.ref = function (obj) {
+                    return "todo";
+                };
+                MemoryManager.prototype.deref = function (mem) {
+                    return mem[0];
+                };
+                return MemoryManager;
+            })();
+            memory.MemoryManager = MemoryManager;
+        })(memory = c.memory || (c.memory = {}));
+    })(c = lib.c || (lib.c = {}));
 })(lib || (lib = {}));
 /// <reference path="../ref.ts" />
 var System;
