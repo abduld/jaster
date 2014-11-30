@@ -151,11 +151,13 @@
     <Content Include="Scripts\lodash.min.js" />
     <Content Include="Scripts\q.js" />
     <Content Include="Scripts\q.min.js" />
+    <Content Include="Scripts\r.js" />
     <Content Include="Scripts\react\JSXTransformer-0.11.2.js" />
     <Content Include="Scripts\react\react-0.11.2.js" />
     <Content Include="Scripts\react\react-0.11.2.min.js" />
     <Content Include="Scripts\react\react-with-addons-0.11.2.js" />
     <Content Include="Scripts\react\react-with-addons-0.11.2.min.js" />
+    <Content Include="Scripts\require.js" />
     <Content Include="web.config" />
     <Content Include="Scripts\jquery-2.1.1.min.map" />
   </ItemGroup>
@@ -333,11 +335,12 @@
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
-    <TypeScriptSourceMap>False</TypeScriptSourceMap>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
     <TypeScriptModuleKind>amd</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <TypeScriptOutFile>main.js</TypeScriptOutFile>
+    <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>

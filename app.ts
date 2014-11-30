@@ -16,7 +16,9 @@ module app {
         }
 
         start() {
-            this.timerToken = setInterval(() => this.span.innerHTML = new Date().toUTCString(), 500);
+
+            var b = lib.ast.types.builders;
+            b["identifier"]("foo");
         }
 
         stop() {

@@ -2151,7 +2151,7 @@ var lib;
                     isString.assert(name);
                     type = toType(type);
                     if (isFunction.check(defaultFn)) {
-                        this.defaultFn = { value: defaultFn };
+                        this.defaultFn = defaultFn;
                     }
                     this.name = name;
                     this.type = type;
@@ -2379,7 +2379,7 @@ var lib;
                                 if (isNumber.check(i) && i < argc) {
                                     value = args[i];
                                 }
-                                else if (field.defaultFn) {
+                                else if (!lib.utils.isUndefined(field.defaultFn)) {
                                     // Expose the partially-built object to the default
                                     // function as its `this` object.
                                     value = field.defaultFn.call(built);
@@ -2765,6 +2765,7 @@ var lib;
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
 /// <reference path="recast.ts" />
+/// <reference path="../../../Scripts/typings/esprima/esprima.d.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -3774,8 +3775,8 @@ var app;
             this.span.innerText = new Date().toUTCString();
         }
         Greeter.prototype.start = function () {
-            var _this = this;
-            this.timerToken = setInterval(function () { return _this.span.innerHTML = new Date().toUTCString(); }, 500);
+            var b = lib.ast.types.builders;
+            b["identifier"]("foo");
         };
         Greeter.prototype.stop = function () {
             lib.utils.assert.ok(1 == 1, "test");
@@ -13175,3 +13176,4 @@ var lib;
         parallel.WorkerPool = WorkerPool;
     })(parallel = lib.parallel || (lib.parallel = {}));
 })(lib || (lib = {}));
+//# sourceMappingURL=main.js.map

@@ -1,5 +1,5 @@
 /// <reference path="./lib/ref.ts" />
-define(["require", "exports", "./lib/utils/utils"], function (require, exports, utils) {
+define(["require", "exports"], function (require, exports) {
     var app;
     (function (app) {
         var Greeter = (function () {
@@ -11,11 +11,11 @@ define(["require", "exports", "./lib/utils/utils"], function (require, exports, 
                 this.span.innerText = new Date().toUTCString();
             }
             Greeter.prototype.start = function () {
-                var _this = this;
-                this.timerToken = setInterval(function () { return _this.span.innerHTML = new Date().toUTCString(); }, 500);
+                var b = lib.ast.types.builders;
+                b["identifier"]("foo");
             };
             Greeter.prototype.stop = function () {
-                utils.assert(1 == 1, "test");
+                lib.utils.assert.ok(1 == 1, "test");
                 clearTimeout(this.timerToken);
             };
             return Greeter;

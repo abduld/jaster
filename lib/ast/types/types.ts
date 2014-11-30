@@ -229,7 +229,7 @@ module lib.ast {
 
 
                 if (isFunction.check(defaultFn)) {
-                    this.defaultFn = {value: defaultFn};
+                    this.defaultFn = defaultFn;
                 }
                 this.name = name;
                 this.type = type;
@@ -509,13 +509,12 @@ module lib.ast {
                             var all = self.allFields;
                             assert.ok(hasOwn.call(all, param), param);
 
-                            var field = all[param];
+                            var field : Field = all[param];
                             var type = field.type;
                             var value;
-
                             if (isNumber.check(i) && i < argc) {
                                 value = args[i];
-                            } else if (field.defaultFn) {
+                            } else if (!lib.utils.isUndefined(field.defaultFn)) {
                                 // Expose the partially-built object to the default
                                 // function as its `this` object.
                                 value = field.defaultFn.call(built);
