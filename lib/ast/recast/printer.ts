@@ -42,7 +42,7 @@ module lib.ast.recast {
 
     var emptyPrintResult = new PrintResult("");
 
-    function Printer(originalOptions) {
+    export function Printer(originalOptions) {
         assert.ok(this instanceof Printer);
 
         var explicitTabWidth = originalOptions && originalOptions.tabWidth;
@@ -136,7 +136,6 @@ module lib.ast.recast {
         };
     }
 
-    exports.Printer = Printer;
 
     function maybeAddParens(path, lines) {
         return path.needsParens() ? concat(["(", lines, ")"]) : lines;
@@ -1072,7 +1071,7 @@ module lib.ast.recast {
                 var stmt = stmtPath.value;
 
                 if (namedTypes.MethodDefinition.check(stmt) ||
-                    (namedTypes.ClassPropertyDefinition.check(stmt) &&
+                    (namedTypes["ClassPropertyDefinition"].check(stmt) &&
                     namedTypes.MethodDefinition.check(stmt.definition))) {
                     needSemicolon = false;
                 }
