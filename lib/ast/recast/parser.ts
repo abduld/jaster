@@ -1,7 +1,7 @@
 module lib.ast.recast {
     import types = lib.ast.types;
     import assert = lib.utils.assert;
-    import Node = esprima.Syntax.Node;
+    import Node = lib.ast.esprima.Syntax.Node;
     import sourceMap = lib.ast.sourcemap;
     var n = types.namedTypes;
     var isArray:types.Type = types.builtInTypes["array"];

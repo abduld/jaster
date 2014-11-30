@@ -1,7 +1,7 @@
 /// <reference path="path.ts" />
 module lib.ast {
     export module types {
-        import Node = esprima.Syntax.Node;
+        import Node = lib.ast.esprima.Syntax.Node;
         import assert = lib.utils.assert;
         var n = namedTypes;
         var b = builders;

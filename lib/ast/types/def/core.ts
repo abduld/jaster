@@ -11,7 +11,6 @@ module lib.ast.types {
         var isNumber = builtin["number"];
         var isBoolean = builtin["boolean"];
         var isRegExp = builtin["RegExp"];
-        debugger;
         var defaults = types.defaults;
         var geq = types.geq;
         export module core {

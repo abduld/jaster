@@ -1,6 +1,6 @@
 
 /// <reference path="recast.ts" />
-/// <reference path="../../../Scripts/typings/esprima/esprima.d.ts" />
+/// <reference path="../esprima.ts" />
 
 module lib.ast.recast {
     var defaults = {

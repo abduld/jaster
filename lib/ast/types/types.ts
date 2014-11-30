@@ -8,7 +8,7 @@
 /// < reference path="scope.ts" />
 module lib.ast {
     export module types {
-        import Node = esprima.Syntax.Node;
+        import Node = lib.ast.esprima.Syntax.Node;
         import assert = lib.utils.assert;
 
         var Ap:Array<any> = Array.prototype;
