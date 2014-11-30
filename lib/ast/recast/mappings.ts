@@ -5,7 +5,7 @@ module lib.ast.recast {
     var isObject:types.Type = types.builtInTypes["object"];
     var isString:types.Type = types.builtInTypes["string"];
     var isNumber:types.Type = types.builtInTypes["number"];
-    var sourceMap = require("source-map");
+    import sourceMap = lib.ast.sourcemap;
     var SourceLocation:types.Type = types.namedTypes["SourceLocation"];
     var Position:types.Type = types.namedTypes["Position"];
 

@@ -23,7 +23,7 @@
 
 // from https://github.com/benjamn/private
 module lib.ast.recast {
-    module private {
+    export module priv {
 
         var originalObject = Object;
         var originalDefProp = Object.defineProperty;

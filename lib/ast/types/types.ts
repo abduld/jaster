@@ -398,12 +398,12 @@ module lib.ast {
                     && this.checkAllFields(value, false);
             }
 
-            bases() {
+            bases(...args:any[]) : Def {
                 var bases = this.baseNames;
 
                 assert.strictEqual(this.finalized, false);
 
-                each.call(arguments, function (baseName) {
+                each.call(args, function (baseName) {
                     isString.assert(baseName);
 
                     // This indexOf lookup may be O(n), but the typical number of base
@@ -459,13 +459,13 @@ module lib.ast {
             // buildable (by defining builders[getBuilderName(typeName)]) and
             // specifies the order of arguments that should be passed to the builder
             // function to create an instance of the type.
-            build(/* param1, param2, ... */) {
+            build(...args:any[]) {
                 var self = this;
 
                 // Calling Def.prototype.build multiple times has the effect of merely
                 // redefining this property.
                 Object.defineProperty(self, "buildParams", {
-                    value: slice.call(arguments),
+                    value: slice.call(args),
                     writable: false,
                     enumerable: false,
                     configurable: true
@@ -493,8 +493,7 @@ module lib.ast {
                 Object.defineProperty(builders, getBuilderName(self.typeName), {
                     enumerable: true,
 
-                    value: function () {
-                        var args = arguments;
+                    value: function (...args:any[]) {
                         var argc = args.length;
                         var built = Object.create(nodePrototype);
 

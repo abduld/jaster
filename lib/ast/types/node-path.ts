@@ -10,7 +10,7 @@ module lib.ast.types {
         parent:any;
         scope:Scope;
 
-        constructor(value, parentPath, name) {
+        constructor(value, parentPath?, name?) {
             assert.ok(this instanceof NodePath);
             super(value, parentPath, name);
         }

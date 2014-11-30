@@ -59,7 +59,7 @@ module lib.ast.recast {
             return printComments(path.node.comments, print(path), options);
         }
 
-        function print(path, includeComments) {
+        function print(path, includeComments?) {
             if (includeComments)
                 return printWithComments(path);
 
@@ -157,13 +157,13 @@ module lib.ast.recast {
             return fromString(n, options);
         }
 
-        namedTypes.Node.assert(n);
+        namedTypes["Node"].assert(n);
 
         switch (n.type) {
             case "File":
                 path = path.get("program");
                 n = path.node;
-                namedTypes.Program.assert(n);
+                namedTypes["Program"].assert(n);
 
             // intentionally fall through...
 
@@ -188,15 +188,16 @@ module lib.ast.recast {
                 ]);
 
             case "MemberExpression":
-                var parts = [print(path.get("object"))];
+                {
+                    var parts: string[] = [print(path.get("object"))];
 
-                if (n.computed)
-                    parts.push("[", print(path.get("property")), "]");
-                else
-                    parts.push(".", print(path.get("property")));
+                    if (n.computed)
+                        parts.push("[", print(path.get("property")), "]");
+                    else
+                        parts.push(".", print(path.get("property")));
 
-                return concat(parts);
-
+                    return concat(parts);
+                }
             case "Path":
                 return fromString(".").join(n.body);
 
@@ -211,88 +212,94 @@ module lib.ast.recast {
 
             case "FunctionDeclaration":
             case "FunctionExpression":
-                var parts = [];
+                {
+                    var parts: string[] = [];
 
-                if (n.async)
-                    parts.push("async ");
+                    if (n.async)
+                        parts.push("async ");
 
-                parts.push("function");
+                    parts.push("function");
 
-                if (n.generator)
-                    parts.push("*");
+                    if (n.generator)
+                        parts.push("*");
 
-                if (n.id)
-                    parts.push(" ", print(path.get("id")));
+                    if (n.id)
+                        parts.push(" ", print(path.get("id")));
 
-                parts.push(
-                    "(",
-                    printFunctionParams(path, options, print),
-                    ") ",
-                    print(path.get("body")));
-
-                return concat(parts);
-
-            case "ArrowFunctionExpression":
-                var parts = [];
-
-                if (n.async)
-                    parts.push("async ");
-
-                if (n.params.length === 1) {
-                    parts.push(print(path.get("params", 0)));
-                } else {
                     parts.push(
                         "(",
                         printFunctionParams(path, options, print),
-                        ")"
-                    );
+                        ") ",
+                        print(path.get("body")));
+
+                    return concat(parts);
                 }
+            case "ArrowFunctionExpression":
+                {
+                    var parts: string[] = [];
 
-                parts.push(" => ", print(path.get("body")));
+                    if (n.async)
+                        parts.push("async ");
 
-                return concat(parts);
+                    if (n.params.length === 1) {
+                        parts.push(print(path.get("params", 0)));
+                    } else {
+                        parts.push(
+                            "(",
+                            printFunctionParams(path, options, print),
+                            ")"
+                            );
+                    }
+
+                    parts.push(" => ", print(path.get("body")));
+
+                    return concat(parts);
+                }
 
             case "MethodDefinition":
-                var parts = [];
+                {
+                    var parts : string[] = [];
 
-                if (n.static) {
-                    parts.push("static ");
+                    if (n.static) {
+                        parts.push("static ");
+                    }
+
+                    parts.push(printMethod(
+                        n.kind,
+                        path.get("key"),
+                        path.get("value"),
+                        options,
+                        print
+                        ));
+
+                    return concat(parts);
                 }
-
-                parts.push(printMethod(
-                    n.kind,
-                    path.get("key"),
-                    path.get("value"),
-                    options,
-                    print
-                ));
-
-                return concat(parts);
-
             case "YieldExpression":
-                var parts = ["yield"];
+                {
+                    var parts: string[] = ["yield"];
 
-                if (n.delegate)
-                    parts.push("*");
+                    if (n.delegate)
+                        parts.push("*");
 
-                if (n.argument)
-                    parts.push(" ", print(path.get("argument")));
+                    if (n.argument)
+                        parts.push(" ", print(path.get("argument")));
 
-                return concat(parts);
-
+                    return concat(parts);
+                }
             case "AwaitExpression":
-                var parts = ["await"];
+                {
+                    var parts: string[] = ["await"];
 
-                if (n.all)
-                    parts.push("*");
+                    if (n.all)
+                        parts.push("*");
 
-                if (n.argument)
-                    parts.push(" ", print(path.get("argument")));
+                    if (n.argument)
+                        parts.push(" ", print(path.get("argument")));
 
-                return concat(parts);
-
+                    return concat(parts);
+                }
             case "ModuleDeclaration":
-                var parts = ["module", print(path.get("id"))];
+                var parts: string[]= ["module", print(path.get("id"))];
 
                 if (n.source) {
                     assert.ok(!n.body);
@@ -305,7 +312,7 @@ module lib.ast.recast {
 
             case "ImportSpecifier":
             case "ExportSpecifier":
-                var parts = [print(path.get("id"))];
+                var parts: string[]= [print(path.get("id"))];
 
                 if (n.name)
                     parts.push(" as ", print(path.get("name")));
@@ -350,7 +357,7 @@ module lib.ast.recast {
                 }
 
                 if (n.declaration) {
-                    if (!namedTypes.Node.check(n.declaration)) {
+                    if (!namedTypes["Node"].check(n.declaration)) {
                         console.log(JSON.stringify(n, null, 2));
                     }
                     var decLines = print(path.get("declaration"));
@@ -375,11 +382,11 @@ module lib.ast.recast {
                             parts.push(", ");
                         }
 
-                        if (namedTypes.ImportDefaultSpecifier.check(sp.value) ||
-                            namedTypes.ImportNamespaceSpecifier.check(sp.value)) {
+                        if (namedTypes["ImportDefaultSpecifier"].check(sp.value) ||
+                            namedTypes["ImportNamespaceSpecifier"].check(sp.value)) {
                             assert.strictEqual(foundImportSpecifier, false);
                         } else {
-                            namedTypes.ImportSpecifier.assert(sp.value);
+                            namedTypes["ImportSpecifier"].assert(sp.value);
                             if (!foundImportSpecifier) {
                                 foundImportSpecifier = true;
                                 parts.push("{");
@@ -441,36 +448,37 @@ module lib.ast.recast {
 
             case "ObjectExpression":
             case "ObjectPattern":
-                var allowBreak = false,
-                    len = n.properties.length,
-                    parts = [len > 0 ? "{\n" : "{"];
+                {
+                    var allowBreak = false,
+                        len = n.properties.length,
+                        parts = [len > 0 ? "{\n" : "{"];
 
-                path.get("properties").map(function (childPath:NodePath) {
-                    var prop = childPath.value;
-                    var i = childPath.name;
+                    path.get("properties").map(function (childPath: NodePath) {
+                        var prop = childPath.value;
+                        var i = childPath.name;
 
-                    var lines = print(childPath).indent(options.tabWidth);
+                        var lines = print(childPath).indent(options.tabWidth);
 
-                    var multiLine = lines.length > 1;
-                    if (multiLine && allowBreak) {
-                        // Similar to the logic for BlockStatement.
-                        parts.push("\n");
-                    }
+                        var multiLine = lines.length > 1;
+                        if (multiLine && allowBreak) {
+                            // Similar to the logic for BlockStatement.
+                            parts.push("\n");
+                        }
 
-                    parts.push(lines);
+                        parts.push(lines);
 
-                    if (i < len - 1) {
-                        // Add an extra line break if the previous object property
-                        // had a multi-line value.
-                        parts.push(multiLine ? ",\n\n" : ",\n");
-                        allowBreak = !multiLine;
-                    }
-                });
+                        if (i < len - 1) {
+                            // Add an extra line break if the previous object property
+                            // had a multi-line value.
+                            parts.push(multiLine ? ",\n\n" : ",\n");
+                            allowBreak = !multiLine;
+                        }
+                    });
 
-                parts.push(len > 0 ? "\n}" : "}");
+                    parts.push(len > 0 ? "\n}" : "}");
 
-                return concat(parts);
-
+                    return concat(parts);
+                }
             case "PropertyPattern":
                 return concat([
                     print(path.get("key")),
@@ -545,14 +553,14 @@ module lib.ast.recast {
                 return fromString(nodeStr(n), options);
 
             case "UnaryExpression":
-                var parts = [n.operator];
+                var parts: string[] = [n.operator];
                 if (/[a-z]$/.test(n.operator))
                     parts.push(" ");
                 parts.push(print(path.get("argument")));
                 return concat(parts);
 
             case "UpdateExpression":
-                var parts = [
+                var parts: string[]= [
                     print(path.get("argument")),
                     n.operator
                 ];
@@ -570,7 +578,7 @@ module lib.ast.recast {
                 ]);
 
             case "NewExpression":
-                var parts = ["new ", print(path.get("callee"))];
+                var parts: string[]= ["new ", print(path.get("callee"))];
                 var args = n.arguments;
                 if (args) {
                     parts.push(printArgumentsList(path, options, print));
@@ -579,7 +587,7 @@ module lib.ast.recast {
                 return concat(parts);
 
             case "VariableDeclaration":
-                var parts = [n.kind, " "];
+                var parts: string[] = [n.kind, " "];
                 var maxLen = 0;
                 var printed = path.get("declarations").map(function (childPath) {
                     var lines = print(childPath);
@@ -601,8 +609,8 @@ module lib.ast.recast {
                 // We generally want to terminate all variable declarations with a
                 // semicolon, except when they are children of for loops.
                 var parentNode = path.parent && path.parent.node;
-                if (!namedTypes.ForStatement.check(parentNode) && !namedTypes.ForInStatement.check(parentNode) && !(namedTypes.ForOfStatement &&
-                    namedTypes.ForOfStatement.check(parentNode))) {
+                if (!namedTypes["ForStatement"].check(parentNode) && !namedTypes["ForStatement"].check(parentNode) && !(namedTypes["ForStatement"] &&
+                    namedTypes["ForOfStatement"].check(parentNode))) {
                     parts.push(";");
                 }
 
@@ -624,7 +632,7 @@ module lib.ast.recast {
 
             case "IfStatement":
                 var con = adjustClause(print(path.get("consequent")), options),
-                    parts = ["if (", print(path.get("test")), ")", con];
+                    parts: string[]= ["if (", print(path.get("test")), ")", con];
 
                 if (n.alternate)
                     parts.push(
@@ -645,7 +653,7 @@ module lib.ast.recast {
                     ]).indentTail(forParen.length),
                     head = concat([forParen, indented, ")"]),
                     clause = adjustClause(print(path.get("body")), options),
-                    parts = [head];
+                    parts: string[] = [head];
 
                 if (head.length > 1) {
                     parts.push("\n");
@@ -686,29 +694,32 @@ module lib.ast.recast {
                 ]);
 
             case "DoWhileStatement":
-                var doBody = concat([
-                    "do",
-                    adjustClause(print(path.get("body")), options)
-                ]), parts = [doBody];
+                {
+                    var doBody = concat([
+                        "do",
+                        adjustClause(print(path.get("body")), options)
+                    ]), parts: string[] = [doBody];
 
-                if (endsWithBrace(doBody))
-                    parts.push(" while");
-                else
-                    parts.push("\nwhile");
+                    if (endsWithBrace(doBody))
+                        parts.push(" while");
+                    else
+                        parts.push("\nwhile");
 
-                parts.push(" (", print(path.get("test")), ");");
+                    parts.push(" (", print(path.get("test")), ");");
 
-                return concat(parts);
+                    return concat(parts);
+                }
 
             case "BreakStatement":
-                var parts = ["break"];
-                if (n.label)
-                    parts.push(" ", print(path.get("label")));
-                parts.push(";");
-                return concat(parts);
-
+                {
+                    var parts: string[] = ["break"];
+                    if (n.label)
+                        parts.push(" ", print(path.get("label")));
+                    parts.push(";");
+                    return concat(parts);
+                }
             case "ContinueStatement":
-                var parts = ["continue"];
+                var parts: string[]= ["continue"];
                 if (n.label)
                     parts.push(" ", print(path.get("label")));
                 parts.push(";");
@@ -722,7 +733,7 @@ module lib.ast.recast {
                 ]);
 
             case "TryStatement":
-                var parts = [
+                var parts: string[] = [
                     "try ",
                     print(path.get("block"))
                 ];
@@ -737,7 +748,7 @@ module lib.ast.recast {
                 return concat(parts);
 
             case "CatchClause":
-                var parts = ["catch (", print(path.get("param"))];
+                var parts: string[]= ["catch (", print(path.get("param"))];
 
                 if (n.guard)
                 // Note: esprima does not recognize conditional catch clauses.
@@ -766,7 +777,7 @@ module lib.ast.recast {
             // Note: ignoring n.lexical because it has no printing consequences.
 
             case "SwitchCase":
-                var parts = [];
+                var parts: string[]= [];
 
                 if (n.test)
                     parts.push("case ", print(path.get("test")), ":");
@@ -789,7 +800,7 @@ module lib.ast.recast {
             // XJS extensions below.
 
             case "XJSAttribute":
-                var parts = [print(path.get("name"))];
+                var parts: string[]= [print(path.get("name"))];
                 if (n.value)
                     parts.push("=", print(path.get("value")));
                 return concat(parts);
@@ -827,7 +838,7 @@ module lib.ast.recast {
                     path.get("children").map(function (childPath:NodePath) {
                         var child = childPath.value;
 
-                        if (namedTypes.Literal.check(child) &&
+                        if (namedTypes["Literal"].check(child) &&
                             typeof child.value === "string") {
                             if (/\S/.test(child.value)) {
                                 return child.value.replace(/^\s+|\s+$/g, "");
@@ -849,7 +860,7 @@ module lib.ast.recast {
                 ]);
 
             case "XJSOpeningElement":
-                var parts = ["<", print(path.get("name"))];
+                var parts: string[]= ["<", print(path.get("name"))];
                 var attrParts = [];
 
                 path.get("attributes").each(function (attrPath) {
@@ -888,7 +899,7 @@ module lib.ast.recast {
                 return fromString("");
 
             case "TypeAnnotatedIdentifier":
-                var parts = [
+                var parts: string[]= [
                     print(path.get("annotation")),
                     " ",
                     print(path.get("identifier"))
@@ -909,27 +920,31 @@ module lib.ast.recast {
                 ]);
 
             case "ClassPropertyDefinition":
-                var parts = ["static ", print(path.get("definition"))];
-                if (!namedTypes.MethodDefinition.check(n.definition))
-                    parts.push(";");
-                return concat(parts);
+                {
+                    var parts : string[] = ["static ", print(path.get("definition"))];
+                    if (!namedTypes["MethodDefinition"].check(n.definition))
+                        parts.push(";");
+                    return concat(parts);
+                }
 
             case "ClassProperty":
                 return concat([print(path.get("id")), ";"]);
 
             case "ClassDeclaration":
             case "ClassExpression":
-                var parts = ["class"];
+                {
+                    var parts : string[] = ["class"];
 
-                if (n.id)
-                    parts.push(" ", print(path.get("id")));
+                    if (n.id)
+                        parts.push(" ", print(path.get("id")));
 
-                if (n.superClass)
-                    parts.push(" extends ", print(path.get("superClass")));
+                    if (n.superClass)
+                        parts.push(" extends ", print(path.get("superClass")));
 
-                parts.push(" ", print(path.get("body")));
+                    parts.push(" ", print(path.get("body")));
 
-                return concat(parts);
+                    return concat(parts);
+                }
 
             // These types are unprintable because they serve as abstract
             // supertypes for other (printable) types.
@@ -1030,8 +1045,8 @@ module lib.ast.recast {
 
     function printStatementSequence(path, options, print) {
         var inClassBody = path.parent &&
-            namedTypes.ClassBody &&
-            namedTypes.ClassBody.check(path.parent.node);
+            namedTypes["ClassBody"] &&
+            namedTypes["ClassBody"].check(path.parent.node);
 
         var filtered = path.filter(function (stmtPath) {
             var stmt = stmtPath.value;
@@ -1070,9 +1085,9 @@ module lib.ast.recast {
             if (inClassBody) {
                 var stmt = stmtPath.value;
 
-                if (namedTypes.MethodDefinition.check(stmt) ||
+                if (namedTypes["MethodDefinition"].check(stmt) ||
                     (namedTypes["ClassPropertyDefinition"].check(stmt) &&
-                    namedTypes.MethodDefinition.check(stmt.definition))) {
+                    namedTypes["MethodDefinition"].check(stmt.definition))) {
                     needSemicolon = false;
                 }
             }
@@ -1186,7 +1201,7 @@ module lib.ast.recast {
         var key = keyPath.value;
         var value = valuePath.value;
 
-        namedTypes.FunctionExpression.assert(value);
+        namedTypes["FunctionExpression"].assert(value);
 
         if (value.async) {
             parts.push("async ");
@@ -1226,7 +1241,7 @@ module lib.ast.recast {
 
     function printFunctionParams(path, options, print) {
         var fun = path.node;
-        namedTypes.Function.assert(fun);
+        namedTypes["Function"].assert(fun);
 
         var params = path.get("params");
         var defaults = path.get("defaults");
@@ -1274,7 +1289,7 @@ module lib.ast.recast {
     }
 
     function nodeStr(n) {
-        namedTypes.Literal.assert(n);
+        namedTypes["Literal"].assert(n);
         isString.assert(n.value);
         return JSON.stringify(n.value);
     }

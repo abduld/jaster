@@ -5,7 +5,7 @@ module lib.ast.recast {
     var isObject = types.builtInTypes["object"];
     var isString = types.builtInTypes["string"];
     import sourceMap = lib.ast.sourcemap;
-    var secretKey = private.makeUniqueKey();
+    var secretKey = priv.makeUniqueKey();
 
 // Goals:
 // 1. Minimize new string creation.
@@ -206,7 +206,7 @@ module lib.ast.recast {
             return info.line.charAt(c);
         }
 
-        stripMargin(width, skipFirstLine) {
+        stripMargin(width : number, skipFirstLine?) {
             if (width === 0)
                 return this;
 
@@ -551,7 +551,7 @@ module lib.ast.recast {
             return this.slice(start, end).toString(options);
         }
 
-        sliceString(start, end, options?) {
+        sliceString(start, end, options?) : any {
             if (!end) {
                 if (!start) {
                     // The client seems to want a copy of this Lines object, but
@@ -751,7 +751,7 @@ module lib.ast.recast {
         };
     }
 
-    export function concat(elements) {
+    export function concat(elements)  {
         return emptyLines.join(elements);
     }
 
@@ -806,7 +806,7 @@ module lib.ast.recast {
     /**
      * @param {Object} options - Options object that configures printing.
      */
-    export function fromString(str:string, options?) {
+    export function fromString(str:any, options?)  {
         if (str instanceof Lines)
             return str;
 
@@ -845,5 +845,5 @@ module lib.ast.recast {
 
 // The emptyLines object needs to be created all the way down here so that
 // Lines.prototype will be fully populated.
-    var emptyLines = fromString("");
+    var emptyLines  = fromString("");
 }

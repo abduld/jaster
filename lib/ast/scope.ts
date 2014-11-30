@@ -1,3 +1,4 @@
+
 module lib.ast {
     export module scope {
         export module detail {

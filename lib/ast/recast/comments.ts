@@ -1,9 +1,11 @@
+/// <reference path="private.ts" />
+
 module lib.ast.recast {
     import types = lib.ast.types;
     var n = types.namedTypes;
     var isArray = types.builtInTypes["array"];
     var isObject = types.builtInTypes["object"];
-    var childNodesCacheKey = private.makeUniqueKey();
+    var childNodesCacheKey = lib.ast.recast.priv.makeUniqueKey();
 
 // TODO Move a non-caching implementation of this function into ast-types,
 // and implement a caching wrapper function here.
@@ -13,7 +15,7 @@ module lib.ast.recast {
         }
 
         if (resultArray) {
-            if (n.Node.check(node)) {
+            if (n["Node"].check(node)) {
                 // This reverse insertion sort almost always takes constant
                 // time because we almost always (maybe always?) append the
                 // nodes in order anyway.
@@ -263,7 +265,7 @@ module lib.ast.recast {
     /**
      * @param {Object} options - Options object that configures printing.
      */
-    function printLeadingComment(comment, options) {
+    function printLeadingComment(comment, options) : Lines {
         var loc = comment.loc;
         var lines = loc && loc.lines;
         var parts = [];
@@ -299,7 +301,8 @@ module lib.ast.recast {
             parts.push("\n");
         }
 
-        return concat(parts).stripMargin(loc ? loc.start.column : 0);
+        var marg: number = loc ? loc.start.column : 0;
+        return concat(parts).stripMargin(marg);
     }
 
     /**

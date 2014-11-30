@@ -37,8 +37,18 @@
     <TypeScriptCompile Include="lib\ast\ast.ts" />
     <TypeScriptCompile Include="lib\ast\eval.ts" />
     <TypeScriptCompile Include="lib\ast\gen.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\comments.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\lines.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\mappings.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\options.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\parser.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\patcher.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\printer.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\private.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\recast.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\types.ts" />
+    <TypeScriptCompile Include="lib\ast\recast\utils.ts" />
     <TypeScriptCompile Include="lib\ast\rewrite.ts" />
-    <TypeScriptCompile Include="lib\ast\scope.ts" />
     <TypeScriptCompile Include="lib\ast\sourcemap\consumer.ts" />
     <TypeScriptCompile Include="lib\ast\sourcemap\gen.ts" />
     <TypeScriptCompile Include="lib\ast\sourcemap\node.ts" />
@@ -46,8 +56,19 @@
     <TypeScriptCompile Include="lib\ast\sourcemap\utils.ts" />
     <TypeScriptCompile Include="lib\ast\traverse.ts" />
     <TypeScriptCompile Include="lib\ast\types.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\core.ts" />
     <TypeScriptCompile Include="lib\ast\types\def\def.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\e4x.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\es6.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\es7.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\fb-harmony.ts" />
+    <TypeScriptCompile Include="lib\ast\types\def\mozilla.ts" />
     <TypeScriptCompile Include="lib\ast\types\equiv.ts" />
+    <TypeScriptCompile Include="lib\ast\types\node-path.ts" />
+    <TypeScriptCompile Include="lib\ast\types\path-visitor.ts" />
+    <TypeScriptCompile Include="lib\ast\types\path.ts" />
+    <TypeScriptCompile Include="lib\ast\types\scope.ts" />
+    <TypeScriptCompile Include="lib\ast\types\shared.ts" />
     <TypeScriptCompile Include="lib\ast\types\types.ts" />
     <TypeScriptCompile Include="lib\ast\utils.ts" />
     <TypeScriptCompile Include="lib\cuda\cuda.ts" />
@@ -141,7 +162,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="lib\ast\recast\" />
     <Folder Include="lib\cuda\memory\" />
     <Folder Include="lib\viz\" />
   </ItemGroup>

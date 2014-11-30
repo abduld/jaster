@@ -544,7 +544,7 @@ module lib.ast {
              *        order or the original's source/line/column order, respectively. Defaults to
              *        `SourceMapConsumer.GENERATED_ORDER`.
              */
-            eachMapping(aCallback, aContext, aOrder) {
+            eachMapping(aCallback, aContext?, aOrder?) {
                 var context = aContext || null;
                 var order = aOrder || SourceMapConsumer.GENERATED_ORDER;
 
