@@ -1,6 +1,9 @@
+
+/// <reference path="recast.ts" />
 module lib.ast.recast {
     import sourceMap = lib.ast.sourcemap;
     import types = lib.ast.types;
+    import assert = lib.utils.assert;
     var namedTypes = types.namedTypes;
     var isString:types.Type = types.builtInTypes["string"];
     var isObject:types.Type = types.builtInTypes["object"];
@@ -1040,7 +1043,7 @@ module lib.ast.recast {
                 throw new Error("unknown type: " + JSON.stringify(n.type));
         }
 
-        return p;
+        return undefined;
     }
 
     function printStatementSequence(path, options, print) {
@@ -1062,7 +1065,7 @@ module lib.ast.recast {
                 return false;
 
             if (!inClassBody) {
-                namedTypes.Statement.assert(stmt);
+                namedTypes["Statement"].assert(stmt);
             }
 
             return true;

@@ -1,17 +1,17 @@
-/// <referench path="core.ts" />
+
+
 
 module lib.ast.types {
-    export module def {
-        import core = lib.ast.types.def.core;
+    export module definitions {
+        import core = lib.ast.types.definitions.core;
         import types = lib.ast.types;
-        import shared = lib.ast.types.shared;
         var def = types.Type.def;
         var or = types.Type.or;
         var builtin = types.builtInTypes;
         var isString = builtin["string"];
         var isBoolean = builtin["boolean"];
-        var defaults = shared.defaults;
-        var geq = shared.geq;
+        var defaults = types.defaults;
+        var geq = types.geq;
 
 
         def("XJSAttribute")

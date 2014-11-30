@@ -22,7 +22,7 @@
 
 /*global module:true*/
 module lib.utils {
-    export class Map {
+    export class Map<T> {
         private __data;
 
         constructor() {
@@ -98,7 +98,5 @@ module lib.utils {
             return result;
         }
     }
-    if (!isNullOrUndefined(globals.Map)) {
-        Map = globals.Map;
-    }
+
 }

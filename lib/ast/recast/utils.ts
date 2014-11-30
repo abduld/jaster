@@ -1,3 +1,5 @@
+
+/// <reference path="recast.ts" />
 module lib.ast.recast {
     import getFieldValue = lib.ast.types.getFieldValue;
     import sourceMap = lib.ast.sourcemap;
@@ -5,11 +7,11 @@ module lib.ast.recast {
     var SourceMapGenerator = sourceMap.SourceMapGenerator;
     var hasOwn = Object.prototype.hasOwnProperty;
 
-    export function getUnionOfKeys() {
+    export function getUnionOfKeys(...args:any[]) {
         var result = {};
-        var argc = arguments.length;
+        var argc = args.length;
         for (var i = 0; i < argc; ++i) {
-            var keys = Object.keys(arguments[i]);
+            var keys = Object.keys(args[i]);
             var keyCount = keys.length;
             for (var j = 0; j < keyCount; ++j) {
                 result[keys[j]] = true;

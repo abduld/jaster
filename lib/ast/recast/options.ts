@@ -1,3 +1,6 @@
+
+/// <reference path="recast.ts" />
+
 module lib.ast.recast {
     var defaults = {
         // If you want to use a different branch of esprima, or any other

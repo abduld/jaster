@@ -30,7 +30,21 @@ var lib;
                         "LogType.Fatal": '\033[31m'
                     };
                     if (type >= this._level) {
-                        console[type](color["" + type] + msg + color["LogType.Debug"]);
+                        switch (type) {
+                            case 0 /* Debug */:
+                            case 1 /* Trace */:
+                                console.info(msg);
+                                break;
+                            case 2 /* Warn */:
+                                console.warn(msg);
+                                break;
+                            case 3 /* Error */:
+                            case 4 /* Fatal */:
+                            default:
+                                debugger;
+                                console.error(msg);
+                                break;
+                        }
                     }
                 };
                 Logger.prototype.debug = function (msg) {
@@ -66,10 +80,13 @@ var lib;
             var logger = new Logger();
             function assert(res, msg) {
                 if (!res) {
-                    logger.error('FAIL: ' + msg);
-                }
-                else {
-                    logger.debug('Pass: ' + msg);
+                    debugger;
+                    if (msg) {
+                        logger.error('FAIL: ' + msg);
+                    }
+                    else {
+                        logger.error('FAIL: ');
+                    }
                 }
             }
             detail.assert = assert;
@@ -90,7 +107,38 @@ var lib;
             }
             detail.assertNotImplemented = assertNotImplemented;
         })(detail = utils.detail || (utils.detail = {}));
-        utils.assert = detail.assert;
+        var assert;
+        (function (assert) {
+            var _assert = lib.utils.detail.assert;
+            function ok(cond, msg) {
+                return _assert(cond, msg);
+            }
+            assert.ok = ok;
+            function fail(cond, msg) {
+                return _assert(!cond, msg);
+            }
+            assert.fail = fail;
+            function strictEqual(a, b, msg) {
+                return _assert(a === b, msg);
+            }
+            assert.strictEqual = strictEqual;
+            function notStrictEqual(a, b, msg) {
+                return fail(a === b, msg);
+            }
+            assert.notStrictEqual = notStrictEqual;
+            function deepEqual(a, b, msg) {
+                ok(a === b, msg);
+                var aprops = Object.getOwnPropertyNames(a);
+                var bprops = Object.getOwnPropertyNames(b);
+                ok(aprops === bprops, msg);
+                aprops.forEach(function (prop) {
+                    ok(a.hasOwnProperty(prop), msg);
+                    ok(b.hasOwnProperty(prop), msg);
+                    deepEqual(a[prop], b[prop], msg);
+                });
+            }
+            assert.deepEqual = deepEqual;
+        })(assert = utils.assert || (utils.assert = {}));
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
 var lib;
@@ -115,804 +163,6 @@ var lib;
             });
         }
         utils.applyMixins = applyMixins;
-    })(utils = lib.utils || (lib.utils = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/mixin.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var detail;
-            (function (detail) {
-                var IntegerTraits = (function () {
-                    function IntegerTraits() {
-                        this.is_integer = function () { return true; };
-                        this.is_exact = function () { return true; };
-                        this.has_infinity = function () { return false; };
-                        this.is_modulo = function () { return true; };
-                    }
-                    return IntegerTraits;
-                })();
-                detail.IntegerTraits = IntegerTraits;
-                var SignedIntegerTraits = (function () {
-                    function SignedIntegerTraits() {
-                        this.is_signed = function () { return true; };
-                    }
-                    return SignedIntegerTraits;
-                })();
-                detail.SignedIntegerTraits = SignedIntegerTraits;
-                var UnsignedIntegerTraits = (function () {
-                    function UnsignedIntegerTraits() {
-                        this.is_signed = function () { return false; };
-                    }
-                    return UnsignedIntegerTraits;
-                })();
-                detail.UnsignedIntegerTraits = UnsignedIntegerTraits;
-                (function (CLiteralKind) {
-                    CLiteralKind[CLiteralKind["Int8"] = 10] = "Int8";
-                    CLiteralKind[CLiteralKind["Uint8"] = 11] = "Uint8";
-                    CLiteralKind[CLiteralKind["Int16"] = 20] = "Int16";
-                    CLiteralKind[CLiteralKind["Uint16"] = 21] = "Uint16";
-                    CLiteralKind[CLiteralKind["Int32"] = 30] = "Int32";
-                    CLiteralKind[CLiteralKind["Uint32"] = 31] = "Uint32";
-                    CLiteralKind[CLiteralKind["Int64"] = 40] = "Int64";
-                    CLiteralKind[CLiteralKind["Float"] = 52] = "Float";
-                    CLiteralKind[CLiteralKind["Double"] = 62] = "Double";
-                })(detail.CLiteralKind || (detail.CLiteralKind = {}));
-                var CLiteralKind = detail.CLiteralKind;
-                detail.CLiteralKindMap = null;
-                if (detail.CLiteralKindMap === null) {
-                    detail.CLiteralKindMap = new Map();
-                }
-            })(detail = type.detail || (type.detail = {}));
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var detail;
-            (function (detail) {
-                var utils = lib.utils;
-                var Uint8 = (function () {
-                    function Uint8(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 255;
-                        this.MIN_VALUE = 0;
-                        this.KIND = 11 /* Uint8 */;
-                        this.min = function () { return new Uint8(_this.MIN_VALUE); };
-                        this.max = function () { return new Uint8(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Uint8(_this.MIN_VALUE); };
-                        this.highest = function () { return new Uint8(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Uint8(0); };
-                        this.value_ = new Uint8Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Uint8.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Uint8.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Uint8.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Uint8.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Uint8.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint8(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Uint8.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return this;
-                    };
-                    Uint8.prototype.negate = function () {
-                        return utils.castTo(new Uint8(-this.value_[0]));
-                    };
-                    Uint8.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Uint8;
-                })();
-                detail.Uint8 = Uint8;
-                detail.CLiteralKindMap.set(11 /* Uint8 */, Uint8);
-                utils.applyMixins(Uint8, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Uint8 = detail.Uint8;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int16 = (function () {
-                    function Int16(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 3276;
-                        this.MIN_VALUE = -3276;
-                        this.KIND = 20 /* Int16 */;
-                        this.min = function () { return new Int16(_this.MIN_VALUE); };
-                        this.max = function () { return new Int16(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int16(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int16(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int16(0); };
-                        this.value_ = new Int16Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Int16.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Int16.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Int16.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Int16.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Int16.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int16(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Int16.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int16.prototype.negate = function () {
-                        return utils.castTo(new Int16(-this.value_[0]));
-                    };
-                    Int16.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Int16;
-                })();
-                detail.Int16 = Int16;
-                detail.CLiteralKindMap.set(20 /* Int16 */, Int16);
-                utils.applyMixins(Int16, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int16 = detail.Int16;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Uint16 = (function () {
-                    function Uint16(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 65535;
-                        this.MIN_VALUE = 0;
-                        this.KIND = 21 /* Uint16 */;
-                        this.min = function () { return new Uint16(_this.MIN_VALUE); };
-                        this.max = function () { return new Uint16(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Uint16(_this.MIN_VALUE); };
-                        this.highest = function () { return new Uint16(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Uint16(0); };
-                        this.value_ = new Uint16Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Uint16.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Uint16.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Uint16.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Uint16.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Uint16.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint16(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Uint16.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return this;
-                    };
-                    Uint16.prototype.negate = function () {
-                        return utils.castTo(new Uint16(-this.value_[0]));
-                    };
-                    Uint16.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Uint16;
-                })();
-                detail.Uint16 = Uint16;
-                detail.CLiteralKindMap.set(21 /* Uint16 */, Uint16);
-                utils.applyMixins(Uint16, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Uint16 = detail.Uint16;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int32 = (function () {
-                    function Int32(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 2147483648;
-                        this.MIN_VALUE = -2147483648;
-                        this.KIND = 30 /* Int32 */;
-                        this.min = function () { return new Int32(_this.MIN_VALUE); };
-                        this.max = function () { return new Int32(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int32(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int32(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int32(0); };
-                        this.value_ = new Int32Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Int32.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Int32.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Int32.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Int32.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Int32.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int32(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Int32.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int32.prototype.negate = function () {
-                        return utils.castTo(new Int32(-this.value_[0]));
-                    };
-                    Int32.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Int32;
-                })();
-                detail.Int32 = Int32;
-                detail.CLiteralKindMap.set(30 /* Int32 */, Int32);
-                utils.applyMixins(Int32, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int32 = detail.Int32;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Uint32 = (function () {
-                    function Uint32(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 4294967295;
-                        this.MIN_VALUE = 0;
-                        this.KIND = 31 /* Uint32 */;
-                        this.min = function () { return new Uint32(_this.MIN_VALUE); };
-                        this.max = function () { return new Uint32(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Uint32(_this.MIN_VALUE); };
-                        this.highest = function () { return new Uint32(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Uint32(0); };
-                        this.value_ = new Uint32Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Uint32.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Uint32.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Uint32.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Uint32.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Uint32.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Uint32(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Uint32.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return this;
-                    };
-                    Uint32.prototype.negate = function () {
-                        return utils.castTo(new Uint32(-this.value_[0]));
-                    };
-                    Uint32.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Uint32;
-                })();
-                detail.Uint32 = Uint32;
-                detail.CLiteralKindMap.set(31 /* Uint32 */, Uint32);
-                utils.applyMixins(Uint32, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Uint32 = detail.Uint32;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-/// <reference path='int32.ts' />
-/// <reference path='uint32.ts' />
-// We now hit the problem of numerical representation
-// this needs to be reddone, but this will serve as a template
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int64 = (function () {
-                    function Int64(low, high) {
-                        var _this = this;
-                        this.MAX_VALUE = NaN;
-                        this.MIN_VALUE = NaN;
-                        this.KIND = 30 /* Int32 */;
-                        this.min = function () { return new Int64(_this.MIN_VALUE); };
-                        this.max = function () { return new Int64(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int64(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int64(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int64(0); };
-                        this.value = new Int32Array(2);
-                        if (low && high) {
-                            this.value[0] = low;
-                            this.value[1] = high;
-                        }
-                        else {
-                            this.value[0] = (new detail.Int32()).getValue()[0];
-                            this.value[1] = (new detail.Int32()).getValue()[0];
-                        }
-                    }
-                    Int64.prototype.getLow = function () {
-                        return this.value[0];
-                    };
-                    Int64.prototype.getHigh = function () {
-                        return this.value[1];
-                    };
-                    Int64.prototype.getValue = function () {
-                        return this.value;
-                    };
-                    // lifted from
-                    // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
-                    Int64.prototype.add = function (other) {
-                        if (other.KIND === this.KIND) {
-                            var o = other;
-                            var a48 = this.getHigh() >>> 16;
-                            var a32 = this.getHigh() & 0xFFFF;
-                            var a16 = this.getLow() >>> 16;
-                            var a00 = this.getLow() & 0xFFFF;
-                            var b48 = o.getHigh() >>> 16;
-                            var b32 = o.getHigh() & 0xFFFF;
-                            var b16 = o.getLow() >>> 16;
-                            var b00 = o.getLow() & 0xFFFF;
-                            var c48 = 0, c32 = 0;
-                            var c16 = 0, c00 = 0;
-                            c00 += a00 + b00;
-                            c16 += c00 >>> 16;
-                            c00 &= 0xFFFF;
-                            c16 += a16 + b16;
-                            c32 += c16 >>> 16;
-                            c16 &= 0xFFFF;
-                            c32 += a32 + b32;
-                            c48 += c32 >>> 16;
-                            c32 &= 0xFFFF;
-                            c48 += a48 + b48;
-                            c48 &= 0xFFFF;
-                            return new Int64((c16 << 16) | c00, (c48 << 16) | c32);
-                        }
-                        var low = new detail.Uint32(((new detail.Uint32(this.getLow())).add(other.getValue()[0])).getValue()[0]);
-                        var high = new detail.Uint32(((new detail.Uint32(this.getHigh())).add(new detail.Uint32(low.getValue()[0] >> 31))).getValue()[0]);
-                        return new Int64(low.getValue()[0] & 0x7FFFFFFF, high.getValue()[0]);
-                    };
-                    Int64.prototype.addTo = function (other) {
-                        this.value = this.add(other).getValue();
-                        return this;
-                    };
-                    Int64.prototype.sub = function (other) {
-                        return this.add(other.negate());
-                    };
-                    Int64.prototype.subFrom = function (other) {
-                        this.value = this.sub(other).getValue();
-                        return this;
-                    };
-                    Int64.prototype.mul = function (other) {
-                        throw "Unimplemented";
-                        return new Int64(0, 0);
-                    };
-                    Int64.prototype.mulBy = function (other) {
-                        throw "Unimplemented";
-                        return this;
-                    };
-                    Int64.prototype.div = function (other) {
-                        throw "Unimplemented";
-                        return new Int64(0, 0);
-                    };
-                    Int64.prototype.divBy = function (other) {
-                        throw "Unimplemented";
-                        return this;
-                    };
-                    Int64.prototype.negate = function () {
-                        return new Int64(-this.getLow(), -this.getHigh());
-                    };
-                    return Int64;
-                })();
-                detail.Int64 = Int64;
-                detail.CLiteralKindMap.set(40 /* Int64 */, Int64);
-                utils.applyMixins(Int64, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int64 = detail.Int64;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path="int8.ts" />
-/// <reference path="uint8.ts" />
-/// <reference path="int16.ts" />
-/// <reference path="uint16.ts" />
-/// <reference path="int32.ts" />
-/// <reference path="uint32.ts" />
-/// <reference path="int64.ts" />
-/// <reference path="uint64.ts" />
-/// <reference path="./type/type.ts" />
-var lib;
-(function (lib) {
-    var cuda;
-    (function (cuda) {
-        (function (Status) {
-            Status[Status["Running"] = 0] = "Running";
-            Status[Status["Idle"] = 1] = "Idle";
-            Status[Status["Complete"] = 2] = "Complete";
-            Status[Status["Stopped"] = 3] = "Stopped";
-            Status[Status["Waiting"] = 4] = "Waiting";
-        })(cuda.Status || (cuda.Status = {}));
-        var Status = cuda.Status;
-        var Dim3 = (function () {
-            function Dim3(x, y, z) {
-                if (y === void 0) { y = 1; }
-                if (z === void 0) { z = 1; }
-                this.x = x;
-                this.y = y;
-                this.z = z;
-            }
-            Dim3.prototype.flattenedLength = function () {
-                return this.x * this.y * this.z;
-            };
-            Dim3.prototype.dimension = function () {
-                if (this.z == 1) {
-                    if (this.y == 1) {
-                        return 1;
-                    }
-                    else {
-                        return 2;
-                    }
-                }
-                else {
-                    return 3;
-                }
-            };
-            return Dim3;
-        })();
-        cuda.Dim3 = Dim3;
-    })(cuda = lib.cuda || (lib.cuda = {}));
-})(lib || (lib = {}));
-/// <reference path="../ref.ts" />
-var lib;
-(function (lib) {
-    var parallel;
-    (function (parallel) {
-        (function (WorkerStatus) {
-            WorkerStatus[WorkerStatus["Paused"] = 0] = "Paused";
-            WorkerStatus[WorkerStatus["Idle"] = 1] = "Idle";
-            WorkerStatus[WorkerStatus["Busy"] = 2] = "Busy";
-            WorkerStatus[WorkerStatus["Cancel"] = 3] = "Cancel";
-        })(parallel.WorkerStatus || (parallel.WorkerStatus = {}));
-        var WorkerStatus = parallel.WorkerStatus;
-        ;
-        var INIT_PAUSE_LENGTH = 100; // milliseconds;
-        var ParallelWorker = (function () {
-            function ParallelWorker(fun, port) {
-                this.timeout_handle = -1;
-                this.id = lib.utils.guuid();
-                this.status = 1 /* Idle */;
-                this.master_port = port;
-                this.chan = new MessageChannel();
-                // Build a worker from an anonymous function body
-                var blobURL = URL.createObjectURL(new Blob(['(', fun.toString(), ')()'], { type: 'application/javascript' }));
-                this.worker = new Worker(blobURL);
-                // Won't be needing this anymore
-                URL.revokeObjectURL(blobURL);
-            }
-            ParallelWorker.prototype.run0 = function (init, end, inc) {
-                var iter = init;
-                if (this.status === 0 /* Paused */) {
-                    this.pause_length *= 2;
-                    setTimeout(this.run0, this.pause_length, [init, end, inc]);
-                    return false;
-                }
-                if (this.timeout_handle !== -1) {
-                    clearTimeout(this.timeout_handle);
-                }
-                while (iter < end) {
-                    this.fun(iter);
-                    if (this.status === 3 /* Cancel */) {
-                        break;
-                    }
-                    else if (this.status === 0 /* Paused */) {
-                        setTimeout(this.run0, this.pause_length, [iter + inc, end, inc]);
-                        return false;
-                    }
-                    iter += inc;
-                }
-                this.status = 1 /* Idle */;
-            };
-            ParallelWorker.prototype.run = function (fun, start_idx, end_idx, inc) {
-                this.fun = fun;
-                this.pause_length = INIT_PAUSE_LENGTH;
-                this.status = 2 /* Busy */;
-                if (inc) {
-                    return this.run0(start_idx, end_idx, inc);
-                }
-                else {
-                    return this.run0(start_idx, end_idx, 1);
-                }
-            };
-            ParallelWorker.prototype.cancel = function () {
-                this.status = 3 /* Cancel */;
-            };
-            ParallelWorker.prototype.pause = function () {
-                this.status = 0 /* Paused */;
-            };
-            return ParallelWorker;
-        })();
-        parallel.ParallelWorker = ParallelWorker;
-    })(parallel = lib.parallel || (lib.parallel = {}));
-})(lib || (lib = {}));
-/// <reference path="../ref.ts" />
-/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
-var lib;
-(function (lib) {
-    var utils;
-    (function (utils) {
-        var detail;
-        (function (detail) {
-            var randArray = new Uint8Array(16);
-            var makeRandom = function () {
-                for (var i = 0, r; i < 16; i++) {
-                    if ((i & 0x03) === 0)
-                        r = Math.random() * 0x100000000;
-                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
-                }
-                return randArray;
-            };
-            // Maps for number <-> hex string conversion
-            var byteToHex = [];
-            var hexToByte = {};
-            for (var i = 0; i < 256; i++) {
-                byteToHex[i] = (i + 0x100).toString(16).substr(1);
-                hexToByte[byteToHex[i]] = i;
-            }
-            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
-            function unparse(buf) {
-                var i = 0, bth = byteToHex;
-                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
-            }
-            function guuid() {
-                var rnds = makeRandom();
-                rnds[6] = (rnds[6] & 0x0f) | 0x40;
-                rnds[8] = (rnds[8] & 0x3f) | 0x80;
-                return unparse(rnds);
-            }
-            detail.guuid = guuid;
-        })(detail = utils.detail || (utils.detail = {}));
-        utils.guuid = detail.guuid;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
 var lib;
@@ -963,6 +213,22 @@ var lib;
         utils.castTo = castTo;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        function freeze(o) {
+            Object.freeze(o);
+            Object.getOwnPropertyNames(o).forEach(function (prop) {
+                if (o.hasOwnProperty(prop) && o[prop] !== null && (typeof o[prop] === "object" || typeof o[prop] === "function") && !Object.isFrozen(o[prop])) {
+                    freeze(o[prop]);
+                }
+            });
+            return o;
+        }
+        utils.freeze = freeze;
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
 /// <reference path="./logger.ts" />
 /// <reference path="./assert.ts" />
 /// <reference path="./rand.ts" />
@@ -973,6 +239,7 @@ var lib;
 /// <reference path="./timer.ts" />
 /// <reference path="./testing.ts" />
 /// <reference path="./castTo.ts" />
+/// <reference path="./freeze.ts" />
 var lib;
 (function (lib) {
     var utils;
@@ -1040,6 +307,10 @@ var lib;
             return typeof value === "object" || typeof value === 'function';
         }
         utils.isObject = isObject;
+        function isUndefined(value) {
+            return typeof value == 'undefined';
+        }
+        utils.isUndefined = isUndefined;
         function toNumber(x) {
             return +x;
         }
@@ -1103,128 +374,6 @@ var lib;
         ;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-/// <reference path='detail.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var type;
-        (function (type) {
-            var utils = lib.utils;
-            var detail;
-            (function (detail) {
-                var Int8 = (function () {
-                    function Int8(n) {
-                        var _this = this;
-                        this.MAX_VALUE = 128;
-                        this.MIN_VALUE = -128;
-                        this.KIND = 10 /* Int8 */;
-                        this.min = function () { return new Int8(_this.MIN_VALUE); };
-                        this.max = function () { return new Int8(_this.MAX_VALUE); };
-                        this.lowest = function () { return new Int8(_this.MIN_VALUE); };
-                        this.highest = function () { return new Int8(_this.MAX_VALUE); };
-                        this.infinity = function () { return new Int8(0); };
-                        this.value_ = new Int8Array(1);
-                        if (n) {
-                            this.value_[0] = n;
-                        }
-                        else {
-                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
-                        }
-                    }
-                    Int8.prototype.getValue = function () {
-                        return this.value_;
-                    };
-                    Int8.prototype.add = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] + other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] + other.getValue()[0]);
-                    };
-                    Int8.prototype.addTo = function (other) {
-                        this.value_[0] += other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.sub = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] - other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] - other.getValue()[0]);
-                    };
-                    Int8.prototype.subFrom = function (other) {
-                        this.value_[0] -= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.mul = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] * other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] * other.getValue()[0]);
-                    };
-                    Int8.prototype.mulBy = function (other) {
-                        this.value_[0] *= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.div = function (other) {
-                        if (other.KIND <= this.KIND) {
-                            return utils.castTo(new Int8(this.value_[0] / other.getValue()[0]));
-                        }
-                        var typ = detail.CLiteralKindMap.get(other.KIND);
-                        return new typ(this.value_[0] / other.getValue()[0]);
-                    };
-                    Int8.prototype.divBy = function (other) {
-                        this.value_[0] /= other.getValue()[0];
-                        return utils.castTo(this);
-                    };
-                    Int8.prototype.negate = function () {
-                        return utils.castTo(new Int8(-this.value_[0]));
-                    };
-                    Int8.prototype.value = function () {
-                        return this.value_[0];
-                    };
-                    return Int8;
-                })();
-                detail.Int8 = Int8;
-                detail.CLiteralKindMap.set(10 /* Int8 */, Int8);
-                utils.applyMixins(Int8, [detail.IntegerTraits, detail.SignedIntegerTraits]);
-            })(detail = type.detail || (type.detail = {}));
-            type.Int8 = detail.Int8;
-        })(type = c.type || (c.type = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
-/// <reference path="./lib/utils/utils.ts" />
-/// <reference path="./lib/c/c.ts" />
-var app;
-(function (app) {
-    var Greeter = (function () {
-        function Greeter(element) {
-            this.element = element;
-            this.element.innerHTML += "The time is: ";
-            this.span = document.createElement('span');
-            this.element.appendChild(this.span);
-            this.span.innerText = new Date().toUTCString();
-        }
-        Greeter.prototype.start = function () {
-            var _this = this;
-            this.timerToken = setInterval(function () { return _this.span.innerHTML = new Date().toUTCString(); }, 500);
-        };
-        Greeter.prototype.stop = function () {
-            lib.utils.assert(1 == 1, "test");
-            clearTimeout(this.timerToken);
-        };
-        return Greeter;
-    })();
-    app.Greeter = Greeter;
-})(app || (app = {}));
-window.onload = function () {
-    var el = document.getElementById('content');
-    var greeter = new app.Greeter(el);
-    greeter.start();
-};
 var lib;
 (function (lib) {
     var ast;
@@ -2814,6 +1963,1833 @@ var lib;
 /// <reference path="consumer.ts" />
 /// <reference path="gen.ts" />
 /// <reference path="node.ts" />
+/// <reference path="../../utils/utils.ts" />
+/// < reference path="shared.ts" />
+/// < reference path="equiv.ts" />
+/// < reference path="path.ts" />
+/// < reference path="node-path.ts" />
+/// < reference path="path-visitor.ts" />
+/// < reference path="scope.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (_types) {
+            var assert = lib.utils.assert;
+            var Ap = Array.prototype;
+            var slice = Ap.slice;
+            var map = Ap.map;
+            var each = Ap.forEach;
+            var Op = Object.prototype;
+            var objToStr = Op.toString;
+            var funObjStr = objToStr.call(function () {
+            });
+            var strObjStr = objToStr.call("");
+            var hasOwn = Op.hasOwnProperty;
+            // A type is an object with a .check method that takes a value and returns
+            // true or false according to whether the value matches the type.
+            var Type = (function () {
+                function Type(check, name) {
+                    var self = this;
+                    assert.ok(self instanceof Type);
+                    // Unfortunately we can't elegantly reuse isFunction and isString,
+                    // here, because this code is executed while defining those types.
+                    assert.strictEqual(objToStr.call(check), funObjStr, check + " is not a function");
+                    // The `name` parameter can be either a function or a string.
+                    var nameObjStr = objToStr.call(name);
+                    assert.ok(nameObjStr === funObjStr || nameObjStr === strObjStr, name + " is neither a function nor a string");
+                    Object.defineProperties(self, {
+                        name: { value: name },
+                        check: {
+                            value: function (value, deep) {
+                                var result = check.call(self, value, deep);
+                                if (!result && deep && objToStr.call(deep) === funObjStr)
+                                    deep(self, value);
+                                return result;
+                            }
+                        }
+                    });
+                }
+                // Like .check, except that failure triggers an AssertionError.
+                Type.prototype.assert = function (value, deep) {
+                    if (!this.check(value, deep)) {
+                        var str = shallowStringify(value);
+                        assert.ok(false, str + " does not match type " + this);
+                        return false;
+                    }
+                    return true;
+                };
+                Type.prototype.toString = function () {
+                    var name = this.name;
+                    if (isString.check(name))
+                        return name;
+                    if (isFunction.check(name))
+                        return name.call(this) + "";
+                    return name + " type";
+                };
+                // Returns a type that matches the given value iff any of type1, type2,
+                // etc. match the value.
+                Type.or = function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i - 0] = arguments[_i];
+                    }
+                    var types = [];
+                    var len = arguments.length;
+                    for (var i = 0; i < len; ++i)
+                        types.push(toType(args[i]));
+                    return new Type(function (value, deep) {
+                        for (var i = 0; i < len; ++i)
+                            if (types[i].check(value, deep))
+                                return true;
+                        return false;
+                    }, function () {
+                        return types.join(" | ");
+                    });
+                };
+                Type.fromArray = function (arr) {
+                    assert.ok(isArray.check(arr));
+                    assert.strictEqual(arr.length, 1, "only one element type is permitted for typed arrays");
+                    return toType(arr[0]).arrayOf();
+                };
+                Type.prototype.arrayOf = function () {
+                    var elemType = this;
+                    return new Type(function (value, deep) {
+                        return isArray.check(value) && value.every(function (elem) {
+                            return elemType.check(elem, deep);
+                        });
+                    }, function () {
+                        return "[" + elemType + "]";
+                    });
+                };
+                Type.fromObject = function (obj) {
+                    var fields = Object.keys(obj).map(function (name) {
+                        return new Field(name, obj[name]);
+                    });
+                    return new Type(function (value, deep) {
+                        return isObject.check(value) && fields.every(function (field) {
+                            return field.type.check(value[field.name], deep);
+                        });
+                    }, function () {
+                        return "{ " + fields.join(", ") + " }";
+                    });
+                };
+                // Define a type whose name is registered in a namespace (the defCache) so
+                // that future definitions will return the same type given the same name.
+                // In particular, this system allows for circular and forward definitions.
+                // The Def object d returned from Type.def may be used to configure the
+                // type d.type by calling methods such as d.bases, d.build, and d.field.
+                Type.def = function (typeName) {
+                    isString.assert(typeName);
+                    return hasOwn.call(defCache, typeName) ? defCache[typeName] : defCache[typeName] = new Def(typeName);
+                };
+                return Type;
+            })();
+            _types.Type = Type;
+            _types.builtInTypes = {};
+            function defBuiltInType(example, name) {
+                var objStr = objToStr.call(example);
+                Object.defineProperty(_types.builtInTypes, name, {
+                    enumerable: true,
+                    value: new Type(function (value) {
+                        return objToStr.call(value) === objStr;
+                    }, name)
+                });
+                return _types.builtInTypes[name];
+            }
+            // These types check the underlying [[Class]] attribute of the given
+            // value, rather than using the problematic typeof operator. Note however
+            // that no subtyping is considered; so, for instance, isObject.check
+            // returns false for [], /./, new Date, and null.
+            var isString = defBuiltInType("", "string");
+            var isFunction = defBuiltInType(function () {
+            }, "function");
+            var isArray = defBuiltInType([], "array");
+            var isObject = defBuiltInType({}, "object");
+            var isRegExp = defBuiltInType(/./, "RegExp");
+            var isDate = defBuiltInType(new Date, "Date");
+            var isNumber = defBuiltInType(3, "number");
+            var isBoolean = defBuiltInType(true, "boolean");
+            var isNull = defBuiltInType(null, "null");
+            var isUndefined = defBuiltInType(void 0, "undefined");
+            // There are a number of idiomatic ways of expressing types, so this
+            // function serves to coerce them all to actual Type objects. Note that
+            // providing the name argument is not necessary in most cases.
+            function toType(from, name) {
+                // The toType function should of course be idempotent.
+                if (from instanceof Type)
+                    return from;
+                // The Def type is used as a helper for constructing compound
+                // interface types for AST nodes.
+                if (from instanceof Def)
+                    return from.type;
+                // Support [ElemType] syntax.
+                if (isArray.check(from))
+                    return Type.fromArray(from);
+                // Support { someField: FieldType, ... } syntax.
+                if (isObject.check(from))
+                    return Type.fromObject(from);
+                // If isFunction.check(from), assume that from is a binary predicate
+                // function we can use to define the type.
+                if (isFunction.check(from))
+                    return new Type(from, name);
+                // As a last resort, toType returns a type that matches any value that
+                // is === from. This is primarily useful for literal values like
+                // toType(null), but it has the additional advantage of allowing
+                // toType to be a total function.
+                return new Type(function (value) {
+                    return value === from;
+                }, isUndefined.check(name) ? function () {
+                    return from + "";
+                } : name);
+            }
+            var Field = (function () {
+                function Field(name, type, defaultFn, hidden) {
+                    var self = this;
+                    assert.ok(self instanceof Field);
+                    isString.assert(name);
+                    type = toType(type);
+                    if (isFunction.check(defaultFn)) {
+                        this.defaultFn = { value: defaultFn };
+                    }
+                    this.name = name;
+                    this.type = type;
+                    this.hidden = !!hidden;
+                }
+                Field.prototype.toString = function () {
+                    return JSON.stringify(this.name) + ": " + this.type;
+                };
+                Field.prototype.getValue = function (obj) {
+                    var value = this.name;
+                    if (!isUndefined.check(value))
+                        return value;
+                    if (this.defaultFn && this.defaultFn.value)
+                        value = this.defaultFn.value.call(obj);
+                    return value;
+                };
+                return Field;
+            })();
+            function shallowStringify(value) {
+                if (isObject.check(value))
+                    return "{" + Object.keys(value).map(function (key) {
+                        return key + ": " + value[key];
+                    }).join(", ") + "}";
+                if (isArray.check(value))
+                    return "[" + value.map(shallowStringify).join(", ") + "]";
+                return JSON.stringify(value);
+            }
+            // In order to return the same Def instance every time Type.def is called
+            // with a particular name, those instances need to be stored in a cache.
+            var defCache = Object.create(null);
+            var Def = (function () {
+                function Def(typeName) {
+                    this.finalized = false;
+                    this.buildable = false;
+                    var self = this;
+                    assert.ok(self instanceof Def);
+                    Object.defineProperties(self, {
+                        typeName: { value: typeName },
+                        baseNames: { value: [] },
+                        ownFields: { value: Object.create(null) },
+                        // These two are populated during finalization.
+                        allSupertypes: { value: Object.create(null) },
+                        supertypeList: { value: [] },
+                        allFields: { value: Object.create(null) },
+                        fieldNames: { value: [] },
+                        type: {
+                            value: new Type(function (value, deep) {
+                                return self.check(value, deep);
+                            }, typeName)
+                        }
+                    });
+                }
+                Def.fromValue = function (value) {
+                    if (value && typeof value === "object") {
+                        var type = value.type;
+                        if (typeof type === "string" && hasOwn.call(defCache, type)) {
+                            var d = defCache[type];
+                            if (d.finalized) {
+                                return d;
+                            }
+                        }
+                    }
+                    return null;
+                };
+                Def.prototype.isSupertypeOf = function (that) {
+                    if (that instanceof Def) {
+                        assert.strictEqual(this.finalized, true);
+                        assert.strictEqual(that.finalized, true);
+                        return hasOwn.call(that.allSupertypes, this.typeName);
+                    }
+                    else {
+                        assert.ok(false, that + " is not a Def");
+                    }
+                };
+                Def.prototype.checkAllFields = function (value, deep) {
+                    var allFields = this.allFields;
+                    assert.strictEqual(this.finalized, true);
+                    function checkFieldByName(name) {
+                        var field = allFields[name];
+                        var type = field.type;
+                        var child = field.getValue(value);
+                        return type.check(child, deep);
+                    }
+                    return isObject.check(value) && Object.keys(allFields).every(checkFieldByName);
+                };
+                Def.prototype.check = function (value, deep) {
+                    assert.strictEqual(this.finalized, true, "prematurely checking unfinalized type " + this.typeName);
+                    // A Def type can only match an object value.
+                    if (!isObject.check(value))
+                        return false;
+                    var vDef = Def.fromValue(value);
+                    if (!vDef) {
+                        // If we couldn't infer the Def associated with the given value,
+                        // and we expected it to be a SourceLocation or a Position, it was
+                        // probably just missing a "type" field (because Esprima does not
+                        // assign a type property to such nodes). Be optimistic and let
+                        // this.checkAllFields make the final decision.
+                        if (this.typeName === "SourceLocation" || this.typeName === "Position") {
+                            return this.checkAllFields(value, deep);
+                        }
+                        // Calling this.checkAllFields for any other type of node is both
+                        // bad for performance and way too forgiving.
+                        return false;
+                    }
+                    // If checking deeply and vDef === this, then we only need to call
+                    // checkAllFields once. Calling checkAllFields is too strict when deep
+                    // is false, because then we only care about this.isSupertypeOf(vDef).
+                    if (deep && vDef === this)
+                        return this.checkAllFields(value, deep);
+                    // In most cases we rely exclusively on isSupertypeOf to make O(1)
+                    // subtyping determinations. This suffices in most situations outside
+                    // of unit tests, since interface conformance is checked whenever new
+                    // instances are created using builder functions.
+                    if (!this.isSupertypeOf(vDef))
+                        return false;
+                    // The exception is when deep is true; then, we recursively check all
+                    // fields.
+                    if (!deep)
+                        return true;
+                    // Use the more specific Def (vDef) to perform the deep check, but
+                    // shallow-check fields defined by the less specific Def (this).
+                    return vDef.checkAllFields(value, deep) && this.checkAllFields(value, false);
+                };
+                Def.prototype.bases = function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i - 0] = arguments[_i];
+                    }
+                    var bases = this.baseNames;
+                    assert.strictEqual(this.finalized, false);
+                    each.call(args, function (baseName) {
+                        isString.assert(baseName);
+                        // This indexOf lookup may be O(n), but the typical number of base
+                        // names is very small, and indexOf is a native Array method.
+                        if (bases.indexOf(baseName) < 0)
+                            bases.push(baseName);
+                    });
+                    return this; // For chaining.
+                };
+                Def.prototype.finalize = function () {
+                    // It's not an error to finalize a type more than once, but only the
+                    // first call to .finalize does anything.
+                    if (!this.finalized) {
+                        var allFields = this.allFields;
+                        var allSupertypes = this.allSupertypes;
+                        this.baseNames.forEach(function (name) {
+                            var def = defCache[name];
+                            if (lib.utils.isUndefined(def)) {
+                                return;
+                            }
+                            def.finalize();
+                            extend(allFields, def.allFields);
+                            extend(allSupertypes, def.allSupertypes);
+                        });
+                        // TODO Warn if fields are overridden with incompatible types.
+                        extend(allFields, this.ownFields);
+                        allSupertypes[this.typeName] = this;
+                        this.fieldNames.length = 0;
+                        for (var fieldName in allFields) {
+                            if (hasOwn.call(allFields, fieldName) && !allFields[fieldName].hidden) {
+                                this.fieldNames.push(fieldName);
+                            }
+                        }
+                        // Types are exported only once they have been finalized.
+                        Object.defineProperty(_types.namedTypes, this.typeName, {
+                            enumerable: true,
+                            value: this.type
+                        });
+                        Object.defineProperty(this, "finalized", { value: true });
+                        // A linearization of the inheritance hierarchy.
+                        populateSupertypeList(this.typeName, this.supertypeList);
+                    }
+                };
+                // Calling the .build method of a Def simultaneously marks the type as
+                // buildable (by defining builders[getBuilderName(typeName)]) and
+                // specifies the order of arguments that should be passed to the builder
+                // function to create an instance of the type.
+                Def.prototype.build = function () {
+                    var args = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        args[_i - 0] = arguments[_i];
+                    }
+                    var self = this;
+                    // Calling Def.prototype.build multiple times has the effect of merely
+                    // redefining this property.
+                    Object.defineProperty(self, "buildParams", {
+                        value: slice.call(args),
+                        writable: false,
+                        enumerable: false,
+                        configurable: true
+                    });
+                    assert.strictEqual(self.finalized, false);
+                    isString.arrayOf().assert(self.buildParams);
+                    if (self.buildable) {
+                        // If this Def is already buildable, update self.buildParams and
+                        // continue using the old builder function.
+                        return self;
+                    }
+                    // Every buildable type will have its "type" field filled in
+                    // automatically. This includes types that are not subtypes of Node,
+                    // like SourceLocation, but that seems harmless (TODO?).
+                    self.field("type", self.typeName, function () {
+                        return self.typeName;
+                    });
+                    // Override Dp.buildable for this Def instance.
+                    Object.defineProperty(self, "buildable", { value: true });
+                    Object.defineProperty(_types.builders, getBuilderName(self.typeName), {
+                        enumerable: true,
+                        value: function () {
+                            var args = [];
+                            for (var _i = 0; _i < arguments.length; _i++) {
+                                args[_i - 0] = arguments[_i];
+                            }
+                            var argc = args.length;
+                            var built = Object.create(nodePrototype);
+                            assert.ok(self.finalized, "attempting to instantiate unfinalized type " + self.typeName);
+                            function add(param, i) {
+                                if (hasOwn.call(built, param))
+                                    return;
+                                var all = self.allFields;
+                                assert.ok(hasOwn.call(all, param), param);
+                                var field = all[param];
+                                var type = field.type;
+                                var value;
+                                if (isNumber.check(i) && i < argc) {
+                                    value = args[i];
+                                }
+                                else if (field.defaultFn) {
+                                    // Expose the partially-built object to the default
+                                    // function as its `this` object.
+                                    value = field.defaultFn.call(built);
+                                }
+                                else {
+                                    var message = "no value or default function given for field " + JSON.stringify(param) + " of " + self.typeName + "(" + self.buildParams.map(function (name) {
+                                        return all[name];
+                                    }).join(", ") + ")";
+                                    assert.ok(false, message);
+                                }
+                                if (!type.check(value)) {
+                                    assert.ok(false, shallowStringify(value) + " does not match field " + field + " of type " + self.typeName);
+                                }
+                                // TODO Could attach getters and setters here to enforce
+                                // dynamic type safety.
+                                built[param] = value;
+                            }
+                            self.buildParams.forEach(function (param, i) {
+                                add(param, i);
+                            });
+                            Object.keys(self.allFields).forEach(function (param) {
+                                add(param); // Use the default value.
+                            });
+                            // Make sure that the "type" field was filled automatically.
+                            assert.strictEqual(built.type, self.typeName);
+                            return built;
+                        }
+                    });
+                    return self; // For chaining.
+                };
+                // The reason fields are specified using .field(...) instead of an object
+                // literal syntax is somewhat subtle: the object literal syntax would
+                // support only one key and one value, but with .field(...) we can pass
+                // any number of arguments to specify the field.
+                Def.prototype.field = function (name, type, defaultFn, hidden) {
+                    assert.strictEqual(this.finalized, false);
+                    this.ownFields[name] = new Field(name, type, defaultFn, hidden);
+                    return this; // For chaining.
+                };
+                return Def;
+            })();
+            _types.Def = Def;
+            // Note that the list returned by this function is a copy of the internal
+            // supertypeList, *without* the typeName itself as the first element.
+            function getSupertypeNames(typeName) {
+                assert.ok(hasOwn.call(defCache, typeName));
+                var d = defCache[typeName];
+                assert.strictEqual(d.finalized, true);
+                return d.supertypeList.slice(1);
+            }
+            _types.getSupertypeNames = getSupertypeNames;
+            ;
+            // Returns an object mapping from every known type in the defCache to the
+            // most specific supertype whose name is an own property of the candidates
+            // object.
+            function computeSupertypeLookupTable(candidates) {
+                var table = {};
+                var typeNames = Object.keys(defCache);
+                var typeNameCount = typeNames.length;
+                for (var i = 0; i < typeNameCount; ++i) {
+                    var typeName = typeNames[i];
+                    var d = defCache[typeName];
+                    assert.strictEqual(d.finalized, true);
+                    for (var j = 0; j < d.supertypeList.length; ++j) {
+                        var superTypeName = d.supertypeList[j];
+                        if (hasOwn.call(candidates, superTypeName)) {
+                            table[typeName] = superTypeName;
+                            break;
+                        }
+                    }
+                }
+                return table;
+            }
+            _types.computeSupertypeLookupTable = computeSupertypeLookupTable;
+            ;
+            _types.builders = {};
+            // This object is used as prototype for any node created by a builder.
+            var nodePrototype = {};
+            // Call this function to define a new method to be shared by all AST
+            // nodes. The replaced method (if any) is returned for easy wrapping.
+            function defineMethod(name, func) {
+                var old = nodePrototype[name];
+                // Pass undefined as func to delete nodePrototype[name].
+                if (isUndefined.check(func)) {
+                    delete nodePrototype[name];
+                }
+                else {
+                    isFunction.assert(func);
+                    Object.defineProperty(nodePrototype, name, {
+                        enumerable: true,
+                        configurable: true,
+                        value: func
+                    });
+                }
+                return old;
+            }
+            _types.defineMethod = defineMethod;
+            ;
+            function getBuilderName(typeName) {
+                return typeName.replace(/^[A-Z]+/, function (upperCasePrefix) {
+                    var len = upperCasePrefix.length;
+                    switch (len) {
+                        case 0:
+                            return "";
+                        case 1:
+                            return upperCasePrefix.toLowerCase();
+                        default:
+                            // If there's more than one initial capital letter, lower-case
+                            // all but the last one, so that XMLDefaultDeclaration (for
+                            // example) becomes xmlDefaultDeclaration.
+                            return upperCasePrefix.slice(0, len - 1).toLowerCase() + upperCasePrefix.charAt(len - 1);
+                    }
+                });
+            }
+            _types.namedTypes = {};
+            // Like Object.keys, but aware of what fields each AST type should have.
+            function getFieldNames(object) {
+                var d = Def.fromValue(object);
+                if (d) {
+                    return d.fieldNames.slice(0);
+                }
+                if ("type" in object) {
+                    assert.ok(false, "did not recognize object of type " + JSON.stringify(object.type));
+                }
+                return Object.keys(object);
+            }
+            _types.getFieldNames = getFieldNames;
+            // Get the value of an object property, taking object.type and default
+            // functions into account.
+            function getFieldValue(object, fieldName) {
+                var d = Def.fromValue(object);
+                if (d) {
+                    var field = d.allFields[fieldName];
+                    if (field) {
+                        return field.getValue(object);
+                    }
+                }
+                return object[fieldName];
+            }
+            _types.getFieldValue = getFieldValue;
+            // Iterate over all defined fields of an object, including those missing
+            // or undefined, passing each field name and effective value (as returned
+            // by getFieldValue) to the callback. If the object has no corresponding
+            // Def, the callback will never be called.
+            function eachField(object, callback, context) {
+                getFieldNames(object).forEach(function (name) {
+                    callback.call(this, name, getFieldValue(object, name));
+                }, context);
+            }
+            _types.eachField = eachField;
+            ;
+            // Similar to eachField, except that iteration stops as soon as the
+            // callback returns a truthy value. Like Array.prototype.some, the final
+            // result is either true or false to indicates whether the callback
+            // returned true for any element or not.
+            function someField(object, callback, context) {
+                return getFieldNames(object).some(function (name) {
+                    return callback.call(this, name, getFieldValue(object, name));
+                }, context);
+            }
+            _types.someField = someField;
+            ;
+            function populateSupertypeList(typeName, list) {
+                list.length = 0;
+                list.push(typeName);
+                var lastSeen = Object.create(null);
+                for (var pos = 0; pos < list.length; ++pos) {
+                    typeName = list[pos];
+                    var d = defCache[typeName];
+                    assert.strictEqual(d.finalized, true);
+                    // If we saw typeName earlier in the breadth-first traversal,
+                    // delete the last-seen occurrence.
+                    if (hasOwn.call(lastSeen, typeName)) {
+                        delete list[lastSeen[typeName]];
+                    }
+                    // Record the new index of the last-seen occurrence of typeName.
+                    lastSeen[typeName] = pos;
+                    // Enqueue the base names of this type.
+                    list.push.apply(list, d.baseNames);
+                }
+                for (var to = 0, from = to, len = list.length; from < len; ++from) {
+                    if (hasOwn.call(list, from)) {
+                        list[to++] = list[from];
+                    }
+                }
+                list.length = to;
+            }
+            function extend(into, from) {
+                Object.keys(from).forEach(function (name) {
+                    into[name] = from[name];
+                });
+                return into;
+            }
+            ;
+            function finalize() {
+                Object.keys(defCache).forEach(function (name) {
+                    var n = defCache[name];
+                    if (!lib.utils.isUndefined(n)) {
+                        n.finalize();
+                    }
+                });
+            }
+            _types.finalize = finalize;
+            ;
+            var shared;
+            (function (shared) {
+                var builtin = types.builtInTypes;
+                var isNumber = builtin["number"];
+                // An example of constructing a new type with arbitrary constraints from
+                // an existing type.
+                function geq(than) {
+                    return new Type(function (value) {
+                        return isNumber.check(value) && value >= than;
+                    }, isNumber + " >= " + than);
+                }
+                shared.geq = geq;
+                ;
+                // Default value-returning functions that may optionally be passed as a
+                // third argument to Def.prototype.field.
+                shared.defaults = {
+                    // Functions were used because (among other reasons) that's the most
+                    // elegant way to allow for the emptyArray one always to give a new
+                    // array instance.
+                    "null": function () {
+                        return null;
+                    },
+                    "emptyArray": function () {
+                        return [];
+                    },
+                    "false": function () {
+                        return false;
+                    },
+                    "true": function () {
+                        return true;
+                    },
+                    "undefined": function () {
+                    }
+                };
+                var naiveIsPrimitive = Type.or(builtin["string"], builtin["number"], builtin["boolean"], builtin["null"], builtin["undefined"]);
+                shared.isPrimitive = new Type(function (value) {
+                    if (value === null)
+                        return true;
+                    var type = typeof value;
+                    return !(type === "object" || type === "function");
+                }, naiveIsPrimitive.toString());
+            })(shared = _types.shared || (_types.shared = {}));
+            _types.geq = shared.geq;
+            _types.isPrimitive = shared.isPrimitive;
+            _types.defaults = shared.defaults;
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/*
+ Copyright (c) 2014 Ben Newman <bn@cs.stanford.edu>
+
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+// from https://github.com/benjamn/private
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var recast;
+        (function (recast) {
+            var priv;
+            (function (priv) {
+                var originalObject = Object;
+                var originalDefProp = Object.defineProperty;
+                var originalCreate = Object.create;
+                function defProp(obj, name, value) {
+                    if (originalDefProp)
+                        try {
+                            originalDefProp.call(originalObject, obj, name, { value: value });
+                        }
+                        catch (definePropertyIsBrokenInIE8) {
+                            obj[name] = value;
+                        }
+                    else {
+                        obj[name] = value;
+                    }
+                }
+                // For functions that will be invoked using .call or .apply, we need to
+                // define those methods on the function objects themselves, rather than
+                // inheriting them from Function.prototype, so that a malicious or clumsy
+                // third party cannot interfere with the functionality of this module by
+                // redefining Function.prototype.call or .apply.
+                function makeSafeToCall(fun) {
+                    if (fun) {
+                        defProp(fun, "call", fun.call);
+                        defProp(fun, "apply", fun.apply);
+                    }
+                    return fun;
+                }
+                makeSafeToCall(originalDefProp);
+                makeSafeToCall(originalCreate);
+                var hasOwn = makeSafeToCall(Object.prototype.hasOwnProperty);
+                var numToStr = makeSafeToCall(Number.prototype.toString);
+                var strSlice = makeSafeToCall(String.prototype.slice);
+                var cloner = function () {
+                };
+                function create(prototype) {
+                    if (originalCreate) {
+                        return originalCreate.call(originalObject, prototype);
+                    }
+                    cloner.prototype = prototype || null;
+                    return new cloner;
+                }
+                var rand = Math.random;
+                var uniqueKeys = create(null);
+                function makeUniqueKey() {
+                    do
+                        var uniqueKey = internString(strSlice.call(numToStr.call(rand(), 36), 2));
+                    while (hasOwn.call(uniqueKeys, uniqueKey));
+                    return uniqueKeys[uniqueKey] = uniqueKey;
+                }
+                priv.makeUniqueKey = makeUniqueKey;
+                function internString(str) {
+                    var obj = {};
+                    obj[str] = true;
+                    return Object.keys(obj)[0];
+                }
+                // Object.getOwnPropertyNames is the only way to enumerate non-enumerable
+                // properties, so if we wrap it to ignore our secret keys, there should be
+                // no way (except guessing) to access those properties.
+                var originalGetOPNs = Object.getOwnPropertyNames;
+                Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
+                    for (var names = originalGetOPNs(object), src = 0, dst = 0, len = names.length; src < len; ++src) {
+                        if (!hasOwn.call(uniqueKeys, names[src])) {
+                            if (src > dst) {
+                                names[dst] = names[src];
+                            }
+                            ++dst;
+                        }
+                    }
+                    names.length = dst;
+                    return names;
+                };
+                function defaultCreatorFn(object) {
+                    return create(null);
+                }
+                function makeAccessor(secretCreatorFn) {
+                    var brand = makeUniqueKey();
+                    var passkey = create(null);
+                    secretCreatorFn = secretCreatorFn || defaultCreatorFn;
+                    function register(object) {
+                        var secret; // Created lazily.
+                        function vault(key, forget) {
+                            // Only code that has access to the passkey can retrieve (or forget)
+                            // the secret object.
+                            if (key === passkey) {
+                                return forget ? secret = null : secret || (secret = secretCreatorFn(object));
+                            }
+                        }
+                        defProp(object, brand, vault);
+                    }
+                    function accessor(object) {
+                        if (!hasOwn.call(object, brand))
+                            register(object);
+                        return object[brand](passkey);
+                    }
+                    return accessor;
+                }
+                priv.makeAccessor = makeAccessor;
+            })(priv = recast.priv || (recast.priv = {}));
+        })(recast = ast.recast || (ast.recast = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="recast.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var recast;
+        (function (recast) {
+            var defaults = {
+                // If you want to use a different branch of esprima, or any other
+                // module that supports a .parse function, pass that module object to
+                // recast.parse as options.esprima.
+                esprima: esprima,
+                // Number of spaces the pretty-printer should use per tab for
+                // indentation. If you do not pass this option explicitly, it will be
+                // (quite reliably!) inferred from the original code.
+                tabWidth: 4,
+                // If you really want the pretty-printer to use tabs instead of
+                // spaces, make this option true.
+                useTabs: false,
+                // The reprinting code leaves leading whitespace untouched unless it
+                // has to reindent a line, or you pass false for this option.
+                reuseWhitespace: true,
+                // Some of the pretty-printer code (such as that for printing function
+                // parameter lists) makes a valiant attempt to prevent really long
+                // lines. You can adjust the limit by changing this option; however,
+                // there is no guarantee that line length will fit inside this limit.
+                wrapColumn: 74,
+                // Pass a string as options.sourceFileName to recast.parse to tell the
+                // reprinter to keep track of reused code so that it can construct a
+                // source map automatically.
+                sourceFileName: null,
+                // Pass a string as options.sourceMapName to recast.print, and
+                // (provided you passed options.sourceFileName earlier) the
+                // PrintResult of recast.print will have a .map property for the
+                // generated source map.
+                sourceMapName: null,
+                // If provided, this option will be passed along to the source map
+                // generator as a root directory for relative source file paths.
+                sourceRoot: null,
+                // If you provide a source map that was generated from a previous call
+                // to recast.print as options.inputSourceMap, the old source map will
+                // be composed with the new source map.
+                inputSourceMap: null,
+                // If you want esprima to generate .range information (recast only
+                // uses .loc internally), pass true for this option.
+                range: false,
+                // If you want esprima not to throw exceptions when it encounters
+                // non-fatal errors, keep this option true.
+                tolerant: true
+            }, hasOwn = defaults.hasOwnProperty;
+            // Copy options and fill in default values.
+            function normalize(options) {
+                options = options || defaults;
+                function get(key) {
+                    return hasOwn.call(options, key) ? options[key] : defaults[key];
+                }
+                return {
+                    tabWidth: +get("tabWidth"),
+                    useTabs: !!get("useTabs"),
+                    reuseWhitespace: !!get("reuseWhitespace"),
+                    wrapColumn: Math.max(get("wrapColumn"), 0),
+                    sourceFileName: get("sourceFileName"),
+                    sourceMapName: get("sourceMapName"),
+                    sourceRoot: get("sourceRoot"),
+                    inputSourceMap: get("inputSourceMap"),
+                    esprima: get("esprima"),
+                    range: get("range"),
+                    tolerant: get("tolerant")
+                };
+            }
+            recast.normalize = normalize;
+        })(recast = ast.recast || (ast.recast = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="../types/types.ts" />
+/// <reference path="private.ts" />
+/// <reference path="options.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var recast;
+        (function (recast) {
+            function print(node, options) {
+                return new recast.Printer(options).print(node);
+            }
+            recast.print = print;
+            function prettyPrint(node, options) {
+                return new recast.Printer(options).printGenerically(node);
+            }
+            recast.prettyPrint = prettyPrint;
+            function defaultWriteback(output) {
+                console.log(output);
+            }
+            function run(code, transformer, options) {
+                var writeback = options && options.writeback || defaultWriteback;
+                transformer(recast.parse(code, options), function (node) {
+                    writeback(print(node, options).code);
+                });
+            }
+            recast.run = run;
+        })(recast = ast.recast || (ast.recast = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="sourcemap/sourcemap.ts" />
+/// <reference path="types/types.ts" />
+/// <reference path="recast/recast.ts" />
+/// <reference path='../../utils/mixin.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var detail;
+            (function (detail) {
+                var IntegerTraits = (function () {
+                    function IntegerTraits() {
+                        this.is_integer = function () { return true; };
+                        this.is_exact = function () { return true; };
+                        this.has_infinity = function () { return false; };
+                        this.is_modulo = function () { return true; };
+                    }
+                    return IntegerTraits;
+                })();
+                detail.IntegerTraits = IntegerTraits;
+                var SignedIntegerTraits = (function () {
+                    function SignedIntegerTraits() {
+                        this.is_signed = function () { return true; };
+                    }
+                    return SignedIntegerTraits;
+                })();
+                detail.SignedIntegerTraits = SignedIntegerTraits;
+                var UnsignedIntegerTraits = (function () {
+                    function UnsignedIntegerTraits() {
+                        this.is_signed = function () { return false; };
+                    }
+                    return UnsignedIntegerTraits;
+                })();
+                detail.UnsignedIntegerTraits = UnsignedIntegerTraits;
+                (function (CLiteralKind) {
+                    CLiteralKind[CLiteralKind["Int8"] = 10] = "Int8";
+                    CLiteralKind[CLiteralKind["Uint8"] = 11] = "Uint8";
+                    CLiteralKind[CLiteralKind["Int16"] = 20] = "Int16";
+                    CLiteralKind[CLiteralKind["Uint16"] = 21] = "Uint16";
+                    CLiteralKind[CLiteralKind["Int32"] = 30] = "Int32";
+                    CLiteralKind[CLiteralKind["Uint32"] = 31] = "Uint32";
+                    CLiteralKind[CLiteralKind["Int64"] = 40] = "Int64";
+                    CLiteralKind[CLiteralKind["Float"] = 52] = "Float";
+                    CLiteralKind[CLiteralKind["Double"] = 62] = "Double";
+                })(detail.CLiteralKind || (detail.CLiteralKind = {}));
+                var CLiteralKind = detail.CLiteralKind;
+                detail.CLiteralKindMap = null;
+                if (detail.CLiteralKindMap === null) {
+                    detail.CLiteralKindMap = new Map();
+                }
+            })(detail = type.detail || (type.detail = {}));
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int8 = (function () {
+                    function Int8(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 128;
+                        this.MIN_VALUE = -128;
+                        this.KIND = 10 /* Int8 */;
+                        this.min = function () { return new Int8(_this.MIN_VALUE); };
+                        this.max = function () { return new Int8(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int8(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int8(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int8(0); };
+                        this.value_ = new Int8Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Int8.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Int8.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Int8.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Int8.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Int8.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int8(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Int8.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int8.prototype.negate = function () {
+                        return utils.castTo(new Int8(-this.value_[0]));
+                    };
+                    Int8.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Int8;
+                })();
+                detail.Int8 = Int8;
+                detail.CLiteralKindMap.set(10 /* Int8 */, Int8);
+                utils.applyMixins(Int8, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int8 = detail.Int8;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var detail;
+            (function (detail) {
+                var utils = lib.utils;
+                var Uint8 = (function () {
+                    function Uint8(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 255;
+                        this.MIN_VALUE = 0;
+                        this.KIND = 11 /* Uint8 */;
+                        this.min = function () { return new Uint8(_this.MIN_VALUE); };
+                        this.max = function () { return new Uint8(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Uint8(_this.MIN_VALUE); };
+                        this.highest = function () { return new Uint8(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Uint8(0); };
+                        this.value_ = new Uint8Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Uint8.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Uint8.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Uint8.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Uint8.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Uint8.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint8(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Uint8.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return this;
+                    };
+                    Uint8.prototype.negate = function () {
+                        return utils.castTo(new Uint8(-this.value_[0]));
+                    };
+                    Uint8.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Uint8;
+                })();
+                detail.Uint8 = Uint8;
+                detail.CLiteralKindMap.set(11 /* Uint8 */, Uint8);
+                utils.applyMixins(Uint8, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Uint8 = detail.Uint8;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int16 = (function () {
+                    function Int16(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 3276;
+                        this.MIN_VALUE = -3276;
+                        this.KIND = 20 /* Int16 */;
+                        this.min = function () { return new Int16(_this.MIN_VALUE); };
+                        this.max = function () { return new Int16(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int16(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int16(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int16(0); };
+                        this.value_ = new Int16Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Int16.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Int16.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Int16.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Int16.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Int16.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int16(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Int16.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int16.prototype.negate = function () {
+                        return utils.castTo(new Int16(-this.value_[0]));
+                    };
+                    Int16.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Int16;
+                })();
+                detail.Int16 = Int16;
+                detail.CLiteralKindMap.set(20 /* Int16 */, Int16);
+                utils.applyMixins(Int16, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int16 = detail.Int16;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Uint16 = (function () {
+                    function Uint16(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 65535;
+                        this.MIN_VALUE = 0;
+                        this.KIND = 21 /* Uint16 */;
+                        this.min = function () { return new Uint16(_this.MIN_VALUE); };
+                        this.max = function () { return new Uint16(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Uint16(_this.MIN_VALUE); };
+                        this.highest = function () { return new Uint16(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Uint16(0); };
+                        this.value_ = new Uint16Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Uint16.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Uint16.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Uint16.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Uint16.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Uint16.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint16(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Uint16.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return this;
+                    };
+                    Uint16.prototype.negate = function () {
+                        return utils.castTo(new Uint16(-this.value_[0]));
+                    };
+                    Uint16.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Uint16;
+                })();
+                detail.Uint16 = Uint16;
+                detail.CLiteralKindMap.set(21 /* Uint16 */, Uint16);
+                utils.applyMixins(Uint16, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Uint16 = detail.Uint16;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int32 = (function () {
+                    function Int32(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 2147483648;
+                        this.MIN_VALUE = -2147483648;
+                        this.KIND = 30 /* Int32 */;
+                        this.min = function () { return new Int32(_this.MIN_VALUE); };
+                        this.max = function () { return new Int32(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int32(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int32(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int32(0); };
+                        this.value_ = new Int32Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Int32.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Int32.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Int32.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Int32.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Int32.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Int32(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Int32.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return utils.castTo(this);
+                    };
+                    Int32.prototype.negate = function () {
+                        return utils.castTo(new Int32(-this.value_[0]));
+                    };
+                    Int32.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Int32;
+                })();
+                detail.Int32 = Int32;
+                detail.CLiteralKindMap.set(30 /* Int32 */, Int32);
+                utils.applyMixins(Int32, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int32 = detail.Int32;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Uint32 = (function () {
+                    function Uint32(n) {
+                        var _this = this;
+                        this.MAX_VALUE = 4294967295;
+                        this.MIN_VALUE = 0;
+                        this.KIND = 31 /* Uint32 */;
+                        this.min = function () { return new Uint32(_this.MIN_VALUE); };
+                        this.max = function () { return new Uint32(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Uint32(_this.MIN_VALUE); };
+                        this.highest = function () { return new Uint32(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Uint32(0); };
+                        this.value_ = new Uint32Array(1);
+                        if (n) {
+                            this.value_[0] = n;
+                        }
+                        else {
+                            this.value_[0] = utils.rand(this.MIN_VALUE, this.MAX_VALUE);
+                        }
+                    }
+                    Uint32.prototype.getValue = function () {
+                        return this.value_;
+                    };
+                    Uint32.prototype.add = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] + other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] + other.getValue()[0]);
+                    };
+                    Uint32.prototype.addTo = function (other) {
+                        this.value_[0] += other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.sub = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] - other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] - other.getValue()[0]);
+                    };
+                    Uint32.prototype.subFrom = function (other) {
+                        this.value_[0] -= other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.mul = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] * other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] * other.getValue()[0]);
+                    };
+                    Uint32.prototype.mulBy = function (other) {
+                        this.value_[0] *= other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.div = function (other) {
+                        if (other.KIND <= this.KIND) {
+                            return utils.castTo(new Uint32(this.value_[0] / other.getValue()[0]));
+                        }
+                        var typ = detail.CLiteralKindMap.get(other.KIND);
+                        return new typ(this.value_[0] / other.getValue()[0]);
+                    };
+                    Uint32.prototype.divBy = function (other) {
+                        this.value_[0] /= other.getValue()[0];
+                        return this;
+                    };
+                    Uint32.prototype.negate = function () {
+                        return utils.castTo(new Uint32(-this.value_[0]));
+                    };
+                    Uint32.prototype.value = function () {
+                        return this.value_[0];
+                    };
+                    return Uint32;
+                })();
+                detail.Uint32 = Uint32;
+                detail.CLiteralKindMap.set(31 /* Uint32 */, Uint32);
+                utils.applyMixins(Uint32, [detail.IntegerTraits, detail.UnsignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Uint32 = detail.Uint32;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path='detail.ts' />
+/// <reference path='int32.ts' />
+/// <reference path='uint32.ts' />
+// We now hit the problem of numerical representation
+// this needs to be reddone, but this will serve as a template
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var type;
+        (function (type) {
+            var utils = lib.utils;
+            var detail;
+            (function (detail) {
+                var Int64 = (function () {
+                    function Int64(low, high) {
+                        var _this = this;
+                        this.MAX_VALUE = NaN;
+                        this.MIN_VALUE = NaN;
+                        this.KIND = 30 /* Int32 */;
+                        this.min = function () { return new Int64(_this.MIN_VALUE); };
+                        this.max = function () { return new Int64(_this.MAX_VALUE); };
+                        this.lowest = function () { return new Int64(_this.MIN_VALUE); };
+                        this.highest = function () { return new Int64(_this.MAX_VALUE); };
+                        this.infinity = function () { return new Int64(0); };
+                        this.value = new Int32Array(2);
+                        if (low && high) {
+                            this.value[0] = low;
+                            this.value[1] = high;
+                        }
+                        else {
+                            this.value[0] = (new detail.Int32()).getValue()[0];
+                            this.value[1] = (new detail.Int32()).getValue()[0];
+                        }
+                    }
+                    Int64.prototype.getLow = function () {
+                        return this.value[0];
+                    };
+                    Int64.prototype.getHigh = function () {
+                        return this.value[1];
+                    };
+                    Int64.prototype.getValue = function () {
+                        return this.value;
+                    };
+                    // lifted from
+                    // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
+                    Int64.prototype.add = function (other) {
+                        if (other.KIND === this.KIND) {
+                            var o = other;
+                            var a48 = this.getHigh() >>> 16;
+                            var a32 = this.getHigh() & 0xFFFF;
+                            var a16 = this.getLow() >>> 16;
+                            var a00 = this.getLow() & 0xFFFF;
+                            var b48 = o.getHigh() >>> 16;
+                            var b32 = o.getHigh() & 0xFFFF;
+                            var b16 = o.getLow() >>> 16;
+                            var b00 = o.getLow() & 0xFFFF;
+                            var c48 = 0, c32 = 0;
+                            var c16 = 0, c00 = 0;
+                            c00 += a00 + b00;
+                            c16 += c00 >>> 16;
+                            c00 &= 0xFFFF;
+                            c16 += a16 + b16;
+                            c32 += c16 >>> 16;
+                            c16 &= 0xFFFF;
+                            c32 += a32 + b32;
+                            c48 += c32 >>> 16;
+                            c32 &= 0xFFFF;
+                            c48 += a48 + b48;
+                            c48 &= 0xFFFF;
+                            return new Int64((c16 << 16) | c00, (c48 << 16) | c32);
+                        }
+                        var low = new detail.Uint32(((new detail.Uint32(this.getLow())).add(other.getValue()[0])).getValue()[0]);
+                        var high = new detail.Uint32(((new detail.Uint32(this.getHigh())).add(new detail.Uint32(low.getValue()[0] >> 31))).getValue()[0]);
+                        return new Int64(low.getValue()[0] & 0x7FFFFFFF, high.getValue()[0]);
+                    };
+                    Int64.prototype.addTo = function (other) {
+                        this.value = this.add(other).getValue();
+                        return this;
+                    };
+                    Int64.prototype.sub = function (other) {
+                        return this.add(other.negate());
+                    };
+                    Int64.prototype.subFrom = function (other) {
+                        this.value = this.sub(other).getValue();
+                        return this;
+                    };
+                    Int64.prototype.mul = function (other) {
+                        throw "Unimplemented";
+                        return new Int64(0, 0);
+                    };
+                    Int64.prototype.mulBy = function (other) {
+                        throw "Unimplemented";
+                        return this;
+                    };
+                    Int64.prototype.div = function (other) {
+                        throw "Unimplemented";
+                        return new Int64(0, 0);
+                    };
+                    Int64.prototype.divBy = function (other) {
+                        throw "Unimplemented";
+                        return this;
+                    };
+                    Int64.prototype.negate = function () {
+                        return new Int64(-this.getLow(), -this.getHigh());
+                    };
+                    return Int64;
+                })();
+                detail.Int64 = Int64;
+                detail.CLiteralKindMap.set(40 /* Int64 */, Int64);
+                utils.applyMixins(Int64, [detail.IntegerTraits, detail.SignedIntegerTraits]);
+            })(detail = type.detail || (type.detail = {}));
+            type.Int64 = detail.Int64;
+        })(type = c.type || (c.type = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+/// <reference path="int8.ts" />
+/// <reference path="uint8.ts" />
+/// <reference path="int16.ts" />
+/// <reference path="uint16.ts" />
+/// <reference path="int32.ts" />
+/// <reference path="uint32.ts" />
+/// <reference path="int64.ts" />
+/// <reference path="uint64.ts" />
+/// <reference path="./type/type.ts" />
+var lib;
+(function (lib) {
+    var cuda;
+    (function (cuda) {
+        (function (Status) {
+            Status[Status["Running"] = 0] = "Running";
+            Status[Status["Idle"] = 1] = "Idle";
+            Status[Status["Complete"] = 2] = "Complete";
+            Status[Status["Stopped"] = 3] = "Stopped";
+            Status[Status["Waiting"] = 4] = "Waiting";
+        })(cuda.Status || (cuda.Status = {}));
+        var Status = cuda.Status;
+        var Dim3 = (function () {
+            function Dim3(x, y, z) {
+                if (y === void 0) { y = 1; }
+                if (z === void 0) { z = 1; }
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+            Dim3.prototype.flattenedLength = function () {
+                return this.x * this.y * this.z;
+            };
+            Dim3.prototype.dimension = function () {
+                if (this.z == 1) {
+                    if (this.y == 1) {
+                        return 1;
+                    }
+                    else {
+                        return 2;
+                    }
+                }
+                else {
+                    return 3;
+                }
+            };
+            return Dim3;
+        })();
+        cuda.Dim3 = Dim3;
+    })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+var lib;
+(function (lib) {
+    var parallel;
+    (function (parallel) {
+        (function (WorkerStatus) {
+            WorkerStatus[WorkerStatus["Paused"] = 0] = "Paused";
+            WorkerStatus[WorkerStatus["Idle"] = 1] = "Idle";
+            WorkerStatus[WorkerStatus["Busy"] = 2] = "Busy";
+            WorkerStatus[WorkerStatus["Cancel"] = 3] = "Cancel";
+        })(parallel.WorkerStatus || (parallel.WorkerStatus = {}));
+        var WorkerStatus = parallel.WorkerStatus;
+        ;
+        var INIT_PAUSE_LENGTH = 100; // milliseconds;
+        var ParallelWorker = (function () {
+            function ParallelWorker(fun, port) {
+                this.timeout_handle = -1;
+                this.id = lib.utils.guuid();
+                this.status = 1 /* Idle */;
+                this.master_port = port;
+                this.chan = new MessageChannel();
+                // Build a worker from an anonymous function body
+                var blobURL = URL.createObjectURL(new Blob(['(', fun.toString(), ')()'], { type: 'application/javascript' }));
+                this.worker = new Worker(blobURL);
+                // Won't be needing this anymore
+                URL.revokeObjectURL(blobURL);
+            }
+            ParallelWorker.prototype.run0 = function (init, end, inc) {
+                var iter = init;
+                if (this.status === 0 /* Paused */) {
+                    this.pause_length *= 2;
+                    setTimeout(this.run0, this.pause_length, [init, end, inc]);
+                    return false;
+                }
+                if (this.timeout_handle !== -1) {
+                    clearTimeout(this.timeout_handle);
+                }
+                while (iter < end) {
+                    this.fun(iter);
+                    if (this.status === 3 /* Cancel */) {
+                        break;
+                    }
+                    else if (this.status === 0 /* Paused */) {
+                        setTimeout(this.run0, this.pause_length, [iter + inc, end, inc]);
+                        return false;
+                    }
+                    iter += inc;
+                }
+                this.status = 1 /* Idle */;
+            };
+            ParallelWorker.prototype.run = function (fun, start_idx, end_idx, inc) {
+                this.fun = fun;
+                this.pause_length = INIT_PAUSE_LENGTH;
+                this.status = 2 /* Busy */;
+                if (inc) {
+                    return this.run0(start_idx, end_idx, inc);
+                }
+                else {
+                    return this.run0(start_idx, end_idx, 1);
+                }
+            };
+            ParallelWorker.prototype.cancel = function () {
+                this.status = 3 /* Cancel */;
+            };
+            ParallelWorker.prototype.pause = function () {
+                this.status = 0 /* Paused */;
+            };
+            return ParallelWorker;
+        })();
+        parallel.ParallelWorker = ParallelWorker;
+    })(parallel = lib.parallel || (lib.parallel = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var detail;
+        (function (detail) {
+            var randArray = new Uint8Array(16);
+            var makeRandom = function () {
+                for (var i = 0, r; i < 16; i++) {
+                    if ((i & 0x03) === 0)
+                        r = Math.random() * 0x100000000;
+                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
+                }
+                return randArray;
+            };
+            // Maps for number <-> hex string conversion
+            var byteToHex = [];
+            var hexToByte = {};
+            for (var i = 0; i < 256; i++) {
+                byteToHex[i] = (i + 0x100).toString(16).substr(1);
+                hexToByte[byteToHex[i]] = i;
+            }
+            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
+            function unparse(buf) {
+                var i = 0, bth = byteToHex;
+                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
+            }
+            function guuid() {
+                var rnds = makeRandom();
+                rnds[6] = (rnds[6] & 0x0f) | 0x40;
+                rnds[8] = (rnds[8] & 0x3f) | 0x80;
+                return unparse(rnds);
+            }
+            detail.guuid = guuid;
+        })(detail = utils.detail || (utils.detail = {}));
+        utils.guuid = detail.guuid;
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
+/// <reference path="./lib/ref.ts" />
+var app;
+(function (app) {
+    var Greeter = (function () {
+        function Greeter(element) {
+            this.element = element;
+            this.element.innerHTML += "The time is: ";
+            this.span = document.createElement('span');
+            this.element.appendChild(this.span);
+            this.span.innerText = new Date().toUTCString();
+        }
+        Greeter.prototype.start = function () {
+            var _this = this;
+            this.timerToken = setInterval(function () { return _this.span.innerHTML = new Date().toUTCString(); }, 500);
+        };
+        Greeter.prototype.stop = function () {
+            lib.utils.assert.ok(1 == 1, "test");
+            clearTimeout(this.timerToken);
+        };
+        return Greeter;
+    })();
+    app.Greeter = Greeter;
+})(app || (app = {}));
+window.onload = function () {
+    var el = document.getElementById('content');
+    var greeter = new app.Greeter(el);
+    greeter.start();
+};
 /*
  Copyright (C) 2012-2014 Yusuke Suzuki <utatane.tea@gmail.com>
  Copyright (C) 2014 Ivan Nikulin <ifaaan@gmail.com>
@@ -4840,139 +5816,7 @@ var lib;
         })(gen = ast.gen || (ast.gen = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/*
- Copyright (c) 2014 Ben Newman <bn@cs.stanford.edu>
-
- Permission is hereby granted, free of charge, to any person obtaining
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
-
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-// from https://github.com/benjamn/private
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var priv;
-            (function (priv) {
-                var originalObject = Object;
-                var originalDefProp = Object.defineProperty;
-                var originalCreate = Object.create;
-                function defProp(obj, name, value) {
-                    if (originalDefProp)
-                        try {
-                            originalDefProp.call(originalObject, obj, name, { value: value });
-                        }
-                        catch (definePropertyIsBrokenInIE8) {
-                            obj[name] = value;
-                        }
-                    else {
-                        obj[name] = value;
-                    }
-                }
-                // For functions that will be invoked using .call or .apply, we need to
-                // define those methods on the function objects themselves, rather than
-                // inheriting them from Function.prototype, so that a malicious or clumsy
-                // third party cannot interfere with the functionality of this module by
-                // redefining Function.prototype.call or .apply.
-                function makeSafeToCall(fun) {
-                    if (fun) {
-                        defProp(fun, "call", fun.call);
-                        defProp(fun, "apply", fun.apply);
-                    }
-                    return fun;
-                }
-                makeSafeToCall(originalDefProp);
-                makeSafeToCall(originalCreate);
-                var hasOwn = makeSafeToCall(Object.prototype.hasOwnProperty);
-                var numToStr = makeSafeToCall(Number.prototype.toString);
-                var strSlice = makeSafeToCall(String.prototype.slice);
-                var cloner = function () {
-                };
-                function create(prototype) {
-                    if (originalCreate) {
-                        return originalCreate.call(originalObject, prototype);
-                    }
-                    cloner.prototype = prototype || null;
-                    return new cloner;
-                }
-                var rand = Math.random;
-                var uniqueKeys = create(null);
-                function makeUniqueKey() {
-                    do
-                        var uniqueKey = internString(strSlice.call(numToStr.call(rand(), 36), 2));
-                    while (hasOwn.call(uniqueKeys, uniqueKey));
-                    return uniqueKeys[uniqueKey] = uniqueKey;
-                }
-                priv.makeUniqueKey = makeUniqueKey;
-                function internString(str) {
-                    var obj = {};
-                    obj[str] = true;
-                    return Object.keys(obj)[0];
-                }
-                // Object.getOwnPropertyNames is the only way to enumerate non-enumerable
-                // properties, so if we wrap it to ignore our secret keys, there should be
-                // no way (except guessing) to access those properties.
-                var originalGetOPNs = Object.getOwnPropertyNames;
-                Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
-                    for (var names = originalGetOPNs(object), src = 0, dst = 0, len = names.length; src < len; ++src) {
-                        if (!hasOwn.call(uniqueKeys, names[src])) {
-                            if (src > dst) {
-                                names[dst] = names[src];
-                            }
-                            ++dst;
-                        }
-                    }
-                    names.length = dst;
-                    return names;
-                };
-                function defaultCreatorFn(object) {
-                    return create(null);
-                }
-                function makeAccessor(secretCreatorFn) {
-                    var brand = makeUniqueKey();
-                    var passkey = create(null);
-                    secretCreatorFn = secretCreatorFn || defaultCreatorFn;
-                    function register(object) {
-                        var secret; // Created lazily.
-                        function vault(key, forget) {
-                            // Only code that has access to the passkey can retrieve (or forget)
-                            // the secret object.
-                            if (key === passkey) {
-                                return forget ? secret = null : secret || (secret = secretCreatorFn(object));
-                            }
-                        }
-                        defProp(object, brand, vault);
-                    }
-                    function accessor(object) {
-                        if (!hasOwn.call(object, brand))
-                            register(object);
-                        return object[brand](passkey);
-                    }
-                    return accessor;
-                }
-                priv.makeAccessor = makeAccessor;
-            })(priv = recast.priv || (recast.priv = {}));
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="private.ts" />
+/// <reference path="recast.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -4980,6 +5824,7 @@ var lib;
         var recast;
         (function (recast) {
             var types = lib.ast.types;
+            var assert = lib.utils.assert;
             var n = types.namedTypes;
             var isArray = types.builtInTypes["array"];
             var isObject = types.builtInTypes["object"];
@@ -5284,6 +6129,7 @@ var lib;
         })(recast = _ast.recast || (_ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+/// <reference path="recast.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -5291,6 +6137,7 @@ var lib;
         var recast;
         (function (recast) {
             var types = lib.ast.types;
+            var assert = lib.utils.assert;
             var n = types.namedTypes;
             var isArray = types.builtInTypes["array"];
             var isObject = types.builtInTypes["object"];
@@ -5936,6 +6783,7 @@ var lib;
         })(recast = ast.recast || (ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+/// <reference path="recast.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -5943,6 +6791,7 @@ var lib;
         var recast;
         (function (recast) {
             var types = lib.ast.types;
+            var assert = lib.utils.assert;
             var n = types.namedTypes;
             var isArray = types.builtInTypes["array"];
             var isObject = types.builtInTypes["object"];
@@ -6166,86 +7015,13 @@ var lib;
     (function (ast) {
         var recast;
         (function (recast) {
-            var defaults = {
-                // If you want to use a different branch of esprima, or any other
-                // module that supports a .parse function, pass that module object to
-                // recast.parse as options.esprima.
-                esprima: esprima,
-                // Number of spaces the pretty-printer should use per tab for
-                // indentation. If you do not pass this option explicitly, it will be
-                // (quite reliably!) inferred from the original code.
-                tabWidth: 4,
-                // If you really want the pretty-printer to use tabs instead of
-                // spaces, make this option true.
-                useTabs: false,
-                // The reprinting code leaves leading whitespace untouched unless it
-                // has to reindent a line, or you pass false for this option.
-                reuseWhitespace: true,
-                // Some of the pretty-printer code (such as that for printing function
-                // parameter lists) makes a valiant attempt to prevent really long
-                // lines. You can adjust the limit by changing this option; however,
-                // there is no guarantee that line length will fit inside this limit.
-                wrapColumn: 74,
-                // Pass a string as options.sourceFileName to recast.parse to tell the
-                // reprinter to keep track of reused code so that it can construct a
-                // source map automatically.
-                sourceFileName: null,
-                // Pass a string as options.sourceMapName to recast.print, and
-                // (provided you passed options.sourceFileName earlier) the
-                // PrintResult of recast.print will have a .map property for the
-                // generated source map.
-                sourceMapName: null,
-                // If provided, this option will be passed along to the source map
-                // generator as a root directory for relative source file paths.
-                sourceRoot: null,
-                // If you provide a source map that was generated from a previous call
-                // to recast.print as options.inputSourceMap, the old source map will
-                // be composed with the new source map.
-                inputSourceMap: null,
-                // If you want esprima to generate .range information (recast only
-                // uses .loc internally), pass true for this option.
-                range: false,
-                // If you want esprima not to throw exceptions when it encounters
-                // non-fatal errors, keep this option true.
-                tolerant: true
-            }, hasOwn = defaults.hasOwnProperty;
-            // Copy options and fill in default values.
-            function normalize(options) {
-                options = options || defaults;
-                function get(key) {
-                    return hasOwn.call(options, key) ? options[key] : defaults[key];
-                }
-                return {
-                    tabWidth: +get("tabWidth"),
-                    useTabs: !!get("useTabs"),
-                    reuseWhitespace: !!get("reuseWhitespace"),
-                    wrapColumn: Math.max(get("wrapColumn"), 0),
-                    sourceFileName: get("sourceFileName"),
-                    sourceMapName: get("sourceMapName"),
-                    sourceRoot: get("sourceRoot"),
-                    inputSourceMap: get("inputSourceMap"),
-                    esprima: get("esprima"),
-                    range: get("range"),
-                    tolerant: get("tolerant")
-                };
-            }
-            recast.normalize = normalize;
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
             var types = lib.ast.types;
+            var assert = lib.utils.assert;
             var n = types.namedTypes;
             var isArray = types.builtInTypes["array"];
             var isObject = types.builtInTypes["object"];
             var isString = types.builtInTypes["string"];
             var isFunction = types.builtInTypes["function"];
-            var sourceMap = require("source-map");
             var b = types.builders;
             function parse(source, options) {
                 options = recast.normalize(options);
@@ -6264,7 +7040,7 @@ var lib;
                 recast.add(pure, lines);
                 // In order to ensure we reprint leading and trailing program
                 // comments, wrap the original Program node with a File node.
-                pure = b.file(pure);
+                pure = b["file"](pure);
                 pure.loc = {
                     lines: lines,
                     indent: 0,
@@ -6290,7 +7066,7 @@ var lib;
                     if (!isObject.check(node)) {
                         return node;
                     }
-                    if ((n.MethodDefinition && n.MethodDefinition.check(node)) || (n.Property.check(node) && (node.method || node.shorthand))) {
+                    if ((n["MethodDefinition"] && n["MethodDefinition"].check(node)) || (n["Property"].check(node) && (node["method"] || node["shorthand"]))) {
                         // If the node is a MethodDefinition or a .method or .shorthand
                         // Property, then the location information stored in
                         // node.value.loc is very likely untrustworthy (just the {body}
@@ -6351,276 +7127,288 @@ var lib;
         })(recast = ast.recast || (ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-var assert = require("assert");
-var linesModule = require("./lines");
-var types = require("./types");
-var getFieldValue = types.getFieldValue;
-var Node = types.namedTypes.Node;
-var Expression = types.namedTypes.Expression;
-var SourceLocation = types.namedTypes.SourceLocation;
-var util = require("./util");
-var comparePos = util.comparePos;
-var NodePath = types.NodePath;
-var isObject = types.builtInTypes.object;
-var isArray = types.builtInTypes.array;
-var isString = types.builtInTypes.string;
-function Patcher(lines) {
-    assert.ok(this instanceof Patcher);
-    assert.ok(lines instanceof linesModule.Lines);
-    var self = this, replacements = [];
-    self.replace = function (loc, lines) {
-        if (isString.check(lines))
-            lines = linesModule.fromString(lines);
-        replacements.push({
-            lines: lines,
-            start: loc.start,
-            end: loc.end
-        });
-    };
-    self.get = function (loc) {
-        // If no location is provided, return the complete Lines object.
-        loc = loc || {
-            start: { line: 1, column: 0 },
-            end: {
-                line: lines.length,
-                column: lines.getLineLength(lines.length)
+/// <reference path="recast.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var recast;
+        (function (recast) {
+            var types = lib.ast.types;
+            var assert = lib.utils.assert;
+            var NodePath = types.NodePath;
+            var n = types.namedTypes;
+            var isArray = types.builtInTypes["array"];
+            var isObject = types.builtInTypes["object"];
+            var isString = types.builtInTypes["string"];
+            var isFunction = types.builtInTypes["function"];
+            var b = types.builders;
+            var Node = types.namedTypes["Node"];
+            var Expression = types.namedTypes["Expression"];
+            var SourceLocation = types.namedTypes["SourceLocation"];
+            function Patcher(lines) {
+                assert.ok(this instanceof Patcher);
+                assert.ok(lines instanceof recast.Lines);
+                var self = this, replacements = [];
+                self.replace = function (loc, lines) {
+                    if (isString.check(lines))
+                        lines = recast.fromString(lines);
+                    replacements.push({
+                        lines: lines,
+                        start: loc.start,
+                        end: loc.end
+                    });
+                };
+                self.get = function (loc) {
+                    // If no location is provided, return the complete Lines object.
+                    loc = loc || {
+                        start: { line: 1, column: 0 },
+                        end: {
+                            line: lines.length,
+                            column: lines.getLineLength(lines.length)
+                        }
+                    };
+                    var sliceFrom = loc.start, toConcat = [];
+                    function pushSlice(from, to) {
+                        assert.ok(recast.comparePos(from, to) <= 0);
+                        toConcat.push(lines.slice(from, to));
+                    }
+                    replacements.sort(function (a, b) {
+                        return recast.comparePos(a.start, b.start);
+                    }).forEach(function (rep) {
+                        if (recast.comparePos(sliceFrom, rep.start) > 0) {
+                        }
+                        else {
+                            pushSlice(sliceFrom, rep.start);
+                            toConcat.push(rep.lines);
+                            sliceFrom = rep.end;
+                        }
+                    });
+                    pushSlice(sliceFrom, loc.end);
+                    return recast.concat(toConcat);
+                };
             }
-        };
-        var sliceFrom = loc.start, toConcat = [];
-        function pushSlice(from, to) {
-            assert.ok(comparePos(from, to) <= 0);
-            toConcat.push(lines.slice(from, to));
-        }
-        replacements.sort(function (a, b) {
-            return comparePos(a.start, b.start);
-        }).forEach(function (rep) {
-            if (comparePos(sliceFrom, rep.start) > 0) {
+            recast.Patcher = Patcher;
+            function getReprinter(path) {
+                assert.ok(path instanceof NodePath);
+                // Make sure that this path refers specifically to a Node, rather than
+                // some non-Node subproperty of a Node.
+                var node = path.value;
+                if (!Node.check(node))
+                    return;
+                var orig = node.original;
+                var origLoc = orig && orig.loc;
+                var lines = origLoc && origLoc.lines;
+                var reprints = [];
+                if (!lines || !findReprints(path, reprints))
+                    return;
+                return function (print) {
+                    var patcher = new Patcher(lines);
+                    reprints.forEach(function (reprint) {
+                        var old = reprint.oldPath.value;
+                        SourceLocation.assert(old.loc, true);
+                        patcher.replace(old.loc, print(reprint.newPath).indentTail(old.loc.indent));
+                    });
+                    return patcher.get(origLoc).indentTail(-orig.loc.indent);
+                };
             }
-            else {
-                pushSlice(sliceFrom, rep.start);
-                toConcat.push(rep.lines);
-                sliceFrom = rep.end;
+            recast.getReprinter = getReprinter;
+            ;
+            function findReprints(newPath, reprints) {
+                var newNode = newPath.value;
+                Node.assert(newNode);
+                var oldNode = newNode.original;
+                Node.assert(oldNode);
+                assert.deepEqual(reprints, []);
+                if (newNode.type !== oldNode.type) {
+                    return false;
+                }
+                var oldPath = new NodePath(oldNode);
+                var canReprint = findChildReprints(newPath, oldPath, reprints);
+                if (!canReprint) {
+                    // Make absolutely sure the calling code does not attempt to reprint
+                    // any nodes.
+                    reprints.length = 0;
+                }
+                return canReprint;
             }
-        });
-        pushSlice(sliceFrom, loc.end);
-        return linesModule.concat(toConcat);
-    };
-}
-exports.Patcher = Patcher;
-exports.getReprinter = function (path) {
-    assert.ok(path instanceof NodePath);
-    // Make sure that this path refers specifically to a Node, rather than
-    // some non-Node subproperty of a Node.
-    var node = path.value;
-    if (!Node.check(node))
-        return;
-    var orig = node.original;
-    var origLoc = orig && orig.loc;
-    var lines = origLoc && origLoc.lines;
-    var reprints = [];
-    if (!lines || !findReprints(path, reprints))
-        return;
-    return function (print) {
-        var patcher = new Patcher(lines);
-        reprints.forEach(function (reprint) {
-            var old = reprint.oldPath.value;
-            SourceLocation.assert(old.loc, true);
-            patcher.replace(old.loc, print(reprint.newPath).indentTail(old.loc.indent));
-        });
-        return patcher.get(origLoc).indentTail(-orig.loc.indent);
-    };
-};
-function findReprints(newPath, reprints) {
-    var newNode = newPath.value;
-    Node.assert(newNode);
-    var oldNode = newNode.original;
-    Node.assert(oldNode);
-    assert.deepEqual(reprints, []);
-    if (newNode.type !== oldNode.type) {
-        return false;
-    }
-    var oldPath = new NodePath(oldNode);
-    var canReprint = findChildReprints(newPath, oldPath, reprints);
-    if (!canReprint) {
-        // Make absolutely sure the calling code does not attempt to reprint
-        // any nodes.
-        reprints.length = 0;
-    }
-    return canReprint;
-}
-function findAnyReprints(newPath, oldPath, reprints) {
-    var newNode = newPath.value;
-    var oldNode = oldPath.value;
-    if (newNode === oldNode)
-        return true;
-    if (isArray.check(newNode))
-        return findArrayReprints(newPath, oldPath, reprints);
-    if (isObject.check(newNode))
-        return findObjectReprints(newPath, oldPath, reprints);
-    return false;
-}
-function findArrayReprints(newPath, oldPath, reprints) {
-    var newNode = newPath.value;
-    var oldNode = oldPath.value;
-    isArray.assert(newNode);
-    var len = newNode.length;
-    if (!(isArray.check(oldNode) && oldNode.length === len))
-        return false;
-    for (var i = 0; i < len; ++i)
-        if (!findAnyReprints(newPath.get(i), oldPath.get(i), reprints))
-            return false;
-    return true;
-}
-function findObjectReprints(newPath, oldPath, reprints) {
-    var newNode = newPath.value;
-    isObject.assert(newNode);
-    if (newNode.original === null) {
-        // If newNode.original node was set to null, reprint the node.
-        return false;
-    }
-    var oldNode = oldPath.value;
-    if (!isObject.check(oldNode))
-        return false;
-    if (Node.check(newNode)) {
-        if (!Node.check(oldNode)) {
-            return false;
-        }
-        if (!oldNode.loc) {
-            // If we have no .loc information for oldNode, then we won't
-            // be able to reprint it.
-            return false;
-        }
-        // Here we need to decide whether the reprinted code for newNode
-        // is appropriate for patching into the location of oldNode.
-        if (newNode.type === oldNode.type) {
-            var childReprints = [];
-            if (findChildReprints(newPath, oldPath, childReprints)) {
-                reprints.push.apply(reprints, childReprints);
-            }
-            else {
-                reprints.push({
-                    newPath: newPath,
-                    oldPath: oldPath
-                });
-            }
-            return true;
-        }
-        if (Expression.check(newNode) && Expression.check(oldNode)) {
-            // If both nodes are subtypes of Expression, then we should be
-            // able to fill the location occupied by the old node with
-            // code printed for the new node with no ill consequences.
-            reprints.push({
-                newPath: newPath,
-                oldPath: oldPath
-            });
-            return true;
-        }
-        // The nodes have different types, and at least one of the types
-        // is not a subtype of the Expression type, so we cannot safely
-        // assume the nodes are syntactically interchangeable.
-        return false;
-    }
-    return findChildReprints(newPath, oldPath, reprints);
-}
-// This object is reused in hasOpeningParen and hasClosingParen to avoid
-// having to allocate a temporary object.
-var reusablePos = { line: 1, column: 0 };
-function hasOpeningParen(oldPath) {
-    var oldNode = oldPath.value;
-    var loc = oldNode.loc;
-    var lines = loc && loc.lines;
-    if (lines) {
-        var pos = reusablePos;
-        pos.line = loc.start.line;
-        pos.column = loc.start.column;
-        while (lines.prevPos(pos)) {
-            var ch = lines.charAt(pos);
-            if (ch === "(") {
-                var rootPath = oldPath;
-                while (rootPath.parentPath)
-                    rootPath = rootPath.parentPath;
-                // If we found an opening parenthesis but it occurred before
-                // the start of the original subtree for this reprinting, then
-                // we must not return true for hasOpeningParen(oldPath).
-                return comparePos(rootPath.value.loc.start, pos) <= 0;
-            }
-            if (ch !== " ") {
+            function findAnyReprints(newPath, oldPath, reprints) {
+                var newNode = newPath.value;
+                var oldNode = oldPath.value;
+                if (newNode === oldNode)
+                    return true;
+                if (isArray.check(newNode))
+                    return findArrayReprints(newPath, oldPath, reprints);
+                if (isObject.check(newNode))
+                    return findObjectReprints(newPath, oldPath, reprints);
                 return false;
             }
-        }
-    }
-    return false;
-}
-function hasClosingParen(oldPath) {
-    var oldNode = oldPath.value;
-    var loc = oldNode.loc;
-    var lines = loc && loc.lines;
-    if (lines) {
-        var pos = reusablePos;
-        pos.line = loc.end.line;
-        pos.column = loc.end.column;
-        do {
-            var ch = lines.charAt(pos);
-            if (ch === ")") {
-                var rootPath = oldPath;
-                while (rootPath.parentPath)
-                    rootPath = rootPath.parentPath;
-                // If we found a closing parenthesis but it occurred after the
-                // end of the original subtree for this reprinting, then we
-                // must not return true for hasClosingParen(oldPath).
-                return comparePos(pos, rootPath.value.loc.end) <= 0;
+            function findArrayReprints(newPath, oldPath, reprints) {
+                var newNode = newPath.value;
+                var oldNode = oldPath.value;
+                isArray.assert(newNode);
+                var len = newNode.length;
+                if (!(isArray.check(oldNode) && oldNode.length === len))
+                    return false;
+                for (var i = 0; i < len; ++i)
+                    if (!findAnyReprints(newPath.get(i), oldPath.get(i), reprints))
+                        return false;
+                return true;
             }
-            if (ch !== " ") {
+            function findObjectReprints(newPath, oldPath, reprints) {
+                var newNode = newPath.value;
+                isObject.assert(newNode);
+                if (newNode.original === null) {
+                    // If newNode.original node was set to null, reprint the node.
+                    return false;
+                }
+                var oldNode = oldPath.value;
+                if (!isObject.check(oldNode))
+                    return false;
+                if (Node.check(newNode)) {
+                    if (!Node.check(oldNode)) {
+                        return false;
+                    }
+                    if (!oldNode.loc) {
+                        // If we have no .loc information for oldNode, then we won't
+                        // be able to reprint it.
+                        return false;
+                    }
+                    // Here we need to decide whether the reprinted code for newNode
+                    // is appropriate for patching into the location of oldNode.
+                    if (newNode.type === oldNode.type) {
+                        var childReprints = [];
+                        if (findChildReprints(newPath, oldPath, childReprints)) {
+                            reprints.push.apply(reprints, childReprints);
+                        }
+                        else {
+                            reprints.push({
+                                newPath: newPath,
+                                oldPath: oldPath
+                            });
+                        }
+                        return true;
+                    }
+                    if (Expression.check(newNode) && Expression.check(oldNode)) {
+                        // If both nodes are subtypes of Expression, then we should be
+                        // able to fill the location occupied by the old node with
+                        // code printed for the new node with no ill consequences.
+                        reprints.push({
+                            newPath: newPath,
+                            oldPath: oldPath
+                        });
+                        return true;
+                    }
+                    // The nodes have different types, and at least one of the types
+                    // is not a subtype of the Expression type, so we cannot safely
+                    // assume the nodes are syntactically interchangeable.
+                    return false;
+                }
+                return findChildReprints(newPath, oldPath, reprints);
+            }
+            // This object is reused in hasOpeningParen and hasClosingParen to avoid
+            // having to allocate a temporary object.
+            var reusablePos = { line: 1, column: 0 };
+            function hasOpeningParen(oldPath) {
+                var oldNode = oldPath.value;
+                var loc = oldNode.loc;
+                var lines = loc && loc.lines;
+                if (lines) {
+                    var pos = reusablePos;
+                    pos.line = loc.start.line;
+                    pos.column = loc.start.column;
+                    while (lines.prevPos(pos)) {
+                        var ch = lines.charAt(pos);
+                        if (ch === "(") {
+                            var rootPath = oldPath;
+                            while (rootPath.parentPath)
+                                rootPath = rootPath.parentPath;
+                            // If we found an opening parenthesis but it occurred before
+                            // the start of the original subtree for this reprinting, then
+                            // we must not return true for hasOpeningParen(oldPath).
+                            return recast.comparePos(rootPath.value.loc.start, pos) <= 0;
+                        }
+                        if (ch !== " ") {
+                            return false;
+                        }
+                    }
+                }
                 return false;
             }
-        } while (lines.nextPos(pos));
-    }
-    return false;
-}
-function hasParens(oldPath) {
-    // This logic can technically be fooled if the node has parentheses
-    // but there are comments intervening between the parentheses and the
-    // node. In such cases the node will be harmlessly wrapped in an
-    // additional layer of parentheses.
-    return hasOpeningParen(oldPath) && hasClosingParen(oldPath);
-}
-function findChildReprints(newPath, oldPath, reprints) {
-    var newNode = newPath.value;
-    var oldNode = oldPath.value;
-    isObject.assert(newNode);
-    isObject.assert(oldNode);
-    if (newNode.original === null) {
-        // If newNode.original node was set to null, reprint the node.
-        return false;
-    }
-    // If this type of node cannot come lexically first in its enclosing
-    // statement (e.g. a function expression or object literal), and it
-    // seems to be doing so, then the only way we can ignore this problem
-    // and save ourselves from falling back to the pretty printer is if an
-    // opening parenthesis happens to precede the node.  For example,
-    // (function(){ ... }()); does not need to be reprinted, even though
-    // the FunctionExpression comes lexically first in the enclosing
-    // ExpressionStatement and fails the hasParens test, because the
-    // parent CallExpression passes the hasParens test. If we relied on
-    // the path.needsParens() && !hasParens(oldNode) check below, the
-    // absence of a closing parenthesis after the FunctionExpression would
-    // trigger pretty-printing unnecessarily.
-    if (!newPath.canBeFirstInStatement() && newPath.firstInStatement() && !hasOpeningParen(oldPath))
-        return false;
-    // If this node needs parentheses and will not be wrapped with
-    // parentheses when reprinted, then return false to skip reprinting
-    // and let it be printed generically.
-    if (newPath.needsParens(true) && !hasParens(oldPath)) {
-        return false;
-    }
-    for (var k in getUnionOfKeys(newNode, oldNode)) {
-        if (k === "loc")
-            continue;
-        if (!findAnyReprints(newPath.get(k), oldPath.get(k), reprints))
-            return false;
-    }
-    return true;
-}
+            function hasClosingParen(oldPath) {
+                var oldNode = oldPath.value;
+                var loc = oldNode.loc;
+                var lines = loc && loc.lines;
+                if (lines) {
+                    var pos = reusablePos;
+                    pos.line = loc.end.line;
+                    pos.column = loc.end.column;
+                    do {
+                        var ch = lines.charAt(pos);
+                        if (ch === ")") {
+                            var rootPath = oldPath;
+                            while (rootPath.parentPath)
+                                rootPath = rootPath.parentPath;
+                            // If we found a closing parenthesis but it occurred after the
+                            // end of the original subtree for this reprinting, then we
+                            // must not return true for hasClosingParen(oldPath).
+                            return recast.comparePos(pos, rootPath.value.loc.end) <= 0;
+                        }
+                        if (ch !== " ") {
+                            return false;
+                        }
+                    } while (lines.nextPos(pos));
+                }
+                return false;
+            }
+            function hasParens(oldPath) {
+                // This logic can technically be fooled if the node has parentheses
+                // but there are comments intervening between the parentheses and the
+                // node. In such cases the node will be harmlessly wrapped in an
+                // additional layer of parentheses.
+                return hasOpeningParen(oldPath) && hasClosingParen(oldPath);
+            }
+            function findChildReprints(newPath, oldPath, reprints) {
+                var newNode = newPath.value;
+                var oldNode = oldPath.value;
+                isObject.assert(newNode);
+                isObject.assert(oldNode);
+                if (newNode.original === null) {
+                    // If newNode.original node was set to null, reprint the node.
+                    return false;
+                }
+                // If this type of node cannot come lexically first in its enclosing
+                // statement (e.g. a function expression or object literal), and it
+                // seems to be doing so, then the only way we can ignore this problem
+                // and save ourselves from falling back to the pretty printer is if an
+                // opening parenthesis happens to precede the node.  For example,
+                // (function(){ ... }()); does not need to be reprinted, even though
+                // the FunctionExpression comes lexically first in the enclosing
+                // ExpressionStatement and fails the hasParens test, because the
+                // parent CallExpression passes the hasParens test. If we relied on
+                // the path.needsParens() && !hasParens(oldNode) check below, the
+                // absence of a closing parenthesis after the FunctionExpression would
+                // trigger pretty-printing unnecessarily.
+                if (!newPath.canBeFirstInStatement() && newPath.firstInStatement() && !hasOpeningParen(oldPath))
+                    return false;
+                // If this node needs parentheses and will not be wrapped with
+                // parentheses when reprinted, then return false to skip reprinting
+                // and let it be printed generically.
+                if (newPath.needsParens(true) && !hasParens(oldPath)) {
+                    return false;
+                }
+                for (var k in recast.getUnionOfKeys(newNode, oldNode)) {
+                    if (k === "loc")
+                        continue;
+                    if (!findAnyReprints(newPath.get(k), oldPath.get(k), reprints))
+                        return false;
+                }
+                return true;
+            }
+        })(recast = ast.recast || (ast.recast = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="recast.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -6628,6 +7416,7 @@ var lib;
         var recast;
         (function (recast) {
             var types = lib.ast.types;
+            var assert = lib.utils.assert;
             var namedTypes = types.namedTypes;
             var isString = types.builtInTypes["string"];
             var isObject = types.builtInTypes["object"];
@@ -6687,7 +7476,7 @@ var lib;
                     return maybeReprint(path);
                 }
                 function maybeReprint(path) {
-                    var reprinter = getReprinter(path);
+                    var reprinter = recast.getReprinter(path);
                     if (reprinter)
                         return maybeAddParens(path, reprinter(maybeReprint));
                     return printRootGenerically(path);
@@ -7389,7 +8178,7 @@ var lib;
                         debugger;
                         throw new Error("unknown type: " + JSON.stringify(n.type));
                 }
-                return p;
+                return undefined;
             }
             function printStatementSequence(path, options, print) {
                 var inClassBody = path.parent && namedTypes["ClassBody"] && namedTypes["ClassBody"].check(path.parent.node);
@@ -7404,7 +8193,7 @@ var lib;
                     if (stmt.type === "EmptyStatement")
                         return false;
                     if (!inClassBody) {
-                        namedTypes.Statement.assert(stmt);
+                        namedTypes["Statement"].assert(stmt);
                     }
                     return true;
                 });
@@ -7600,29 +8389,359 @@ var lib;
 (function (lib) {
     var ast;
     (function (ast) {
-        var recast;
-        (function (recast) {
-            function print(node, options) {
-                return new recast.Printer(options).print(node);
-            }
-            recast.print = print;
-            function prettyPrint(node, options) {
-                return new recast.Printer(options).printGenerically(node);
-            }
-            recast.prettyPrint = prettyPrint;
-            function defaultWriteback(output) {
-                console.log(output);
-            }
-            function run(code, transformer, options) {
-                var writeback = options && options.writeback || defaultWriteback;
-                transformer(recast.parse(code, options), function (node) {
-                    writeback(print(node, options).code);
-                });
-            }
-            recast.run = run;
-        })(recast = ast.recast || (ast.recast = {}));
+        var types;
+        (function (types) {
+            var definitions;
+            (function (definitions) {
+                var types = lib.ast.types;
+                var Type = types.Type;
+                var def = Type.def;
+                var or = Type.or;
+                var builtin = types.builtInTypes;
+                var isString = builtin["string"];
+                var isNumber = builtin["number"];
+                var isBoolean = builtin["boolean"];
+                var isRegExp = builtin["RegExp"];
+                debugger;
+                var defaults = types.defaults;
+                var geq = types.geq;
+                var core;
+                (function (core) {
+                    // Abstract supertype of all syntactic entities that are allowed to have a
+                    // .loc field.
+                    def("Printable").field("loc", or(def("SourceLocation"), null), defaults["null"], true);
+                    def("Node").bases("Printable").field("type", isString);
+                    def("SourceLocation").build("start", "end", "source").field("start", def("Position")).field("end", def("Position")).field("source", or(isString, null), defaults["null"]);
+                    def("Position").build("line", "column").field("line", geq(1)).field("column", geq(0));
+                    def("Program").bases("Node").build("body").field("body", [def("Statement")]).field("comments", or([or(def("Block"), def("Line"))], null), defaults["null"], true);
+                    def("Function").bases("Node").field("id", or(def("Identifier"), null), defaults["null"]).field("params", [def("Pattern")]).field("body", or(def("BlockStatement"), def("Expression")));
+                    def("Statement").bases("Node");
+                    // The empty .build() here means that an EmptyStatement can be constructed
+                    // (i.e. it's not abstract) but that it needs no arguments.
+                    def("EmptyStatement").bases("Statement").build();
+                    def("BlockStatement").bases("Statement").build("body").field("body", [def("Statement")]);
+                    // TODO Figure out how to silently coerce Expressions to
+                    // ExpressionStatements where a Statement was expected.
+                    def("ExpressionStatement").bases("Statement").build("expression").field("expression", def("Expression"));
+                    def("IfStatement").bases("Statement").build("test", "consequent", "alternate").field("test", def("Expression")).field("consequent", def("Statement")).field("alternate", or(def("Statement"), null), defaults["null"]);
+                    def("LabeledStatement").bases("Statement").build("label", "body").field("label", def("Identifier")).field("body", def("Statement"));
+                    def("BreakStatement").bases("Statement").build("label").field("label", or(def("Identifier"), null), defaults["null"]);
+                    def("ContinueStatement").bases("Statement").build("label").field("label", or(def("Identifier"), null), defaults["null"]);
+                    def("WithStatement").bases("Statement").build("object", "body").field("object", def("Expression")).field("body", def("Statement"));
+                    def("SwitchStatement").bases("Statement").build("discriminant", "cases", "lexical").field("discriminant", def("Expression")).field("cases", [def("SwitchCase")]).field("lexical", isBoolean, defaults["false"]);
+                    def("ReturnStatement").bases("Statement").build("argument").field("argument", or(def("Expression"), null));
+                    def("ThrowStatement").bases("Statement").build("argument").field("argument", def("Expression"));
+                    def("TryStatement").bases("Statement").build("block", "handler", "finalizer").field("block", def("BlockStatement")).field("handler", or(def("CatchClause"), null), function () {
+                        return this["handlers"] && this["handlers"][0] || null;
+                    }).field("handlers", [def("CatchClause")], function () {
+                        return this.handler ? [this.handler] : [];
+                    }, true).field("guardedHandlers", [def("CatchClause")], defaults.emptyArray).field("finalizer", or(def("BlockStatement"), null), defaults["null"]);
+                    def("CatchClause").bases("Node").build("param", "guard", "body").field("param", def("Pattern")).field("guard", or(def("Expression"), null), defaults["null"]).field("body", def("BlockStatement"));
+                    def("WhileStatement").bases("Statement").build("test", "body").field("test", def("Expression")).field("body", def("Statement"));
+                    def("DoWhileStatement").bases("Statement").build("body", "test").field("body", def("Statement")).field("test", def("Expression"));
+                    def("ForStatement").bases("Statement").build("init", "test", "update", "body").field("init", or(def("VariableDeclaration"), def("Expression"), null)).field("test", or(def("Expression"), null)).field("update", or(def("Expression"), null)).field("body", def("Statement"));
+                    def("ForInStatement").bases("Statement").build("left", "right", "body", "each").field("left", or(def("VariableDeclaration"), def("Expression"))).field("right", def("Expression")).field("body", def("Statement")).field("each", isBoolean);
+                    def("DebuggerStatement").bases("Statement").build();
+                    def("Declaration").bases("Statement");
+                    def("FunctionDeclaration").bases("Function", "Declaration").build("id", "params", "body").field("id", def("Identifier"));
+                    def("FunctionExpression").bases("Function", "Expression").build("id", "params", "body");
+                    def("VariableDeclaration").bases("Declaration").build("kind", "declarations").field("kind", or("var", "let", "const")).field("declarations", [or(def("VariableDeclarator"), def("Identifier"))]);
+                    def("VariableDeclarator").bases("Node").build("id", "init").field("id", def("Pattern")).field("init", or(def("Expression"), null));
+                    // TODO Are all Expressions really Patterns?
+                    def("Expression").bases("Node", "Pattern");
+                    def("ThisExpression").bases("Expression").build();
+                    def("ArrayExpression").bases("Expression").build("elements").field("elements", [or(def("Expression"), null)]);
+                    def("ObjectExpression").bases("Expression").build("properties").field("properties", [def("Property")]);
+                    // TODO Not in the Mozilla Parser API, but used by Esprima.
+                    def("Property").bases("Node").build("kind", "key", "value").field("kind", or("init", "get", "set")).field("key", or(def("Literal"), def("Identifier"))).field("value", def("Expression"));
+                    def("SequenceExpression").bases("Expression").build("expressions").field("expressions", [def("Expression")]);
+                    var UnaryOperator = or("-", "+", "!", "~", "typeof", "void", "delete");
+                    def("UnaryExpression").bases("Expression").build("operator", "argument", "prefix").field("operator", UnaryOperator).field("argument", def("Expression")).field("prefix", isBoolean, defaults["true"]);
+                    var BinaryOperator = or("==", "!=", "===", "!==", "<", "<=", ">", ">=", "<<", ">>", ">>>", "+", "-", "*", "/", "%", "&", "|", "^", "in", "instanceof", "..");
+                    def("BinaryExpression").bases("Expression").build("operator", "left", "right").field("operator", BinaryOperator).field("left", def("Expression")).field("right", def("Expression"));
+                    var AssignmentOperator = or("=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", ">>>=", "|=", "^=", "&=");
+                    def("AssignmentExpression").bases("Expression").build("operator", "left", "right").field("operator", AssignmentOperator).field("left", def("Pattern")).field("right", def("Expression"));
+                    var UpdateOperator = or("++", "--");
+                    def("UpdateExpression").bases("Expression").build("operator", "argument", "prefix").field("operator", UpdateOperator).field("argument", def("Expression")).field("prefix", isBoolean);
+                    var LogicalOperator = or("||", "&&");
+                    def("LogicalExpression").bases("Expression").build("operator", "left", "right").field("operator", LogicalOperator).field("left", def("Expression")).field("right", def("Expression"));
+                    def("ConditionalExpression").bases("Expression").build("test", "consequent", "alternate").field("test", def("Expression")).field("consequent", def("Expression")).field("alternate", def("Expression"));
+                    def("NewExpression").bases("Expression").build("callee", "arguments").field("callee", def("Expression")).field("arguments", [def("Expression")]);
+                    def("CallExpression").bases("Expression").build("callee", "arguments").field("callee", def("Expression")).field("arguments", [def("Expression")]);
+                    def("MemberExpression").bases("Expression").build("object", "property", "computed").field("object", def("Expression")).field("property", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
+                    def("Pattern").bases("Node");
+                    def("ObjectPattern").bases("Pattern").build("properties").field("properties", [def("PropertyPattern")]);
+                    def("PropertyPattern").bases("Pattern").build("key", "pattern").field("key", or(def("Literal"), def("Identifier"))).field("pattern", def("Pattern"));
+                    def("ArrayPattern").bases("Pattern").build("elements").field("elements", [or(def("Pattern"), null)]);
+                    def("SwitchCase").bases("Node").build("test", "consequent").field("test", or(def("Expression"), null)).field("consequent", [def("Statement")]);
+                    def("Identifier").bases("Node", "Expression", "Pattern").build("name").field("name", isString);
+                    def("Literal").bases("Node", "Expression").build("value").field("value", or(isString, isBoolean, null, isNumber, isRegExp));
+                    // Block comment. Not a Node.
+                    def("Block").bases("Printable").build("loc", "value").field("value", isString);
+                    // Single line comment. Not a Node.
+                    def("Line").bases("Printable").build("loc", "value").field("value", isString);
+                })(core = definitions.core || (definitions.core = {}));
+                definitions.coredefs = true;
+            })(definitions = types.definitions || (types.definitions = {}));
+        })(types = ast.types || (ast.types = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var definitions;
+            (function (definitions) {
+                var types = lib.ast.types;
+                var def = types.Type.def;
+                var or = types.Type.or;
+                var builtin = types.builtInTypes;
+                var isString = builtin["string"];
+                var isBoolean = builtin["boolean"];
+                var defaults = types.defaults;
+                var geq = types.geq;
+                // Note that none of these types are buildable because the Mozilla Parser
+                // API doesn't specify any builder functions, and nobody uses E4X anymore.
+                def("XMLDefaultDeclaration").bases("Declaration").field("namespace", def("Expression"));
+                def("XMLAnyName").bases("Expression");
+                def("XMLQualifiedIdentifier").bases("Expression").field("left", or(def("Identifier"), def("XMLAnyName"))).field("right", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
+                def("XMLFunctionQualifiedIdentifier").bases("Expression").field("right", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
+                def("XMLAttributeSelector").bases("Expression").field("attribute", def("Expression"));
+                def("XMLFilterExpression").bases("Expression").field("left", def("Expression")).field("right", def("Expression"));
+                def("XMLElement").bases("XML", "Expression").field("contents", [def("XML")]);
+                def("XMLList").bases("XML", "Expression").field("contents", [def("XML")]);
+                def("XML").bases("Node");
+                def("XMLEscape").bases("XML").field("expression", def("Expression"));
+                def("XMLText").bases("XML").field("text", isString);
+                def("XMLStartTag").bases("XML").field("contents", [def("XML")]);
+                def("XMLEndTag").bases("XML").field("contents", [def("XML")]);
+                def("XMLPointTag").bases("XML").field("contents", [def("XML")]);
+                def("XMLName").bases("XML").field("contents", or(isString, [def("XML")]));
+                def("XMLAttribute").bases("XML").field("value", isString);
+                def("XMLCdata").bases("XML").field("contents", isString);
+                def("XMLComment").bases("XML").field("contents", isString);
+                def("XMLProcessingInstruction").bases("XML").field("target", isString).field("contents", or(isString, null));
+            })(definitions = types.definitions || (types.definitions = {}));
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var definitions;
+            (function (definitions) {
+                var types = lib.ast.types;
+                var def = types.Type.def;
+                var or = types.Type.or;
+                var builtin = types.builtInTypes;
+                var isString = builtin["string"];
+                var isBoolean = builtin["boolean"];
+                var defaults = types.defaults;
+                var geq = types.geq;
+                def("Function").field("generator", isBoolean, defaults["false"]).field("expression", isBoolean, defaults["false"]).field("defaults", [or(def("Expression"), null)], defaults.emptyArray).field("rest", or(def("Identifier"), null), defaults["null"]);
+                def("FunctionDeclaration").build("id", "params", "body", "generator", "expression");
+                def("FunctionExpression").build("id", "params", "body", "generator", "expression");
+                // TODO The Parser API calls this ArrowExpression, but Esprima uses
+                // ArrowFunctionExpression.
+                def("ArrowFunctionExpression").bases("Function", "Expression").build("params", "body", "expression").field("id", null, defaults["null"]).field("generator", false);
+                def("YieldExpression").bases("Expression").build("argument", "delegate").field("argument", or(def("Expression"), null)).field("delegate", isBoolean, defaults["false"]);
+                def("GeneratorExpression").bases("Expression").build("body", "blocks", "filter").field("body", def("Expression")).field("blocks", [def("ComprehensionBlock")]).field("filter", or(def("Expression"), null));
+                def("ComprehensionExpression").bases("Expression").build("body", "blocks", "filter").field("body", def("Expression")).field("blocks", [def("ComprehensionBlock")]).field("filter", or(def("Expression"), null));
+                def("ComprehensionBlock").bases("Node").build("left", "right", "each").field("left", def("Pattern")).field("right", def("Expression")).field("each", isBoolean);
+                def("ModuleSpecifier").bases("Literal").build("value").field("value", isString);
+                def("Property").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("method", isBoolean, defaults["false"]).field("shorthand", isBoolean, defaults["false"]).field("computed", isBoolean, defaults["false"]);
+                def("PropertyPattern").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("computed", isBoolean, defaults["false"]);
+                def("MethodDefinition").bases("Declaration").build("kind", "key", "value").field("kind", or("init", "get", "set", "")).field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("value", def("Function")).field("computed", isBoolean, defaults["false"]);
+                def("SpreadElement").bases("Node").build("argument").field("argument", def("Expression"));
+                def("ArrayExpression").field("elements", [or(def("Expression"), def("SpreadElement"), null)]);
+                def("NewExpression").field("arguments", [or(def("Expression"), def("SpreadElement"))]);
+                def("CallExpression").field("arguments", [or(def("Expression"), def("SpreadElement"))]);
+                def("SpreadElementPattern").bases("Pattern").build("argument").field("argument", def("Pattern"));
+                var ClassBodyElement = or(def("MethodDefinition"), def("VariableDeclarator"), def("ClassPropertyDefinition"), def("ClassProperty"));
+                def("ClassProperty").bases("Declaration").build("key").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("computed", isBoolean, defaults["false"]);
+                def("ClassPropertyDefinition").bases("Declaration").build("definition").field("definition", ClassBodyElement);
+                def("ClassBody").bases("Declaration").build("body").field("body", [ClassBodyElement]);
+                def("ClassDeclaration").bases("Declaration").build("id", "body", "superClass").field("id", def("Identifier")).field("body", def("ClassBody")).field("superClass", or(def("Expression"), null), defaults["null"]);
+                def("ClassExpression").bases("Expression").build("id", "body", "superClass").field("id", or(def("Identifier"), null), defaults["null"]).field("body", def("ClassBody")).field("superClass", or(def("Expression"), null), defaults["null"]).field("implements", [def("ClassImplements")], defaults.emptyArray);
+                def("ClassImplements").bases("Node").build("id").field("id", def("Identifier")).field("superClass", or(def("Expression"), null), defaults["null"]);
+                // Specifier and NamedSpecifier are abstract non-standard types that I
+                // introduced for definitional convenience.
+                def("Specifier").bases("Node");
+                def("NamedSpecifier").bases("Specifier").field("id", def("Identifier")).field("name", or(def("Identifier"), null), defaults["null"]);
+                // Like NamedSpecifier, except type:"ExportSpecifier" and buildable.
+                // export {<id [as name]>} [from ...];
+                def("ExportSpecifier").bases("NamedSpecifier").build("id", "name");
+                // export <*> from ...;
+                def("ExportBatchSpecifier").bases("Specifier").build();
+                // Like NamedSpecifier, except type:"ImportSpecifier" and buildable.
+                // import {<id [as name]>} from ...;
+                def("ImportSpecifier").bases("NamedSpecifier").build("id", "name");
+                // import <* as id> from ...;
+                def("ImportNamespaceSpecifier").bases("Specifier").build("id").field("id", def("Identifier"));
+                // import <id> from ...;
+                def("ImportDefaultSpecifier").bases("Specifier").build("id").field("id", def("Identifier"));
+                def("ExportDeclaration").bases("Declaration").build("default", "declaration", "specifiers", "source").field("default", isBoolean).field("declaration", or(def("Declaration"), def("Expression"), null)).field("specifiers", [or(def("ExportSpecifier"), def("ExportBatchSpecifier"))], defaults.emptyArray).field("source", or(def("ModuleSpecifier"), null), defaults["null"]);
+                def("ImportDeclaration").bases("Declaration").build("specifiers", "source").field("specifiers", [or(def("ImportSpecifier"), def("ImportNamespaceSpecifier"), def("ImportDefaultSpecifier"))], defaults.emptyArray).field("source", def("ModuleSpecifier"));
+                def("TaggedTemplateExpression").bases("Expression").field("tag", def("Expression")).field("quasi", def("TemplateLiteral"));
+                def("TemplateLiteral").bases("Expression").build("quasis", "expressions").field("quasis", [def("TemplateElement")]).field("expressions", [def("Expression")]);
+                def("TemplateElement").bases("Node").build("value", "tail").field("value", { "cooked": isString, "raw": isString }).field("tail", isBoolean);
+            })(definitions = types.definitions || (types.definitions = {}));
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var definitions;
+            (function (definitions) {
+                var types = lib.ast.types;
+                var def = types.Type.def;
+                var or = types.Type.or;
+                var builtin = types.builtInTypes;
+                var isString = builtin["string"];
+                var isBoolean = builtin["boolean"];
+                var defaults = types.defaults;
+                var geq = types.geq;
+                def("Function").field("async", isBoolean, defaults["false"]);
+                def("SpreadProperty").bases("Node").build("argument").field("argument", def("Expression"));
+                def("ObjectExpression").field("properties", [or(def("Property"), def("SpreadProperty"))]);
+                def("SpreadPropertyPattern").bases("Pattern").build("argument").field("argument", def("Pattern"));
+                def("ObjectPattern").field("properties", [or(def("PropertyPattern"), def("SpreadPropertyPattern"))]);
+                def("AwaitExpression").bases("Expression").build("argument", "all").field("argument", or(def("Expression"), null)).field("all", isBoolean, defaults["false"]);
+            })(definitions = types.definitions || (types.definitions = {}));
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var definitions;
+            (function (definitions) {
+                var types = lib.ast.types;
+                var def = types.Type.def;
+                var or = types.Type.or;
+                var builtin = types.builtInTypes;
+                var isString = builtin["string"];
+                var isBoolean = builtin["boolean"];
+                var defaults = types.defaults;
+                var geq = types.geq;
+                def("XJSAttribute").bases("Node").build("name", "value").field("name", or(def("XJSIdentifier"), def("XJSNamespacedName"))).field("value", or(def("Literal"), def("XJSExpressionContainer"), null), defaults["null"]);
+                def("XJSIdentifier").bases("Node").build("name").field("name", isString);
+                def("XJSNamespacedName").bases("Node").build("namespace", "name").field("namespace", def("XJSIdentifier")).field("name", def("XJSIdentifier"));
+                def("XJSMemberExpression").bases("MemberExpression").build("object", "property").field("object", or(def("XJSIdentifier"), def("XJSMemberExpression"))).field("property", def("XJSIdentifier")).field("computed", isBoolean, defaults.false);
+                var XJSElementName = or(def("XJSIdentifier"), def("XJSNamespacedName"), def("XJSMemberExpression"));
+                def("XJSSpreadAttribute").bases("Node").build("argument").field("argument", def("Expression"));
+                var XJSAttributes = [or(def("XJSAttribute"), def("XJSSpreadAttribute"))];
+                def("XJSExpressionContainer").bases("Expression").build("expression").field("expression", def("Expression"));
+                /*
+                 def("XJSElement")
+                 .bases("Expression")
+                 .build("openingElement", "closingElement", "children")
+                 .field("openingElement", def("XJSOpeningElement"))
+                 .field("closingElement", or(def("XJSClosingElement"), null), defaults["null"])
+                 .field("children", [or(
+                 def("XJSElement"),
+                 def("XJSExpressionContainer"),
+                 def("XJSText"),
+                 def("Literal") // TODO Esprima should return XJSText instead.
+                 )], defaults.emptyArray)
+                 .field("name", XJSElementName, function() {
+                 // Little-known fact: the `this` object inside a default function
+                 // is none other than the partially-built object itself, and any
+                 // fields initialized directly from builder function arguments
+                 // (like openingElement, closingElement, and children) are
+                 // guaranteed to be available.
+                 return this.openingElement.name;
+                 })
+                 .field("selfClosing", isBoolean, function() {
+                 return this.openingElement.selfClosing;
+                 })
+                 .field("attributes", XJSAttributes, function() {
+                 return this.openingElement.attributes;
+                 });
+                 */
+                def("XJSOpeningElement").bases("Node").build("name", "attributes", "selfClosing").field("name", XJSElementName).field("attributes", XJSAttributes, defaults.emptyArray).field("selfClosing", isBoolean, defaults["false"]);
+                def("XJSClosingElement").bases("Node").build("name").field("name", XJSElementName);
+                def("XJSText").bases("Literal").build("value").field("value", isString);
+                def("XJSEmptyExpression").bases("Expression").build();
+                // Type Annotations
+                def("Type").bases("Node");
+                def("AnyTypeAnnotation").bases("Type");
+                def("VoidTypeAnnotation").bases("Type");
+                def("NumberTypeAnnotation").bases("Type");
+                def("StringTypeAnnotation").bases("Type");
+                def("StringLiteralTypeAnnotation").bases("Type").build("value", "raw").field("value", isString).field("raw", isString);
+                def("BooleanTypeAnnotation").bases("Type");
+                def("TypeAnnotation").bases("Node").build("typeAnnotation").field("typeAnnotation", def("Type"));
+                def("NullableTypeAnnotation").bases("Type").build("typeAnnotation").field("typeAnnotation", def("Type"));
+                def("FunctionTypeAnnotation").bases("Type").build("params", "returnType", "rest", "typeParameters").field("params", [def("FunctionTypeParam")]).field("returnType", def("Type")).field("rest", or(def("FunctionTypeParam"), null)).field("typeParameters", or(def("TypeParameterDeclaration"), null));
+                def("FunctionTypeParam").bases("Node").build("name", "typeAnnotation", "optional").field("name", def("Identifier")).field("typeAnnotation", def("Type")).field("optional", isBoolean);
+                def("ObjectTypeAnnotation").bases("Type").build("properties").field("properties", [def("ObjectTypeProperty")]).field("indexers", [def("ObjectTypeIndexer")], defaults.emptyArray).field("callProperties", [def("ObjectTypeCallProperty")], defaults.emptyArray);
+                def("ObjectTypeProperty").bases("Node").build("key", "value", "optional").field("key", or(def("Literal"), def("Identifier"))).field("value", def("Type")).field("optional", isBoolean);
+                def("ObjectTypeIndexer").bases("Node").build("id", "key", "value").field("id", def("Identifier")).field("key", def("Type")).field("value", def("Type"));
+                def("ObjectTypeCallProperty").bases("Node").build("value").field("value", def("FunctionTypeAnnotation")).field("static", isBoolean, false);
+                def("QualifiedTypeIdentifier").bases("Node").build("qualification", "id").field("qualification", or(def("Identifier"), def("QualifiedTypeIdentifier"))).field("id", def("Identifier"));
+                def("GenericTypeAnnotation").bases("Type").build("id", "typeParameters").field("id", or(def("Identifier"), def("QualifiedTypeIdentifier"))).field("typeParameters", or(def("TypeParameterInstantiation"), null));
+                def("MemberTypeAnnotation").bases("Type").build("object", "property").field("object", def("Identifier")).field("property", or(def("MemberTypeAnnotation"), def("GenericTypeAnnotation")));
+                def("UnionTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
+                def("IntersectionTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
+                def("TypeofTypeAnnotation").bases("Type").build("argument").field("argument", def("Type"));
+                def("Identifier").field("typeAnnotation", or(def("TypeAnnotation"), null), defaults["null"]);
+                def("TypeParameterDeclaration").bases("Node").build("params").field("params", [def("Identifier")]);
+                def("TypeParameterInstantiation").bases("Node").build("params").field("params", [def("Type")]);
+                def("Function").field("returnType", or(def("TypeAnnotation"), null), defaults["null"]).field("typeParameters", or(def("TypeParameterDeclaration"), null), defaults["null"]);
+                def("ClassProperty").build("key", "typeAnnotation").field("typeAnnotation", def("TypeAnnotation")).field("static", isBoolean, false);
+                def("ClassImplements").field("typeParameters", or(def("TypeParameterInstantiation"), null), defaults["null"]);
+                def("InterfaceDeclaration").bases("Statement").build("id", "body", "extends").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterDeclaration"), null), defaults["null"]).field("body", def("ObjectTypeAnnotation")).field("extends", [def("InterfaceExtends")]);
+                def("InterfaceExtends").bases("Node").build("id").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterInstantiation"), null));
+                def("TypeAlias").bases("Statement").build("id", "typeParameters", "right").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterDeclaration"), null)).field("right", def("Type"));
+                def("TupleTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
+                def("DeclareVariable").bases("Statement").build("id").field("id", def("Identifier"));
+                def("DeclareFunction").bases("Statement").build("id").field("id", def("Identifier"));
+                def("DeclareClass").bases("InterfaceDeclaration").build("id");
+                def("DeclareModule").bases("Statement").build("id", "body").field("id", or(def("Identifier"), def("Literal"))).field("body", def("BlockStatement"));
+            })(definitions = types.definitions || (types.definitions = {}));
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var definitions;
+            (function (definitions) {
+                var types = lib.ast.types;
+                var def = types.Type.def;
+                var or = types.Type.or;
+                var geq = types.geq;
+                def("ForOfStatement").bases("Statement").build("left", "right", "body").field("left", or(def("VariableDeclaration"), def("Expression"))).field("right", def("Expression")).field("body", def("Statement"));
+                def("LetStatement").bases("Statement").build("head", "body").field("head", [def("VariableDeclarator")]).field("body", def("Statement"));
+                def("LetExpression").bases("Expression").build("head", "body").field("head", [def("VariableDeclarator")]).field("body", def("Expression"));
+                def("GraphExpression").bases("Expression").build("index", "expression").field("index", geq(0)).field("expression", def("Literal"));
+                def("GraphIndexExpression").bases("Expression").build("index").field("index", geq(0));
+            })(definitions = types.definitions || (types.definitions = {}));
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="../types/def/core.ts" />
+/// <reference path="../types/def/e4x.ts" />
+/// <reference path="../types/def/es6.ts" />
+/// <reference path="../types/def/es7.ts" />
+/// <reference path="../types/def/fb-harmony.ts" />
+/// <reference path="../types/def/mozilla.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -7636,6 +8755,7 @@ var lib;
         })(recast = ast.recast || (ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+/// <reference path="recast.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -7647,10 +8767,14 @@ var lib;
             var SourceMapGenerator = sourceMap.SourceMapGenerator;
             var hasOwn = Object.prototype.hasOwnProperty;
             function getUnionOfKeys() {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i - 0] = arguments[_i];
+                }
                 var result = {};
-                var argc = arguments.length;
+                var argc = args.length;
                 for (var i = 0; i < argc; ++i) {
-                    var keys = Object.keys(arguments[i]);
+                    var keys = Object.keys(args[i]);
                     var keyCount = keys.length;
                     for (var j = 0; j < keyCount; ++j) {
                         result[keys[j]] = true;
@@ -8406,867 +9530,169 @@ var lib;
         })(traverse = ast.traverse || (ast.traverse = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var def;
-            (function (_def) {
-                var types = lib.ast.types;
-                var Type = types.Type;
-                var def = Type.def;
-                var or = Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isNumber = builtin["number"];
-                var isBoolean = builtin["boolean"];
-                var isRegExp = builtin["RegExp"];
-                var shared = lib.ast.types.shared;
-                var defaults = shared.defaults;
-                var geq = shared.geq;
-                var core;
-                (function (core) {
-                    // Abstract supertype of all syntactic entities that are allowed to have a
-                    // .loc field.
-                    def("Printable").field("loc", or(def("SourceLocation"), null), defaults["null"], true);
-                    def("Node").bases("Printable").field("type", isString);
-                    def("SourceLocation").build("start", "end", "source").field("start", def("Position")).field("end", def("Position")).field("source", or(isString, null), defaults["null"]);
-                    def("Position").build("line", "column").field("line", geq(1)).field("column", geq(0));
-                    def("Program").bases("Node").build("body").field("body", [def("Statement")]).field("comments", or([or(def("Block"), def("Line"))], null), defaults["null"], true);
-                    def("Function").bases("Node").field("id", or(def("Identifier"), null), defaults["null"]).field("params", [def("Pattern")]).field("body", or(def("BlockStatement"), def("Expression")));
-                    def("Statement").bases("Node");
-                    // The empty .build() here means that an EmptyStatement can be constructed
-                    // (i.e. it's not abstract) but that it needs no arguments.
-                    def("EmptyStatement").bases("Statement").build();
-                    def("BlockStatement").bases("Statement").build("body").field("body", [def("Statement")]);
-                    // TODO Figure out how to silently coerce Expressions to
-                    // ExpressionStatements where a Statement was expected.
-                    def("ExpressionStatement").bases("Statement").build("expression").field("expression", def("Expression"));
-                    def("IfStatement").bases("Statement").build("test", "consequent", "alternate").field("test", def("Expression")).field("consequent", def("Statement")).field("alternate", or(def("Statement"), null), defaults["null"]);
-                    def("LabeledStatement").bases("Statement").build("label", "body").field("label", def("Identifier")).field("body", def("Statement"));
-                    def("BreakStatement").bases("Statement").build("label").field("label", or(def("Identifier"), null), defaults["null"]);
-                    def("ContinueStatement").bases("Statement").build("label").field("label", or(def("Identifier"), null), defaults["null"]);
-                    def("WithStatement").bases("Statement").build("object", "body").field("object", def("Expression")).field("body", def("Statement"));
-                    def("SwitchStatement").bases("Statement").build("discriminant", "cases", "lexical").field("discriminant", def("Expression")).field("cases", [def("SwitchCase")]).field("lexical", isBoolean, defaults["false"]);
-                    def("ReturnStatement").bases("Statement").build("argument").field("argument", or(def("Expression"), null));
-                    def("ThrowStatement").bases("Statement").build("argument").field("argument", def("Expression"));
-                    def("TryStatement").bases("Statement").build("block", "handler", "finalizer").field("block", def("BlockStatement")).field("handler", or(def("CatchClause"), null), function () {
-                        return this["handlers"] && this["handlers"][0] || null;
-                    }).field("handlers", [def("CatchClause")], function () {
-                        return this.handler ? [this.handler] : [];
-                    }, true).field("guardedHandlers", [def("CatchClause")], defaults.emptyArray).field("finalizer", or(def("BlockStatement"), null), defaults["null"]);
-                    def("CatchClause").bases("Node").build("param", "guard", "body").field("param", def("Pattern")).field("guard", or(def("Expression"), null), defaults["null"]).field("body", def("BlockStatement"));
-                    def("WhileStatement").bases("Statement").build("test", "body").field("test", def("Expression")).field("body", def("Statement"));
-                    def("DoWhileStatement").bases("Statement").build("body", "test").field("body", def("Statement")).field("test", def("Expression"));
-                    def("ForStatement").bases("Statement").build("init", "test", "update", "body").field("init", or(def("VariableDeclaration"), def("Expression"), null)).field("test", or(def("Expression"), null)).field("update", or(def("Expression"), null)).field("body", def("Statement"));
-                    def("ForInStatement").bases("Statement").build("left", "right", "body", "each").field("left", or(def("VariableDeclaration"), def("Expression"))).field("right", def("Expression")).field("body", def("Statement")).field("each", isBoolean);
-                    def("DebuggerStatement").bases("Statement").build();
-                    def("Declaration").bases("Statement");
-                    def("FunctionDeclaration").bases("Function", "Declaration").build("id", "params", "body").field("id", def("Identifier"));
-                    def("FunctionExpression").bases("Function", "Expression").build("id", "params", "body");
-                    def("VariableDeclaration").bases("Declaration").build("kind", "declarations").field("kind", or("var", "let", "const")).field("declarations", [or(def("VariableDeclarator"), def("Identifier"))]);
-                    def("VariableDeclarator").bases("Node").build("id", "init").field("id", def("Pattern")).field("init", or(def("Expression"), null));
-                    // TODO Are all Expressions really Patterns?
-                    def("Expression").bases("Node", "Pattern");
-                    def("ThisExpression").bases("Expression").build();
-                    def("ArrayExpression").bases("Expression").build("elements").field("elements", [or(def("Expression"), null)]);
-                    def("ObjectExpression").bases("Expression").build("properties").field("properties", [def("Property")]);
-                    // TODO Not in the Mozilla Parser API, but used by Esprima.
-                    def("Property").bases("Node").build("kind", "key", "value").field("kind", or("init", "get", "set")).field("key", or(def("Literal"), def("Identifier"))).field("value", def("Expression"));
-                    def("SequenceExpression").bases("Expression").build("expressions").field("expressions", [def("Expression")]);
-                    var UnaryOperator = or("-", "+", "!", "~", "typeof", "void", "delete");
-                    def("UnaryExpression").bases("Expression").build("operator", "argument", "prefix").field("operator", UnaryOperator).field("argument", def("Expression")).field("prefix", isBoolean, defaults["true"]);
-                    var BinaryOperator = or("==", "!=", "===", "!==", "<", "<=", ">", ">=", "<<", ">>", ">>>", "+", "-", "*", "/", "%", "&", "|", "^", "in", "instanceof", "..");
-                    def("BinaryExpression").bases("Expression").build("operator", "left", "right").field("operator", BinaryOperator).field("left", def("Expression")).field("right", def("Expression"));
-                    var AssignmentOperator = or("=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", ">>>=", "|=", "^=", "&=");
-                    def("AssignmentExpression").bases("Expression").build("operator", "left", "right").field("operator", AssignmentOperator).field("left", def("Pattern")).field("right", def("Expression"));
-                    var UpdateOperator = or("++", "--");
-                    def("UpdateExpression").bases("Expression").build("operator", "argument", "prefix").field("operator", UpdateOperator).field("argument", def("Expression")).field("prefix", isBoolean);
-                    var LogicalOperator = or("||", "&&");
-                    def("LogicalExpression").bases("Expression").build("operator", "left", "right").field("operator", LogicalOperator).field("left", def("Expression")).field("right", def("Expression"));
-                    def("ConditionalExpression").bases("Expression").build("test", "consequent", "alternate").field("test", def("Expression")).field("consequent", def("Expression")).field("alternate", def("Expression"));
-                    def("NewExpression").bases("Expression").build("callee", "arguments").field("callee", def("Expression")).field("arguments", [def("Expression")]);
-                    def("CallExpression").bases("Expression").build("callee", "arguments").field("callee", def("Expression")).field("arguments", [def("Expression")]);
-                    def("MemberExpression").bases("Expression").build("object", "property", "computed").field("object", def("Expression")).field("property", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
-                    def("Pattern").bases("Node");
-                    def("ObjectPattern").bases("Pattern").build("properties").field("properties", [def("PropertyPattern")]);
-                    def("PropertyPattern").bases("Pattern").build("key", "pattern").field("key", or(def("Literal"), def("Identifier"))).field("pattern", def("Pattern"));
-                    def("ArrayPattern").bases("Pattern").build("elements").field("elements", [or(def("Pattern"), null)]);
-                    def("SwitchCase").bases("Node").build("test", "consequent").field("test", or(def("Expression"), null)).field("consequent", [def("Statement")]);
-                    def("Identifier").bases("Node", "Expression", "Pattern").build("name").field("name", isString);
-                    def("Literal").bases("Node", "Expression").build("value").field("value", or(isString, isBoolean, null, isNumber, isRegExp));
-                    // Block comment. Not a Node.
-                    def("Block").bases("Printable").build("loc", "value").field("value", isString);
-                    // Single line comment. Not a Node.
-                    def("Line").bases("Printable").build("loc", "value").field("value", isString);
-                })(core = _def.core || (_def.core = {}));
-            })(def = types.def || (types.def = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
 /// <referench path="core.ts" />
+/// <referench path="e4x.ts" />
+/// <referench path="es6.ts" />
+/// <referench path="es7.ts" />
+/// <referench path="fb-harmony.ts" />
+/// <referench path="mozilla.ts" />
+/// <reference path="types.ts" />
 var lib;
 (function (lib) {
     var ast;
     (function (ast) {
         var types;
         (function (types) {
-            var def;
-            (function (_def) {
-                var types = lib.ast.types;
-                var shared = lib.ast.types.shared;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = shared.defaults;
-                var geq = shared.geq;
-                // Note that none of these types are buildable because the Mozilla Parser
-                // API doesn't specify any builder functions, and nobody uses E4X anymore.
-                def("XMLDefaultDeclaration").bases("Declaration").field("namespace", def("Expression"));
-                def("XMLAnyName").bases("Expression");
-                def("XMLQualifiedIdentifier").bases("Expression").field("left", or(def("Identifier"), def("XMLAnyName"))).field("right", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
-                def("XMLFunctionQualifiedIdentifier").bases("Expression").field("right", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
-                def("XMLAttributeSelector").bases("Expression").field("attribute", def("Expression"));
-                def("XMLFilterExpression").bases("Expression").field("left", def("Expression")).field("right", def("Expression"));
-                def("XMLElement").bases("XML", "Expression").field("contents", [def("XML")]);
-                def("XMLList").bases("XML", "Expression").field("contents", [def("XML")]);
-                def("XML").bases("Node");
-                def("XMLEscape").bases("XML").field("expression", def("Expression"));
-                def("XMLText").bases("XML").field("text", isString);
-                def("XMLStartTag").bases("XML").field("contents", [def("XML")]);
-                def("XMLEndTag").bases("XML").field("contents", [def("XML")]);
-                def("XMLPointTag").bases("XML").field("contents", [def("XML")]);
-                def("XMLName").bases("XML").field("contents", or(isString, [def("XML")]));
-                def("XMLAttribute").bases("XML").field("value", isString);
-                def("XMLCdata").bases("XML").field("contents", isString);
-                def("XMLComment").bases("XML").field("contents", isString);
-                def("XMLProcessingInstruction").bases("XML").field("target", isString).field("contents", or(isString, null));
-            })(def = types.def || (types.def = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <referench path="core.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var def;
-            (function (_def) {
-                var types = lib.ast.types;
-                var shared = lib.ast.types.shared;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = shared.defaults;
-                var geq = shared.geq;
-                def("Function").field("generator", isBoolean, defaults["false"]).field("expression", isBoolean, defaults["false"]).field("defaults", [or(def("Expression"), null)], defaults.emptyArray).field("rest", or(def("Identifier"), null), defaults["null"]);
-                def("FunctionDeclaration").build("id", "params", "body", "generator", "expression");
-                def("FunctionExpression").build("id", "params", "body", "generator", "expression");
-                // TODO The Parser API calls this ArrowExpression, but Esprima uses
-                // ArrowFunctionExpression.
-                def("ArrowFunctionExpression").bases("Function", "Expression").build("params", "body", "expression").field("id", null, defaults["null"]).field("generator", false);
-                def("YieldExpression").bases("Expression").build("argument", "delegate").field("argument", or(def("Expression"), null)).field("delegate", isBoolean, defaults["false"]);
-                def("GeneratorExpression").bases("Expression").build("body", "blocks", "filter").field("body", def("Expression")).field("blocks", [def("ComprehensionBlock")]).field("filter", or(def("Expression"), null));
-                def("ComprehensionExpression").bases("Expression").build("body", "blocks", "filter").field("body", def("Expression")).field("blocks", [def("ComprehensionBlock")]).field("filter", or(def("Expression"), null));
-                def("ComprehensionBlock").bases("Node").build("left", "right", "each").field("left", def("Pattern")).field("right", def("Expression")).field("each", isBoolean);
-                def("ModuleSpecifier").bases("Literal").build("value").field("value", isString);
-                def("Property").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("method", isBoolean, defaults["false"]).field("shorthand", isBoolean, defaults["false"]).field("computed", isBoolean, defaults["false"]);
-                def("PropertyPattern").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("computed", isBoolean, defaults["false"]);
-                def("MethodDefinition").bases("Declaration").build("kind", "key", "value").field("kind", or("init", "get", "set", "")).field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("value", def("Function")).field("computed", isBoolean, defaults["false"]);
-                def("SpreadElement").bases("Node").build("argument").field("argument", def("Expression"));
-                def("ArrayExpression").field("elements", [or(def("Expression"), def("SpreadElement"), null)]);
-                def("NewExpression").field("arguments", [or(def("Expression"), def("SpreadElement"))]);
-                def("CallExpression").field("arguments", [or(def("Expression"), def("SpreadElement"))]);
-                def("SpreadElementPattern").bases("Pattern").build("argument").field("argument", def("Pattern"));
-                var ClassBodyElement = or(def("MethodDefinition"), def("VariableDeclarator"), def("ClassPropertyDefinition"), def("ClassProperty"));
-                def("ClassProperty").bases("Declaration").build("key").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("computed", isBoolean, defaults["false"]);
-                def("ClassPropertyDefinition").bases("Declaration").build("definition").field("definition", ClassBodyElement);
-                def("ClassBody").bases("Declaration").build("body").field("body", [ClassBodyElement]);
-                def("ClassDeclaration").bases("Declaration").build("id", "body", "superClass").field("id", def("Identifier")).field("body", def("ClassBody")).field("superClass", or(def("Expression"), null), defaults["null"]);
-                def("ClassExpression").bases("Expression").build("id", "body", "superClass").field("id", or(def("Identifier"), null), defaults["null"]).field("body", def("ClassBody")).field("superClass", or(def("Expression"), null), defaults["null"]).field("implements", [def("ClassImplements")], defaults.emptyArray);
-                def("ClassImplements").bases("Node").build("id").field("id", def("Identifier")).field("superClass", or(def("Expression"), null), defaults["null"]);
-                // Specifier and NamedSpecifier are abstract non-standard types that I
-                // introduced for definitional convenience.
-                def("Specifier").bases("Node");
-                def("NamedSpecifier").bases("Specifier").field("id", def("Identifier")).field("name", or(def("Identifier"), null), defaults["null"]);
-                // Like NamedSpecifier, except type:"ExportSpecifier" and buildable.
-                // export {<id [as name]>} [from ...];
-                def("ExportSpecifier").bases("NamedSpecifier").build("id", "name");
-                // export <*> from ...;
-                def("ExportBatchSpecifier").bases("Specifier").build();
-                // Like NamedSpecifier, except type:"ImportSpecifier" and buildable.
-                // import {<id [as name]>} from ...;
-                def("ImportSpecifier").bases("NamedSpecifier").build("id", "name");
-                // import <* as id> from ...;
-                def("ImportNamespaceSpecifier").bases("Specifier").build("id").field("id", def("Identifier"));
-                // import <id> from ...;
-                def("ImportDefaultSpecifier").bases("Specifier").build("id").field("id", def("Identifier"));
-                def("ExportDeclaration").bases("Declaration").build("default", "declaration", "specifiers", "source").field("default", isBoolean).field("declaration", or(def("Declaration"), def("Expression"), null)).field("specifiers", [or(def("ExportSpecifier"), def("ExportBatchSpecifier"))], defaults.emptyArray).field("source", or(def("ModuleSpecifier"), null), defaults["null"]);
-                def("ImportDeclaration").bases("Declaration").build("specifiers", "source").field("specifiers", [or(def("ImportSpecifier"), def("ImportNamespaceSpecifier"), def("ImportDefaultSpecifier"))], defaults.emptyArray).field("source", def("ModuleSpecifier"));
-                def("TaggedTemplateExpression").bases("Expression").field("tag", def("Expression")).field("quasi", def("TemplateLiteral"));
-                def("TemplateLiteral").bases("Expression").build("quasis", "expressions").field("quasis", [def("TemplateElement")]).field("expressions", [def("Expression")]);
-                def("TemplateElement").bases("Node").build("value", "tail").field("value", { "cooked": isString, "raw": isString }).field("tail", isBoolean);
-            })(def = types.def || (types.def = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <referench path="core.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var def;
-            (function (_def) {
-                var types = lib.ast.types;
-                var shared = lib.ast.types.shared;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = shared.defaults;
-                var geq = shared.geq;
-                def("Function").field("async", isBoolean, defaults["false"]);
-                def("SpreadProperty").bases("Node").build("argument").field("argument", def("Expression"));
-                def("ObjectExpression").field("properties", [or(def("Property"), def("SpreadProperty"))]);
-                def("SpreadPropertyPattern").bases("Pattern").build("argument").field("argument", def("Pattern"));
-                def("ObjectPattern").field("properties", [or(def("PropertyPattern"), def("SpreadPropertyPattern"))]);
-                def("AwaitExpression").bases("Expression").build("argument", "all").field("argument", or(def("Expression"), null)).field("all", isBoolean, defaults["false"]);
-            })(def = types.def || (types.def = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <referench path="core.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var def;
-            (function (_def) {
-                var types = lib.ast.types;
-                var shared = lib.ast.types.shared;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = shared.defaults;
-                var geq = shared.geq;
-                def("XJSAttribute").bases("Node").build("name", "value").field("name", or(def("XJSIdentifier"), def("XJSNamespacedName"))).field("value", or(def("Literal"), def("XJSExpressionContainer"), null), defaults["null"]);
-                def("XJSIdentifier").bases("Node").build("name").field("name", isString);
-                def("XJSNamespacedName").bases("Node").build("namespace", "name").field("namespace", def("XJSIdentifier")).field("name", def("XJSIdentifier"));
-                def("XJSMemberExpression").bases("MemberExpression").build("object", "property").field("object", or(def("XJSIdentifier"), def("XJSMemberExpression"))).field("property", def("XJSIdentifier")).field("computed", isBoolean, defaults.false);
-                var XJSElementName = or(def("XJSIdentifier"), def("XJSNamespacedName"), def("XJSMemberExpression"));
-                def("XJSSpreadAttribute").bases("Node").build("argument").field("argument", def("Expression"));
-                var XJSAttributes = [or(def("XJSAttribute"), def("XJSSpreadAttribute"))];
-                def("XJSExpressionContainer").bases("Expression").build("expression").field("expression", def("Expression"));
-                /*
-                 def("XJSElement")
-                 .bases("Expression")
-                 .build("openingElement", "closingElement", "children")
-                 .field("openingElement", def("XJSOpeningElement"))
-                 .field("closingElement", or(def("XJSClosingElement"), null), defaults["null"])
-                 .field("children", [or(
-                 def("XJSElement"),
-                 def("XJSExpressionContainer"),
-                 def("XJSText"),
-                 def("Literal") // TODO Esprima should return XJSText instead.
-                 )], defaults.emptyArray)
-                 .field("name", XJSElementName, function() {
-                 // Little-known fact: the `this` object inside a default function
-                 // is none other than the partially-built object itself, and any
-                 // fields initialized directly from builder function arguments
-                 // (like openingElement, closingElement, and children) are
-                 // guaranteed to be available.
-                 return this.openingElement.name;
-                 })
-                 .field("selfClosing", isBoolean, function() {
-                 return this.openingElement.selfClosing;
-                 })
-                 .field("attributes", XJSAttributes, function() {
-                 return this.openingElement.attributes;
-                 });
-                 */
-                def("XJSOpeningElement").bases("Node").build("name", "attributes", "selfClosing").field("name", XJSElementName).field("attributes", XJSAttributes, defaults.emptyArray).field("selfClosing", isBoolean, defaults["false"]);
-                def("XJSClosingElement").bases("Node").build("name").field("name", XJSElementName);
-                def("XJSText").bases("Literal").build("value").field("value", isString);
-                def("XJSEmptyExpression").bases("Expression").build();
-                // Type Annotations
-                def("Type").bases("Node");
-                def("AnyTypeAnnotation").bases("Type");
-                def("VoidTypeAnnotation").bases("Type");
-                def("NumberTypeAnnotation").bases("Type");
-                def("StringTypeAnnotation").bases("Type");
-                def("StringLiteralTypeAnnotation").bases("Type").build("value", "raw").field("value", isString).field("raw", isString);
-                def("BooleanTypeAnnotation").bases("Type");
-                def("TypeAnnotation").bases("Node").build("typeAnnotation").field("typeAnnotation", def("Type"));
-                def("NullableTypeAnnotation").bases("Type").build("typeAnnotation").field("typeAnnotation", def("Type"));
-                def("FunctionTypeAnnotation").bases("Type").build("params", "returnType", "rest", "typeParameters").field("params", [def("FunctionTypeParam")]).field("returnType", def("Type")).field("rest", or(def("FunctionTypeParam"), null)).field("typeParameters", or(def("TypeParameterDeclaration"), null));
-                def("FunctionTypeParam").bases("Node").build("name", "typeAnnotation", "optional").field("name", def("Identifier")).field("typeAnnotation", def("Type")).field("optional", isBoolean);
-                def("ObjectTypeAnnotation").bases("Type").build("properties").field("properties", [def("ObjectTypeProperty")]).field("indexers", [def("ObjectTypeIndexer")], defaults.emptyArray).field("callProperties", [def("ObjectTypeCallProperty")], defaults.emptyArray);
-                def("ObjectTypeProperty").bases("Node").build("key", "value", "optional").field("key", or(def("Literal"), def("Identifier"))).field("value", def("Type")).field("optional", isBoolean);
-                def("ObjectTypeIndexer").bases("Node").build("id", "key", "value").field("id", def("Identifier")).field("key", def("Type")).field("value", def("Type"));
-                def("ObjectTypeCallProperty").bases("Node").build("value").field("value", def("FunctionTypeAnnotation")).field("static", isBoolean, false);
-                def("QualifiedTypeIdentifier").bases("Node").build("qualification", "id").field("qualification", or(def("Identifier"), def("QualifiedTypeIdentifier"))).field("id", def("Identifier"));
-                def("GenericTypeAnnotation").bases("Type").build("id", "typeParameters").field("id", or(def("Identifier"), def("QualifiedTypeIdentifier"))).field("typeParameters", or(def("TypeParameterInstantiation"), null));
-                def("MemberTypeAnnotation").bases("Type").build("object", "property").field("object", def("Identifier")).field("property", or(def("MemberTypeAnnotation"), def("GenericTypeAnnotation")));
-                def("UnionTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
-                def("IntersectionTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
-                def("TypeofTypeAnnotation").bases("Type").build("argument").field("argument", def("Type"));
-                def("Identifier").field("typeAnnotation", or(def("TypeAnnotation"), null), defaults["null"]);
-                def("TypeParameterDeclaration").bases("Node").build("params").field("params", [def("Identifier")]);
-                def("TypeParameterInstantiation").bases("Node").build("params").field("params", [def("Type")]);
-                def("Function").field("returnType", or(def("TypeAnnotation"), null), defaults["null"]).field("typeParameters", or(def("TypeParameterDeclaration"), null), defaults["null"]);
-                def("ClassProperty").build("key", "typeAnnotation").field("typeAnnotation", def("TypeAnnotation")).field("static", isBoolean, false);
-                def("ClassImplements").field("typeParameters", or(def("TypeParameterInstantiation"), null), defaults["null"]);
-                def("InterfaceDeclaration").bases("Statement").build("id", "body", "extends").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterDeclaration"), null), defaults["null"]).field("body", def("ObjectTypeAnnotation")).field("extends", [def("InterfaceExtends")]);
-                def("InterfaceExtends").bases("Node").build("id").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterInstantiation"), null));
-                def("TypeAlias").bases("Statement").build("id", "typeParameters", "right").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterDeclaration"), null)).field("right", def("Type"));
-                def("TupleTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
-                def("DeclareVariable").bases("Statement").build("id").field("id", def("Identifier"));
-                def("DeclareFunction").bases("Statement").build("id").field("id", def("Identifier"));
-                def("DeclareClass").bases("InterfaceDeclaration").build("id");
-                def("DeclareModule").bases("Statement").build("id", "body").field("id", or(def("Identifier"), def("Literal"))).field("body", def("BlockStatement"));
-            })(def = types.def || (types.def = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <referench path="core.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var def;
-            (function (_def) {
-                var types = lib.ast.types;
-                var shared = lib.ast.types.shared;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var geq = shared.geq;
-                def("ForOfStatement").bases("Statement").build("left", "right", "body").field("left", or(def("VariableDeclaration"), def("Expression"))).field("right", def("Expression")).field("body", def("Statement"));
-                def("LetStatement").bases("Statement").build("head", "body").field("head", [def("VariableDeclarator")]).field("body", def("Statement"));
-                def("LetExpression").bases("Expression").build("head", "body").field("head", [def("VariableDeclarator")]).field("body", def("Expression"));
-                def("GraphExpression").bases("Expression").build("index", "expression").field("index", geq(0)).field("expression", def("Literal"));
-                def("GraphIndexExpression").bases("Expression").build("index").field("index", geq(0));
-            })(def = types.def || (types.def = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var equiv;
-            (function (equiv) {
-                var assert = lib.ast.types.assert;
-                var getFieldNames = types.getFieldNames;
-                var getFieldValue = types.getFieldValue;
-                var isArray = types.builtInTypes["array"];
-                var isObject = types.builtInTypes["object"];
-                var isDate = types.builtInTypes["Date"];
-                var isRegExp = types.builtInTypes["RegExp"];
-                var hasOwn = Object.prototype.hasOwnProperty;
-                function _astNodesAreEquivalent(a, b, problemPath) {
-                    if (isArray.check(problemPath)) {
-                        problemPath.length = 0;
-                    }
-                    else {
-                        problemPath = null;
-                    }
-                    return areEquivalent(a, b, problemPath);
-                }
-                var astNodesAreEquivalent = (function () {
-                    function astNodesAreEquivalent() {
-                    }
-                    astNodesAreEquivalent.assert = function (a, b) {
-                        var problemPath = [];
-                        if (!_astNodesAreEquivalent(a, b, problemPath)) {
-                            if (problemPath.length === 0) {
-                                assert.strictEqual(a, b);
-                            }
-                            else {
-                                assert.ok(false, "Nodes differ in the following path: " + problemPath.map(subscriptForProperty).join(""));
-                            }
-                        }
-                    };
-                    return astNodesAreEquivalent;
-                })();
-                equiv.astNodesAreEquivalent = astNodesAreEquivalent;
-                function subscriptForProperty(property) {
-                    if (/[_$a-z][_$a-z0-9]*/i.test(property)) {
-                        return "." + property;
-                    }
-                    return "[" + JSON.stringify(property) + "]";
-                }
-                function areEquivalent(a, b, problemPath) {
-                    if (a === b) {
-                        return true;
-                    }
-                    if (isArray.check(a)) {
-                        return arraysAreEquivalent(a, b, problemPath);
-                    }
-                    if (isObject.check(a)) {
-                        return objectsAreEquivalent(a, b, problemPath);
-                    }
-                    if (isDate.check(a)) {
-                        return isDate.check(b) && (+a === +b);
-                    }
-                    if (isRegExp.check(a)) {
-                        return isRegExp.check(b) && (a.source === b.source && a.global === b.global && a.multiline === b.multiline && a.ignoreCase === b.ignoreCase);
-                    }
-                    return a == b;
-                }
-                function arraysAreEquivalent(a, b, problemPath) {
-                    isArray.assert(a);
-                    var aLength = a.length;
-                    if (!isArray.check(b) || b.length !== aLength) {
-                        if (problemPath) {
-                            problemPath.push("length");
-                        }
-                        return false;
-                    }
-                    for (var i = 0; i < aLength; ++i) {
-                        if (problemPath) {
-                            problemPath.push(i);
-                        }
-                        if (i in a !== i in b) {
-                            return false;
-                        }
-                        if (!areEquivalent(a[i], b[i], problemPath)) {
-                            return false;
-                        }
-                        if (problemPath) {
-                            assert.strictEqual(problemPath.pop(), i);
-                        }
-                    }
-                    return true;
-                }
-                function objectsAreEquivalent(a, b, problemPath) {
-                    isObject.assert(a);
-                    if (!isObject.check(b)) {
-                        return false;
-                    }
-                    // Fast path for a common property of AST nodes.
-                    if (a.type !== b.type) {
-                        if (problemPath) {
-                            problemPath.push("type");
-                        }
-                        return false;
-                    }
-                    var aNames = getFieldNames(a);
-                    var aNameCount = aNames.length;
-                    var bNames = getFieldNames(b);
-                    var bNameCount = bNames.length;
-                    if (aNameCount === bNameCount) {
-                        for (var i = 0; i < aNameCount; ++i) {
-                            var name = aNames[i];
-                            var aChild = getFieldValue(a, name);
-                            var bChild = getFieldValue(b, name);
-                            if (problemPath) {
-                                problemPath.push(name);
-                            }
-                            if (!areEquivalent(aChild, bChild, problemPath)) {
-                                return false;
-                            }
-                            if (problemPath) {
-                                assert.strictEqual(problemPath.pop(), name);
-                            }
-                        }
-                        return true;
-                    }
-                    if (!problemPath) {
-                        return false;
-                    }
-                    // Since aNameCount !== bNameCount, we need to find some name that's
-                    // missing in aNames but present in bNames, or vice-versa.
-                    var seenNames = Object.create(null);
-                    for (i = 0; i < aNameCount; ++i) {
-                        seenNames[aNames[i]] = true;
-                    }
-                    for (i = 0; i < bNameCount; ++i) {
-                        name = bNames[i];
-                        if (!hasOwn.call(seenNames, name)) {
-                            problemPath.push(name);
-                            return false;
-                        }
-                        delete seenNames[name];
-                    }
-                    for (name in seenNames) {
-                        problemPath.push(name);
-                        break;
-                    }
-                    return false;
-                }
-            })(equiv = types.equiv || (types.equiv = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var n = types.namedTypes;
-            var b = types.builders;
-            var isNumber = types.builtInTypes["number"];
+            var assert = lib.utils.assert;
+            var getFieldNames = getFieldNames;
+            var getFieldValue = getFieldValue;
             var isArray = types.builtInTypes["array"];
-            var NodePath = (function (_super) {
-                __extends(NodePath, _super);
-                function NodePath(value, parentPath, name) {
-                    types.assert.ok(this instanceof NodePath);
-                    _super.call(this, value, parentPath, name);
+            var isObject = types.builtInTypes["object"];
+            var isDate = types.builtInTypes["Date"];
+            var isRegExp = types.builtInTypes["RegExp"];
+            var hasOwn = Object.prototype.hasOwnProperty;
+            function _astNodesAreEquivalent(a, b, problemPath) {
+                if (isArray.check(problemPath)) {
+                    problemPath.length = 0;
                 }
-                NodePath.prototype.replace = function () {
-                    delete this.node;
-                    delete this.parent;
-                    delete this.scope;
-                    return types.Path.prototype.replace.apply(this, arguments);
-                };
-                NodePath.prototype.prune = function () {
-                    var remainingNodePath = this.parent;
-                    this.replace();
-                    return cleanUpNodesAfterPrune(remainingNodePath);
-                };
-                // The value of the first ancestor Path whose value is a Node.
-                NodePath.prototype._computeNode = function () {
-                    var value = this.value;
-                    if (n.Node.check(value)) {
-                        return value;
-                    }
-                    var pp = this.parentPath;
-                    return pp && pp.node || null;
-                };
-                // The first ancestor Path whose value is a Node distinct from this.node.
-                NodePath.prototype._computeParent = function () {
-                    var value = this.value;
-                    var pp = this.parentPath;
-                    if (!n.Node.check(value)) {
-                        while (pp && !n.Node.check(pp.value)) {
-                            pp = pp.parentPath;
-                        }
-                        if (pp) {
-                            pp = pp.parentPath;
-                        }
-                    }
-                    while (pp && !n.Node.check(pp.value)) {
-                        pp = pp.parentPath;
-                    }
-                    return pp || null;
-                };
-                // The closest enclosing scope that governs this node.
-                NodePath.prototype._computeScope = function () {
-                    var value = this.value;
-                    var pp = this.parentPath;
-                    var scope = pp && pp.scope;
-                    if (n.Node.check(value) && types.Scope.isEstablishedBy(value)) {
-                        scope = new types.Scope(this, scope);
-                    }
-                    return scope || null;
-                };
-                NodePath.prototype.getValueProperty = function (name) {
-                    return types.getFieldValue(this.value, name);
-                };
-                NodePath.prototype.canBeFirstInStatement = function () {
-                    var node = this.node;
-                    return !n.FunctionExpression.check(node) && !n.ObjectExpression.check(node);
-                };
-                NodePath.prototype.firstInStatement = function () {
-                    return firstInStatement(this);
-                };
-                /**
-                 * Determine whether this.node needs to be wrapped in parentheses in order
-                 * for a parser to reproduce the same local AST structure.
-                 *
-                 * For instance, in the expression `(1 + 2) * 3`, the BinaryExpression
-                 * whose operator is "+" needs parentheses, because `1 + 2 * 3` would
-                 * parse differently.
-                 *
-                 * If assumeExpressionContext === true, we don't worry about edge cases
-                 * like an anonymous FunctionExpression appearing lexically first in its
-                 * enclosing statement and thus needing parentheses to avoid being parsed
-                 * as a FunctionDeclaration with a missing name.
-                 */
-                NodePath.prototype.needsParens = function (assumeExpressionContext) {
-                    var pp = this.parentPath;
-                    if (!pp) {
-                        return false;
-                    }
-                    var node = this.value;
-                    // Only expressions need parentheses.
-                    if (!n.Expression.check(node)) {
-                        return false;
-                    }
-                    // Identifiers never need parentheses.
-                    if (node.type === "Identifier") {
-                        return false;
-                    }
-                    while (!n.Node.check(pp.value)) {
-                        pp = pp.parentPath;
-                        if (!pp) {
-                            return false;
-                        }
-                    }
-                    var parent = pp.value;
-                    switch (node.type) {
-                        case "UnaryExpression":
-                        case "SpreadElement":
-                        case "SpreadProperty":
-                            return parent.type === "MemberExpression" && this.name === "object" && parent.object === node;
-                        case "BinaryExpression":
-                        case "LogicalExpression":
-                            switch (parent.type) {
-                                case "CallExpression":
-                                    return this.name === "callee" && parent.callee === node;
-                                case "UnaryExpression":
-                                case "SpreadElement":
-                                case "SpreadProperty":
-                                    return true;
-                                case "MemberExpression":
-                                    return this.name === "object" && parent.object === node;
-                                case "BinaryExpression":
-                                case "LogicalExpression":
-                                    var po = parent.operator;
-                                    var pp = PRECEDENCE[po];
-                                    var no = node.operator;
-                                    var np = PRECEDENCE[no];
-                                    if (pp > np) {
-                                        return true;
-                                    }
-                                    if (pp === np && this.name === "right") {
-                                        types.assert.strictEqual(parent.right, node);
-                                        return true;
-                                    }
-                                default:
-                                    return false;
-                            }
-                        case "SequenceExpression":
-                            switch (parent.type) {
-                                case "ForStatement":
-                                    // Although parentheses wouldn't hurt around sequence
-                                    // expressions in the head of for loops, traditional style
-                                    // dictates that e.g. i++, j++ should not be wrapped with
-                                    // parentheses.
-                                    return false;
-                                case "ExpressionStatement":
-                                    return this.name !== "expression";
-                                default:
-                                    // Otherwise err on the side of overparenthesization, adding
-                                    // explicit exceptions above if this proves overzealous.
-                                    return true;
-                            }
-                        case "YieldExpression":
-                            switch (parent.type) {
-                                case "BinaryExpression":
-                                case "LogicalExpression":
-                                case "UnaryExpression":
-                                case "SpreadElement":
-                                case "SpreadProperty":
-                                case "CallExpression":
-                                case "MemberExpression":
-                                case "NewExpression":
-                                case "ConditionalExpression":
-                                case "YieldExpression":
-                                    return true;
-                                default:
-                                    return false;
-                            }
-                        case "Literal":
-                            return parent.type === "MemberExpression" && isNumber.check(node.value) && this.name === "object" && parent.object === node;
-                        case "AssignmentExpression":
-                        case "ConditionalExpression":
-                            switch (parent.type) {
-                                case "UnaryExpression":
-                                case "SpreadElement":
-                                case "SpreadProperty":
-                                case "BinaryExpression":
-                                case "LogicalExpression":
-                                    return true;
-                                case "CallExpression":
-                                    return this.name === "callee" && parent.callee === node;
-                                case "ConditionalExpression":
-                                    return this.name === "test" && parent.test === node;
-                                case "MemberExpression":
-                                    return this.name === "object" && parent.object === node;
-                                default:
-                                    return false;
-                            }
-                        default:
-                            if (parent.type === "NewExpression" && this.name === "callee" && parent.callee === node) {
-                                return containsCallExpression(node);
-                            }
-                    }
-                    if (assumeExpressionContext !== true && !this.canBeFirstInStatement() && this.firstInStatement())
-                        return true;
-                    return false;
-                };
-                return NodePath;
-            })(types.Path);
-            types.NodePath = NodePath;
-            Object.defineProperties(NodePath.prototype, {
-                node: {
-                    get: function () {
-                        Object.defineProperty(this, "node", {
-                            configurable: true,
-                            value: this._computeNode()
-                        });
-                        return this.node;
-                    }
-                },
-                parent: {
-                    get: function () {
-                        Object.defineProperty(this, "parent", {
-                            configurable: true,
-                            value: this._computeParent()
-                        });
-                        return this.parent;
-                    }
-                },
-                scope: {
-                    get: function () {
-                        Object.defineProperty(this, "scope", {
-                            configurable: true,
-                            value: this._computeScope()
-                        });
-                        return this.scope;
-                    }
+                else {
+                    problemPath = null;
                 }
-            });
-            function isBinary(node) {
-                return n.BinaryExpression.check(node) || n.LogicalExpression.check(node);
+                return areEquivalent(a, b, problemPath);
             }
-            function isUnaryLike(node) {
-                return n.UnaryExpression.check(node) || (n.SpreadElement && n.SpreadElement.check(node));
+            var astNodesAreEquivalent = (function () {
+                function astNodesAreEquivalent() {
+                }
+                astNodesAreEquivalent.assert = function (a, b) {
+                    var problemPath = [];
+                    if (!_astNodesAreEquivalent(a, b, problemPath)) {
+                        if (problemPath.length === 0) {
+                            assert.strictEqual(a, b);
+                        }
+                        else {
+                            assert.ok(false, "Nodes differ in the following path: " + problemPath.map(subscriptForProperty).join(""));
+                        }
+                    }
+                };
+                return astNodesAreEquivalent;
+            })();
+            types.astNodesAreEquivalent = astNodesAreEquivalent;
+            function subscriptForProperty(property) {
+                if (/[_$a-z][_$a-z0-9]*/i.test(property)) {
+                    return "." + property;
+                }
+                return "[" + JSON.stringify(property) + "]";
             }
-            var PRECEDENCE = {};
-            [["||"], ["&&"], ["|"], ["^"], ["&"], ["==", "===", "!=", "!=="], ["<", ">", "<=", ">=", "in", "instanceof"], [">>", "<<", ">>>"], ["+", "-"], ["*", "/", "%"]].forEach(function (tier, i) {
-                tier.forEach(function (op) {
-                    PRECEDENCE[op] = i;
-                });
-            });
-            function containsCallExpression(node) {
-                if (n.CallExpression.check(node)) {
+            function areEquivalent(a, b, problemPath) {
+                if (a === b) {
                     return true;
                 }
-                if (isArray.check(node)) {
-                    return node.some(containsCallExpression);
+                if (isArray.check(a)) {
+                    return arraysAreEquivalent(a, b, problemPath);
                 }
-                if (n.Node.check(node)) {
-                    return types.someField(node, function (name, child) {
-                        return containsCallExpression(child);
-                    });
+                if (isObject.check(a)) {
+                    return objectsAreEquivalent(a, b, problemPath);
                 }
-                return false;
+                if (isDate.check(a)) {
+                    return isDate.check(b) && (+a === +b);
+                }
+                if (isRegExp.check(a)) {
+                    return isRegExp.check(b) && (a.source === b.source && a.global === b.global && a.multiline === b.multiline && a.ignoreCase === b.ignoreCase);
+                }
+                return a == b;
             }
-            function firstInStatement(path) {
-                for (var node, parent; path.parent; path = path.parent) {
-                    node = path.node;
-                    parent = path.parent.node;
-                    if (n.BlockStatement.check(parent) && path.parent.name === "body" && path.name === 0) {
-                        types.assert.strictEqual(parent.body[0], node);
-                        return true;
-                    }
-                    if (n.ExpressionStatement.check(parent) && path.name === "expression") {
-                        types.assert.strictEqual(parent.expression, node);
-                        return true;
-                    }
-                    if (n.SequenceExpression.check(parent) && path.parent.name === "expressions" && path.name === 0) {
-                        types.assert.strictEqual(parent.expressions[0], node);
-                        continue;
-                    }
-                    if (n.CallExpression.check(parent) && path.name === "callee") {
-                        types.assert.strictEqual(parent.callee, node);
-                        continue;
-                    }
-                    if (n.MemberExpression.check(parent) && path.name === "object") {
-                        types.assert.strictEqual(parent.object, node);
-                        continue;
-                    }
-                    if (n.ConditionalExpression.check(parent) && path.name === "test") {
-                        types.assert.strictEqual(parent.test, node);
-                        continue;
-                    }
-                    if (isBinary(parent) && path.name === "left") {
-                        types.assert.strictEqual(parent.left, node);
-                        continue;
-                    }
-                    if (n.UnaryExpression.check(parent) && !parent.prefix && path.name === "argument") {
-                        types.assert.strictEqual(parent.argument, node);
-                        continue;
+            function arraysAreEquivalent(a, b, problemPath) {
+                isArray.assert(a);
+                var aLength = a.length;
+                if (!isArray.check(b) || b.length !== aLength) {
+                    if (problemPath) {
+                        problemPath.push("length");
                     }
                     return false;
+                }
+                for (var i = 0; i < aLength; ++i) {
+                    if (problemPath) {
+                        problemPath.push(i);
+                    }
+                    if (i in a !== i in b) {
+                        return false;
+                    }
+                    if (!areEquivalent(a[i], b[i], problemPath)) {
+                        return false;
+                    }
+                    if (problemPath) {
+                        assert.strictEqual(problemPath.pop(), i);
+                    }
                 }
                 return true;
             }
-            /**
-             * Pruning certain nodes will result in empty or incomplete nodes, here we clean those nodes up.
-             */
-            function cleanUpNodesAfterPrune(remainingNodePath) {
-                if (n.VariableDeclaration.check(remainingNodePath.node)) {
-                    var declarations = remainingNodePath.get('declarations').value;
-                    if (!declarations || declarations.length === 0) {
-                        return remainingNodePath.prune();
+            function objectsAreEquivalent(a, b, problemPath) {
+                isObject.assert(a);
+                if (!isObject.check(b)) {
+                    return false;
+                }
+                // Fast path for a common property of AST nodes.
+                if (a.type !== b.type) {
+                    if (problemPath) {
+                        problemPath.push("type");
                     }
+                    return false;
                 }
-                else if (n.ExpressionStatement.check(remainingNodePath.node)) {
-                    if (!remainingNodePath.get('expression').value) {
-                        return remainingNodePath.prune();
+                var aNames = getFieldNames(a);
+                var aNameCount = aNames.length;
+                var bNames = getFieldNames(b);
+                var bNameCount = bNames.length;
+                if (aNameCount === bNameCount) {
+                    for (var i = 0; i < aNameCount; ++i) {
+                        var name = aNames[i];
+                        var aChild = getFieldValue(a, name);
+                        var bChild = getFieldValue(b, name);
+                        if (problemPath) {
+                            problemPath.push(name);
+                        }
+                        if (!areEquivalent(aChild, bChild, problemPath)) {
+                            return false;
+                        }
+                        if (problemPath) {
+                            assert.strictEqual(problemPath.pop(), name);
+                        }
                     }
+                    return true;
                 }
-                else if (n.IfStatement.check(remainingNodePath.node)) {
-                    cleanUpIfStatementAfterPrune(remainingNodePath);
+                if (!problemPath) {
+                    return false;
                 }
-                return remainingNodePath;
-            }
-            function cleanUpIfStatementAfterPrune(ifStatement) {
-                var testExpression = ifStatement.get('test').value;
-                var alternate = ifStatement.get('alternate').value;
-                var consequent = ifStatement.get('consequent').value;
-                if (!consequent && !alternate) {
-                    var testExpressionStatement = b.expressionStatement(testExpression);
-                    ifStatement.replace(testExpressionStatement);
+                // Since aNameCount !== bNameCount, we need to find some name that's
+                // missing in aNames but present in bNames, or vice-versa.
+                var seenNames = Object.create(null);
+                for (i = 0; i < aNameCount; ++i) {
+                    seenNames[aNames[i]] = true;
                 }
-                else if (!consequent && alternate) {
-                    var negatedTestExpression = b["unaryExpression"]('!', testExpression, true);
-                    if (n.UnaryExpression.check(testExpression) && testExpression.operator === '!') {
-                        negatedTestExpression = testExpression.argument;
+                for (i = 0; i < bNameCount; ++i) {
+                    name = bNames[i];
+                    if (!hasOwn.call(seenNames, name)) {
+                        problemPath.push(name);
+                        return false;
                     }
-                    ifStatement.get("test").replace(negatedTestExpression);
-                    ifStatement.get("consequent").replace(alternate);
-                    ifStatement.get("alternate").replace();
+                    delete seenNames[name];
                 }
+                for (name in seenNames) {
+                    problemPath.push(name);
+                    break;
+                }
+                return false;
             }
         })(types = ast.types || (ast.types = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+/// <reference path="types.ts" />
 var lib;
 (function (lib) {
     var ast;
     (function (ast) {
         var types;
         (function (types) {
+            var assert = lib.utils.assert;
             var Op = Object.prototype;
             var hasOwn = Op.hasOwnProperty;
             var isArray = types.builtInTypes["array"];
@@ -9276,9 +9702,9 @@ var lib;
             var map = Array.prototype.map;
             var Path = (function () {
                 function Path(value, parentPath, name) {
-                    types.assert.ok(this instanceof Path);
+                    assert.ok(this instanceof Path);
                     if (parentPath) {
-                        types.assert.ok(parentPath instanceof Path);
+                        assert.ok(parentPath instanceof Path);
                     }
                     else {
                         parentPath = null;
@@ -9415,8 +9841,8 @@ var lib;
                             spliceArgs.push(arguments[i]);
                         }
                         var splicedOut = parentValue.splice.apply(parentValue, spliceArgs);
-                        types.assert.strictEqual(splicedOut[0], this.value);
-                        types.assert.strictEqual(parentValue.length, originalLength - 1 + count);
+                        assert.strictEqual(splicedOut[0], this.value);
+                        assert.strictEqual(parentValue.length, originalLength - 1 + count);
                         move();
                         if (count === 0) {
                             delete this.value;
@@ -9424,7 +9850,7 @@ var lib;
                             this.__childCache = null;
                         }
                         else {
-                            types.assert.strictEqual(parentValue[this.name], replacement);
+                            assert.strictEqual(parentValue[this.name], replacement);
                             if (this.value !== replacement) {
                                 this.value = replacement;
                                 this.__childCache = null;
@@ -9432,7 +9858,7 @@ var lib;
                             for (i = 0; i < count; ++i) {
                                 results.push(this.parentPath.get(this.name + i));
                             }
-                            types.assert.strictEqual(results[0], this);
+                            assert.strictEqual(results[0], this);
                         }
                     }
                     else if (count === 1) {
@@ -9448,7 +9874,7 @@ var lib;
                         this.__childCache = null;
                     }
                     else {
-                        types.assert.ok(false, "Could not replace path");
+                        assert.ok(false, "Could not replace path");
                     }
                     return results;
                 };
@@ -9500,7 +9926,7 @@ var lib;
                 for (var i = start; i < end; ++i) {
                     if (hasOwn.call(path.value, i)) {
                         var childPath = path.get(i);
-                        types.assert.strictEqual(childPath.name, i);
+                        assert.strictEqual(childPath.name, i);
                         var newIndex = i + offset;
                         childPath.name = newIndex;
                         moves[newIndex] = childPath;
@@ -9511,14 +9937,14 @@ var lib;
                 return function () {
                     for (var newIndex in moves) {
                         var childPath = moves[newIndex];
-                        types.assert.strictEqual(childPath.name, +newIndex);
+                        assert.strictEqual(childPath.name, +newIndex);
                         cache[newIndex] = childPath;
                         path.value[newIndex] = childPath.value;
                     }
                 };
             }
             function repairRelationshipWithParent(path) {
-                types.assert.ok(path instanceof Path);
+                assert.ok(path instanceof Path);
                 var pp = path.parentPath;
                 if (!pp) {
                     // Orphan paths have no relationship to repair.
@@ -9545,19 +9971,577 @@ var lib;
                     parentValue[path.name] = path.value;
                     parentCache[path.name] = path;
                 }
-                types.assert.strictEqual(parentValue[path.name], path.value);
-                types.assert.strictEqual(path.parentPath.get(path.name), path);
+                assert.strictEqual(parentValue[path.name], path.value);
+                assert.strictEqual(path.parentPath.get(path.name), path);
                 return path;
             }
         })(types = ast.types || (ast.types = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+/// <reference path="path.ts" />
 var lib;
 (function (lib) {
     var ast;
     (function (ast) {
         var types;
         (function (types) {
+            var assert = lib.utils.assert;
+            var n = types.namedTypes;
+            var b = types.builders;
+            var isNumber = types.builtInTypes["number"];
+            var isArray = types.builtInTypes["array"];
+            var NodePath = (function (_super) {
+                __extends(NodePath, _super);
+                function NodePath(value, parentPath, name) {
+                    assert.ok(this instanceof NodePath);
+                    _super.call(this, value, parentPath, name);
+                }
+                NodePath.prototype.replace = function () {
+                    delete this.node;
+                    delete this.parent;
+                    delete this.scope;
+                    return types.Path.prototype.replace.apply(this, arguments);
+                };
+                NodePath.prototype.prune = function () {
+                    var remainingNodePath = this.parent;
+                    this.replace();
+                    return cleanUpNodesAfterPrune(remainingNodePath);
+                };
+                // The value of the first ancestor Path whose value is a Node.
+                NodePath.prototype._computeNode = function () {
+                    var value = this.value;
+                    if (n["Node"].check(value)) {
+                        return value;
+                    }
+                    var pp = this.parentPath;
+                    return pp && pp.node || null;
+                };
+                // The first ancestor Path whose value is a Node distinct from this.node.
+                NodePath.prototype._computeParent = function () {
+                    var value = this.value;
+                    var pp = this.parentPath;
+                    if (!n["Node"].check(value)) {
+                        while (pp && !n["Node"].check(pp.value)) {
+                            pp = pp.parentPath;
+                        }
+                        if (pp) {
+                            pp = pp.parentPath;
+                        }
+                    }
+                    while (pp && !n["Node"].check(pp.value)) {
+                        pp = pp.parentPath;
+                    }
+                    return pp || null;
+                };
+                // The closest enclosing scope that governs this node.
+                NodePath.prototype._computeScope = function () {
+                    var value = this.value;
+                    var pp = this.parentPath;
+                    var scope = pp && pp.scope;
+                    if (n["Node"].check(value) && types.Scope.isEstablishedBy(value)) {
+                        scope = new types.Scope(this, scope);
+                    }
+                    return scope || null;
+                };
+                NodePath.prototype.getValueProperty = function (name) {
+                    return types.getFieldValue(this.value, name);
+                };
+                NodePath.prototype.canBeFirstInStatement = function () {
+                    var node = this.node;
+                    return !n["FunctionExpression"].check(node) && !n["ObjectExpression"].check(node);
+                };
+                NodePath.prototype.firstInStatement = function () {
+                    return firstInStatement(this);
+                };
+                /**
+                 * Determine whether this.node needs to be wrapped in parentheses in order
+                 * for a parser to reproduce the same local AST structure.
+                 *
+                 * For instance, in the expression `(1 + 2) * 3`, the BinaryExpression
+                 * whose operator is "+" needs parentheses, because `1 + 2 * 3` would
+                 * parse differently.
+                 *
+                 * If assumeExpressionContext === true, we don't worry about edge cases
+                 * like an anonymous FunctionExpression appearing lexically first in its
+                 * enclosing statement and thus needing parentheses to avoid being parsed
+                 * as a FunctionDeclaration with a missing name.
+                 */
+                NodePath.prototype.needsParens = function (assumeExpressionContext) {
+                    var pp = this.parentPath;
+                    if (!pp) {
+                        return false;
+                    }
+                    var node = this.value;
+                    // Only expressions need parentheses.
+                    if (!n["Expression"].check(node)) {
+                        return false;
+                    }
+                    // Identifiers never need parentheses.
+                    if (node.type === "Identifier") {
+                        return false;
+                    }
+                    while (!n["Node"].check(pp.value)) {
+                        pp = pp.parentPath;
+                        if (!pp) {
+                            return false;
+                        }
+                    }
+                    var parent = pp.value;
+                    switch (node.type) {
+                        case "UnaryExpression":
+                        case "SpreadElement":
+                        case "SpreadProperty":
+                            return parent.type === "MemberExpression" && this.name === "object" && parent.object === node;
+                        case "BinaryExpression":
+                        case "LogicalExpression":
+                            switch (parent.type) {
+                                case "CallExpression":
+                                    return this.name === "callee" && parent.callee === node;
+                                case "UnaryExpression":
+                                case "SpreadElement":
+                                case "SpreadProperty":
+                                    return true;
+                                case "MemberExpression":
+                                    return this.name === "object" && parent.object === node;
+                                case "BinaryExpression":
+                                case "LogicalExpression":
+                                    var po = parent.operator;
+                                    var pp = PRECEDENCE[po];
+                                    var no = node.operator;
+                                    var np = PRECEDENCE[no];
+                                    if (pp > np) {
+                                        return true;
+                                    }
+                                    if (pp === np && this.name === "right") {
+                                        assert.strictEqual(parent.right, node);
+                                        return true;
+                                    }
+                                default:
+                                    return false;
+                            }
+                        case "SequenceExpression":
+                            switch (parent.type) {
+                                case "ForStatement":
+                                    // Although parentheses wouldn't hurt around sequence
+                                    // expressions in the head of for loops, traditional style
+                                    // dictates that e.g. i++, j++ should not be wrapped with
+                                    // parentheses.
+                                    return false;
+                                case "ExpressionStatement":
+                                    return this.name !== "expression";
+                                default:
+                                    // Otherwise err on the side of overparenthesization, adding
+                                    // explicit exceptions above if this proves overzealous.
+                                    return true;
+                            }
+                        case "YieldExpression":
+                            switch (parent.type) {
+                                case "BinaryExpression":
+                                case "LogicalExpression":
+                                case "UnaryExpression":
+                                case "SpreadElement":
+                                case "SpreadProperty":
+                                case "CallExpression":
+                                case "MemberExpression":
+                                case "NewExpression":
+                                case "ConditionalExpression":
+                                case "YieldExpression":
+                                    return true;
+                                default:
+                                    return false;
+                            }
+                        case "Literal":
+                            return parent.type === "MemberExpression" && isNumber.check(node.value) && this.name === "object" && parent.object === node;
+                        case "AssignmentExpression":
+                        case "ConditionalExpression":
+                            switch (parent.type) {
+                                case "UnaryExpression":
+                                case "SpreadElement":
+                                case "SpreadProperty":
+                                case "BinaryExpression":
+                                case "LogicalExpression":
+                                    return true;
+                                case "CallExpression":
+                                    return this.name === "callee" && parent.callee === node;
+                                case "ConditionalExpression":
+                                    return this.name === "test" && parent.test === node;
+                                case "MemberExpression":
+                                    return this.name === "object" && parent.object === node;
+                                default:
+                                    return false;
+                            }
+                        default:
+                            if (parent.type === "NewExpression" && this.name === "callee" && parent.callee === node) {
+                                return containsCallExpression(node);
+                            }
+                    }
+                    if (assumeExpressionContext !== true && !this.canBeFirstInStatement() && this.firstInStatement())
+                        return true;
+                    return false;
+                };
+                return NodePath;
+            })(types.Path);
+            types.NodePath = NodePath;
+            Object.defineProperties(NodePath.prototype, {
+                node: {
+                    get: function () {
+                        Object.defineProperty(this, "node", {
+                            configurable: true,
+                            value: this._computeNode()
+                        });
+                        return this.node;
+                    }
+                },
+                parent: {
+                    get: function () {
+                        Object.defineProperty(this, "parent", {
+                            configurable: true,
+                            value: this._computeParent()
+                        });
+                        return this.parent;
+                    }
+                },
+                scope: {
+                    get: function () {
+                        Object.defineProperty(this, "scope", {
+                            configurable: true,
+                            value: this._computeScope()
+                        });
+                        return this.scope;
+                    }
+                }
+            });
+            function isBinary(node) {
+                return n["BinaryExpression"].check(node) || n["LogicalExpression"].check(node);
+            }
+            function isUnaryLike(node) {
+                return n["UnaryExpression"].check(node) || (n["SpreadElement"] && n["SpreadElement"].check(node));
+            }
+            var PRECEDENCE = {};
+            [["||"], ["&&"], ["|"], ["^"], ["&"], ["==", "===", "!=", "!=="], ["<", ">", "<=", ">=", "in", "instanceof"], [">>", "<<", ">>>"], ["+", "-"], ["*", "/", "%"]].forEach(function (tier, i) {
+                tier.forEach(function (op) {
+                    PRECEDENCE[op] = i;
+                });
+            });
+            function containsCallExpression(node) {
+                if (n["CallExpression"].check(node)) {
+                    return true;
+                }
+                if (isArray.check(node)) {
+                    return node.some(containsCallExpression);
+                }
+                if (n["Node"].check(node)) {
+                    return types.someField(node, function (name, child) {
+                        return containsCallExpression(child);
+                    });
+                }
+                return false;
+            }
+            function firstInStatement(path) {
+                for (var node, parent; path.parent; path = path.parent) {
+                    node = path.node;
+                    parent = path.parent.node;
+                    if (n["BlockStatement"].check(parent) && path.parent.name === "body" && path.name === 0) {
+                        assert.strictEqual(parent.body[0], node);
+                        return true;
+                    }
+                    if (n["ExpressionStatement"].check(parent) && path.name === "expression") {
+                        assert.strictEqual(parent.expression, node);
+                        return true;
+                    }
+                    if (n["SequenceExpression"].check(parent) && path.parent.name === "expressions" && path.name === 0) {
+                        assert.strictEqual(parent.expressions[0], node);
+                        continue;
+                    }
+                    if (n["CallExpression"].check(parent) && path.name === "callee") {
+                        assert.strictEqual(parent.callee, node);
+                        continue;
+                    }
+                    if (n["MemberExpression"].check(parent) && path.name === "object") {
+                        assert.strictEqual(parent.object, node);
+                        continue;
+                    }
+                    if (n["ConditionalExpression"].check(parent) && path.name === "test") {
+                        assert.strictEqual(parent.test, node);
+                        continue;
+                    }
+                    if (isBinary(parent) && path.name === "left") {
+                        assert.strictEqual(parent.left, node);
+                        continue;
+                    }
+                    if (n["UnaryExpression"].check(parent) && !parent.prefix && path.name === "argument") {
+                        assert.strictEqual(parent.argument, node);
+                        continue;
+                    }
+                    return false;
+                }
+                return true;
+            }
+            /**
+             * Pruning certain nodes will result in empty or incomplete nodes, here we clean those nodes up.
+             */
+            function cleanUpNodesAfterPrune(remainingNodePath) {
+                if (n["VariableDeclaration"].check(remainingNodePath.node)) {
+                    var declarations = remainingNodePath.get('declarations').value;
+                    if (!declarations || declarations.length === 0) {
+                        return remainingNodePath.prune();
+                    }
+                }
+                else if (n["ExpressionStatement"].check(remainingNodePath.node)) {
+                    if (!remainingNodePath.get('expression').value) {
+                        return remainingNodePath.prune();
+                    }
+                }
+                else if (n["IfStatement"].check(remainingNodePath.node)) {
+                    cleanUpIfStatementAfterPrune(remainingNodePath);
+                }
+                return remainingNodePath;
+            }
+            function cleanUpIfStatementAfterPrune(ifStatement) {
+                var testExpression = ifStatement.get('test').value;
+                var alternate = ifStatement.get('alternate').value;
+                var consequent = ifStatement.get('consequent').value;
+                if (!consequent && !alternate) {
+                    var testExpressionStatement = b["expressionStatement"](testExpression);
+                    ifStatement.replace(testExpressionStatement);
+                }
+                else if (!consequent && alternate) {
+                    var negatedTestExpression = b["unaryExpression"]('!', testExpression, true);
+                    if (n["UnaryExpression"].check(testExpression) && testExpression.operator === '!') {
+                        negatedTestExpression = testExpression.argument;
+                    }
+                    ifStatement.get("test").replace(negatedTestExpression);
+                    ifStatement.get("consequent").replace(alternate);
+                    ifStatement.get("alternate").replace();
+                }
+            }
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="types.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var Node = esprima.Syntax.Node;
+            var assert = lib.utils.assert;
+            var n = types.namedTypes;
+            var b = types.builders;
+            var isNumber = types.builtInTypes["number"];
+            var isArray = types.builtInTypes["array"];
+            var Node = types.namedTypes["Node"];
+            var isObject = types.builtInTypes["object"];
+            var isFunction = types.builtInTypes["function"];
+            var hasOwn = Object.prototype.hasOwnProperty;
+            var undefined;
+            var PathVisitor = (function () {
+                function PathVisitor() {
+                    assert.ok(this instanceof PathVisitor);
+                    this._reusableContextStack = [];
+                    this._methodNameTable = computeMethodNameTable(this);
+                    this.Context = makeContextConstructor(this);
+                }
+                PathVisitor.fromMethodsObject = function (methods) {
+                    if (methods instanceof PathVisitor) {
+                        return methods;
+                    }
+                    if (!isObject.check(methods)) {
+                        // An empty visitor?
+                        return new PathVisitor;
+                    }
+                    function Visitor() {
+                        assert.ok(this instanceof Visitor);
+                        PathVisitor.call(this);
+                    }
+                    var Vp = Visitor.prototype = Object.create(PathVisitor.prototype);
+                    Vp.constructor = Visitor;
+                    extend(Vp, methods);
+                    extend(Visitor, PathVisitor);
+                    return new Visitor;
+                };
+                PathVisitor.visit = function (node, methods) {
+                    var visitor = PathVisitor.fromMethodsObject(methods);
+                    if (node instanceof types.NodePath) {
+                        visitor.visit(node);
+                        return node.value;
+                    }
+                    var rootPath = new types.NodePath({ root: node });
+                    visitor.visit(rootPath.get("root"));
+                    return rootPath.value.root;
+                };
+                PathVisitor.prototype.visit = function (path) {
+                    if (this instanceof this.Context) {
+                        // If we somehow end up calling context.visit, then we need to
+                        // re-invoke the .visit method against context.visitor.
+                        return this.visitor.visit(path);
+                    }
+                    assert.ok(path instanceof types.NodePath);
+                    var value = path.value;
+                    var methodName = Node.check(value) && this._methodNameTable[value.type];
+                    if (methodName) {
+                        var context = this.acquireContext(path);
+                        try {
+                            context.invokeVisitorMethod(methodName);
+                        }
+                        finally {
+                            this.releaseContext(context);
+                        }
+                    }
+                    else {
+                        // If there was no visitor method to call, visit the children of
+                        // this node generically.
+                        visitChildren(path, this);
+                    }
+                };
+                PathVisitor.prototype.acquireContext = function (path) {
+                    if (this._reusableContextStack.length === 0) {
+                        return new this.Context(path);
+                    }
+                    return this._reusableContextStack.pop().reset(path);
+                };
+                PathVisitor.prototype.releaseContext = function (context) {
+                    assert.ok(context instanceof this.Context);
+                    this._reusableContextStack.push(context);
+                    context.currentPath = null;
+                };
+                return PathVisitor;
+            })();
+            types.PathVisitor = PathVisitor;
+            function computeMethodNameTable(visitor) {
+                var typeNames = Object.create(null);
+                for (var methodName in visitor) {
+                    if (/^visit[A-Z]/.test(methodName)) {
+                        typeNames[methodName.slice("visit".length)] = true;
+                    }
+                }
+                var supertypeTable = types.computeSupertypeLookupTable(typeNames);
+                var methodNameTable = Object.create(null);
+                typeNames = Object.keys(supertypeTable);
+                var typeNameCount = typeNames.length;
+                for (var i = 0; i < typeNameCount; ++i) {
+                    var typeName = typeNames[i];
+                    methodName = "visit" + supertypeTable[typeName];
+                    if (isFunction.check(visitor[methodName])) {
+                        methodNameTable[typeName] = methodName;
+                    }
+                }
+                return methodNameTable;
+            }
+            function extend(target, source) {
+                for (var property in source) {
+                    if (hasOwn.call(source, property)) {
+                        target[property] = source[property];
+                    }
+                }
+                return target;
+            }
+            function visitChildren(path, visitor) {
+                assert.ok(path instanceof types.NodePath);
+                assert.ok(visitor instanceof PathVisitor);
+                var value = path.value;
+                if (isArray.check(value)) {
+                    path.each(visitor.visit, visitor);
+                }
+                else if (!isObject.check(value)) {
+                }
+                else {
+                    var childNames = types.getFieldNames(value);
+                    var childCount = childNames.length;
+                    var childPaths = [];
+                    for (var i = 0; i < childCount; ++i) {
+                        var childName = childNames[i];
+                        if (!hasOwn.call(value, childName)) {
+                            value[childName] = types.getFieldValue(value, childName);
+                        }
+                        childPaths.push(path.get(childName));
+                    }
+                    for (var i = 0; i < childCount; ++i) {
+                        visitor.visit(childPaths[i]);
+                    }
+                }
+            }
+            function makeContextConstructor(visitor) {
+                function Context(path) {
+                    assert.ok(this instanceof Context);
+                    assert.ok(this instanceof PathVisitor);
+                    assert.ok(path instanceof types.NodePath);
+                    Object.defineProperty(this, "visitor", {
+                        value: visitor,
+                        writable: false,
+                        enumerable: true,
+                        configurable: false
+                    });
+                    this.currentPath = path;
+                    this.needToCallTraverse = true;
+                    Object.seal(this);
+                }
+                assert.ok(visitor instanceof PathVisitor);
+                // Note that the visitor object is the prototype of Context.prototype,
+                // so all visitor methods are inherited by context objects.
+                var Cp = Context.prototype = Object.create(visitor);
+                Cp.constructor = Context;
+                extend(Cp, sharedContextProtoMethods);
+                return Context;
+            }
+            // Every PathVisitor has a different this.Context constructor and
+            // this.Context.prototype object, but those prototypes can all use the
+            // same reset, invokeVisitorMethod, and traverse function objects.
+            var sharedContextProtoMethods = Object.create(null);
+            sharedContextProtoMethods.reset = function reset(path) {
+                assert.ok(this instanceof this.Context);
+                assert.ok(path instanceof types.NodePath);
+                this.currentPath = path;
+                this.needToCallTraverse = true;
+                return this;
+            };
+            sharedContextProtoMethods.invokeVisitorMethod = function invokeVisitorMethod(methodName) {
+                assert.ok(this instanceof this.Context);
+                assert.ok(this.currentPath instanceof types.NodePath);
+                var result = this.visitor[methodName].call(this, this.currentPath);
+                if (result === false) {
+                    // Visitor methods return false to indicate that they have handled
+                    // their own traversal needs, and we should not complain if
+                    // this.needToCallTraverse is still true.
+                    this.needToCallTraverse = false;
+                }
+                else if (result !== undefined) {
+                    // Any other non-undefined value returned from the visitor method
+                    // is interpreted as a replacement value.
+                    this.currentPath = this.currentPath.replace(result)[0];
+                    if (this.needToCallTraverse) {
+                        // If this.traverse still hasn't been called, visit the
+                        // children of the replacement node.
+                        this.traverse(this.currentPath);
+                    }
+                }
+                assert.strictEqual(this.needToCallTraverse, false, "Must either call this.traverse or return false in " + methodName);
+            };
+            sharedContextProtoMethods.traverse = function traverse(path, newVisitor) {
+                assert.ok(this instanceof this.Context);
+                assert.ok(path instanceof types.NodePath);
+                assert.ok(this.currentPath instanceof types.NodePath);
+                this.needToCallTraverse = false;
+                visitChildren(path, PathVisitor.fromMethodsObject(newVisitor || this.visitor));
+            };
+        })(types = ast.types || (ast.types = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="types.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var types;
+        (function (types) {
+            var assert = lib.utils.assert;
             var namedTypes = types.namedTypes;
             var Node = namedTypes["Node"];
             var Expression = namedTypes["Expression"];
@@ -9568,12 +10552,12 @@ var lib;
                 function Scope(path, parentScope) {
                     // Will be overridden after an instance lazily calls scanScope.
                     this.didScan = false;
-                    types.assert.ok(this instanceof Scope);
-                    types.assert.ok(path instanceof require("./node-path"));
+                    assert.ok(this instanceof Scope);
+                    assert.ok(path instanceof require("./node-path"));
                     ScopeType.assert(path.value);
                     var depth;
                     if (parentScope) {
-                        types.assert.ok(parentScope instanceof Scope);
+                        assert.ok(parentScope instanceof Scope);
                         depth = parentScope.depth + 1;
                     }
                     else {
@@ -9598,7 +10582,7 @@ var lib;
                 };
                 Scope.prototype.declareTemporary = function (prefix) {
                     if (prefix) {
-                        types.assert.ok(/^[a-z$_]/i.test(prefix), prefix);
+                        assert.ok(/^[a-z$_]/i.test(prefix), prefix);
                     }
                     else {
                         prefix = "t$";
@@ -9612,15 +10596,15 @@ var lib;
                         ++index;
                     }
                     var name = prefix + index;
-                    return this.bindings[name] = types.builders.identifier(name);
+                    return this.bindings[name] = types.builders["identifier"](name);
                 };
                 Scope.prototype.injectTemporary = function (identifier, init) {
                     identifier || (identifier = this.declareTemporary());
                     var bodyPath = this.path.get("body");
-                    if (namedTypes.BlockStatement.check(bodyPath.value)) {
+                    if (namedTypes["BlockStatement"].check(bodyPath.value)) {
                         bodyPath = bodyPath.get("body");
                     }
-                    bodyPath.unshift(b.variableDeclaration("var", [b.variableDeclarator(identifier, init || null)]));
+                    bodyPath.unshift(b["variableDeclaration"]("var", [b["variableDeclarator"](identifier, init || null)]));
                     return identifier;
                 };
                 Scope.prototype.scan = function (force) {
@@ -9653,15 +10637,15 @@ var lib;
             })();
             types.Scope = Scope;
             var scopeTypes = [
-                namedTypes.Program,
-                namedTypes.Function,
-                namedTypes.CatchClause
+                namedTypes["Program"],
+                namedTypes["Function"],
+                namedTypes["CatchClause"]
             ];
             var ScopeType = types.Type.or.apply(types.Type, scopeTypes);
             function scanScope(path, bindings) {
                 var node = path.value;
                 ScopeType.assert(node);
-                if (namedTypes.CatchClause.check(node)) {
+                if (namedTypes["CatchClause"].check(node)) {
                     // A catch clause establishes a new scope but the only variable
                     // bound in that scope is the catch parameter. Any other
                     // declarations create bindings in the outer scope.
@@ -9673,7 +10657,7 @@ var lib;
             }
             function recursiveScanScope(path, bindings) {
                 var node = path.value;
-                if (path.parent && namedTypes.FunctionExpression.check(path.parent.node) && path.parent.node.id) {
+                if (path.parent && namedTypes["FunctionExpression"].check(path.parent.node) && path.parent.node.id) {
                     addPattern(path.parent.get("id"), bindings);
                 }
                 if (!node) {
@@ -9683,13 +10667,13 @@ var lib;
                         recursiveScanChild(childPath, bindings);
                     });
                 }
-                else if (namedTypes.Function.check(node)) {
+                else if (namedTypes["Function"].check(node)) {
                     path.get("params").each(function (paramPath) {
                         addPattern(paramPath, bindings);
                     });
                     recursiveScanChild(path.get("body"), bindings);
                 }
-                else if (namedTypes.VariableDeclarator.check(node)) {
+                else if (namedTypes["VariableDeclarator"].check(node)) {
                     addPattern(path.get("id"), bindings);
                     recursiveScanChild(path.get("init"), bindings);
                 }
@@ -9699,7 +10683,7 @@ var lib;
                 else if (Node.check(node) && !Expression.check(node)) {
                     types.eachField(node, function (name, child) {
                         var childPath = path.get(name);
-                        types.assert.strictEqual(childPath.value, child);
+                        assert.strictEqual(childPath.value, child);
                         recursiveScanChild(childPath, bindings);
                     });
                 }
@@ -9708,14 +10692,14 @@ var lib;
                 var node = path.value;
                 if (!node || Expression.check(node)) {
                 }
-                else if (namedTypes.FunctionDeclaration.check(node)) {
+                else if (namedTypes["FunctionDeclaration"].check(node)) {
                     addPattern(path.get("id"), bindings);
                 }
-                else if (namedTypes.ClassDeclaration && namedTypes.ClassDeclaration.check(node)) {
+                else if (namedTypes["ClassDeclaration"] && namedTypes["ClassDeclaration"].check(node)) {
                     addPattern(path.get("id"), bindings);
                 }
                 else if (ScopeType.check(node)) {
-                    if (namedTypes.CatchClause.check(node)) {
+                    if (namedTypes["CatchClause"].check(node)) {
                         var catchParamName = node.param.name;
                         var hadBinding = hasOwn.call(bindings, catchParamName);
                         // Any declarations that occur inside the catch body that do
@@ -9738,7 +10722,7 @@ var lib;
             function addPattern(patternPath, bindings) {
                 var pattern = patternPath.value;
                 namedTypes["Pattern"].assert(pattern);
-                if (namedTypes.Identifier.check(pattern)) {
+                if (namedTypes["Identifier"].check(pattern)) {
                     if (hasOwn.call(bindings, pattern.name)) {
                         bindings[pattern.name].push(patternPath);
                     }
@@ -9746,686 +10730,14 @@ var lib;
                         bindings[pattern.name] = [patternPath];
                     }
                 }
-                else if (namedTypes.SpreadElement && namedTypes.SpreadElement.check(pattern)) {
+                else if (namedTypes["SpreadElement"] && namedTypes["SpreadElement"].check(pattern)) {
                     addPattern(patternPath.get("argument"), bindings);
                 }
             }
         })(types = ast.types || (ast.types = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var builtin = types.builtInTypes;
-            var isNumber = builtin["number"];
-            var shared;
-            (function (shared) {
-                // An example of constructing a new type with arbitrary constraints from
-                // an existing type.
-                function geq(than) {
-                    return new types.Type(function (value) {
-                        return isNumber.check(value) && value >= than;
-                    }, isNumber + " >= " + than);
-                }
-                shared.geq = geq;
-                ;
-                // Default value-returning functions that may optionally be passed as a
-                // third argument to Def.prototype.field.
-                shared.defaults = {
-                    // Functions were used because (among other reasons) that's the most
-                    // elegant way to allow for the emptyArray one always to give a new
-                    // array instance.
-                    "null": function () {
-                        return null;
-                    },
-                    "emptyArray": function () {
-                        return [];
-                    },
-                    "false": function () {
-                        return false;
-                    },
-                    "true": function () {
-                        return true;
-                    },
-                    "undefined": function () {
-                    }
-                };
-                var naiveIsPrimitive = types.Type.or(builtin["string"], builtin["number"], builtin["boolean"], builtin["null"], builtin["undefined"]);
-                shared.isPrimitive = new types.Type(function (value) {
-                    if (value === null)
-                        return true;
-                    var type = typeof value;
-                    return !(type === "object" || type === "function");
-                }, naiveIsPrimitive.toString());
-            })(shared = types.shared || (types.shared = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (_types) {
-            var assert;
-            (function (assert) {
-                var assert = lib.utils.assert;
-                function ok(cond, msg) {
-                    return assert(cond, msg);
-                }
-                assert.ok = ok;
-                function strictEqual(a, b, msg) {
-                    return assert(a === b, msg);
-                }
-                assert.strictEqual = strictEqual;
-            })(assert = _types.assert || (_types.assert = {}));
-            var Ap = Array.prototype;
-            var slice = Ap.slice;
-            var map = Ap.map;
-            var each = Ap.forEach;
-            var Op = Object.prototype;
-            var objToStr = Op.toString;
-            var funObjStr = objToStr.call(function () {
-            });
-            var strObjStr = objToStr.call("");
-            var hasOwn = Op.hasOwnProperty;
-            // A type is an object with a .check method that takes a value and returns
-            // true or false according to whether the value matches the type.
-            var Type = (function () {
-                function Type(check, name) {
-                    var self = this;
-                    assert.ok(self instanceof Type, self);
-                    // Unfortunately we can't elegantly reuse isFunction and isString,
-                    // here, because this code is executed while defining those types.
-                    assert.strictEqual(objToStr.call(check), funObjStr, check + " is not a function");
-                    // The `name` parameter can be either a function or a string.
-                    var nameObjStr = objToStr.call(name);
-                    assert.ok(nameObjStr === funObjStr || nameObjStr === strObjStr, name + " is neither a function nor a string");
-                    Object.defineProperties(self, {
-                        name: { value: name },
-                        check: {
-                            value: function (value, deep) {
-                                var result = check.call(self, value, deep);
-                                if (!result && deep && objToStr.call(deep) === funObjStr)
-                                    deep(self, value);
-                                return result;
-                            }
-                        }
-                    });
-                }
-                // Like .check, except that failure triggers an AssertionError.
-                Type.prototype.assert = function (value, deep) {
-                    if (!this.check(value, deep)) {
-                        var str = shallowStringify(value);
-                        assert.ok(false, str + " does not match type " + this);
-                        return false;
-                    }
-                    return true;
-                };
-                Type.prototype.toString = function () {
-                    var name = this.name;
-                    if (isString.check(name))
-                        return name;
-                    if (isFunction.check(name))
-                        return name.call(this) + "";
-                    return name + " type";
-                };
-                // Returns a type that matches the given value iff any of type1, type2,
-                // etc. match the value.
-                Type.or = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
-                    }
-                    var types = [];
-                    var len = arguments.length;
-                    for (var i = 0; i < len; ++i)
-                        types.push(toType(args[i]));
-                    return new Type(function (value, deep) {
-                        for (var i = 0; i < len; ++i)
-                            if (types[i].check(value, deep))
-                                return true;
-                        return false;
-                    }, function () {
-                        return types.join(" | ");
-                    });
-                };
-                Type.fromArray = function (arr) {
-                    assert.ok(isArray.check(arr));
-                    assert.strictEqual(arr.length, 1, "only one element type is permitted for typed arrays");
-                    return toType(arr[0]).arrayOf();
-                };
-                Type.prototype.arrayOf = function () {
-                    var elemType = this;
-                    return new Type(function (value, deep) {
-                        return isArray.check(value) && value.every(function (elem) {
-                            return elemType.check(elem, deep);
-                        });
-                    }, function () {
-                        return "[" + elemType + "]";
-                    });
-                };
-                Type.fromObject = function (obj) {
-                    var fields = Object.keys(obj).map(function (name) {
-                        return new Field(name, obj[name]);
-                    });
-                    return new Type(function (value, deep) {
-                        return isObject.check(value) && fields.every(function (field) {
-                            return field.type.check(value[field.name], deep);
-                        });
-                    }, function () {
-                        return "{ " + fields.join(", ") + " }";
-                    });
-                };
-                // Define a type whose name is registered in a namespace (the defCache) so
-                // that future definitions will return the same type given the same name.
-                // In particular, this system allows for circular and forward definitions.
-                // The Def object d returned from Type.def may be used to configure the
-                // type d.type by calling methods such as d.bases, d.build, and d.field.
-                Type.def = function (typeName) {
-                    isString.assert(typeName);
-                    return hasOwn.call(defCache, typeName) ? defCache[typeName] : defCache[typeName] = new Def(typeName);
-                };
-                return Type;
-            })();
-            _types.Type = Type;
-            _types.builtInTypes = {};
-            function defBuiltInType(example, name) {
-                var objStr = objToStr.call(example);
-                Object.defineProperty(_types.builtInTypes, name, {
-                    enumerable: true,
-                    value: new Type(function (value) {
-                        return objToStr.call(value) === objStr;
-                    }, name)
-                });
-                return _types.builtInTypes[name];
-            }
-            // These types check the underlying [[Class]] attribute of the given
-            // value, rather than using the problematic typeof operator. Note however
-            // that no subtyping is considered; so, for instance, isObject.check
-            // returns false for [], /./, new Date, and null.
-            var isString = defBuiltInType("", "string");
-            var isFunction = defBuiltInType(function () {
-            }, "function");
-            var isArray = defBuiltInType([], "array");
-            var isObject = defBuiltInType({}, "object");
-            var isRegExp = defBuiltInType(/./, "RegExp");
-            var isDate = defBuiltInType(new Date, "Date");
-            var isNumber = defBuiltInType(3, "number");
-            var isBoolean = defBuiltInType(true, "boolean");
-            var isNull = defBuiltInType(null, "null");
-            var isUndefined = defBuiltInType(void 0, "undefined");
-            // There are a number of idiomatic ways of expressing types, so this
-            // function serves to coerce them all to actual Type objects. Note that
-            // providing the name argument is not necessary in most cases.
-            function toType(from, name) {
-                // The toType function should of course be idempotent.
-                if (from instanceof Type)
-                    return from;
-                // The Def type is used as a helper for constructing compound
-                // interface types for AST nodes.
-                if (from instanceof Def)
-                    return from.type;
-                // Support [ElemType] syntax.
-                if (isArray.check(from))
-                    return Type.fromArray(from);
-                // Support { someField: FieldType, ... } syntax.
-                if (isObject.check(from))
-                    return Type.fromObject(from);
-                // If isFunction.check(from), assume that from is a binary predicate
-                // function we can use to define the type.
-                if (isFunction.check(from))
-                    return new Type(from, name);
-                // As a last resort, toType returns a type that matches any value that
-                // is === from. This is primarily useful for literal values like
-                // toType(null), but it has the additional advantage of allowing
-                // toType to be a total function.
-                return new Type(function (value) {
-                    return value === from;
-                }, isUndefined.check(name) ? function () {
-                    return from + "";
-                } : name);
-            }
-            var Field = (function () {
-                function Field(name, type, defaultFn, hidden) {
-                    var self = this;
-                    assert.ok(self instanceof Field);
-                    isString.assert(name);
-                    type = toType(type);
-                    if (isFunction.check(defaultFn)) {
-                        this.defaultFn = { value: defaultFn };
-                    }
-                    this.name = name;
-                    this.type = type;
-                    this.hidden = !!hidden;
-                }
-                Field.prototype.toString = function () {
-                    return JSON.stringify(this.name) + ": " + this.type;
-                };
-                Field.prototype.getValue = function (obj) {
-                    var value = this.name;
-                    if (!isUndefined.check(value))
-                        return value;
-                    if (this.defaultFn && this.defaultFn.value)
-                        value = this.defaultFn.value.call(obj);
-                    return value;
-                };
-                return Field;
-            })();
-            function shallowStringify(value) {
-                if (isObject.check(value))
-                    return "{" + Object.keys(value).map(function (key) {
-                        return key + ": " + value[key];
-                    }).join(", ") + "}";
-                if (isArray.check(value))
-                    return "[" + value.map(shallowStringify).join(", ") + "]";
-                return JSON.stringify(value);
-            }
-            // In order to return the same Def instance every time Type.def is called
-            // with a particular name, those instances need to be stored in a cache.
-            var defCache = Object.create(null);
-            var Def = (function () {
-                function Def(typeName) {
-                    this.finalized = false;
-                    this.buildable = false;
-                    var self = this;
-                    assert.ok(self instanceof Def);
-                    Object.defineProperties(self, {
-                        typeName: { value: typeName },
-                        baseNames: { value: [] },
-                        ownFields: { value: Object.create(null) },
-                        // These two are populated during finalization.
-                        allSupertypes: { value: Object.create(null) },
-                        supertypeList: { value: [] },
-                        allFields: { value: Object.create(null) },
-                        fieldNames: { value: [] },
-                        type: {
-                            value: new Type(function (value, deep) {
-                                return self.check(value, deep);
-                            }, typeName)
-                        }
-                    });
-                }
-                Def.fromValue = function (value) {
-                    if (value && typeof value === "object") {
-                        var type = value.type;
-                        if (typeof type === "string" && hasOwn.call(defCache, type)) {
-                            var d = defCache[type];
-                            if (d.finalized) {
-                                return d;
-                            }
-                        }
-                    }
-                    return null;
-                };
-                Def.prototype.isSupertypeOf = function (that) {
-                    if (that instanceof Def) {
-                        assert.strictEqual(this.finalized, true);
-                        assert.strictEqual(that.finalized, true);
-                        return hasOwn.call(that.allSupertypes, this.typeName);
-                    }
-                    else {
-                        assert.ok(false, that + " is not a Def");
-                    }
-                };
-                Def.prototype.checkAllFields = function (value, deep) {
-                    var allFields = this.allFields;
-                    assert.strictEqual(this.finalized, true);
-                    function checkFieldByName(name) {
-                        var field = allFields[name];
-                        var type = field.type;
-                        var child = field.getValue(value);
-                        return type.check(child, deep);
-                    }
-                    return isObject.check(value) && Object.keys(allFields).every(checkFieldByName);
-                };
-                Def.prototype.check = function (value, deep) {
-                    assert.strictEqual(this.finalized, true, "prematurely checking unfinalized type " + this.typeName);
-                    // A Def type can only match an object value.
-                    if (!isObject.check(value))
-                        return false;
-                    var vDef = Def.fromValue(value);
-                    if (!vDef) {
-                        // If we couldn't infer the Def associated with the given value,
-                        // and we expected it to be a SourceLocation or a Position, it was
-                        // probably just missing a "type" field (because Esprima does not
-                        // assign a type property to such nodes). Be optimistic and let
-                        // this.checkAllFields make the final decision.
-                        if (this.typeName === "SourceLocation" || this.typeName === "Position") {
-                            return this.checkAllFields(value, deep);
-                        }
-                        // Calling this.checkAllFields for any other type of node is both
-                        // bad for performance and way too forgiving.
-                        return false;
-                    }
-                    // If checking deeply and vDef === this, then we only need to call
-                    // checkAllFields once. Calling checkAllFields is too strict when deep
-                    // is false, because then we only care about this.isSupertypeOf(vDef).
-                    if (deep && vDef === this)
-                        return this.checkAllFields(value, deep);
-                    // In most cases we rely exclusively on isSupertypeOf to make O(1)
-                    // subtyping determinations. This suffices in most situations outside
-                    // of unit tests, since interface conformance is checked whenever new
-                    // instances are created using builder functions.
-                    if (!this.isSupertypeOf(vDef))
-                        return false;
-                    // The exception is when deep is true; then, we recursively check all
-                    // fields.
-                    if (!deep)
-                        return true;
-                    // Use the more specific Def (vDef) to perform the deep check, but
-                    // shallow-check fields defined by the less specific Def (this).
-                    return vDef.checkAllFields(value, deep) && this.checkAllFields(value, false);
-                };
-                Def.prototype.bases = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
-                    }
-                    var bases = this.baseNames;
-                    assert.strictEqual(this.finalized, false);
-                    each.call(args, function (baseName) {
-                        isString.assert(baseName);
-                        // This indexOf lookup may be O(n), but the typical number of base
-                        // names is very small, and indexOf is a native Array method.
-                        if (bases.indexOf(baseName) < 0)
-                            bases.push(baseName);
-                    });
-                    return this; // For chaining.
-                };
-                Def.prototype.finalize = function () {
-                    // It's not an error to finalize a type more than once, but only the
-                    // first call to .finalize does anything.
-                    if (!this.finalized) {
-                        var allFields = this.allFields;
-                        var allSupertypes = this.allSupertypes;
-                        this.baseNames.forEach(function (name) {
-                            var def = defCache[name];
-                            def.finalize();
-                            extend(allFields, def.allFields);
-                            extend(allSupertypes, def.allSupertypes);
-                        });
-                        // TODO Warn if fields are overridden with incompatible types.
-                        extend(allFields, this.ownFields);
-                        allSupertypes[this.typeName] = this;
-                        this.fieldNames.length = 0;
-                        for (var fieldName in allFields) {
-                            if (hasOwn.call(allFields, fieldName) && !allFields[fieldName].hidden) {
-                                this.fieldNames.push(fieldName);
-                            }
-                        }
-                        // Types are exported only once they have been finalized.
-                        Object.defineProperty(_types.namedTypes, this.typeName, {
-                            enumerable: true,
-                            value: this.type
-                        });
-                        Object.defineProperty(this, "finalized", { value: true });
-                        // A linearization of the inheritance hierarchy.
-                        populateSupertypeList(this.typeName, this.supertypeList);
-                    }
-                };
-                // Calling the .build method of a Def simultaneously marks the type as
-                // buildable (by defining builders[getBuilderName(typeName)]) and
-                // specifies the order of arguments that should be passed to the builder
-                // function to create an instance of the type.
-                Def.prototype.build = function () {
-                    var args = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        args[_i - 0] = arguments[_i];
-                    }
-                    var self = this;
-                    // Calling Def.prototype.build multiple times has the effect of merely
-                    // redefining this property.
-                    Object.defineProperty(self, "buildParams", {
-                        value: slice.call(args),
-                        writable: false,
-                        enumerable: false,
-                        configurable: true
-                    });
-                    assert.strictEqual(self.finalized, false);
-                    isString.arrayOf().assert(self.buildParams);
-                    if (self.buildable) {
-                        // If this Def is already buildable, update self.buildParams and
-                        // continue using the old builder function.
-                        return self;
-                    }
-                    // Every buildable type will have its "type" field filled in
-                    // automatically. This includes types that are not subtypes of Node,
-                    // like SourceLocation, but that seems harmless (TODO?).
-                    self.field("type", self.typeName, function () {
-                        return self.typeName;
-                    });
-                    // Override Dp.buildable for this Def instance.
-                    Object.defineProperty(self, "buildable", { value: true });
-                    Object.defineProperty(_types.builders, getBuilderName(self.typeName), {
-                        enumerable: true,
-                        value: function () {
-                            var args = [];
-                            for (var _i = 0; _i < arguments.length; _i++) {
-                                args[_i - 0] = arguments[_i];
-                            }
-                            var argc = args.length;
-                            var built = Object.create(nodePrototype);
-                            assert.ok(self.finalized, "attempting to instantiate unfinalized type " + self.typeName);
-                            function add(param, i) {
-                                if (hasOwn.call(built, param))
-                                    return;
-                                var all = self.allFields;
-                                assert.ok(hasOwn.call(all, param), param);
-                                var field = all[param];
-                                var type = field.type;
-                                var value;
-                                if (isNumber.check(i) && i < argc) {
-                                    value = args[i];
-                                }
-                                else if (field.defaultFn) {
-                                    // Expose the partially-built object to the default
-                                    // function as its `this` object.
-                                    value = field.defaultFn.call(built);
-                                }
-                                else {
-                                    var message = "no value or default function given for field " + JSON.stringify(param) + " of " + self.typeName + "(" + self.buildParams.map(function (name) {
-                                        return all[name];
-                                    }).join(", ") + ")";
-                                    assert.ok(false, message);
-                                }
-                                if (!type.check(value)) {
-                                    assert.ok(false, shallowStringify(value) + " does not match field " + field + " of type " + self.typeName);
-                                }
-                                // TODO Could attach getters and setters here to enforce
-                                // dynamic type safety.
-                                built[param] = value;
-                            }
-                            self.buildParams.forEach(function (param, i) {
-                                add(param, i);
-                            });
-                            Object.keys(self.allFields).forEach(function (param) {
-                                add(param); // Use the default value.
-                            });
-                            // Make sure that the "type" field was filled automatically.
-                            assert.strictEqual(built.type, self.typeName);
-                            return built;
-                        }
-                    });
-                    return self; // For chaining.
-                };
-                // The reason fields are specified using .field(...) instead of an object
-                // literal syntax is somewhat subtle: the object literal syntax would
-                // support only one key and one value, but with .field(...) we can pass
-                // any number of arguments to specify the field.
-                Def.prototype.field = function (name, type, defaultFn, hidden) {
-                    assert.strictEqual(this.finalized, false);
-                    this.ownFields[name] = new Field(name, type, defaultFn, hidden);
-                    return this; // For chaining.
-                };
-                return Def;
-            })();
-            _types.Def = Def;
-            // Note that the list returned by this function is a copy of the internal
-            // supertypeList, *without* the typeName itself as the first element.
-            function getSupertypeNames(typeName) {
-                assert.ok(hasOwn.call(defCache, typeName));
-                var d = defCache[typeName];
-                assert.strictEqual(d.finalized, true);
-                return d.supertypeList.slice(1);
-            }
-            _types.getSupertypeNames = getSupertypeNames;
-            ;
-            // Returns an object mapping from every known type in the defCache to the
-            // most specific supertype whose name is an own property of the candidates
-            // object.
-            function computeSupertypeLookupTable(candidates) {
-                var table = {};
-                var typeNames = Object.keys(defCache);
-                var typeNameCount = typeNames.length;
-                for (var i = 0; i < typeNameCount; ++i) {
-                    var typeName = typeNames[i];
-                    var d = defCache[typeName];
-                    assert.strictEqual(d.finalized, true);
-                    for (var j = 0; j < d.supertypeList.length; ++j) {
-                        var superTypeName = d.supertypeList[j];
-                        if (hasOwn.call(candidates, superTypeName)) {
-                            table[typeName] = superTypeName;
-                            break;
-                        }
-                    }
-                }
-                return table;
-            }
-            _types.computeSupertypeLookupTable = computeSupertypeLookupTable;
-            ;
-            _types.builders = {};
-            // This object is used as prototype for any node created by a builder.
-            var nodePrototype = {};
-            // Call this function to define a new method to be shared by all AST
-            // nodes. The replaced method (if any) is returned for easy wrapping.
-            function defineMethod(name, func) {
-                var old = nodePrototype[name];
-                // Pass undefined as func to delete nodePrototype[name].
-                if (isUndefined.check(func)) {
-                    delete nodePrototype[name];
-                }
-                else {
-                    isFunction.assert(func);
-                    Object.defineProperty(nodePrototype, name, {
-                        enumerable: true,
-                        configurable: true,
-                        value: func
-                    });
-                }
-                return old;
-            }
-            _types.defineMethod = defineMethod;
-            ;
-            function getBuilderName(typeName) {
-                return typeName.replace(/^[A-Z]+/, function (upperCasePrefix) {
-                    var len = upperCasePrefix.length;
-                    switch (len) {
-                        case 0:
-                            return "";
-                        case 1:
-                            return upperCasePrefix.toLowerCase();
-                        default:
-                            // If there's more than one initial capital letter, lower-case
-                            // all but the last one, so that XMLDefaultDeclaration (for
-                            // example) becomes xmlDefaultDeclaration.
-                            return upperCasePrefix.slice(0, len - 1).toLowerCase() + upperCasePrefix.charAt(len - 1);
-                    }
-                });
-            }
-            _types.namedTypes = {};
-            // Like Object.keys, but aware of what fields each AST type should have.
-            function getFieldNames(object) {
-                var d = Def.fromValue(object);
-                if (d) {
-                    return d.fieldNames.slice(0);
-                }
-                if ("type" in object) {
-                    assert.ok(false, "did not recognize object of type " + JSON.stringify(object.type));
-                }
-                return Object.keys(object);
-            }
-            _types.getFieldNames = getFieldNames;
-            // Get the value of an object property, taking object.type and default
-            // functions into account.
-            function getFieldValue(object, fieldName) {
-                var d = Def.fromValue(object);
-                if (d) {
-                    var field = d.allFields[fieldName];
-                    if (field) {
-                        return field.getValue(object);
-                    }
-                }
-                return object[fieldName];
-            }
-            _types.getFieldValue = getFieldValue;
-            // Iterate over all defined fields of an object, including those missing
-            // or undefined, passing each field name and effective value (as returned
-            // by getFieldValue) to the callback. If the object has no corresponding
-            // Def, the callback will never be called.
-            function eachField(object, callback, context) {
-                getFieldNames(object).forEach(function (name) {
-                    callback.call(this, name, getFieldValue(object, name));
-                }, context);
-            }
-            _types.eachField = eachField;
-            ;
-            // Similar to eachField, except that iteration stops as soon as the
-            // callback returns a truthy value. Like Array.prototype.some, the final
-            // result is either true or false to indicates whether the callback
-            // returned true for any element or not.
-            function someField(object, callback, context) {
-                return getFieldNames(object).some(function (name) {
-                    return callback.call(this, name, getFieldValue(object, name));
-                }, context);
-            }
-            _types.someField = someField;
-            ;
-            function populateSupertypeList(typeName, list) {
-                list.length = 0;
-                list.push(typeName);
-                var lastSeen = Object.create(null);
-                for (var pos = 0; pos < list.length; ++pos) {
-                    typeName = list[pos];
-                    var d = defCache[typeName];
-                    assert.strictEqual(d.finalized, true);
-                    // If we saw typeName earlier in the breadth-first traversal,
-                    // delete the last-seen occurrence.
-                    if (hasOwn.call(lastSeen, typeName)) {
-                        delete list[lastSeen[typeName]];
-                    }
-                    // Record the new index of the last-seen occurrence of typeName.
-                    lastSeen[typeName] = pos;
-                    // Enqueue the base names of this type.
-                    list.push.apply(list, d.baseNames);
-                }
-                for (var to = 0, from = to, len = list.length; from < len; ++from) {
-                    if (hasOwn.call(list, from)) {
-                        list[to++] = list[from];
-                    }
-                }
-                list.length = to;
-            }
-            function extend(into, from) {
-                Object.keys(from).forEach(function (name) {
-                    into[name] = from[name];
-                });
-                return into;
-            }
-            ;
-            function finalize() {
-                Object.keys(defCache).forEach(function (name) {
-                    defCache[name].finalize();
-                });
-            }
-            _types.finalize = finalize;
-            ;
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
+/// <reference path="types.ts" />
 /*
  Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
  Redistribution and use in source and binary forms, with or without
@@ -11523,9 +11835,6 @@ var lib;
             return Map;
         })();
         utils.Map = Map;
-        if (!utils.isNullOrUndefined(utils.globals.Map)) {
-            Map = utils.globals.Map;
-        }
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
 /* -*- Mode: js; js-indent-level: 2; -*- */
@@ -11666,170 +11975,6 @@ var lib;
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
  */
-/// <reference path="utils.ts" />
-// from https://github.com/YuzuJS/setImmediate
-var lib;
-(function (lib) {
-    var utils;
-    (function (utils) {
-        var nextHandle = 1; // Spec says greater than zero
-        var tasksByHandle = {};
-        var currentlyRunningATask = false;
-        var global = utils.globals;
-        var doc = global.document;
-        var setImmediate;
-        function addFromSetImmediateArguments(args) {
-            tasksByHandle[nextHandle] = partiallyApplied.apply(undefined, args);
-            return nextHandle++;
-        }
-        // This function accepts the same arguments as setImmediate, but
-        // returns a function that requires no arguments.
-        function partiallyApplied(handler) {
-            var args = [].slice.call(arguments, 1);
-            return function () {
-                if (typeof handler === "function") {
-                    handler.apply(undefined, args);
-                }
-                else {
-                    var f = new Function("" + handler);
-                    f();
-                }
-            };
-        }
-        function runIfPresent(handle) {
-            // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-            // So if we're currently running a task, we'll need to delay this invocation.
-            if (currentlyRunningATask) {
-                // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-                // "too much recursion" error.
-                setTimeout(partiallyApplied(runIfPresent, handle), 0);
-            }
-            else {
-                var task = tasksByHandle[handle];
-                if (task) {
-                    currentlyRunningATask = true;
-                    try {
-                        task();
-                    }
-                    finally {
-                        clearImmediate(handle);
-                        currentlyRunningATask = false;
-                    }
-                }
-            }
-        }
-        function clearImmediate(handle) {
-            delete tasksByHandle[handle];
-        }
-        function installNextTickImplementation() {
-            utils.setImmediate = function () {
-                var handle = addFromSetImmediateArguments(arguments);
-                process.nextTick(partiallyApplied(runIfPresent, handle));
-                return handle;
-            };
-        }
-        function canUsePostMessage() {
-            // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-            // where `global.postMessage` means something completely different and can't be used for this purpose.
-            if (global.postMessage && !global.importScripts) {
-                var postMessageIsAsynchronous = true;
-                var oldOnMessage = global.onmessage;
-                global.onmessage = function () {
-                    postMessageIsAsynchronous = false;
-                };
-                global.postMessage("", "*");
-                global.onmessage = oldOnMessage;
-                return postMessageIsAsynchronous;
-            }
-        }
-        function installPostMessageImplementation() {
-            // Installs an event handler on `global` for the `message` event: see
-            // * https://developer.mozilla.org/en/DOM/window.postMessage
-            // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-            var messagePrefix = "setImmediate$" + Math.random() + "$";
-            var onGlobalMessage = function (event) {
-                if (event.source === global && typeof event.data === "string" && event.data.indexOf(messagePrefix) === 0) {
-                    runIfPresent(+event.data.slice(messagePrefix.length));
-                }
-            };
-            if (global.addEventListener) {
-                global.addEventListener("message", onGlobalMessage, false);
-            }
-            else {
-                global.attachEvent("onmessage", onGlobalMessage);
-            }
-            utils.setImmediate = function () {
-                var handle = addFromSetImmediateArguments(arguments);
-                global.postMessage(messagePrefix + handle, "*");
-                return handle;
-            };
-        }
-        function installMessageChannelImplementation() {
-            var channel = new MessageChannel();
-            channel.port1.onmessage = function (event) {
-                var handle = event.data;
-                runIfPresent(handle);
-            };
-            utils.setImmediate = function () {
-                var handle = addFromSetImmediateArguments(arguments);
-                channel.port2.postMessage(handle);
-                return handle;
-            };
-        }
-        function installReadyStateChangeImplementation() {
-            var html = doc.documentElement;
-            utils.setImmediate = function () {
-                var handle = addFromSetImmediateArguments(arguments);
-                // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-                // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-                var script = doc.createElement("script");
-                script.onreadystatechange = function () {
-                    runIfPresent(handle);
-                    script.onreadystatechange = null;
-                    html.removeChild(script);
-                    script = null;
-                };
-                html.appendChild(script);
-                return handle;
-            };
-        }
-        function installSetTimeoutImplementation() {
-            utils.setImmediate = function () {
-                var handle = addFromSetImmediateArguments(arguments);
-                setTimeout(partiallyApplied(runIfPresent, handle), 0);
-                return handle;
-            };
-        }
-        // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-        var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
-        attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
-        // Don't get fooled by e.g. browserify environments.
-        if ({}.toString.call(global.process) === "[object process]") {
-            // For Node.js before 0.9
-            installNextTickImplementation();
-        }
-        else if (canUsePostMessage()) {
-            // For non-IE10 modern browsers
-            installPostMessageImplementation();
-        }
-        else if (global.MessageChannel) {
-            // For web workers, where supported
-            installMessageChannelImplementation();
-        }
-        else if (doc && "onreadystatechange" in doc.createElement("script")) {
-            // For IE 6–8
-            installReadyStateChangeImplementation();
-        }
-        else {
-            // For older browsers
-            installSetTimeoutImplementation();
-        }
-        utils.setImmediate = utils.setImmediate;
-        utils.clearImmediate = clearImmediate;
-    })(utils = lib.utils || (lib.utils = {}));
-})(lib || (lib = {}));
-/// <reference path="utils.ts" />
-// copied from https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js
 var lib;
 (function (lib) {
     var utils;
@@ -12304,6 +12449,561 @@ var lib;
         })(math = utils.math || (utils.math = {}));
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
+/*
+This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/
+// from https://github.com/stacktracejs/error-stack-parser
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var stacktrace;
+        (function (stacktrace) {
+            // ES5 Polyfills
+            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+            if (!Function.prototype.bind) {
+                Function.prototype.bind = function (oThis) {
+                    if (typeof this !== 'function') {
+                        throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+                    }
+                    var aArgs = Array.prototype.slice.call(arguments, 1);
+                    var fToBind = this;
+                    var NoOp = function () {
+                    };
+                    var fBound = function () {
+                        return fToBind.apply(this instanceof NoOp && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+                    };
+                    NoOp.prototype = this.prototype;
+                    fBound.prototype = new NoOp();
+                    return fBound;
+                };
+            }
+            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+            if (!Array.prototype.map) {
+                Array.prototype.map = function (callback, thisArg) {
+                    if (this === void 0 || this === null) {
+                        throw new TypeError("this is null or not defined");
+                    }
+                    var O = Object(this);
+                    var len = O.length >>> 0;
+                    var T;
+                    if (typeof callback !== "function") {
+                        throw new TypeError(callback + " is not a function");
+                    }
+                    if (arguments.length > 1) {
+                        T = thisArg;
+                    }
+                    var A = new Array(len);
+                    var k = 0;
+                    while (k < len) {
+                        var kValue, mappedValue;
+                        if (k in O) {
+                            kValue = O[k];
+                            mappedValue = callback.call(T, kValue, k, O);
+                            A[k] = mappedValue;
+                        }
+                        k++;
+                    }
+                    return A;
+                };
+            }
+            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+            if (!Array.prototype.filter) {
+                Array.prototype.filter = function (callback /*, thisArg*/) {
+                    if (this === void 0 || this === null) {
+                        throw new TypeError("this is null or not defined");
+                    }
+                    var t = Object(this);
+                    var len = t.length >>> 0;
+                    if (typeof callback !== "function") {
+                        throw new TypeError(callback + " is not a function");
+                    }
+                    var res = [];
+                    var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+                    for (var i = 0; i < len; i++) {
+                        if (i in t) {
+                            var val = t[i];
+                            if (callback.call(thisArg, val, i, t)) {
+                                res.push(val);
+                            }
+                        }
+                    }
+                    return res;
+                };
+            }
+            var FIREFOX_SAFARI_STACK_REGEXP = /\S+\:\d+/;
+            var CHROME_IE_STACK_REGEXP = /\s+at /;
+            var factory = function ErrorStackParser(StackFrame) {
+                return {
+                    /**
+                     * Given an Error object, extract the most information from it.
+                     * @param error {Error}
+                     * @return Array[StackFrame]
+                     */
+                    parse: function ErrorStackParser$$parse(error) {
+                        if (typeof error.stacktrace !== 'undefined' || typeof error['opera#sourceloc'] !== 'undefined') {
+                            return this.parseOpera(error);
+                        }
+                        else if (error.stack.match(CHROME_IE_STACK_REGEXP)) {
+                            return this.parseV8OrIE(error);
+                        }
+                        else if (error.stack.match(FIREFOX_SAFARI_STACK_REGEXP)) {
+                            return this.parseFFOrSafari(error);
+                        }
+                        else {
+                            throw new utils.Error('Cannot parse given Error object');
+                        }
+                    },
+                    /**
+                     * Separate line and column numbers from a URL-like string.
+                     * @param urlLike String
+                     * @return Array[String]
+                     */
+                    extractLocation: function ErrorStackParser$$extractLocation(urlLike) {
+                        var locationParts = urlLike.split(':');
+                        var lastNumber = locationParts.pop();
+                        var possibleNumber = locationParts[locationParts.length - 1];
+                        if (!isNaN(parseFloat(possibleNumber)) && isFinite(possibleNumber)) {
+                            var lineNumber = locationParts.pop();
+                            return [locationParts.join(':'), lineNumber, lastNumber];
+                        }
+                        else {
+                            return [locationParts.join(':'), lastNumber, undefined];
+                        }
+                    },
+                    parseV8OrIE: function ErrorStackParser$$parseV8OrIE(error) {
+                        return error.stack.split('\n').slice(1).map(function (line) {
+                            var tokens = line.replace(/^\s+/, '').split(/\s+/).slice(1);
+                            var locationParts = this.extractLocation(tokens.pop().replace(/[\(\)\s]/g, ''));
+                            var functionName = (!tokens[0] || tokens[0] === 'Anonymous') ? undefined : tokens[0];
+                            return new StackFrame(functionName, undefined, locationParts[0], locationParts[1], locationParts[2]);
+                        }.bind(this));
+                    },
+                    parseFFOrSafari: function ErrorStackParser$$parseFFOrSafari(error) {
+                        return error.stack.split('\n').filter(function (line) {
+                            return !!line.match(FIREFOX_SAFARI_STACK_REGEXP);
+                        }.bind(this)).map(function (line) {
+                            var tokens = line.split('@');
+                            var locationParts = this.extractLocation(tokens.pop());
+                            var functionName = tokens.shift() || undefined;
+                            return new StackFrame(functionName, undefined, locationParts[0], locationParts[1], locationParts[2]);
+                        }.bind(this));
+                    },
+                    parseOpera: function ErrorStackParser$$parseOpera(e) {
+                        if (!e.stacktrace || (e.message.indexOf('\n') > -1 && e.message.split('\n').length > e.stacktrace.split('\n').length)) {
+                            return this.parseOpera9(e);
+                        }
+                        else if (!e.stack) {
+                            return this.parseOpera10a(e);
+                        }
+                        else if (e.stacktrace.indexOf("called from line") < 0) {
+                            return this.parseOpera10b(e);
+                        }
+                        else {
+                            return this.parseOpera11(e);
+                        }
+                    },
+                    parseOpera9: function ErrorStackParser$$parseOpera9(e) {
+                        var lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
+                        var lines = e.message.split('\n');
+                        var result = [];
+                        for (var i = 2, len = lines.length; i < len; i += 2) {
+                            var match = lineRE.exec(lines[i]);
+                            if (match) {
+                                result.push(new StackFrame(undefined, undefined, match[2], match[1]));
+                            }
+                        }
+                        return result;
+                    },
+                    parseOpera10a: function ErrorStackParser$$parseOpera10a(e) {
+                        var lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
+                        var lines = e.stacktrace.split('\n');
+                        var result = [];
+                        for (var i = 0, len = lines.length; i < len; i += 2) {
+                            var match = lineRE.exec(lines[i]);
+                            if (match) {
+                                result.push(new StackFrame(match[3] || undefined, undefined, match[2], match[1]));
+                            }
+                        }
+                        return result;
+                    },
+                    // Opera 10.65+ Error.stack very similar to FF/Safari
+                    parseOpera11: function ErrorStackParser$$parseOpera11(error) {
+                        return error.stack.split('\n').filter(function (line) {
+                            return !!line.match(FIREFOX_SAFARI_STACK_REGEXP);
+                        }.bind(this)).map(function (line) {
+                            var tokens = line.split('@');
+                            var locationParts = this.extractLocation(tokens.pop());
+                            var functionCall = (tokens.shift() || '');
+                            var functionName = functionCall.replace(/<anonymous function: (\w+)>/, '$1').replace(/\([^\)]*\)/, '') || undefined;
+                            var argsRaw = functionCall.replace(/^[^\(]+\(([^\)]*)\)$/, '$1') || undefined;
+                            var args = (argsRaw === undefined || argsRaw === '[arguments not available]') ? undefined : argsRaw.split(',');
+                            return new StackFrame(functionName, args, locationParts[0], locationParts[1], locationParts[2]);
+                        }.bind(this));
+                    }
+                };
+            };
+            stacktrace.ErrorStackParser = factory(lib.utils.stacktrace.StackFrame);
+        })(stacktrace = utils.stacktrace || (utils.stacktrace = {}));
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
+/*This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/
+// from https://github.com/stacktracejs/stackframe
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var stacktrace;
+        (function (stacktrace) {
+            function _isNumber(n) {
+                return !isNaN(parseFloat(n)) && isFinite(n);
+            }
+            var StackFrame = (function () {
+                function StackFrame(functionName, args, fileName, lineNumber, columnNumber) {
+                    if (functionName !== undefined) {
+                        this.setFunctionName(functionName);
+                    }
+                    if (args !== undefined) {
+                        this.setArgs(args);
+                    }
+                    if (fileName !== undefined) {
+                        this.setFileName(fileName);
+                    }
+                    if (lineNumber !== undefined) {
+                        this.setLineNumber(lineNumber);
+                    }
+                    if (columnNumber !== undefined) {
+                        this.setColumnNumber(columnNumber);
+                    }
+                }
+                StackFrame.prototype.getFunctionName = function () {
+                    return this.functionName;
+                };
+                StackFrame.prototype.setFunctionName = function (v) {
+                    this.functionName = String(v);
+                };
+                StackFrame.prototype.getArgs = function () {
+                    return this.args;
+                };
+                StackFrame.prototype.setArgs = function (v) {
+                    if (Object.prototype.toString.call(v) !== '[object Array]') {
+                        throw new TypeError('Args must be an Array');
+                    }
+                    this.args = v;
+                };
+                // NOTE: Property name may be misleading as it includes the path,
+                // but it somewhat mirrors V8's JavaScriptStackTraceApi
+                // https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi
+                StackFrame.prototype.getFileName = function () {
+                    return this.fileName;
+                };
+                StackFrame.prototype.setFileName = function (v) {
+                    this.fileName = String(v);
+                };
+                StackFrame.prototype.getLineNumber = function () {
+                    return this.lineNumber;
+                };
+                StackFrame.prototype.setLineNumber = function (v) {
+                    if (!_isNumber(v)) {
+                        throw new TypeError('Line Number must be a Number');
+                    }
+                    this.lineNumber = Number(v);
+                };
+                StackFrame.prototype.getColumnNumber = function () {
+                    return this.columnNumber;
+                };
+                StackFrame.prototype.setColumnNumber = function (v) {
+                    if (!_isNumber(v)) {
+                        throw new TypeError('Column Number must be a Number');
+                    }
+                    this.columnNumber = Number(v);
+                };
+                StackFrame.prototype.toString = function () {
+                    var functionName = this.getFunctionName() || '{anonymous}';
+                    var args = '(' + (this.getArgs() || []).join(',') + ')';
+                    var fileName = this.getFileName() ? ('@' + this.getFileName()) : '';
+                    var lineNumber = _isNumber(this.getLineNumber()) ? (':' + this.getLineNumber()) : '';
+                    var columnNumber = _isNumber(this.getColumnNumber()) ? (':' + this.getColumnNumber()) : '';
+                    return functionName + args + fileName + lineNumber + columnNumber;
+                };
+                return StackFrame;
+            })();
+            stacktrace.StackFrame = StackFrame;
+        })(stacktrace = utils.stacktrace || (utils.stacktrace = {}));
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
+/*This is free and unencumbered software released into the public domain.
+
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
+
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org>
+*/
+// from https://github.com/stacktracejs/stacktrace-gps
+/// <reference path="../../../Scripts/typings/es6-promise/es6-promise.d.ts" />
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var stacktrace;
+        (function (stacktrace) {
+            var SourceMap = lib.ast.sourcemap;
+            /**
+             * Create XHR or equivalent object for this environment.
+             * @returns XMLHttpRequest, XDomainRequest or ActiveXObject
+             * @private
+             */
+            function _createXMLHTTPObject() {
+                var xmlhttp;
+                var XMLHttpFactories = [
+                    function () {
+                        return new XMLHttpRequest();
+                    },
+                    function () {
+                        return new XDomainRequest();
+                    },
+                    function () {
+                        return new ActiveXObject('Msxml2.XMLHTTP');
+                    },
+                    function () {
+                        return new ActiveXObject('Msxml3.XMLHTTP');
+                    },
+                    function () {
+                        return new ActiveXObject('Microsoft.XMLHTTP');
+                    }
+                ];
+                for (var i = 0; i < XMLHttpFactories.length; i++) {
+                    try {
+                        xmlhttp = XMLHttpFactories[i]();
+                        return xmlhttp;
+                    }
+                    catch (e) {
+                    }
+                }
+            }
+            /**
+             * Make a X-Domain request to url and callback.
+             *
+             * @param url [String]
+             * @param callback [Function] to callback on completion
+             * @param errback [Function] to callback on error
+             */
+            function _xdr(url, callback, errback) {
+                var req = _createXMLHTTPObject();
+                if (!req) {
+                    errback(new utils.Error('X-Domain request failed because no form of XHR is supported'));
+                }
+                req.open('get', url);
+                req.onerror = errback;
+                if (typeof XMLHttpRequest === 'function' || typeof ActiveXObject === 'function') {
+                    req.onreadystatechange = function onreadystatechange() {
+                        if (req.readyState === 4) {
+                            if (req.status >= 200 && req.status < 400) {
+                                return callback(req.responseText);
+                            }
+                            else {
+                                errback(new utils.Error('Unable to retrieve ' + url));
+                            }
+                        }
+                    };
+                    req.send();
+                }
+                else {
+                    req.onload = function onload() {
+                        callback(req.responseText);
+                    };
+                    // Avoid bug with concurrent requests in XDomainRequest API
+                    setTimeout(req.send, 0);
+                }
+            }
+            function _findFunctionName(source, lineNumber, columnNumber) {
+                // function {name}({args}) m[1]=name m[2]=args
+                var reFunctionDeclaration = /function\s+([^(]*?)\s*\(([^)]*)\)/;
+                // {name} = function ({args}) TODO args capture
+                var reFunctionExpression = /['"]?([$_A-Za-z][$_A-Za-z0-9]*)['"]?\s*[:=]\s*function\b/;
+                // {name} = eval()
+                var reFunctionEvaluation = /['"]?([$_A-Za-z][$_A-Za-z0-9]*)['"]?\s*[:=]\s*(?:eval|new Function)\b/;
+                var lines = source.split("\n");
+                // Walk backwards in the source lines until we find the line which matches one of the patterns above
+                var code = '', line, maxLines = Math.min(lineNumber, 20), m, commentPos;
+                for (var i = 0; i < maxLines; ++i) {
+                    // lineNo is 1-based, source[] is 0-based
+                    line = lines[lineNumber - i - 1];
+                    commentPos = line.indexOf('//');
+                    if (commentPos >= 0) {
+                        line = line.substr(0, commentPos);
+                    }
+                    if (line) {
+                        code = line + code;
+                        m = reFunctionExpression.exec(code);
+                        if (m && m[1]) {
+                            return m[1];
+                        }
+                        m = reFunctionDeclaration.exec(code);
+                        if (m && m[1]) {
+                            //return m[1] + "(" + (m[2] || "") + ")";
+                            return m[1];
+                        }
+                        m = reFunctionEvaluation.exec(code);
+                        if (m && m[1]) {
+                            return m[1];
+                        }
+                    }
+                }
+                return undefined;
+            }
+            function _ensureSupportedEnvironment() {
+                if (typeof Object.defineProperty !== 'function' || typeof Object.create !== 'function') {
+                    throw new utils.Error('Unable to consume source maps in older browsers');
+                }
+            }
+            function _ensureStackFrameIsLegit(stackframe) {
+                if (typeof stackframe !== 'object') {
+                    throw new TypeError('Given StackFrame is not an object');
+                }
+                else if (typeof stackframe.fileName !== 'string') {
+                    throw new TypeError('Given file name is not a String');
+                }
+                else if (typeof stackframe.lineNumber !== 'number' || stackframe.lineNumber % 1 !== 0 || stackframe.lineNumber < 1) {
+                    throw new TypeError('Given line number must be a positive integer');
+                }
+                else if (typeof stackframe.columnNumber !== 'number' || stackframe.columnNumber % 1 !== 0 || stackframe.columnNumber < 0) {
+                    throw new TypeError('Given column number must be a non-negative integer');
+                }
+                return true;
+            }
+            function _findSourceMappingURL(source) {
+                var m = /\/\/[#@] ?sourceMappingURL=([^\s'"]+)$/.exec(source);
+                if (m && m[1]) {
+                    return m[1];
+                }
+                else {
+                    throw new utils.Error('sourceMappingURL not found');
+                }
+            }
+            function _newLocationInfoFromSourceMap(rawSourceMap, lineNumber, columnNumber) {
+                return new SourceMap.SourceMapConsumer(rawSourceMap).originalPositionFor({ line: lineNumber, column: columnNumber });
+            }
+            var factory = function (SourceMap, ES6Promise) {
+                return function StackTraceGPS(opts) {
+                    this.sourceCache = {};
+                    this._get = function _get(location) {
+                        return new Promise(function (resolve, reject) {
+                            if (this.sourceCache[location]) {
+                                resolve(this.sourceCache[location]);
+                            }
+                            else {
+                                _xdr(location, function (source) {
+                                    this.sourceCache[location] = source;
+                                    resolve(source);
+                                }.bind(this), reject);
+                            }
+                        }.bind(this));
+                    };
+                    /**
+                     * Given location information for a Function definition, return the function name.
+                     *
+                     * @param stackframe - {StackFrame}-like object
+                     *      {fileName: 'path/to/file.js', lineNumber: 100, columnNumber: 5}
+                     */
+                    this.findFunctionName = function StackTraceGPS$$findFunctionName(stackframe) {
+                        return new Promise(function (resolve, reject) {
+                            _ensureStackFrameIsLegit(stackframe);
+                            this._get(stackframe.fileName).then(function getSourceCallback(source) {
+                                resolve(_findFunctionName(source, stackframe.lineNumber, stackframe.columnNumber));
+                            }, reject);
+                        }.bind(this));
+                    };
+                    /**
+                     * Given a StackFrame, seek source-mapped location and return source-mapped location.
+                     *
+                     * @param stackframe - {StackFrame}-like object
+                     *      {fileName: 'path/to/file.js', lineNumber: 100, columnNumber: 5}
+                     */
+                    this.getMappedLocation = function StackTraceGPS$$sourceMap(stackframe) {
+                        return new Promise(function (resolve, reject) {
+                            _ensureSupportedEnvironment();
+                            _ensureStackFrameIsLegit(stackframe);
+                            this._get(stackframe.fileName).then(function (source) {
+                                this._get(_findSourceMappingURL(source)).then(function (map) {
+                                    var lineNumber = stackframe.lineNumber;
+                                    var columnNumber = stackframe.columnNumber;
+                                    resolve(_newLocationInfoFromSourceMap(map, lineNumber, columnNumber));
+                                }, reject)['catch'](reject);
+                            }.bind(this), reject)['catch'](reject);
+                        }.bind(this));
+                    };
+                };
+            };
+            stacktrace.StackTraceGPS = factory(SourceMap, Promise);
+        })(stacktrace = utils.stacktrace || (utils.stacktrace = {}));
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -12440,16 +13140,9 @@ var lib;
     (function (worker) {
         var detail;
         (function (detail) {
-            if (lib.utils.isNode) {
-                process.once('message', function (code) {
-                    eval(JSON.parse(code).data);
-                });
-            }
-            else {
-                self.onmessage = function (code) {
-                    eval(code.data);
-                };
-            }
+            self.onmessage = function (code) {
+                eval(code.data);
+            };
         })(detail = worker.detail || (worker.detail = {}));
     })(worker = lib.worker || (lib.worker = {}));
 })(lib || (lib = {}));

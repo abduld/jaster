@@ -1,5 +1,8 @@
+
+/// <reference path="recast.ts" />
 module lib.ast.recast {
     import types = lib.ast.types;
+    import assert = lib.utils.assert;
     var n = types.namedTypes;
     var isArray:types.Type = types.builtInTypes["array"];
     var isObject:types.Type = types.builtInTypes["object"];

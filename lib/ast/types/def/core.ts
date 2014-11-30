@@ -1,5 +1,7 @@
+
+
 module lib.ast.types {
-    export module def {
+    export module definitions {
         import types = lib.ast.types;
         var Type = types.Type;
         var def = Type.def;
@@ -9,9 +11,9 @@ module lib.ast.types {
         var isNumber = builtin["number"];
         var isBoolean = builtin["boolean"];
         var isRegExp = builtin["RegExp"];
-        import shared = lib.ast.types.shared;
-        var defaults = shared.defaults;
-        var geq = shared.geq;
+        debugger;
+        var defaults = types.defaults;
+        var geq = types.geq;
         export module core {
 // Abstract supertype of all syntactic entities that are allowed to have a
 // .loc field.
@@ -368,5 +370,6 @@ module lib.ast.types {
                 .build("loc", "value")
                 .field("value", isString);
         }
+        export var coredefs = true;
     }
 }

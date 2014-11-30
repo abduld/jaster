@@ -1,3 +1,7 @@
+
+/// <reference path="../types/types.ts" />
+/// <reference path="private.ts" />
+/// <reference path="options.ts" />
 module lib.ast {
     export module recast {
 

@@ -25,13 +25,14 @@
 /// <reference path="utils.ts" />
 
 // from https://github.com/YuzuJS/setImmediate
+/*
 module lib.utils {
     var nextHandle = 1; // Spec says greater than zero
     var tasksByHandle = {};
     var currentlyRunningATask = false;
     var global = globals;
     var doc = global.document;
-    var setImmediate;
+    var __setImediate;
 
     function addFromSetImmediateArguments(args) {
         tasksByHandle[nextHandle] = partiallyApplied.apply(undefined, args);
@@ -40,8 +41,7 @@ module lib.utils {
 
     // This function accepts the same arguments as setImmediate, but
     // returns a function that requires no arguments.
-    function partiallyApplied(handler) {
-        var args = [].slice.call(arguments, 1);
+    function partiallyApplied(handler, ...args:any[]) {
         return function () {
             if (typeof handler === "function") {
                 handler.apply(undefined, args);
@@ -77,13 +77,6 @@ module lib.utils {
         delete tasksByHandle[handle];
     }
 
-    function installNextTickImplementation() {
-        setImmediate = function () {
-            var handle = addFromSetImmediateArguments(arguments);
-            process.nextTick(partiallyApplied(runIfPresent, handle));
-            return handle;
-        };
-    }
 
     function canUsePostMessage() {
         // The test against `importScripts` prevents this implementation from being installed inside a web worker,
@@ -120,7 +113,7 @@ module lib.utils {
             global.attachEvent("onmessage", onGlobalMessage);
         }
 
-        setImmediate = function () {
+        __setImediate = function () {
             var handle = addFromSetImmediateArguments(arguments);
             global.postMessage(messagePrefix + handle, "*");
             return handle;
@@ -134,7 +127,7 @@ module lib.utils {
             runIfPresent(handle);
         };
 
-        setImmediate = function () {
+        __setImediate = function () {
             var handle = addFromSetImmediateArguments(arguments);
             channel.port2.postMessage(handle);
             return handle;
@@ -143,7 +136,7 @@ module lib.utils {
 
     function installReadyStateChangeImplementation() {
         var html = doc.documentElement;
-        setImmediate = function () {
+        __setImediate = function () {
             var handle = addFromSetImmediateArguments(arguments);
             // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
             // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
@@ -160,7 +153,7 @@ module lib.utils {
     }
 
     function installSetTimeoutImplementation() {
-        setImmediate = function () {
+        __setImediate = function () {
             var handle = addFromSetImmediateArguments(arguments);
             setTimeout(partiallyApplied(runIfPresent, handle), 0);
             return handle;
@@ -173,8 +166,6 @@ module lib.utils {
 
     // Don't get fooled by e.g. browserify environments.
     if ({}.toString.call(global.process) === "[object process]") {
-        // For Node.js before 0.9
-        installNextTickImplementation();
 
     } else if (canUsePostMessage()) {
         // For non-IE10 modern browsers
@@ -193,6 +184,7 @@ module lib.utils {
         installSetTimeoutImplementation();
     }
 
-    export var setImmediate = setImmediate;
-    export var clearImmediate = clearImmediate;
+    export var _setImmediate = __setImediate;
+    export var _clearImmediate = clearImmediate;
 }
+*/

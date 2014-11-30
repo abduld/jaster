@@ -1,4 +1,8 @@
+/// <reference path="types.ts" />
+
+
 module lib.ast.types {
+    import assert = lib.utils.assert;
     var Op = Object.prototype;
     var hasOwn = Op.hasOwnProperty;
     var isArray = types.builtInTypes["array"];
@@ -264,7 +268,7 @@ module lib.ast.types {
     function emptyMoves() {
     }
 
-    function getMoves(path, offset, start, end) {
+    function getMoves(path, offset, start?, end?) {
         isArray.assert(path.value);
 
         if (offset === 0) {

@@ -1,11 +1,13 @@
 module lib.ast.recast {
     import types = lib.ast.types;
+    import assert = lib.utils.assert;
+    import Node = esprima.Syntax.Node;
+    import sourceMap = lib.ast.sourcemap;
     var n = types.namedTypes;
     var isArray:types.Type = types.builtInTypes["array"];
     var isObject:types.Type = types.builtInTypes["object"];
     var isString:types.Type = types.builtInTypes["string"];
     var isFunction:types.Type = types.builtInTypes["function"];
-    var sourceMap = require("source-map");
     var b = types.builders;
 
     export function parse(source, options) {
@@ -30,7 +32,7 @@ module lib.ast.recast {
 
         // In order to ensure we reprint leading and trailing program
         // comments, wrap the original Program node with a File node.
-        pure = b.file(pure);
+        pure = b["file"](pure);
         pure.loc = {
             lines: lines,
             indent: 0,
@@ -62,8 +64,8 @@ module lib.ast.recast {
                 return node;
             }
 
-            if ((n.MethodDefinition && n.MethodDefinition.check(node)) ||
-                (n.Property.check(node) && (node.method || node.shorthand))) {
+            if ((n["MethodDefinition"] && n["MethodDefinition"].check(node)) ||
+                (n["Property"].check(node) && (node["method"] || node["shorthand"]))) {
                 // If the node is a MethodDefinition or a .method or .shorthand
                 // Property, then the location information stored in
                 // node.value.loc is very likely untrustworthy (just the {body}

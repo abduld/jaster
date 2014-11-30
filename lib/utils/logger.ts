@@ -29,7 +29,21 @@ module lib {
                         "LogType.Fatal": '\033[31m'
                     };
                     if (type >= this._level) {
-                        console[type](color[""+type] + msg + color["LogType.Debug"]);
+                        switch (type) {
+                            case LogType.Debug:
+                            case LogType.Trace:
+                                console.info(msg);
+                                break;
+                            case LogType.Warn:
+                                console.warn(msg);
+                                break;
+                            case LogType.Error:
+                            case LogType.Fatal:
+                            default:
+                                debugger;
+                                console.error(msg);
+                                break;
+                        }
                     }
                 }
                 debug(msg) { this._go(msg, LogType.Debug); }

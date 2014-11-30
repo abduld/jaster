@@ -1,17 +1,15 @@
+/// <reference path="../../utils/utils.ts" />
+
+/// < reference path="shared.ts" />
+/// < reference path="equiv.ts" />
+/// < reference path="path.ts" />
+/// < reference path="node-path.ts" />
+/// < reference path="path-visitor.ts" />
+/// < reference path="scope.ts" />
 module lib.ast {
     export module types {
-
-        export module assert {
-
-            import assert = lib.utils.assert;
-            export function ok(cond, msg?) {
-                return assert(cond, msg);
-            }
-
-            export function strictEqual(a, b, msg?) {
-                return assert(a === b, msg);
-            }
-        }
+        import Node = esprima.Syntax.Node;
+        import assert = lib.utils.assert;
 
         var Ap:Array<any> = Array.prototype;
         var slice = Ap.slice;
@@ -33,7 +31,7 @@ module lib.ast {
 
             constructor(check, name) {
                 var self = this;
-                assert.ok(self instanceof Type, self);
+                assert.ok(self instanceof Type);
 
                 // Unfortunately we can't elegantly reuse isFunction and isString,
                 // here, because this code is executed while defining those types.
@@ -425,6 +423,9 @@ module lib.ast {
 
                     this.baseNames.forEach(function (name) {
                         var def = defCache[name];
+                        if (lib.utils.isUndefined(def)) {
+                            return;
+                        }
                         def.finalize();
                         extend(allFields, def.allFields);
                         extend(allSupertypes, def.allSupertypes);
@@ -605,7 +606,7 @@ module lib.ast {
         };
 
 
-        export var builders:{[name:string]:Node;} = {};
+        export var builders:{[name:string]:(...args:any[])=>any;} = {};
 
         // This object is used as prototype for any node created by a builder.
         var nodePrototype = {};
@@ -753,8 +754,72 @@ module lib.ast {
 
         export function finalize() {
             Object.keys(defCache).forEach(function (name) {
-                defCache[name].finalize();
+                var n : Def = defCache[name];
+                if (!lib.utils.isUndefined(n)) {
+                    n.finalize();
+                }
             });
         };
+
+        export module shared {
+            var builtin = types.builtInTypes;
+            var isNumber: Type = builtin["number"];
+
+            // An example of constructing a new type with arbitrary constraints from
+            // an existing type.
+            export function geq(than) {
+                return new Type(function (value) {
+                    return isNumber.check(value) && value >= than;
+                }, isNumber + " >= " + than);
+            };
+
+            // Default value-returning functions that may optionally be passed as a
+            // third argument to Def.prototype.field.
+            export var defaults = {
+                // Functions were used because (among other reasons) that's the most
+                // elegant way to allow for the emptyArray one always to give a new
+                // array instance.
+                "null": function () {
+                    return null
+                },
+                "emptyArray": function () {
+                    return []
+                },
+                "false": function () {
+                    return false
+                },
+                "true": function () {
+                    return true
+                },
+                "undefined": function () {
+                }
+            };
+
+            var naiveIsPrimitive = Type.or(
+                builtin["string"],
+                builtin["number"],
+                builtin["boolean"],
+                builtin["null"],
+                builtin["undefined"]
+                );
+
+            export var isPrimitive = new Type(function (value) {
+                if (value === null)
+                    return true;
+                var type = typeof value;
+                return !(type === "object" ||
+                    type === "function");
+            }, naiveIsPrimitive.toString());
+        }
+        export import geq = shared.geq;
+        export import isPrimitive = shared.isPrimitive;
+        export import defaults = shared.defaults;
     }
 }
+/// <referench path="def/def.ts" />
+/// <referench path="def/core.ts" />
+/// <referench path="def/e4x.ts" />
+/// <referench path="def/es6.ts" />
+/// <referench path="def/es7.ts" />
+/// <referench path="def/fb-harmony.ts" />
+/// <referench path="def/mozilla.ts" />

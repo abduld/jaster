@@ -1,6 +1,4 @@
-﻿/// <reference path="./lib/utils/utils.ts" />
-/// <reference path="./lib/c/c.ts" />
-
+﻿/// <reference path="./lib/ref.ts" />
 
 module app {
     import c = lib.c;
@@ -22,7 +20,7 @@ module app {
         }
 
         stop() {
-            lib.utils.assert(1 == 1, "test");
+            lib.utils.assert.ok(1 == 1, "test");
             clearTimeout(this.timerToken);
         }
 

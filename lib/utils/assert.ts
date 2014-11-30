@@ -8,11 +8,14 @@ module lib {
 
             var logger = new Logger();
 
-            export function assert(res, msg) {
+            export function assert(res, msg?) {
                 if (!res) {
-                    logger.error('FAIL: ' + msg);
-                } else {
-                    logger.debug('Pass: ' + msg);
+                    debugger;
+                    if (msg) {
+                        logger.error('FAIL: ' + msg);
+                    } else {
+                        logger.error('FAIL: ');
+                    }
                 }
             }
 
@@ -31,6 +34,37 @@ module lib {
                 }
             }
         }
-        export import assert = detail.assert;
+        export module assert {
+            import _assert = lib.utils.detail.assert;
+            export function ok(cond, msg?) {
+                return _assert(cond, msg);
+            }
+
+            export function fail(cond, msg?) {
+                return _assert(!cond, msg);
+            }
+
+            export function strictEqual(a, b, msg?) {
+                return _assert(a === b, msg);
+            }
+
+            export function notStrictEqual(a, b, msg?) {
+                return fail(a === b, msg);
+            }
+            export function deepEqual(a, b, msg?) {
+                ok(a === b, msg);
+
+                var aprops = Object.getOwnPropertyNames(a);
+                var bprops = Object.getOwnPropertyNames(b);
+
+                ok(aprops === bprops, msg);
+
+                aprops.forEach(function (prop) {
+                    ok(a.hasOwnProperty(prop), msg);
+                    ok(b.hasOwnProperty(prop), msg);
+                    deepEqual(a[prop], b[prop], msg);
+                });
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@
 /// <reference path="./timer.ts" />
 /// <reference path="./testing.ts" />
 /// <reference path="./castTo.ts" />
+/// <reference path="./freeze.ts" />
 
 
 module lib {
@@ -78,6 +79,10 @@ module lib {
 
         export function isObject(value): boolean {
             return typeof value === "object" || typeof value === 'function';
+        }
+        
+        export function isUndefined(value) {
+            return typeof value == 'undefined';
         }
 
         export function toNumber(x): number {

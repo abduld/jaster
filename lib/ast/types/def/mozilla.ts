@@ -1,13 +1,11 @@
-/// <referench path="core.ts" />
 
 module lib.ast.types {
-    export module def {
-        import core = lib.ast.types.def.core;
+    export module definitions {
+        import core = lib.ast.types.definitions.core;
         import types = lib.ast.types;
-        import shared = lib.ast.types.shared;
         var def = types.Type.def;
         var or = types.Type.or;
-        var geq = shared.geq;
+        var geq = types.geq;
 
         def("ForOfStatement")
             .bases("Statement")
@@ -42,5 +40,7 @@ module lib.ast.types {
             .bases("Expression")
             .build("index")
             .field("index", geq(0));
+
+ //       types.finalize();
     }
 }
