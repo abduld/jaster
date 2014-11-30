@@ -32,12 +32,13 @@ module lib.ast {
          * @param aName The original identifier.
          */
         export class SourceNode {
-            children: Array<any>;
-            sourceContents: any;
-            line: number;
-            column: number;
-            source: string;
-            name: string;
+            children:Array<any>;
+            sourceContents:any;
+            line:number;
+            column:number;
+            source:string;
+            name:string;
+
             constructor(aLine?, aColumn?, aSource?, aChunks?, aName?) {
                 this.children = [];
                 this.sourceContents = {};
@@ -83,7 +84,7 @@ module lib.ast {
 
                 aSourceMapConsumer.eachMapping(function (mapping) {
                     if (lastMapping !== null) {
-                        var code: string;
+                        var code:string;
                         // We add the code from "lastMapping" to "mapping":
                         // First check if there is a new line in between.
                         if (lastGeneratedLine < mapping.generatedLine) {
@@ -99,9 +100,9 @@ module lib.ast {
                             // "mapping.generatedColumn" with "lastMapping"
                             var nextLine = remainingLines[0];
                             code = nextLine.substr(0, mapping.generatedColumn -
-                                lastGeneratedColumn);
+                            lastGeneratedColumn);
                             remainingLines[0] = nextLine.substr(mapping.generatedColumn -
-                                lastGeneratedColumn);
+                            lastGeneratedColumn);
                             lastGeneratedColumn = mapping.generatedColumn;
                             addMappingWithCode(lastMapping, code);
                             // No more remaining code, continue
@@ -183,7 +184,7 @@ module lib.ast {
                 else {
                     throw new TypeError(
                         "Expected a SourceNode, string, or an array of SourceNodes and strings. Got " + aChunk
-                        );
+                    );
                 }
                 return this;
             }
@@ -206,7 +207,7 @@ module lib.ast {
                 else {
                     throw new TypeError(
                         "Expected a SourceNode, string, or an array of SourceNodes and strings. Got " + aChunk
-                        );
+                    );
                 }
                 return this;
             }
@@ -407,7 +408,7 @@ module lib.ast {
                     map.setSourceContent(sourceFile, sourceContent);
                 });
 
-                return { code: generated.code, map: map };
+                return {code: generated.code, map: map};
             }
         }
     }

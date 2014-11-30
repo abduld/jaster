@@ -810,7 +810,8 @@ module lib.ast {
         }
 
         class CodeGenerator {
-            constructor() { }
+            constructor() {
+            }
 
             // Helpers.
 
@@ -864,8 +865,7 @@ module lib.ast {
 
                 hasDefault = false;
 
-                if (node.type === Syntax.ArrowFunctionExpression &&
-                    !node.rest && (!node.defaults || node.defaults.length === 0) &&
+                if (node.type === Syntax.ArrowFunctionExpression && !node.rest && (!node.defaults || node.defaults.length === 0) &&
                     node.params.length === 1 && node.params[0].type === Syntax.Identifier) {
                     // arg => { } case
                     result = [this.generateIdentifier(node.params[0])];
@@ -925,7 +925,7 @@ module lib.ast {
             }
 
             generateIterationForStatement(operator, stmt, flags) {
-                var result: any = ['for' + space + '('], that = this;
+                var result:any = ['for' + space + '('], that = this;
                 withIndent(function () {
                     if (stmt.left.type === Syntax.VariableDeclaration) {
                         withIndent(function () {
@@ -940,7 +940,7 @@ module lib.ast {
                     result = [join(
                         result,
                         that.generateExpression(stmt.right, Precedence.Sequence, E_TTT)
-                        ), ')'];
+                    ), ')'];
                 });
                 result.push(this.maybeBlock(stmt.body, flags));
                 return result;
@@ -974,7 +974,7 @@ module lib.ast {
                     ],
                     Precedence.Assignment,
                     precedence
-                    );
+                );
             }
 
             semicolon(flags) {
@@ -989,7 +989,7 @@ module lib.ast {
             static Statement = {
 
                 BlockStatement: function (stmt, flags) {
-                    var result = ['{', newline], that = this;
+                    var result = ['{', newline], that:CodeGenerator = this;
 
                     withIndent(function () {
                         var i, iz, fragment, bodyFlags;
@@ -1028,7 +1028,7 @@ module lib.ast {
                 },
 
                 ClassBody: function (stmt, flags) {
-                    var result = ['{', newline], that = this;
+                    var result = ['{', newline], that:CodeGenerator = this;
 
                     withIndent(function (indent) {
                         var i, iz;
@@ -1081,7 +1081,7 @@ module lib.ast {
                 },
 
                 CatchClause: function (stmt, flags) {
-                    var result, that = this;
+                    var result, that:CodeGenerator = this;
                     withIndent(function () {
                         var guard;
 
@@ -1109,7 +1109,7 @@ module lib.ast {
                 },
 
                 ExportDeclaration: function (stmt, flags) {
-                    var result = ['export'], bodyFlags, that = this;
+                    var result = ['export'], bodyFlags, that:CodeGenerator = this;
 
                     bodyFlags = (flags & F_SEMICOLON_OPT) ? S_TFFT : S_TFFF;
 
@@ -1194,7 +1194,7 @@ module lib.ast {
                     // ES6: 15.2.1 valid import declarations:
                     //     - import ImportClause FromClause ;
                     //     - import ModuleSpecifier ;
-                    var result, cursor, that = this;
+                    var result, cursor, that:CodeGenerator = this;
 
                     // If no ImportClause is present,
                     // this should be `import ModuleSpecifier` so skip `from`
@@ -1295,7 +1295,7 @@ module lib.ast {
                     // VariableDeclarator is typed as Statement,
                     // but joined with comma (not LineTerminator).
                     // So if comment is attached to target node, we should specialize.
-                    var result, i, iz, node, bodyFlags, that = this;
+                    var result, i, iz, node, bodyFlags, that:CodeGenerator = this;
 
                     result = [stmt.kind];
 
@@ -1338,7 +1338,7 @@ module lib.ast {
                     return [join(
                         'throw',
                         this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
-                        ), this.semicolon(flags)];
+                    ), this.semicolon(flags)];
                 },
 
                 TryStatement: function (stmt, flags) {
@@ -1389,7 +1389,7 @@ module lib.ast {
                 },
 
                 SwitchStatement: function (stmt, flags) {
-                    var result, fragment, i, iz, bodyFlags, that = this;
+                    var result, fragment, i, iz, bodyFlags, that:CodeGenerator = this;
                     withIndent(function () {
                         result = [
                             'switch' + space + '(',
@@ -1415,7 +1415,7 @@ module lib.ast {
                 },
 
                 SwitchCase: function (stmt, flags) {
-                    var result, fragment, i, iz, bodyFlags, that = this;
+                    var result, fragment, i, iz, bodyFlags, that:CodeGenerator = this;
                     withIndent(function () {
                         if (stmt.test) {
                             result = [
@@ -1454,7 +1454,7 @@ module lib.ast {
                 },
 
                 IfStatement: function (stmt, flags) {
-                    var result, bodyFlags, semicolonOptional, that = this;
+                    var result, bodyFlags, semicolonOptional, that:CodeGenerator = this;
                     withIndent(function () {
                         result = [
                             'if' + space + '(',
@@ -1482,7 +1482,7 @@ module lib.ast {
                 },
 
                 ForStatement: function (stmt, flags) {
-                    var result, that = this;
+                    var result, that:CodeGenerator = this;
                     withIndent(function () {
                         result = ['for' + space + '('];
                         if (stmt.init) {
@@ -1563,13 +1563,13 @@ module lib.ast {
                         return [join(
                             'return',
                             this.generateExpression(stmt.argument, Precedence.Sequence, E_TTT)
-                            ), this.semicolon(flags)];
+                        ), this.semicolon(flags)];
                     }
                     return ['return' + this.semicolon(flags)];
                 },
 
                 WhileStatement: function (stmt, flags) {
-                    var result, that = this;
+                    var result, that:CodeGenerator = this;
                     withIndent(function () {
                         result = [
                             'while' + space + '(',
@@ -1582,7 +1582,7 @@ module lib.ast {
                 },
 
                 WithStatement: function (stmt, flags) {
-                    var result, that = this;
+                    var result, that:CodeGenerator = this;
                     withIndent(function () {
                         result = [
                             'with' + space + '(',
@@ -1637,7 +1637,7 @@ module lib.ast {
                         ],
                         Precedence.Conditional,
                         precedence
-                        );
+                    );
                 },
 
                 LogicalExpression: function (expr, precedence, flags) {
@@ -1709,7 +1709,7 @@ module lib.ast {
                     result = join(
                         'new',
                         this.generateExpression(expr.callee, Precedence.New, itemFlags)
-                        );
+                    );
 
                     if (!(flags & F_ALLOW_UNPARATH_NEW) || parentheses || length > 0) {
                         result.push('(');
@@ -1745,11 +1745,9 @@ module lib.ast {
                             //   4. Not hexadecimal OR octal number literal
                             // we should add a floating point.
                             if (
-                                fragment.indexOf('.') < 0 &&
-                                !/[eExX]/.test(fragment) &&
-                                esutils.isDecimalDigit(fragment.charCodeAt(fragment.length - 1)) &&
-                                !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)  // '0'
-                                ) {
+                                fragment.indexOf('.') < 0 && !/[eExX]/.test(fragment) &&
+                                esutils.isDecimalDigit(fragment.charCodeAt(fragment.length - 1)) && !(fragment.length >= 2 && fragment.charCodeAt(0) === 48)  // '0'
+                            ) {
                                 result.push('.');
                             }
                         }
@@ -1802,7 +1800,7 @@ module lib.ast {
                         result = join(
                             result,
                             this.generateExpression(expr.argument, Precedence.Yield, E_TTT)
-                            );
+                        );
                     }
                     return parenthesize(result, Precedence.Yield, precedence);
                 },
@@ -1816,7 +1814,7 @@ module lib.ast {
                             ],
                             Precedence.Unary,
                             precedence
-                            );
+                        );
                     }
                     return parenthesize(
                         [
@@ -1825,7 +1823,7 @@ module lib.ast {
                         ],
                         Precedence.Postfix,
                         precedence
-                        );
+                    );
                 },
 
                 FunctionExpression: function (expr, precedence, flags) {
@@ -1848,7 +1846,7 @@ module lib.ast {
                 },
 
                 ArrayExpression: function (expr, precedence, flags) {
-                    var result, multiline, that = this;
+                    var result, multiline, that:CodeGenerator = this;
                     if (!expr.elements.length) {
                         return '[]';
                     }
@@ -1956,7 +1954,7 @@ module lib.ast {
                 },
 
                 ObjectExpression: function (expr, precedence, flags) {
-                    var multiline, result, fragment, that = this;
+                    var multiline, result, fragment, that:CodeGenerator = this;
 
                     if (!expr.properties.length) {
                         return '{}';
@@ -2006,7 +2004,7 @@ module lib.ast {
                 },
 
                 ObjectPattern: function (expr, precedence, flags) {
-                    var result, i, iz, multiline, property, that = this;
+                    var result, i, iz, multiline, property, that:CodeGenerator = this;
                     if (!expr.properties.length) {
                         return '{}';
                     }
@@ -2121,7 +2119,7 @@ module lib.ast {
                     // GeneratorExpression should be parenthesized with (...), ComprehensionExpression with [...]
                     // Due to https://bugzilla.mozilla.org/show_bug.cgi?id=883468 position of expr.body can differ in Spidermonkey and ES6
 
-                    var result, i, iz, fragment, that = this;
+                    var result, i, iz, fragment, that:CodeGenerator = this;
                     result = (expr.type === Syntax.GeneratorExpression) ? ['('] : ['['];
 
                     if (extra.moz.comprehensionExpressionStartsWithAssignment) {
@@ -2326,7 +2324,7 @@ module lib.ast {
             result = this.generateInternal(node);
 
             if (!sourceMap) {
-                pair = { code: result.toString(), map: null };
+                pair = {code: result.toString(), map: null};
                 return options.sourceMapWithCode ? pair : pair.code;
             }
 

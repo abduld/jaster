@@ -446,7 +446,7 @@ module lib.ast.recast {
                     len = n.properties.length,
                     parts = [len > 0 ? "{\n" : "{"];
 
-                path.get("properties").map(function (childPath : NodePath) {
+                path.get("properties").map(function (childPath:NodePath) {
                     var prop = childPath.value;
                     var i = childPath.name;
 
@@ -825,7 +825,7 @@ module lib.ast.recast {
                 }
 
                 var childLines = concat(
-                    path.get("children").map(function (childPath : NodePath) {
+                    path.get("children").map(function (childPath:NodePath) {
                         var child = childPath.value;
 
                         if (namedTypes.Literal.check(child) &&

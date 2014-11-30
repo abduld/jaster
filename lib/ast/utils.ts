@@ -84,7 +84,9 @@ module lib.ast {
         }
 
         export function isExpression(node) {
-            if (node == null) { return false; }
+            if (node == null) {
+                return false;
+            }
             switch (node.type) {
                 case 'ArrayExpression':
                 case 'AssignmentExpression':
@@ -108,7 +110,9 @@ module lib.ast {
         }
 
         export function isIterationStatement(node) {
-            if (node == null) { return false; }
+            if (node == null) {
+                return false;
+            }
             switch (node.type) {
                 case 'DoWhileStatement':
                 case 'ForInStatement':
@@ -120,7 +124,9 @@ module lib.ast {
         }
 
         export function isStatement(node) {
-            if (node == null) { return false; }
+            if (node == null) {
+                return false;
+            }
             switch (node.type) {
                 case 'BlockStatement':
                 case 'BreakStatement':
@@ -179,7 +185,7 @@ module lib.ast {
             current = node.consequent;
             do {
                 if (current.type === 'IfStatement') {
-                    if (current.alternate == null)  {
+                    if (current.alternate == null) {
                         return true;
                     }
                 }
@@ -188,6 +194,7 @@ module lib.ast {
 
             return false;
         }
+
         export function isStrictModeReservedWordES6(id) {
             switch (id) {
                 case 'implements':

@@ -1,4 +1,3 @@
-
 /// <referench path="core.ts" />
 
 module lib.ast.types {

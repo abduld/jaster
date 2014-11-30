@@ -13,7 +13,7 @@ module lib.ast {
             }
         }
 
-        var Ap :Array<any> = Array.prototype;
+        var Ap:Array<any> = Array.prototype;
         var slice = Ap.slice;
         var map = Ap.map;
         var each = Ap.forEach;
@@ -120,12 +120,12 @@ module lib.ast {
             }
 
             static fromObject(obj) {
-                var fields : Field[] = Object.keys(obj).map(function (name) {
+                var fields:Field[] = Object.keys(obj).map(function (name) {
                     return new Field(name, obj[name]);
                 });
 
                 return new Type(function (value, deep) {
-                    return isObject.check(value) && fields.every(function (field : Field) {
+                    return isObject.check(value) && fields.every(function (field:Field) {
                             return field.type.check(value[field.name], deep);
                         });
                 }, function () {
@@ -138,7 +138,7 @@ module lib.ast {
             // In particular, this system allows for circular and forward definitions.
             // The Def object d returned from Type.def may be used to configure the
             // type d.type by calling methods such as d.bases, d.build, and d.field.
-            static def(typeName) : Def {
+            static def(typeName):Def {
                 isString.assert(typeName);
                 return hasOwn.call(defCache, typeName)
                     ? defCache[typeName]
@@ -564,7 +564,7 @@ module lib.ast {
             // literal syntax is somewhat subtle: the object literal syntax would
             // support only one key and one value, but with .field(...) we can pass
             // any number of arguments to specify the field.
-            field(name, type, defaultFn?, hidden?) : Def {
+            field(name, type, defaultFn?, hidden?):Def {
                 assert.strictEqual(this.finalized, false);
                 this.ownFields[name] = new Field(name, type, defaultFn, hidden);
                 return this; // For chaining.
@@ -606,7 +606,7 @@ module lib.ast {
         };
 
 
-        export var builders : {[name:string]:Node;} = {};
+        export var builders:{[name:string]:Node;} = {};
 
         // This object is used as prototype for any node created by a builder.
         var nodePrototype = {};

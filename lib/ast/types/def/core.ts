@@ -1,4 +1,3 @@
-
 module lib.ast.types {
     export module def {
         import types = lib.ast.types;

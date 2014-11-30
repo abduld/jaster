@@ -1,4 +1,3 @@
-
 /// <referench path="core.ts" />
 
 module lib.ast.types {
@@ -65,32 +64,32 @@ module lib.ast.types {
             .field("expression", def("Expression"));
 
         /*
-        def("XJSElement")
-            .bases("Expression")
-            .build("openingElement", "closingElement", "children")
-            .field("openingElement", def("XJSOpeningElement"))
-            .field("closingElement", or(def("XJSClosingElement"), null), defaults["null"])
-            .field("children", [or(
-                def("XJSElement"),
-                def("XJSExpressionContainer"),
-                def("XJSText"),
-                def("Literal") // TODO Esprima should return XJSText instead.
-            )], defaults.emptyArray)
-            .field("name", XJSElementName, function() {
-                // Little-known fact: the `this` object inside a default function
-                // is none other than the partially-built object itself, and any
-                // fields initialized directly from builder function arguments
-                // (like openingElement, closingElement, and children) are
-                // guaranteed to be available.
-                return this.openingElement.name;
-            })
-            .field("selfClosing", isBoolean, function() {
-                return this.openingElement.selfClosing;
-            })
-            .field("attributes", XJSAttributes, function() {
-                return this.openingElement.attributes;
-            });
-        */
+         def("XJSElement")
+         .bases("Expression")
+         .build("openingElement", "closingElement", "children")
+         .field("openingElement", def("XJSOpeningElement"))
+         .field("closingElement", or(def("XJSClosingElement"), null), defaults["null"])
+         .field("children", [or(
+         def("XJSElement"),
+         def("XJSExpressionContainer"),
+         def("XJSText"),
+         def("Literal") // TODO Esprima should return XJSText instead.
+         )], defaults.emptyArray)
+         .field("name", XJSElementName, function() {
+         // Little-known fact: the `this` object inside a default function
+         // is none other than the partially-built object itself, and any
+         // fields initialized directly from builder function arguments
+         // (like openingElement, closingElement, and children) are
+         // guaranteed to be available.
+         return this.openingElement.name;
+         })
+         .field("selfClosing", isBoolean, function() {
+         return this.openingElement.selfClosing;
+         })
+         .field("attributes", XJSAttributes, function() {
+         return this.openingElement.attributes;
+         });
+         */
 
         def("XJSOpeningElement")
             .bases("Node") // TODO Does this make sense? Can't really be an XJSElement.

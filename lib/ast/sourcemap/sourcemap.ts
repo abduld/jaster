@@ -1,5 +1,4 @@
-﻿
-/// <reference path="utils.ts" />
+﻿/// <reference path="utils.ts" />
 /// <reference path="consumer.ts" />
 /// <reference path="gen.ts" />
 /// <reference path="node.ts" />
