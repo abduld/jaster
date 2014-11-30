@@ -44,7 +44,7 @@ module lib.ast.recast {
     };
 
     export class TreeCopier {
-        lines:Line[];
+        lines:Lines;
         indent:number;
 
         constructor(lines) {

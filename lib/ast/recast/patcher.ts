@@ -337,7 +337,7 @@ function findChildReprints(newPath, oldPath, reprints) {
         return false;
     }
 
-    for (var k in util.getUnionOfKeys(newNode, oldNode)) {
+    for (var k in getUnionOfKeys(newNode, oldNode)) {
         if (k === "loc")
             continue;
 

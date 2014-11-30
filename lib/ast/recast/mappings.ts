@@ -15,7 +15,7 @@ module lib.ast.recast {
         sourceLoc:any;
         targetLoc:any;
 
-        constructor(sourceLines, sourceLoc, targetLoc) {
+        constructor(sourceLines, sourceLoc, targetLoc?) {
             assert.ok(this instanceof Mapping);
             assert.ok(sourceLines instanceof Lines);
             SourceLocation.assert(sourceLoc);
