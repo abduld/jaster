@@ -16869,6 +16869,12 @@ var lib;
 })(lib || (lib = {}));
 var lib;
 (function (lib) {
+    var wb;
+    (function (wb) {
+    })(wb = lib.wb || (lib.wb = {}));
+})(lib || (lib = {}));
+var lib;
+(function (lib) {
     var worker;
     (function (worker) {
         var detail;
