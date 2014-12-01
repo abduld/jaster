@@ -22,33 +22,33 @@
 
 /*global module:true*/
 module lib.utils {
-    export class Map<T> {
+    export class Map<K, V> {
         private __data;
 
         constructor() {
             this.__data = {};
         }
 
-        get(key) {
-            key = '$' + key;
-            if (this.__data.hasOwnProperty(key)) {
-                return this.__data[key];
+        get(key : K) : V {
+            var skey = '$' + key;
+            if (this.__data.hasOwnProperty(skey)) {
+                return this.__data[skey];
             }
         }
 
-        has(key) {
-            key = '$' + key;
-            return this.__data.hasOwnProperty(key);
+        has(key : K) {
+            var skey = '$' + key;
+            return this.__data.hasOwnProperty(skey);
         }
 
-        set(key, val) {
-            key = '$' + key;
-            this.__data[key] = val;
+        set(key : K, val : V) {
+            var skey = '$' + key;
+            this.__data[skey] = val;
         }
 
-        delete(key) {
-            key = '$' + key;
-            return delete this.__data[key];
+        delete(key : K) {
+            var skey = '$' + key;
+            return delete this.__data[skey];
         }
 
         clear() {
@@ -56,7 +56,7 @@ module lib.utils {
         }
 
         forEach(callback, thisArg) {
-            var real, key;
+            var real, key: K;
             for (real in this.__data) {
                 if (this.__data.hasOwnProperty(real)) {
                     key = real.substring(1);

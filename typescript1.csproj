@@ -164,6 +164,11 @@
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="lib\ast\ast.ts" />
+    <TypeScriptCompile Include="lib\ast\distance\cost.ts" />
+    <TypeScriptCompile Include="lib\ast\distance\distance.ts" />
+    <TypeScriptCompile Include="lib\ast\distance\levenshtein.ts" />
+    <TypeScriptCompile Include="lib\ast\distance\node.ts" />
+    <TypeScriptCompile Include="lib\ast\distance\report.ts" />
     <TypeScriptCompile Include="lib\ast\esprima.ts" />
     <TypeScriptCompile Include="lib\ast\eval.ts" />
     <TypeScriptCompile Include="lib\ast\gen.ts" />
@@ -250,6 +255,7 @@
     <TypeScriptCompile Include="lib\utils\freeze.ts" />
     <TypeScriptCompile Include="lib\utils\functional.ts" />
     <TypeScriptCompile Include="lib\utils\guuid.ts" />
+    <TypeScriptCompile Include="lib\utils\hash.ts" />
     <TypeScriptCompile Include="lib\utils\internal.ts" />
     <TypeScriptCompile Include="lib\utils\logger.ts" />
     <TypeScriptCompile Include="lib\utils\map.ts" />
