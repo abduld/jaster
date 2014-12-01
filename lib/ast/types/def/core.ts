@@ -14,13 +14,13 @@ module lib.ast.types {
         var defaults = types.defaults;
         var geq = types.geq;
         export module core {
-// Abstract supertype of all syntactic entities that are allowed to have a
-// .loc field.
+            // Abstract supertype of all syntactic entities that are allowed to have a
+            // .loc field.
             def("Printable")
                 .field("loc", or(
                     def("SourceLocation"),
                     null
-                ), defaults["null"], true);
+                    ), defaults["null"], true);
 
             def("Node")
                 .bases("Printable")
@@ -44,7 +44,7 @@ module lib.ast.types {
                 .field("comments", or(
                     [or(def("Block"), def("Line"))],
                     null
-                ), defaults["null"], true);
+                    ), defaults["null"], true);
 
             def("Function")
                 .bases("Node")
@@ -54,8 +54,8 @@ module lib.ast.types {
 
             def("Statement").bases("Node");
 
-// The empty .build() here means that an EmptyStatement can be constructed
-// (i.e. it's not abstract) but that it needs no arguments.
+            // The empty .build() here means that an EmptyStatement can be constructed
+            // (i.e. it's not abstract) but that it needs no arguments.
             def("EmptyStatement").bases("Statement").build();
 
             def("BlockStatement")
@@ -63,8 +63,8 @@ module lib.ast.types {
                 .build("body")
                 .field("body", [def("Statement")]);
 
-// TODO Figure out how to silently coerce Expressions to
-// ExpressionStatements where a Statement was expected.
+            // TODO Figure out how to silently coerce Expressions to
+            // ExpressionStatements where a Statement was expected.
             def("ExpressionStatement")
                 .bases("Statement")
                 .build("expression")
@@ -120,10 +120,10 @@ module lib.ast.types {
                 .bases("Statement")
                 .build("block", "handler", "finalizer")
                 .field("block", def("BlockStatement"))
-                .field("handler", or(def("CatchClause"), null), function () {
+                .field("handler", or(def("CatchClause"), null), function() {
                     return this["handlers"] && this["handlers"][0] || null;
                 })
-                .field("handlers", [def("CatchClause")], function () {
+                .field("handlers", [def("CatchClause")], function() {
                     return this.handler ? [this.handler] : [];
                 }, true) // Indicates this field is hidden from eachField iteration.
                 .field("guardedHandlers", [def("CatchClause")], defaults.emptyArray)
@@ -189,7 +189,7 @@ module lib.ast.types {
                 .field("declarations", [or(
                     def("VariableDeclarator"),
                     def("Identifier") // TODO Esprima deviation.
-                )]);
+                    )]);
 
             def("VariableDeclarator")
                 .bases("Node")
@@ -197,7 +197,7 @@ module lib.ast.types {
                 .field("id", def("Pattern"))
                 .field("init", or(def("Expression"), null));
 
-// TODO Are all Expressions really Patterns?
+            // TODO Are all Expressions really Patterns?
             def("Expression").bases("Node", "Pattern");
 
             def("ThisExpression").bases("Expression").build();
@@ -212,7 +212,7 @@ module lib.ast.types {
                 .build("properties")
                 .field("properties", [def("Property")]);
 
-// TODO Not in the Mozilla Parser API, but used by Esprima.
+            // TODO Not in the Mozilla Parser API, but used by Esprima.
             def("Property")
                 .bases("Node") // Want to be able to visit Property Nodes.
                 .build("kind", "key", "value")
@@ -234,8 +234,8 @@ module lib.ast.types {
                 .build("operator", "argument", "prefix")
                 .field("operator", UnaryOperator)
                 .field("argument", def("Expression"))
-                // TODO Esprima doesn't bother with this field, presumably because
-                // it's always true for unary operators.
+            // TODO Esprima doesn't bother with this field, presumably because
+            // it's always true for unary operators.
                 .field("prefix", isBoolean, defaults["true"]);
 
             var BinaryOperator = or(
@@ -295,16 +295,16 @@ module lib.ast.types {
                 .bases("Expression")
                 .build("callee", "arguments")
                 .field("callee", def("Expression"))
-                // The Mozilla Parser API gives this type as [or(def("Expression"),
-                // null)], but null values don't really make sense at the call site.
-                // TODO Report this nonsense.
+            // The Mozilla Parser API gives this type as [or(def("Expression"),
+            // null)], but null values don't really make sense at the call site.
+            // TODO Report this nonsense.
                 .field("arguments", [def("Expression")]);
 
             def("CallExpression")
                 .bases("Expression")
                 .build("callee", "arguments")
                 .field("callee", def("Expression"))
-                // See comment for NewExpression above.
+            // See comment for NewExpression above.
                 .field("arguments", [def("Expression")]);
 
             def("MemberExpression")
@@ -319,7 +319,7 @@ module lib.ast.types {
             def("ObjectPattern")
                 .bases("Pattern")
                 .build("properties")
-                // TODO File a bug to get PropertyPattern added to the interfaces API.
+            // TODO File a bug to get PropertyPattern added to the interfaces API.
                 .field("properties", [def("PropertyPattern")]);
 
             def("PropertyPattern")
@@ -340,13 +340,13 @@ module lib.ast.types {
                 .field("consequent", [def("Statement")]);
 
             def("Identifier")
-                // But aren't Expressions and Patterns already Nodes? TODO Report this.
+            // But aren't Expressions and Patterns already Nodes? TODO Report this.
                 .bases("Node", "Expression", "Pattern")
                 .build("name")
                 .field("name", isString);
 
             def("Literal")
-                // But aren't Expressions already Nodes? TODO Report this.
+            // But aren't Expressions already Nodes? TODO Report this.
                 .bases("Node", "Expression")
                 .build("value")
                 .field("value", or(
@@ -355,15 +355,15 @@ module lib.ast.types {
                     null, // isNull would also work here.
                     isNumber,
                     isRegExp
-                ));
+                    ));
 
-// Block comment. Not a Node.
+            // Block comment. Not a Node.
             def("Block")
                 .bases("Printable")
                 .build("loc", "value")
                 .field("value", isString);
 
-// Single line comment. Not a Node.
+            // Single line comment. Not a Node.
             def("Line")
                 .bases("Printable")
                 .build("loc", "value")

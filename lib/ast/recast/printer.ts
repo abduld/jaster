@@ -10,13 +10,13 @@ module lib.ast.recast {
     import types = lib.ast.types;
     import assert = lib.utils.assert;
     var namedTypes = types.namedTypes;
-    var isString:types.Type = types.builtInTypes["string"];
-    var isObject:types.Type = types.builtInTypes["object"];
+    var isString: types.Type = types.builtInTypes["string"];
+    var isObject: types.Type = types.builtInTypes["object"];
     import NodePath = types.NodePath;
 
     export class PrintResult {
-        code:any;
-        map:any;
+        code: any;
+        map: any;
 
         constructor(code, sourceMap?) {
             assert.ok(this instanceof PrintResult);
@@ -34,13 +34,13 @@ module lib.ast.recast {
     var PRp = PrintResult.prototype;
     var warnedAboutToString = false;
 
-    PRp.toString = function () {
+    PRp.toString = function() {
         if (!warnedAboutToString) {
             console.warn(
                 "Deprecation warning: recast.print now returns an object with " +
                 "a .code property. You appear to be treating the object as a " +
                 "string, which might still work but is strongly discouraged."
-            );
+                );
 
             warnedAboutToString = true;
         }
@@ -107,7 +107,7 @@ module lib.ast.recast {
             return genericPrint(path, options, printGenerically);
         }
 
-        this.print = function (ast) {
+        this.print = function(ast) {
             if (!ast) {
                 return emptyPrintResult;
             }
@@ -122,12 +122,12 @@ module lib.ast.recast {
                     lines.getSourceMap(
                         options.sourceMapName,
                         options.sourceRoot
+                        )
                     )
-                )
-            );
+                );
         };
 
-        this.printGenerically = function (ast) {
+        this.printGenerically = function(ast) {
             if (!ast) {
                 return emptyPrintResult;
             }
@@ -178,7 +178,7 @@ module lib.ast.recast {
             case "Program":
                 return maybeAddSemicolon(
                     printStatementSequence(path.get("body"), options, print)
-                );
+                    );
 
             case "EmptyStatement":
                 return fromString("");
@@ -266,7 +266,7 @@ module lib.ast.recast {
 
             case "MethodDefinition":
                 {
-                    var parts : string[] = [];
+                    var parts: string[] = [];
 
                     if (n.static) {
                         parts.push("static ");
@@ -307,7 +307,7 @@ module lib.ast.recast {
                     return concat(parts);
                 }
             case "ModuleDeclaration":
-                var parts: string[]= ["module", print(path.get("id"))];
+                var parts: string[] = ["module", print(path.get("id"))];
 
                 if (n.source) {
                     assert.ok(!n.body);
@@ -320,7 +320,7 @@ module lib.ast.recast {
 
             case "ImportSpecifier":
             case "ExportSpecifier":
-                var parts: string[]= [print(path.get("id"))];
+                var parts: string[] = [print(path.get("id"))];
 
                 if (n.name)
                     parts.push(" as ", print(path.get("name")));
@@ -353,7 +353,7 @@ module lib.ast.recast {
                             " { ",
                             fromString(", ").join(path.get("specifiers").map(print)),
                             " }"
-                        );
+                            );
                     }
 
                     if (n.source)
@@ -385,7 +385,7 @@ module lib.ast.recast {
 
                     var foundImportSpecifier = false;
 
-                    path.get("specifiers").each(function (sp) {
+                    path.get("specifiers").each(function(sp) {
                         if (sp.name > 0) {
                             parts.push(", ");
                         }
@@ -438,7 +438,7 @@ module lib.ast.recast {
                             " (\n",
                             argLines.indent(options.tabWidth),
                             "\n)"
-                        );
+                            );
                     } else {
                         parts.push(" ", argLines);
                     }
@@ -461,7 +461,7 @@ module lib.ast.recast {
                         len = n.properties.length,
                         parts = [len > 0 ? "{\n" : "{"];
 
-                    path.get("properties").map(function (childPath: NodePath) {
+                    path.get("properties").map(function(childPath: NodePath) {
                         var prop = childPath.value;
                         var i = childPath.name;
 
@@ -502,7 +502,7 @@ module lib.ast.recast {
                         path.get("value"),
                         options,
                         print
-                    );
+                        );
                 }
 
                 if (path.node.shorthand) {
@@ -521,7 +521,7 @@ module lib.ast.recast {
                     len = elems.length,
                     parts = ["["];
 
-                path.get("elements").each(function (elemPath) {
+                path.get("elements").each(function(elemPath) {
                     var elem = elemPath.value;
                     if (!elem) {
                         // If the array expression ends with a hole, that hole
@@ -568,7 +568,7 @@ module lib.ast.recast {
                 return concat(parts);
 
             case "UpdateExpression":
-                var parts: string[]= [
+                var parts: string[] = [
                     print(path.get("argument")),
                     n.operator
                 ];
@@ -586,7 +586,7 @@ module lib.ast.recast {
                 ]);
 
             case "NewExpression":
-                var parts: string[]= ["new ", print(path.get("callee"))];
+                var parts: string[] = ["new ", print(path.get("callee"))];
                 var args = n.arguments;
                 if (args) {
                     parts.push(printArgumentsList(path, options, print));
@@ -597,7 +597,7 @@ module lib.ast.recast {
             case "VariableDeclaration":
                 var parts: string[] = [n.kind, " "];
                 var maxLen = 0;
-                var printed = path.get("declarations").map(function (childPath) {
+                var printed = path.get("declarations").map(function(childPath) {
                     var lines = print(childPath);
                     maxLen = Math.max(lines.length, maxLen);
                     return lines;
@@ -609,7 +609,7 @@ module lib.ast.recast {
                     parts.push(
                         fromString(",\n").join(printed)
                             .indentTail(n.kind.length + 1)
-                    );
+                        );
                 } else {
                     parts.push(printed[0]);
                 }
@@ -640,7 +640,7 @@ module lib.ast.recast {
 
             case "IfStatement":
                 var con = adjustClause(print(path.get("consequent")), options),
-                    parts: string[]= ["if (", print(path.get("test")), ")", con];
+                    parts: string[] = ["if (", print(path.get("test")), ")", con];
 
                 if (n.alternate)
                     parts.push(
@@ -727,7 +727,7 @@ module lib.ast.recast {
                     return concat(parts);
                 }
             case "ContinueStatement":
-                var parts: string[]= ["continue"];
+                var parts: string[] = ["continue"];
                 if (n.label)
                     parts.push(" ", print(path.get("label")));
                 parts.push(";");
@@ -746,7 +746,7 @@ module lib.ast.recast {
                     print(path.get("block"))
                 ];
 
-                path.get("handlers").each(function (handler) {
+                path.get("handlers").each(function(handler) {
                     parts.push(" ", print(handler));
                 });
 
@@ -756,10 +756,10 @@ module lib.ast.recast {
                 return concat(parts);
 
             case "CatchClause":
-                var parts: string[]= ["catch (", print(path.get("param"))];
+                var parts: string[] = ["catch (", print(path.get("param"))];
 
                 if (n.guard)
-                // Note: esprima does not recognize conditional catch clauses.
+                    // Note: esprima does not recognize conditional catch clauses.
                     parts.push(" if ", print(path.get("guard")));
 
                 parts.push(") ", print(path.get("body")));
@@ -785,7 +785,7 @@ module lib.ast.recast {
             // Note: ignoring n.lexical because it has no printing consequences.
 
             case "SwitchCase":
-                var parts: string[]= [];
+                var parts: string[] = [];
 
                 if (n.test)
                     parts.push("case ", print(path.get("test")), ":");
@@ -797,7 +797,7 @@ module lib.ast.recast {
                         path.get("consequent"),
                         options,
                         print
-                    ).indent(options.tabWidth));
+                        ).indent(options.tabWidth));
                 }
 
                 return concat(parts);
@@ -808,7 +808,7 @@ module lib.ast.recast {
             // XJS extensions below.
 
             case "XJSAttribute":
-                var parts: string[]= [print(path.get("name"))];
+                var parts: string[] = [print(path.get("name"))];
                 if (n.value)
                     parts.push("=", print(path.get("value")));
                 return concat(parts);
@@ -843,7 +843,7 @@ module lib.ast.recast {
                 }
 
                 var childLines = concat(
-                    path.get("children").map(function (childPath:NodePath) {
+                    path.get("children").map(function(childPath: NodePath) {
                         var child = childPath.value;
 
                         if (namedTypes["Literal"].check(child) &&
@@ -857,7 +857,7 @@ module lib.ast.recast {
 
                         return print(childPath);
                     })
-                ).indentTail(options.tabWidth);
+                    ).indentTail(options.tabWidth);
 
                 var closingLines = print(path.get("closingElement"));
 
@@ -868,22 +868,22 @@ module lib.ast.recast {
                 ]);
 
             case "XJSOpeningElement":
-                var parts: string[]= ["<", print(path.get("name"))];
+                var parts: string[] = ["<", print(path.get("name"))];
                 var attrParts = [];
 
-                path.get("attributes").each(function (attrPath) {
+                path.get("attributes").each(function(attrPath) {
                     attrParts.push(" ", print(attrPath));
                 });
 
                 var attrLines = concat(attrParts);
 
                 var needLineWrap = (
-                attrLines.length > 1 ||
-                attrLines.getLineLength(1) > options.wrapColumn
-                );
+                    attrLines.length > 1 ||
+                    attrLines.getLineLength(1) > options.wrapColumn
+                    );
 
                 if (needLineWrap) {
-                    attrParts.forEach(function (part, i) {
+                    attrParts.forEach(function(part, i) {
                         if (part === " ") {
                             assert.strictEqual(i % 2, 0);
                             attrParts[i] = "\n";
@@ -907,7 +907,7 @@ module lib.ast.recast {
                 return fromString("");
 
             case "TypeAnnotatedIdentifier":
-                var parts: string[]= [
+                var parts: string[] = [
                     print(path.get("annotation")),
                     " ",
                     print(path.get("identifier"))
@@ -929,7 +929,7 @@ module lib.ast.recast {
 
             case "ClassPropertyDefinition":
                 {
-                    var parts : string[] = ["static ", print(path.get("definition"))];
+                    var parts: string[] = ["static ", print(path.get("definition"))];
                     if (!namedTypes["MethodDefinition"].check(n.definition))
                         parts.push(";");
                     return concat(parts);
@@ -941,7 +941,7 @@ module lib.ast.recast {
             case "ClassDeclaration":
             case "ClassExpression":
                 {
-                    var parts : string[] = ["class"];
+                    var parts: string[] = ["class"];
 
                     if (n.id)
                         parts.push(" ", print(path.get("id")));
@@ -1056,7 +1056,7 @@ module lib.ast.recast {
             namedTypes["ClassBody"] &&
             namedTypes["ClassBody"].check(path.parent.node);
 
-        var filtered = path.filter(function (stmtPath) {
+        var filtered = path.filter(function(stmtPath) {
             var stmt = stmtPath.value;
 
             // Just in case the AST has been modified to contain falsy
@@ -1080,7 +1080,7 @@ module lib.ast.recast {
         var len = filtered.length;
         var parts = [];
 
-        filtered.forEach(function (stmtPath, i) {
+        filtered.forEach(function(stmtPath, i) {
             var printed = print(stmtPath);
             var stmt = stmtPath.value;
             var needSemicolon = true;
@@ -1139,7 +1139,7 @@ module lib.ast.recast {
             parts.push(
                 maxSpace(prevTrailingSpace, leadingSpace),
                 printed
-            );
+                );
 
             if (notLast) {
                 prevTrailingSpace = trailingSpace;
@@ -1162,7 +1162,7 @@ module lib.ast.recast {
 
         // If the node has any comments, their locations might contribute to
         // the true start/end positions of the node.
-        node.comments.forEach(function (comment) {
+        node.comments.forEach(function(comment) {
             if (comment.loc) {
                 if (comparePos(comment.loc.start, start) < 0) {
                     start = comment.loc.start;
@@ -1230,7 +1230,7 @@ module lib.ast.recast {
             printFunctionParams(valuePath, options, print),
             ") ",
             print(valuePath.get("body"))
-        );
+            );
 
         return concat(parts);
     }
@@ -1253,7 +1253,7 @@ module lib.ast.recast {
 
         var params = path.get("params");
         var defaults = path.get("defaults");
-        var printed = params.map(defaults.value ? function (param) {
+        var printed = params.map(defaults.value ? function(param) {
             var p = print(param);
             var d = defaults.get(param.name);
             return d.value ? concat([p, "=", print(d)]) : p;

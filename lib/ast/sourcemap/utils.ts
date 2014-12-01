@@ -1,4 +1,4 @@
-﻿module lib.ast.sourcemap {
+module lib.ast.sourcemap {
     export module utils {
 
         /**
@@ -224,8 +224,8 @@
         function strcmp(aStr1, aStr2) {
             var s1 = aStr1 || "";
             var s2 = aStr2 || "";
-            var d1:number = lib.utils.castTo<number>(s1 > s2);
-            var d2:number = lib.utils.castTo<number>(s1 < s2);
+            var d1: number = lib.utils.castTo<number>(s1 > s2);
+            var d2: number = lib.utils.castTo<number>(s1 < s2);
             return d1 - d2;
         }
 

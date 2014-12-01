@@ -1,4 +1,4 @@
-﻿
+
 
 
 module lib.ast {
@@ -8,7 +8,7 @@ module lib.ast {
         import castTo = lib.utils.castTo;
         import hash = lib.utils.hash;
 
-        var leftMostHash: lib.utils.Map<string, Syntax.Node> = new lib.utils.Map < string, Syntax.Node>();
+        var leftMostHash: lib.utils.Map<string, Syntax.Node> = new lib.utils.Map<string, Syntax.Node>();
 
         export function leftMost(node: typeof undefined): Syntax.Node;
         export function leftMost(node: Array<Node>): Syntax.Node;
@@ -18,7 +18,7 @@ module lib.ast {
             if (leftMostHash.has(h)) {
                 return leftMostHash.get(h);
             } else {
-                var res : Syntax.Node = function () {
+                var res: Syntax.Node = function() {
                     if (lib.utils.isUndefined(node)) {
                         return node;
                     } else if (lib.utils.isArray(node)) {

@@ -1,4 +1,4 @@
-﻿
+
 /// <reference path="../ref.ts" />
 /// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
 
@@ -6,7 +6,7 @@ module lib {
     export module utils {
         export module detail {
             var randArray = new Uint8Array(16);
-            var makeRandom = function () {
+            var makeRandom = function() {
                 for (var i = 0, r; i < 16; i++) {
                     if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
                     randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;

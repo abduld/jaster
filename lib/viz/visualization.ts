@@ -6,14 +6,14 @@ import ReactUtils = require("./reactutils");
 import _ = require("underscore");
 import utils = require("./../utils/utils");
 
-var MAXWIDTH : number = 1024 ;
-var MAXHEIGHT : number = 798 ;
+var MAXWIDTH: number = 1024;
+var MAXHEIGHT: number = 798;
 
 export interface ThreadVisualizationProps {
-    blockIdx : utils.Dim3;
+    blockIdx: utils.Dim3;
     blockDim: utils.Dim3;
-    gridDim : utils.Dim3;
-    threadIdx : utils.Dim3;
+    gridDim: utils.Dim3;
+    threadIdx: utils.Dim3;
     activated: boolean;
 }
 
@@ -22,10 +22,10 @@ interface ThreadVisualizationState {
 }
 
 class ThreadVisualization extends ReactUtils.Component<ThreadVisualizationProps, ThreadVisualizationState> {
-    private width : number;
-    private height : number;
-    private offsetX : number;
-    private offsetY : number;
+    private width: number;
+    private height: number;
+    private offsetX: number;
+    private offsetY: number;
 
     getInitialState() {
         this.width = 100.0 / (this.props.blockDim.x);
@@ -37,7 +37,7 @@ class ThreadVisualization extends ReactUtils.Component<ThreadVisualizationProps,
             activated: false
         };
     }
-    setState(state : ThreadVisualizationState) {
+    setState(state: ThreadVisualizationState) {
         this.state = state;
     }
 
@@ -54,7 +54,7 @@ class ThreadVisualization extends ReactUtils.Component<ThreadVisualizationProps,
         });
     }
 
-    private getFill() : string {
+    private getFill(): string {
         if (this.props.activated) {
             return "white";
         } else {
@@ -62,7 +62,7 @@ class ThreadVisualization extends ReactUtils.Component<ThreadVisualizationProps,
         }
     }
 
-    private getStroke() : string {
+    private getStroke(): string {
         if (this.state.highlighted) {
             return "yellow";
         } else {
@@ -73,7 +73,7 @@ class ThreadVisualization extends ReactUtils.Component<ThreadVisualizationProps,
     render() {
         return React.DOM.rect({
             x: this.offsetX + "%",
-            y : this.offsetY + "%",
+            y: this.offsetY + "%",
             width: (this.width * 0.9) + "%",
             height: (this.height * 0.9) + "%",
             fill: this.getFill(),
@@ -85,25 +85,25 @@ export var threadVisualization = ReactUtils.createClass<ThreadVisualizationProps
     React.createClass, ThreadVisualization);
 
 export interface BlockVisualizationProps {
-    blockIdx : utils.Dim3;
-    blockDim : utils.Dim3;
-    gridDim : utils.Dim3;
+    blockIdx: utils.Dim3;
+    blockDim: utils.Dim3;
+    gridDim: utils.Dim3;
     children: React.ReactComponentElement<ThreadVisualizationProps>[]
 }
 
 interface BlockVisualizationState {
-    highlighted : boolean;
+    highlighted: boolean;
     activated: boolean;
 }
 
 class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, BlockVisualizationState> {
-    private width : number;
-    private height : number;
-    private offsetX : number;
-    private offsetY : number;
-    private data : React.ReactComponentElement<ThreadVisualizationProps>[][][];
+    private width: number;
+    private height: number;
+    private offsetX: number;
+    private offsetY: number;
+    private data: React.ReactComponentElement<ThreadVisualizationProps>[][][];
     getInitialState() {
-        setTimeout(this.activate, 2*(30 * this.props.blockIdx.x  + 100 * this.props.blockIdx.y + 200 * Math.random())*3);
+        setTimeout(this.activate, 2 * (30 * this.props.blockIdx.x + 100 * this.props.blockIdx.y + 200 * Math.random()) * 3);
         this.width = MAXWIDTH / this.props.gridDim.x;
         this.height = MAXHEIGHT / this.props.gridDim.y;
         this.offsetX = this.width * (this.props.blockIdx.x) + 20;
@@ -114,7 +114,7 @@ class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, B
         };
     }
 
-    private makeThreads() : React.ReactComponentElement<ThreadVisualizationProps>[][][] {
+    private makeThreads(): React.ReactComponentElement<ThreadVisualizationProps>[][][] {
         return _.range(this.props.blockDim.z).map((z) => {
             return _.range(this.props.blockDim.y).map((y) => {
                 return _.range(this.props.blockDim.x).map((x) => {
@@ -145,12 +145,12 @@ class BlockVisualization extends ReactUtils.Component<BlockVisualizationProps, B
         var children = this.props.children;
         console.log("Rendering...");
         return React.DOM.svg({
-            x : this.offsetX,
-            y : this.offsetY,
+            x: this.offsetX,
+            y: this.offsetY,
             width: this.width * 0.9,
             height: this.height * 0.85
             //fill: "black"
-        }, React.Children.map(children, function(child : React.ReactComponentElement<ThreadVisualizationProps>) {return ReactAddons.addons.cloneWithProps(child, {activated: true})}.bind(this)));
+        }, React.Children.map(children, function(child: React.ReactComponentElement<ThreadVisualizationProps>) {return ReactAddons.addons.cloneWithProps(child, { activated: true }) }.bind(this)));
     }
 }
 
@@ -158,7 +158,7 @@ export var blockVisualization = ReactUtils.createClass<BlockVisualizationProps, 
     React.createClass, BlockVisualization);
 
 export interface GridVisualizationProps {
-    gridDim : utils.Dim3;
+    gridDim: utils.Dim3;
     blockDim: utils.Dim3;
 }
 
@@ -166,25 +166,25 @@ interface GridVisualizationState {
 }
 
 class GridVisualization extends ReactUtils.Component<GridVisualizationProps, GridVisualizationState> {
-    private data : React.ReactComponentElement<BlockVisualizationProps>[][][];
-    private makeBlocks() : React.ReactComponentElement<BlockVisualizationProps>[][][] {
+    private data: React.ReactComponentElement<BlockVisualizationProps>[][][];
+    private makeBlocks(): React.ReactComponentElement<BlockVisualizationProps>[][][] {
         return _.range(this.props.gridDim.z).map((z) => {
             return _.range(this.props.gridDim.y).map((y) => {
                 return _.range(this.props.gridDim.x).map((x) => {
                     var blockIdx = new utils.Dim3(x, y, z);
                     return React.createElement(blockVisualization, {
-                            blockIdx: blockIdx,
-                            blockDim: this.props.blockDim,
-                            gridDim: this.props.gridDim,
-                            children: _.flatten(this.makeThreads(blockIdx))
-                        }
-                    );
+                        blockIdx: blockIdx,
+                        blockDim: this.props.blockDim,
+                        gridDim: this.props.gridDim,
+                        children: _.flatten(this.makeThreads(blockIdx))
+                    }
+                        );
                 });
             });
         });
     }
 
-    private makeThreads(blockIdx : utils.Dim3) : React.ReactComponentElement<ThreadVisualizationProps>[][][] {
+    private makeThreads(blockIdx: utils.Dim3): React.ReactComponentElement<ThreadVisualizationProps>[][][] {
         return _.range(this.props.blockDim.z).map((z) => {
             return _.range(this.props.blockDim.y).map((y) => {
                 return _.range(this.props.blockDim.x).map((x) => {
@@ -201,13 +201,13 @@ class GridVisualization extends ReactUtils.Component<GridVisualizationProps, Gri
     }
     getInitialState() {
         this.data = this.makeBlocks();
-        return { };
+        return {};
     }
 
     render() {
         return React.DOM.svg({
-            xmlns : "http://www.w3.org/2000/svg",
-            "xmlns:xlink" : "http://www.w3.org/1999/xlink",
+            xmlns: "http://www.w3.org/2000/svg",
+            "xmlns:xlink": "http://www.w3.org/1999/xlink",
             version: 1.1,
             width: 2 * MAXWIDTH,
             height: 2 * MAXHEIGHT

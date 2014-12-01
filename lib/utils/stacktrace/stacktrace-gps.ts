@@ -1,4 +1,4 @@
-﻿
+
 /*This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -38,18 +38,18 @@ module lib.utils {
          * @returns XMLHttpRequest, XDomainRequest or ActiveXObject
          * @private
          */
-        function _createXMLHTTPObject() : XMLHttpRequest {
+        function _createXMLHTTPObject(): XMLHttpRequest {
             var xmlhttp: XMLHttpRequest;
             var XMLHttpFactories = [
-                function () {
+                function() {
                     return new XMLHttpRequest();
-                }, function () {
+                }, function() {
                     return new XDomainRequest();
-                }, function () {
+                }, function() {
                     return new ActiveXObject('Msxml2.XMLHTTP');
-                }, function () {
+                }, function() {
                     return new ActiveXObject('Msxml3.XMLHTTP');
-                }, function () {
+                }, function() {
                     return new ActiveXObject('Microsoft.XMLHTTP');
                 }
             ];
@@ -172,16 +172,16 @@ module lib.utils {
                 .originalPositionFor({ line: lineNumber, column: columnNumber });
         }
 
-        var factory = function (SourceMap, ES6Promise) {
+        var factory = function(SourceMap, ES6Promise) {
             return function StackTraceGPS(opts) {
                 this.sourceCache = {};
 
                 this._get = function _get(location) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function(resolve, reject) {
                         if (this.sourceCache[location]) {
                             resolve(this.sourceCache[location]);
                         } else {
-                            _xdr(location, function (source) {
+                            _xdr(location, function(source) {
                                 this.sourceCache[location] = source;
                                 resolve(source);
                             }.bind(this), reject);
@@ -196,7 +196,7 @@ module lib.utils {
                  *      {fileName: 'path/to/file.js', lineNumber: 100, columnNumber: 5}
                  */
                 this.findFunctionName = function StackTraceGPS$$findFunctionName(stackframe) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function(resolve, reject) {
                         _ensureStackFrameIsLegit(stackframe);
                         this._get(stackframe.fileName).then(function getSourceCallback(source) {
                             resolve(_findFunctionName(source, stackframe.lineNumber, stackframe.columnNumber));
@@ -211,12 +211,12 @@ module lib.utils {
                  *      {fileName: 'path/to/file.js', lineNumber: 100, columnNumber: 5}
                  */
                 this.getMappedLocation = function StackTraceGPS$$sourceMap(stackframe) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function(resolve, reject) {
                         _ensureSupportedEnvironment();
                         _ensureStackFrameIsLegit(stackframe);
 
-                        this._get(stackframe.fileName).then(function (source) {
-                            this._get(_findSourceMappingURL(source)).then(function (map) {
+                        this._get(stackframe.fileName).then(function(source) {
+                            this._get(_findSourceMappingURL(source)).then(function(map) {
                                 var lineNumber = stackframe.lineNumber;
                                 var columnNumber = stackframe.columnNumber;
                                 resolve(_newLocationInfoFromSourceMap(map, lineNumber, columnNumber));

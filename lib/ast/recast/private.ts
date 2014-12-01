@@ -32,19 +32,19 @@ module lib.ast.recast {
 
         function defProp(obj, name, value) {
             if (originalDefProp) try {
-                originalDefProp.call(originalObject, obj, name, {value: value});
+                originalDefProp.call(originalObject, obj, name, { value: value });
             } catch (definePropertyIsBrokenInIE8) {
-                obj[name] = value;
-            } else {
+                    obj[name] = value;
+                } else {
                 obj[name] = value;
             }
         }
 
-// For functions that will be invoked using .call or .apply, we need to
-// define those methods on the function objects themselves, rather than
-// inheriting them from Function.prototype, so that a malicious or clumsy
-// third party cannot interfere with the functionality of this module by
-// redefining Function.prototype.call or .apply.
+        // For functions that will be invoked using .call or .apply, we need to
+        // define those methods on the function objects themselves, rather than
+        // inheriting them from Function.prototype, so that a malicious or clumsy
+        // third party cannot interfere with the functionality of this module by
+        // redefining Function.prototype.call or .apply.
         function makeSafeToCall(fun) {
             if (fun) {
                 defProp(fun, "call", fun.call);
@@ -60,7 +60,7 @@ module lib.ast.recast {
         var numToStr = makeSafeToCall(Number.prototype.toString);
         var strSlice = makeSafeToCall(String.prototype.slice);
 
-        var cloner = function () {
+        var cloner = function() {
         };
 
         function create(prototype) {
@@ -89,17 +89,17 @@ module lib.ast.recast {
         }
 
 
-// Object.getOwnPropertyNames is the only way to enumerate non-enumerable
-// properties, so if we wrap it to ignore our secret keys, there should be
-// no way (except guessing) to access those properties.
+        // Object.getOwnPropertyNames is the only way to enumerate non-enumerable
+        // properties, so if we wrap it to ignore our secret keys, there should be
+        // no way (except guessing) to access those properties.
         var originalGetOPNs = Object.getOwnPropertyNames;
         Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
             for (var names = originalGetOPNs(object),
-                     src = 0,
-                     dst = 0,
-                     len = names.length;
-                 src < len;
-                 ++src) {
+                src = 0,
+                dst = 0,
+                len = names.length;
+                src < len;
+                ++src) {
                 if (!hasOwn.call(uniqueKeys, names[src])) {
                     if (src > dst) {
                         names[dst] = names[src];

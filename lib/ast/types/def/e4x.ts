@@ -13,8 +13,8 @@ module lib.ast.types {
         var geq = types.geq;
 
 
-// Note that none of these types are buildable because the Mozilla Parser
-// API doesn't specify any builder functions, and nobody uses E4X anymore.
+        // Note that none of these types are buildable because the Mozilla Parser
+        // API doesn't specify any builder functions, and nobody uses E4X anymore.
 
         def("XMLDefaultDeclaration")
             .bases("Declaration")

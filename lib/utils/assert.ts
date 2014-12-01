@@ -1,4 +1,4 @@
-﻿
+
 /// <reference path="logger.ts" />
 
 module lib {
@@ -59,7 +59,7 @@ module lib {
 
                 ok(aprops === bprops, msg);
 
-                aprops.forEach(function (prop) {
+                aprops.forEach(function(prop) {
                     ok(a.hasOwnProperty(prop), msg);
                     ok(b.hasOwnProperty(prop), msg);
                     deepEqual(a[prop], b[prop], msg);

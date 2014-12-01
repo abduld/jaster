@@ -9,8 +9,8 @@ module lib.ast.recast {
     var isObject = types.builtInTypes["object"];
     var childNodesCacheKey = lib.ast.recast.priv.makeUniqueKey();
 
-// TODO Move a non-caching implementation of this function into ast-types,
-// and implement a caching wrapper function here.
+    // TODO Move a non-caching implementation of this function into ast-types,
+    // and implement a caching wrapper function here.
     function getSortedChildNodes(node, resultArray?) {
         if (!node) {
             return;
@@ -23,7 +23,7 @@ module lib.ast.recast {
                 // nodes in order anyway.
                 for (var i = resultArray.length - 1; i >= 0; --i) {
                     if (comparePos(resultArray[i].loc.end,
-                            node.loc.start) <= 0) {
+                        node.loc.start) <= 0) {
                         break;
                     }
                 }
@@ -57,9 +57,9 @@ module lib.ast.recast {
         return resultArray;
     }
 
-// As efficiently as possible, decorate the comment object with
-// .precedingNode, .enclosingNode, and/or .followingNode properties, at
-// least one of which is guaranteed to be defined.
+    // As efficiently as possible, decorate the comment object with
+    // .precedingNode, .enclosingNode, and/or .followingNode properties, at
+    // least one of which is guaranteed to be defined.
     function decorateComment(node, comment) {
         var childNodes = getSortedChildNodes(node);
 
@@ -117,7 +117,7 @@ module lib.ast.recast {
 
         var tiesToBreak = [];
 
-        comments.forEach(function (comment) {
+        comments.forEach(function(comment) {
             comment.loc.lines = lines;
             decorateComment(ast, comment);
 
@@ -133,7 +133,7 @@ module lib.ast.recast {
                     assert.strictEqual(
                         lastTie.precedingNode === comment.precedingNode,
                         lastTie.followingNode === comment.followingNode
-                    );
+                        );
 
                     if (lastTie.followingNode !== comment.followingNode) {
                         breakTies(tiesToBreak, lines);
@@ -181,8 +181,8 @@ module lib.ast.recast {
         // comment must be separated from fn by an unbroken series of
         // whitespace-only gaps (or other comments).
         for (var indexOfFirstLeadingComment = tieCount;
-             indexOfFirstLeadingComment > 0;
-             --indexOfFirstLeadingComment) {
+            indexOfFirstLeadingComment > 0;
+            --indexOfFirstLeadingComment) {
             var comment = tiesToBreak[indexOfFirstLeadingComment - 1];
             assert.strictEqual(comment.precedingNode, pn);
             assert.strictEqual(comment.followingNode, fn);
@@ -197,15 +197,15 @@ module lib.ast.recast {
         }
 
         while (indexOfFirstLeadingComment <= tieCount &&
-        (comment = tiesToBreak[indexOfFirstLeadingComment]) &&
+            (comment = tiesToBreak[indexOfFirstLeadingComment]) &&
             // If the comment is a //-style comment and indented more
             // deeply than the node itself, reconsider it as trailing.
-        comment.type === "Line" &&
-        comment.loc.start.column > fn.loc.start.column) {
+            comment.type === "Line" &&
+            comment.loc.start.column > fn.loc.start.column) {
             ++indexOfFirstLeadingComment;
         }
 
-        tiesToBreak.forEach(function (comment, i) {
+        tiesToBreak.forEach(function(comment, i) {
             if (i < indexOfFirstLeadingComment) {
                 Comments.forNode(pn).addTrailing(comment);
             } else {
@@ -217,9 +217,9 @@ module lib.ast.recast {
     }
 
     export class Comments {
-        leading:any[];
-        dangling:any[];
-        trailing:any[];
+        leading: any[];
+        dangling: any[];
+        trailing: any[];
 
         constructor() {
             assert.ok(this instanceof Comments);
@@ -267,7 +267,7 @@ module lib.ast.recast {
     /**
      * @param {Object} options - Options object that configures printing.
      */
-    function printLeadingComment(comment, options) : Lines {
+    function printLeadingComment(comment, options): Lines {
         var loc = comment.loc;
         var lines = loc && loc.lines;
         var parts = [];
@@ -287,7 +287,7 @@ module lib.ast.recast {
             var trailingSpace = lines.slice(
                 loc.end,
                 lines.skipSpaces(loc.end)
-            );
+                );
 
             if (trailingSpace.length === 1) {
                 // If the trailing space contains no newlines, then we want to
@@ -339,7 +339,7 @@ module lib.ast.recast {
         return concat(parts).stripMargin(
             loc ? loc.start.column : 0,
             true // Skip the first line, in case there were leading spaces.
-        );
+            );
     }
 
     /**
@@ -359,13 +359,13 @@ module lib.ast.recast {
 
         var parts = [];
 
-        comments.leading.forEach(function (comment) {
+        comments.leading.forEach(function(comment) {
             parts.push(printLeadingComment(comment, options));
         });
 
         parts.push(innerLines);
 
-        comments.trailing.forEach(function (comment) {
+        comments.trailing.forEach(function(comment) {
             assert.strictEqual(comment.type, "Block");
             parts.push(printTrailingComment(comment, options));
         });

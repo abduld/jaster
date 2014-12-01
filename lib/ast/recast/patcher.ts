@@ -22,7 +22,7 @@ module lib.ast.recast {
         var self = this,
             replacements = [];
 
-        self.replace = function (loc, lines) {
+        self.replace = function(loc, lines) {
             if (isString.check(lines))
                 lines = fromString(lines);
 
@@ -33,7 +33,7 @@ module lib.ast.recast {
             });
         };
 
-        self.get = function (loc) {
+        self.get = function(loc) {
             // If no location is provided, return the complete Lines object.
             loc = loc || {
                 start: { line: 1, column: 0 },
@@ -51,9 +51,9 @@ module lib.ast.recast {
                 toConcat.push(lines.slice(from, to));
             }
 
-            replacements.sort(function (a, b) {
+            replacements.sort(function(a, b) {
                 return comparePos(a.start, b.start);
-            }).forEach(function (rep) {
+            }).forEach(function(rep) {
                     if (comparePos(sliceFrom, rep.start) > 0) {
                         // Ignore nested replacement ranges.
                     } else {
@@ -86,10 +86,10 @@ module lib.ast.recast {
         if (!lines || !findReprints(path, reprints))
             return;
 
-        return function (print) {
+        return function(print) {
             var patcher = new Patcher(lines);
 
-            reprints.forEach(function (reprint) {
+            reprints.forEach(function(reprint) {
                 var old = reprint.oldPath.value;
                 SourceLocation.assert(old.loc, true);
                 patcher.replace(

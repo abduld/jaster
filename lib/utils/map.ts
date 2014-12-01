@@ -29,24 +29,24 @@ module lib.utils {
             this.__data = {};
         }
 
-        get(key : K) : V {
+        get(key: K): V {
             var skey = '$' + key;
             if (this.__data.hasOwnProperty(skey)) {
                 return this.__data[skey];
             }
         }
 
-        has(key : K) {
+        has(key: K) {
             var skey = '$' + key;
             return this.__data.hasOwnProperty(skey);
         }
 
-        set(key : K, val : V) {
+        set(key: K, val: V) {
             var skey = '$' + key;
             this.__data[skey] = val;
         }
 
-        delete(key : K) {
+        delete(key: K) {
             var skey = '$' + key;
             return delete this.__data[skey];
         }

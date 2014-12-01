@@ -7,10 +7,10 @@ module lib.ast.recast {
     import Node = lib.ast.esprima.Syntax.Node;
     import sourceMap = lib.ast.sourcemap;
     var n = types.namedTypes;
-    var isArray:types.Type = types.builtInTypes["array"];
-    var isObject:types.Type = types.builtInTypes["object"];
-    var isString:types.Type = types.builtInTypes["string"];
-    var isFunction:types.Type = types.builtInTypes["function"];
+    var isArray: types.Type = types.builtInTypes["array"];
+    var isObject: types.Type = types.builtInTypes["object"];
+    var isString: types.Type = types.builtInTypes["string"];
+    var isFunction: types.Type = types.builtInTypes["function"];
     var b = types.builders;
 
     export function parse(source, options) {
@@ -49,8 +49,8 @@ module lib.ast.recast {
     };
 
     export class TreeCopier {
-        lines:Lines;
-        indent:number;
+        lines: Lines;
+        indent: number;
 
         constructor(lines) {
             assert.ok(this instanceof TreeCopier);

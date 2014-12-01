@@ -1,4 +1,4 @@
-﻿
+
 module lib {
     export module utils {
         export module detail {

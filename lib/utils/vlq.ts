@@ -38,7 +38,7 @@
 module lib.utils {
     export module vlq {
         import base64 = lib.utils.base64;
-// A single base 64 digit can contain 6 bits of data. For the base 64 variable
+        // A single base 64 digit can contain 6 bits of data. For the base 64 variable
         // length quantities we use in the source map spec, the first bit is the sign,
         // the next four bits are the actual value, and the 6th bit is the
         // continuation bit. The continuation bit tells us whether there are more
@@ -79,7 +79,7 @@ module lib.utils {
          *   2 (10 binary) becomes 1, 3 (11 binary) becomes -1
          *   4 (100 binary) becomes 2, 5 (101 binary) becomes -2
          */
-        function fromVLQSigned(aValue: number) : number {
+        function fromVLQSigned(aValue: number): number {
             var isNegative = (aValue & 1) === 1;
             var shifted = aValue >> 1;
             return isNegative
@@ -90,7 +90,7 @@ module lib.utils {
         /**
          * Returns the base 64 VLQ encoded value.
          */
-        export function encode(aValue : any) : string{
+        export function encode(aValue: any): string {
             var encoded = "";
             var digit;
 
@@ -118,7 +118,7 @@ module lib.utils {
          * Decodes the next base 64 VLQ value from the given string and returns the
          * value and the rest of the string via the out parameter.
          */
-        export function decode(aStr : string, aOutParam : DecodeType) {
+        export function decode(aStr: string, aOutParam: DecodeType) {
             var i = 0;
             var strLen = aStr.length;
             var result = 0;

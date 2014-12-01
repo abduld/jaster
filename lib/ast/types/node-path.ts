@@ -266,7 +266,7 @@ module lib.ast {
 
         Object.defineProperties(NodePath.prototype, {
             node: {
-                get: function () {
+                get: function() {
                     Object.defineProperty(this, "node", {
                         configurable: true, // Enable deletion.
                         value: this._computeNode()
@@ -277,7 +277,7 @@ module lib.ast {
             },
 
             parent: {
-                get: function () {
+                get: function() {
                     Object.defineProperty(this, "parent", {
                         configurable: true, // Enable deletion.
                         value: this._computeParent()
@@ -288,7 +288,7 @@ module lib.ast {
             },
 
             scope: {
-                get: function () {
+                get: function() {
                     Object.defineProperty(this, "scope", {
                         configurable: true, // Enable deletion.
                         value: this._computeScope()
@@ -323,8 +323,8 @@ module lib.ast {
             [">>", "<<", ">>>"],
             ["+", "-"],
             ["*", "/", "%"]
-        ].forEach(function (tier, i) {
-                tier.forEach(function (op) {
+        ].forEach(function(tier, i) {
+                tier.forEach(function(op) {
                     PRECEDENCE[op] = i;
                 });
             });
@@ -339,7 +339,7 @@ module lib.ast {
             }
 
             if (n["Node"].check(node)) {
-                return types.someField(node, function (name, child) {
+                return types.someField(node, function(name, child) {
                     return containsCallExpression(child);
                 });
             }

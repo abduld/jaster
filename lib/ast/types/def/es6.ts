@@ -18,7 +18,7 @@ module lib.ast.types {
             .field("generator", isBoolean, defaults["false"])
             .field("expression", isBoolean, defaults["false"])
             .field("defaults", [or(def("Expression"), null)], defaults.emptyArray)
-            // TODO This could be represented as a SpreadElementPattern in .params.
+        // TODO This could be represented as a SpreadElementPattern in .params.
             .field("rest", or(def("Identifier"), null), defaults["null"]);
 
         def("FunctionDeclaration")
@@ -27,16 +27,16 @@ module lib.ast.types {
         def("FunctionExpression")
             .build("id", "params", "body", "generator", "expression");
 
-// TODO The Parser API calls this ArrowExpression, but Esprima uses
-// ArrowFunctionExpression.
+        // TODO The Parser API calls this ArrowExpression, but Esprima uses
+        // ArrowFunctionExpression.
         def("ArrowFunctionExpression")
             .bases("Function", "Expression")
             .build("params", "body", "expression")
-            // The forced null value here is compatible with the overridden
-            // definition of the "id" field in the Function interface.
+        // The forced null value here is compatible with the overridden
+        // definition of the "id" field in the Function interface.
             .field("id", null, defaults["null"])
-            // The current spec forbids arrow generators, so I have taken the
-            // liberty of enforcing that. TODO Report this.
+        // The current spec forbids arrow generators, so I have taken the
+        // liberty of enforcing that. TODO Report this.
             .field("generator", false);
 
         def("YieldExpression")
@@ -72,7 +72,7 @@ module lib.ast.types {
             .field("value", isString);
 
         def("Property")
-            // Esprima extensions not mentioned in the Mozilla Parser API:
+        // Esprima extensions not mentioned in the Mozilla Parser API:
             .field("key", or(def("Literal"), def("Identifier"), def("Expression")))
             .field("method", isBoolean, defaults["false"])
             .field("shorthand", isBoolean, defaults["false"])
@@ -114,7 +114,7 @@ module lib.ast.types {
             def("VariableDeclarator"),
             def("ClassPropertyDefinition"),
             def("ClassProperty")
-        );
+            );
 
         def("ClassProperty")
             .bases("Declaration")
@@ -125,7 +125,7 @@ module lib.ast.types {
         def("ClassPropertyDefinition") // static property
             .bases("Declaration")
             .build("definition")
-            // Yes, Virginia, circular definitions are permitted.
+        // Yes, Virginia, circular definitions are permitted.
             .field("definition", ClassBodyElement);
 
         def("ClassBody")
@@ -154,39 +154,39 @@ module lib.ast.types {
             .field("id", def("Identifier"))
             .field("superClass", or(def("Expression"), null), defaults["null"]);
 
-// Specifier and NamedSpecifier are abstract non-standard types that I
-// introduced for definitional convenience.
+        // Specifier and NamedSpecifier are abstract non-standard types that I
+        // introduced for definitional convenience.
         def("Specifier").bases("Node");
         def("NamedSpecifier")
             .bases("Specifier")
-            // Note: this abstract type is intentionally not buildable.
+        // Note: this abstract type is intentionally not buildable.
             .field("id", def("Identifier"))
             .field("name", or(def("Identifier"), null), defaults["null"]);
 
-// Like NamedSpecifier, except type:"ExportSpecifier" and buildable.
-// export {<id [as name]>} [from ...];
+        // Like NamedSpecifier, except type:"ExportSpecifier" and buildable.
+        // export {<id [as name]>} [from ...];
         def("ExportSpecifier")
             .bases("NamedSpecifier")
             .build("id", "name");
 
-// export <*> from ...;
+        // export <*> from ...;
         def("ExportBatchSpecifier")
             .bases("Specifier")
             .build();
 
-// Like NamedSpecifier, except type:"ImportSpecifier" and buildable.
-// import {<id [as name]>} from ...;
+        // Like NamedSpecifier, except type:"ImportSpecifier" and buildable.
+        // import {<id [as name]>} from ...;
         def("ImportSpecifier")
             .bases("NamedSpecifier")
             .build("id", "name");
 
-// import <* as id> from ...;
+        // import <* as id> from ...;
         def("ImportNamespaceSpecifier")
             .bases("Specifier")
             .build("id")
             .field("id", def("Identifier"));
 
-// import <id> from ...;
+        // import <id> from ...;
         def("ImportDefaultSpecifier")
             .bases("Specifier")
             .build("id")
@@ -200,11 +200,11 @@ module lib.ast.types {
                 def("Declaration"),
                 def("Expression"), // Implies default.
                 null
-            ))
+                ))
             .field("specifiers", [or(
                 def("ExportSpecifier"),
                 def("ExportBatchSpecifier")
-            )], defaults.emptyArray)
+                )], defaults.emptyArray)
             .field("source", or(def("ModuleSpecifier"), null), defaults["null"]);
 
         def("ImportDeclaration")
@@ -214,7 +214,7 @@ module lib.ast.types {
                 def("ImportSpecifier"),
                 def("ImportNamespaceSpecifier"),
                 def("ImportDefaultSpecifier")
-            )], defaults.emptyArray)
+                )], defaults.emptyArray)
             .field("source", def("ModuleSpecifier"));
 
         def("TaggedTemplateExpression")
@@ -231,7 +231,7 @@ module lib.ast.types {
         def("TemplateElement")
             .bases("Node")
             .build("value", "tail")
-            .field("value", {"cooked": isString, "raw": isString})
+            .field("value", { "cooked": isString, "raw": isString })
             .field("tail", isBoolean);
     }
 }

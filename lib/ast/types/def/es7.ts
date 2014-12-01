@@ -32,7 +32,7 @@ module lib.ast.types {
             .field("properties", [or(
                 def("PropertyPattern"),
                 def("SpreadPropertyPattern")
-            )]);
+                )]);
 
         def("AwaitExpression")
             .bases("Expression")

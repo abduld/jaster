@@ -12,10 +12,10 @@ module lib.ast.types {
     var map = Array.prototype.map;
 
     export class Path {
-        value:any;
-        parentPath:any;
-        name:any;
-        __childCache:any;
+        value: any;
+        parentPath: any;
+        name: any;
+        __childCache: any;
 
         constructor(value, parentPath, name) {
             assert.ok(this instanceof Path);
@@ -43,8 +43,8 @@ module lib.ast.types {
             this.__childCache = null;
         }
 
-// This method is designed to be overridden by subclasses that need to
-// handle missing properties, etc.
+        // This method is designed to be overridden by subclasses that need to
+        // handle missing properties, etc.
         getValueProperty(name) {
             return this.value[name];
         }
@@ -88,7 +88,7 @@ module lib.ast.types {
         map(callback, context) {
             var result = [];
 
-            this.each(function (childPath) {
+            this.each(function(childPath) {
                 result.push(callback.call(this, childPath));
             }, context);
 
@@ -98,7 +98,7 @@ module lib.ast.types {
         filter(callback, context) {
             var result = [];
 
-            this.each(function (childPath) {
+            this.each(function(childPath) {
                 if (callback.call(this, childPath)) {
                     result.push(childPath);
                 }
@@ -197,7 +197,7 @@ module lib.ast.types {
                 assert.strictEqual(
                     parentValue.length,
                     originalLength - 1 + count
-                );
+                    );
 
                 move();
 
@@ -256,11 +256,11 @@ module lib.ast.types {
         var actualChildValue = path.getValueProperty(name);
         var childPath = cache[name];
         if (!hasOwn.call(cache, name) ||
-                // Ensure consistency between cache and reality.
+            // Ensure consistency between cache and reality.
             childPath.value !== actualChildValue) {
             childPath = cache[name] = new path.constructor(
                 actualChildValue, path, name
-            );
+                );
         }
         return childPath;
     }
@@ -311,7 +311,7 @@ module lib.ast.types {
 
         delete cache.length;
 
-        return function () {
+        return function() {
             for (var newIndex in moves) {
                 var childPath = moves[newIndex];
                 assert.strictEqual(childPath.name, +newIndex);

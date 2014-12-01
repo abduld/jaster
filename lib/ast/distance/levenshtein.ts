@@ -1,4 +1,4 @@
-﻿
+
 /*
 
 This is free and unencumbered software released into the public domain.
@@ -45,11 +45,11 @@ module lib.ast {
                 else {
                     // Danger Will Robinson
                     previous = [0]
-                    _.each(str_m, function (v, i) { i++, previous[i] = i })
+                    _.each(str_m, function(v, i) { i++, previous[i] = i })
                     matrix[0] = previous
-                    _.each(str_n, function (n_val, n_idx) {
+                    _.each(str_n, function(n_val, n_idx) {
                         current = [++n_idx]
-                        _.each(str_m, function (m_val, m_idx) {
+                        _.each(str_m, function(m_val, m_idx) {
                             m_idx++
                             if (str_m.charAt(m_idx - 1) == str_n.charAt(n_idx - 1))
                                 current[m_idx] = previous[m_idx - 1]
@@ -75,9 +75,9 @@ module lib.ast {
                 while (sep.length < (matrix[0] && matrix[0].length || 0))
                     sep[sep.length] = Array(buff.length + 1).join('-')
                 sep = sep.join('-+') + '-'
-                rows = _.map(matrix, function (row : number[]) {
+                rows = _.map(matrix, function(row: number[]) {
                     var cells
-                    cells = _.map(row, function (cell) {
+                    cells = _.map(row, function(cell) {
                         return (buff + cell).slice(- buff.length)
                     })
                     return cells.join(' |') + ' '

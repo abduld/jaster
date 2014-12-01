@@ -1,4 +1,4 @@
-﻿
+
 /// <reference path="./logger.ts" />
 /// <reference path="./assert.ts" />
 /// <reference path="./rand.ts" />
@@ -20,6 +20,8 @@
 /// <reference path="./hash.ts" />
 /// <reference path="./internal.ts" />
 /// <reference path="./functional.ts" />
+/// <reference path="./format.ts" />
+/// <reference path="./platform.ts" />
 
 
 module lib {
@@ -119,11 +121,11 @@ module lib {
 
         export function backtrace() {
             //return "Uncomment Debug.backtrace();";
-          try {
-            throw new Error();
-          } catch (e) {
-            return e.stack ? e.stack.split('\n').slice(2).join('\n') : '';
-          }
+            try {
+                throw new Error();
+            } catch (e) {
+                return e.stack ? e.stack.split('\n').slice(2).join('\n') : '';
+            }
         }
 
         export function getTicks(): number {
@@ -132,7 +134,7 @@ module lib {
 
         // Creates and initializes *JavaScript* array to *val* in each element slot.
         // Like memset, but for arrays.
-        export function arrayset<T>(len: number, val : T): T[] {
+        export function arrayset<T>(len: number, val: T): T[] {
             var array = new Array(len);
             for (var i = 0; i < len; i++) {
                 array[i] = val;

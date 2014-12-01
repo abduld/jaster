@@ -54,7 +54,7 @@ export class Component<P, S> implements React.Specification<P, S>, React.Compone
     }
 }
 
-var ILLEGAL_KEYS: {[key: string]: boolean} = {
+var ILLEGAL_KEYS: { [key: string]: boolean } = {
     constructor: true,
     refs: true,
     props: true,

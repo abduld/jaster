@@ -1,4 +1,4 @@
-﻿
+
 /*
 This is free and unencumbered software released into the public domain.
 
@@ -33,16 +33,16 @@ module lib.utils {
         // ES5 Polyfills
         // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
         if (!Function.prototype.bind) {
-            Function.prototype.bind = function (oThis) {
+            Function.prototype.bind = function(oThis) {
                 if (typeof this !== 'function') {
                     throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
                 }
 
                 var aArgs = Array.prototype.slice.call(arguments, 1);
                 var fToBind = this;
-                var NoOp = function () {
+                var NoOp = function() {
                 };
-                var fBound = function () {
+                var fBound = function() {
                     return fToBind.apply(this instanceof NoOp && oThis ? this : oThis,
                         aArgs.concat(Array.prototype.slice.call(arguments)));
                 };
@@ -56,7 +56,7 @@ module lib.utils {
 
         // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
         if (!Array.prototype.map) {
-            Array.prototype.map = function (callback, thisArg) {
+            Array.prototype.map = function(callback, thisArg) {
                 if (this === void 0 || this === null) {
                     throw new TypeError("this is null or not defined");
                 }
@@ -89,7 +89,7 @@ module lib.utils {
 
         // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
         if (!Array.prototype.filter) {
-            Array.prototype.filter = function (callback/*, thisArg*/) {
+            Array.prototype.filter = function(callback/*, thisArg*/) {
                 if (this === void 0 || this === null) {
                     throw new TypeError("this is null or not defined");
                 }
@@ -154,7 +154,7 @@ module lib.utils {
                 },
 
                 parseV8OrIE: function ErrorStackParser$$parseV8OrIE(error) {
-                    return error.stack.split('\n').slice(1).map(function (line) {
+                    return error.stack.split('\n').slice(1).map(function(line) {
                         var tokens = line.replace(/^\s+/, '').split(/\s+/).slice(1);
                         var locationParts = this.extractLocation(tokens.pop().replace(/[\(\)\s]/g, ''));
                         var functionName = (!tokens[0] || tokens[0] === 'Anonymous') ? undefined : tokens[0];
@@ -163,9 +163,9 @@ module lib.utils {
                 },
 
                 parseFFOrSafari: function ErrorStackParser$$parseFFOrSafari(error) {
-                    return error.stack.split('\n').filter(function (line) {
+                    return error.stack.split('\n').filter(function(line) {
                         return !!line.match(FIREFOX_SAFARI_STACK_REGEXP);
-                    }.bind(this)).map(function (line) {
+                    }.bind(this)).map(function(line) {
                             var tokens = line.split('@');
                             var locationParts = this.extractLocation(tokens.pop());
                             var functionName = tokens.shift() || undefined;
@@ -218,9 +218,9 @@ module lib.utils {
 
                 // Opera 10.65+ Error.stack very similar to FF/Safari
                 parseOpera11: function ErrorStackParser$$parseOpera11(error) {
-                    return error.stack.split('\n').filter(function (line) {
+                    return error.stack.split('\n').filter(function(line) {
                         return !!line.match(FIREFOX_SAFARI_STACK_REGEXP);
-                    }.bind(this)).map(function (line) {
+                    }.bind(this)).map(function(line) {
                             var tokens = line.split('@');
                             var locationParts = this.extractLocation(tokens.pop());
                             var functionCall = (tokens.shift() || '');

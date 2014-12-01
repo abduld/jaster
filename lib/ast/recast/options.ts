@@ -57,7 +57,7 @@ module lib.ast.recast {
         tolerant: true
     }, hasOwn = defaults.hasOwnProperty;
 
-// Copy options and fill in default values.
+    // Copy options and fill in default values.
     export function normalize(options) {
         options = options || defaults;
 

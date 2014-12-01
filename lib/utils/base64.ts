@@ -8,7 +8,7 @@ module lib.utils {
 
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
             .split('')
-            .forEach(function (ch, index) {
+            .forEach(function(ch, index) {
                 charToIntMap[ch] = index;
                 intToCharMap[index] = ch;
             });

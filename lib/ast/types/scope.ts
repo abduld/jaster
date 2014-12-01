@@ -169,12 +169,12 @@ module lib.ast {
                 // None of the remaining cases matter if node is falsy.
 
             } else if (isArray.check(node)) {
-                path.each(function (childPath) {
+                path.each(function(childPath) {
                     recursiveScanChild(childPath, bindings);
                 });
 
             } else if (namedTypes["Function"].check(node)) {
-                path.get("params").each(function (paramPath) {
+                path.get("params").each(function(paramPath) {
                     addPattern(paramPath, bindings);
                 });
 
@@ -193,7 +193,7 @@ module lib.ast {
                     );
 
             } else if (Node.check(node) && !Expression.check(node)) {
-                types.eachField(node, function (name, child) {
+                types.eachField(node, function(name, child) {
                     var childPath = path.get(name);
                     assert.strictEqual(childPath.value, child);
                     recursiveScanChild(childPath, bindings);

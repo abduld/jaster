@@ -1,4 +1,4 @@
-﻿
+
 /// <reference path='../../utils/utils.ts' />
 
 module lib.c {
@@ -48,7 +48,7 @@ module lib.c {
                     this.data.setInt32(2 * idx + 1, i64.getLow());
                     return this.get(idx);
                 } else if (val instanceof Object) {
-                    var tmp: CLiteral= utils.castTo<CLiteral>(val);
+                    var tmp: CLiteral = utils.castTo<CLiteral>(val);
                     val = tmp.getValue()[0];
                 }
 
@@ -75,7 +75,7 @@ module lib.c {
                     case CLiteralKind.Uint32:
                         this.data.setUint32(idx, val);
                         break;
-                }                                                
+                }
                 return this.get(idx);
             }
             ref(): Reference {

@@ -116,17 +116,17 @@ module lib.ast {
         }
 
 
-        objectCreate = Object.create || (function () {
+        objectCreate = Object.create || (function() {
             function F() {
             }
 
-            return function (o) {
+            return function(o) {
                 F.prototype = o;
                 return new F();
             };
         })();
 
-        objectKeys = Object.keys || function (o) {
+        objectKeys = Object.keys || function(o) {
             var keys = [], key;
             for (key in o) {
                 keys.push(key);
@@ -135,7 +135,7 @@ module lib.ast {
         };
 
         function extend(to, from) {
-            objectKeys(from).forEach(function (key) {
+            objectKeys(from).forEach(function(key) {
                 to[key] = from[key];
             });
             return to;
@@ -317,14 +317,14 @@ module lib.ast {
         class Controller {
 
 
-            visitor:any;
-            root:any;
-            private __worklist:any[];
-            private __leavelist:any[];
-            private __current:any;
-            private __state:any;
-            private __fallback:any;
-            private __keys:any;
+            visitor: any;
+            root: any;
+            private __worklist: any[];
+            private __leavelist: any[];
+            private __current: any;
+            private __state: any;
+            private __fallback: any;
+            private __keys: any;
 
             constructor() {
             }
@@ -764,7 +764,7 @@ module lib.ast {
             // This is based on John Freeman's implementation.
             cursor = 0;
             traverse(tree, {
-                enter: function (node) {
+                enter: function(node) {
                     var comment;
 
                     while (cursor < comments.length) {
@@ -797,7 +797,7 @@ module lib.ast {
 
             cursor = 0;
             traverse(tree, {
-                leave: function (node) {
+                leave: function(node) {
                     var comment;
 
                     while (cursor < comments.length) {

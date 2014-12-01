@@ -1,4 +1,4 @@
-﻿
+
 /// <reference path='../../utils/utils.ts' />
 /// <reference path='detail.ts' />
 

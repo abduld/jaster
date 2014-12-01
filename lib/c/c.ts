@@ -1,4 +1,4 @@
-﻿/// <reference path="./type/type.ts" />
+/// <reference path="./type/type.ts" />
 
 module lib {
     export module c {
