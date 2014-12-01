@@ -3,7 +3,7 @@ module lib {
     export module utils {
         export module detail {
 
-            enum LogType {
+            export enum LogType {
                 Debug = 0,
                 Trace = 1,
                 Warn = 2,

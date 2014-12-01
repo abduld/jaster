@@ -133,15 +133,15 @@ module lib.utils {
 
         var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-        export function hasProperty<T>(map: Map<T>, key: string): boolean {
+        export function hasProperty<T>(map: Map<string, T>, key: string): boolean {
             return hasOwnProperty.call(map, key);
         }
 
-        export function getProperty<T>(map: Map<T>, key: string): T {
+        export function getProperty<T>(map: Map<string, T>, key: string): T {
             return hasOwnProperty.call(map, key) ? map[key] : undefined;
         }
 
-        export function isEmpty<T>(map: Map<T>) {
+        export function isEmpty<T>(map: Map<string, T>) {
             for (var id in map) {
                 if (hasProperty(map, id)) {
                     return false;
@@ -158,7 +158,7 @@ module lib.utils {
             return <T>result;
         }
 
-        export function forEachValue<T, U>(map: Map<T>, callback: (value: T) => U): U {
+        export function forEachValue<T, U>(map: Map<string, T>, callback: (value: T) => U): U {
             var result: U;
             for (var id in map) {
                 if (result = callback(map[id])) break;
@@ -166,7 +166,7 @@ module lib.utils {
             return result;
         }
 
-        export function forEachKey<T, U>(map: Map<T>, callback: (key: string) => U): U {
+        export function forEachKey<T, U>(map: Map<string, T>, callback: (key: string) => U): U {
             var result: U;
             for (var id in map) {
                 if (result = callback(id)) break;
@@ -174,11 +174,11 @@ module lib.utils {
             return result;
         }
 
-        export function lookUp<T>(map: Map<T>, key: string): T {
+        export function lookUp<T>(map: Map<string, T>, key: string): T {
             return hasProperty(map, key) ? map[key] : undefined;
         }
 
-        export function mapToArray<T>(map: Map<T>): T[] {
+        export function mapToArray<T>(map: Map<string, T>): T[] {
             var result: T[] = [];
 
             for (var id in map) {

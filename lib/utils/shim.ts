@@ -17,7 +17,7 @@ module lib {
             if (number === 0 || !math.isFinite(number)) { return number; }
             return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
         }
-        module numberConversion {
+        export module numberConversion {
             // from https://github.com/inexorabletash/polyfill/blob/master/typedarray.js#L176-L266
             // with permission and license, per https://twitter.com/inexorabletash/status/372206509540659200
 

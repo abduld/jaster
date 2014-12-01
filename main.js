@@ -4,14 +4,14 @@ var lib;
     (function (utils) {
         var detail;
         (function (detail) {
-            var LogType;
             (function (LogType) {
                 LogType[LogType["Debug"] = 0] = "Debug";
                 LogType[LogType["Trace"] = 1] = "Trace";
                 LogType[LogType["Warn"] = 2] = "Warn";
                 LogType[LogType["Error"] = 3] = "Error";
                 LogType[LogType["Fatal"] = 4] = "Fatal";
-            })(LogType || (LogType = {}));
+            })(detail.LogType || (detail.LogType = {}));
+            var LogType = detail.LogType;
             var Logger = (function () {
                 function Logger(level) {
                     if (level) {
@@ -163,6 +163,46 @@ var lib;
             });
         }
         utils.applyMixins = applyMixins;
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var detail;
+        (function (detail) {
+            var randArray = new Uint8Array(16);
+            var makeRandom = function () {
+                for (var i = 0, r; i < 16; i++) {
+                    if ((i & 0x03) === 0)
+                        r = Math.random() * 0x100000000;
+                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
+                }
+                return randArray;
+            };
+            // Maps for number <-> hex string conversion
+            var byteToHex = [];
+            var hexToByte = {};
+            for (var i = 0; i < 256; i++) {
+                byteToHex[i] = (i + 0x100).toString(16).substr(1);
+                hexToByte[byteToHex[i]] = i;
+            }
+            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
+            function unparse(buf) {
+                var i = 0, bth = byteToHex;
+                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
+            }
+            function guuid() {
+                var rnds = makeRandom();
+                rnds[6] = (rnds[6] & 0x0f) | 0x40;
+                rnds[8] = (rnds[8] & 0x3f) | 0x80;
+                return unparse(rnds);
+            }
+            detail.guuid = guuid;
+        })(detail = utils.detail || (utils.detail = {}));
+        utils.guuid = detail.guuid;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
 var lib;
@@ -9739,46 +9779,6 @@ var lib;
         parallel.ParallelWorker = ParallelWorker;
     })(parallel = lib.parallel || (lib.parallel = {}));
 })(lib || (lib = {}));
-/// <reference path="../ref.ts" />
-/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
-var lib;
-(function (lib) {
-    var utils;
-    (function (utils) {
-        var detail;
-        (function (detail) {
-            var randArray = new Uint8Array(16);
-            var makeRandom = function () {
-                for (var i = 0, r; i < 16; i++) {
-                    if ((i & 0x03) === 0)
-                        r = Math.random() * 0x100000000;
-                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
-                }
-                return randArray;
-            };
-            // Maps for number <-> hex string conversion
-            var byteToHex = [];
-            var hexToByte = {};
-            for (var i = 0; i < 256; i++) {
-                byteToHex[i] = (i + 0x100).toString(16).substr(1);
-                hexToByte[byteToHex[i]] = i;
-            }
-            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
-            function unparse(buf) {
-                var i = 0, bth = byteToHex;
-                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
-            }
-            function guuid() {
-                var rnds = makeRandom();
-                rnds[6] = (rnds[6] & 0x0f) | 0x40;
-                rnds[8] = (rnds[8] & 0x3f) | 0x80;
-                return unparse(rnds);
-            }
-            detail.guuid = guuid;
-        })(detail = utils.detail || (utils.detail = {}));
-        utils.guuid = detail.guuid;
-    })(utils = lib.utils || (lib.utils = {}));
-})(lib || (lib = {}));
 /// <reference path="./lib/ref.ts" />
 var app;
 (function (app) {
@@ -14569,121 +14569,6 @@ var lib;
         })(utils = ast.utils || (ast.utils = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var memory;
-        (function (memory) {
-            (function (AddressSpace) {
-                AddressSpace[AddressSpace["Shared"] = 0] = "Shared";
-                AddressSpace[AddressSpace["Global"] = 1] = "Global";
-                AddressSpace[AddressSpace["Host"] = 2] = "Host";
-            })(memory.AddressSpace || (memory.AddressSpace = {}));
-            var AddressSpace = memory.AddressSpace;
-            ;
-            var CLiteralKind = lib.c.type.detail.CLiteralKind;
-            var Reference = (function () {
-                function Reference(id, addressSpace, data) {
-                    this.id = id;
-                    this.addressSpace = addressSpace;
-                    this.data = data;
-                    this.KIND = 10 /* Int8 */;
-                }
-                Reference.prototype.get = function (idx) {
-                    switch (this.KIND) {
-                        case 10 /* Int8 */:
-                            return new lib.c.type.Int8(this.data.getInt8(idx));
-                        case 20 /* Int16 */:
-                            return new lib.c.type.Int16(this.data.getInt16(idx));
-                        case 30 /* Int32 */:
-                            return new lib.c.type.Int32(this.data.getInt32(idx));
-                        case 40 /* Int64 */:
-                            return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
-                        case 11 /* Uint8 */:
-                            return new lib.c.type.Uint8(this.data.getUint8(idx));
-                        case 21 /* Uint16 */:
-                            return new lib.c.type.Uint16(this.data.getUint16(idx));
-                        case 31 /* Uint32 */:
-                            return new lib.c.type.Uint32(this.data.getUint32(idx));
-                    }
-                };
-                Reference.prototype.set = function (idx, val) {
-                    if (val instanceof lib.c.type.Int64) {
-                        var i64 = lib.utils.castTo(val);
-                        this.data.setInt32(2 * idx, i64.getHigh());
-                        this.data.setInt32(2 * idx + 1, i64.getLow());
-                        return this.get(idx);
-                    }
-                    else if (val instanceof Object) {
-                        var tmp = lib.utils.castTo(val);
-                        val = tmp.getValue()[0];
-                    }
-                    switch (this.KIND) {
-                        case 10 /* Int8 */:
-                            this.data.setInt8(idx, val);
-                            break;
-                        case 20 /* Int16 */:
-                            this.data.setInt16(idx, val);
-                            break;
-                        case 30 /* Int32 */:
-                            this.data.setInt32(idx, val);
-                            break;
-                        case 40 /* Int64 */:
-                            this.data.setInt32(2 * idx, 0);
-                            this.data.setInt32(2 * idx + 1, val);
-                            break;
-                        case 11 /* Uint8 */:
-                            this.data.setUint8(idx, val);
-                            break;
-                        case 21 /* Uint16 */:
-                            this.data.setUint16(idx, val);
-                            break;
-                        case 31 /* Uint32 */:
-                            this.data.setUint32(idx, val);
-                            break;
-                    }
-                    return this.get(idx);
-                };
-                Reference.prototype.ref = function () {
-                    return new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.data.buffer, 0, 1));
-                };
-                Reference.prototype.deref = function () {
-                    return this.get(0);
-                };
-                return Reference;
-            })();
-            memory.Reference = Reference;
-            var MB = 1024;
-            var MemoryManager = (function () {
-                function MemoryManager(addressSpace) {
-                    this.memoryOffset = 0;
-                    this.TOTAL_MEMORY = 10 * MB;
-                    this.addressSpace = addressSpace;
-                    this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
-                }
-                MemoryManager.prototype.malloc = function (n) {
-                    var buffer = new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.memory, this.memoryOffset, this.memoryOffset + n));
-                    //this.memmap.set(buffer.id, buffer);
-                    this.memoryOffset += n;
-                    return buffer;
-                };
-                MemoryManager.prototype.free = function (mem) {
-                    mem = undefined;
-                };
-                MemoryManager.prototype.ref = function (obj) {
-                    return "todo";
-                };
-                MemoryManager.prototype.deref = function (mem) {
-                    return mem[0];
-                };
-                return MemoryManager;
-            })();
-            memory.MemoryManager = MemoryManager;
-        })(memory = c.memory || (c.memory = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
 /// <reference path="../../ref.ts" />
 var lib;
 (function (lib) {
@@ -14865,6 +14750,121 @@ var lib;
             exec.Warp = Warp;
         })(exec = cuda.exec || (cuda.exec = {}));
     })(cuda = lib.cuda || (lib.cuda = {}));
+})(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var memory;
+        (function (memory) {
+            (function (AddressSpace) {
+                AddressSpace[AddressSpace["Shared"] = 0] = "Shared";
+                AddressSpace[AddressSpace["Global"] = 1] = "Global";
+                AddressSpace[AddressSpace["Host"] = 2] = "Host";
+            })(memory.AddressSpace || (memory.AddressSpace = {}));
+            var AddressSpace = memory.AddressSpace;
+            ;
+            var CLiteralKind = lib.c.type.detail.CLiteralKind;
+            var Reference = (function () {
+                function Reference(id, addressSpace, data) {
+                    this.id = id;
+                    this.addressSpace = addressSpace;
+                    this.data = data;
+                    this.KIND = 10 /* Int8 */;
+                }
+                Reference.prototype.get = function (idx) {
+                    switch (this.KIND) {
+                        case 10 /* Int8 */:
+                            return new lib.c.type.Int8(this.data.getInt8(idx));
+                        case 20 /* Int16 */:
+                            return new lib.c.type.Int16(this.data.getInt16(idx));
+                        case 30 /* Int32 */:
+                            return new lib.c.type.Int32(this.data.getInt32(idx));
+                        case 40 /* Int64 */:
+                            return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
+                        case 11 /* Uint8 */:
+                            return new lib.c.type.Uint8(this.data.getUint8(idx));
+                        case 21 /* Uint16 */:
+                            return new lib.c.type.Uint16(this.data.getUint16(idx));
+                        case 31 /* Uint32 */:
+                            return new lib.c.type.Uint32(this.data.getUint32(idx));
+                    }
+                };
+                Reference.prototype.set = function (idx, val) {
+                    if (val instanceof lib.c.type.Int64) {
+                        var i64 = lib.utils.castTo(val);
+                        this.data.setInt32(2 * idx, i64.getHigh());
+                        this.data.setInt32(2 * idx + 1, i64.getLow());
+                        return this.get(idx);
+                    }
+                    else if (val instanceof Object) {
+                        var tmp = lib.utils.castTo(val);
+                        val = tmp.getValue()[0];
+                    }
+                    switch (this.KIND) {
+                        case 10 /* Int8 */:
+                            this.data.setInt8(idx, val);
+                            break;
+                        case 20 /* Int16 */:
+                            this.data.setInt16(idx, val);
+                            break;
+                        case 30 /* Int32 */:
+                            this.data.setInt32(idx, val);
+                            break;
+                        case 40 /* Int64 */:
+                            this.data.setInt32(2 * idx, 0);
+                            this.data.setInt32(2 * idx + 1, val);
+                            break;
+                        case 11 /* Uint8 */:
+                            this.data.setUint8(idx, val);
+                            break;
+                        case 21 /* Uint16 */:
+                            this.data.setUint16(idx, val);
+                            break;
+                        case 31 /* Uint32 */:
+                            this.data.setUint32(idx, val);
+                            break;
+                    }
+                    return this.get(idx);
+                };
+                Reference.prototype.ref = function () {
+                    return new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.data.buffer, 0, 1));
+                };
+                Reference.prototype.deref = function () {
+                    return this.get(0);
+                };
+                return Reference;
+            })();
+            memory.Reference = Reference;
+            var MB = 1024;
+            var MemoryManager = (function () {
+                function MemoryManager(addressSpace) {
+                    this.memoryOffset = 0;
+                    this.TOTAL_MEMORY = 10 * MB;
+                    this.addressSpace = addressSpace;
+                    this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
+                }
+                MemoryManager.prototype.malloc = function (n) {
+                    var buffer = new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.memory, this.memoryOffset, this.memoryOffset + n));
+                    //this.memmap.set(buffer.id, buffer);
+                    this.memoryOffset += n;
+                    return buffer;
+                };
+                MemoryManager.prototype.free = function (mem) {
+                    mem = undefined;
+                };
+                MemoryManager.prototype.ref = function (obj) {
+                    return "todo";
+                };
+                MemoryManager.prototype.deref = function (mem) {
+                    return mem[0];
+                };
+                return MemoryManager;
+            })();
+            memory.MemoryManager = MemoryManager;
+        })(memory = c.memory || (c.memory = {}));
+    })(c = lib.c || (lib.c = {}));
 })(lib || (lib = {}));
 /// <reference path="../ref.ts" />
 var System;
@@ -15868,7 +15868,7 @@ var lib;
                     return float32array[0];
                 };
             }
-        })(numberConversion || (numberConversion = {}));
+        })(numberConversion = utils.numberConversion || (utils.numberConversion = {}));
         utils.toFloat32 = numberConversion.toFloat32;
         function isCallableWithoutNew(func) {
             try {
