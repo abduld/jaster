@@ -21,7 +21,6 @@
 /// <reference path="./internal.ts" />
 /// <reference path="./functional.ts" />
 /// <reference path="./format.ts" />
-/// <reference path="./platform.ts" />
 
 
 module lib {
