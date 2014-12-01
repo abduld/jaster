@@ -1,4 +1,5 @@
 /// <reference path="path.ts" />
+/// <reference path="scope.ts" />
 module lib.ast {
     export module types {
         import Node = lib.ast.esprima.Syntax.Node;

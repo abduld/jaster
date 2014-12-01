@@ -20,7 +20,6 @@ module lib.ast {
 
             constructor(path, parentScope) {
                 assert.ok(this instanceof Scope);
-                assert.ok(path instanceof require("./node-path"));
                 ScopeType.assert(path.value);
 
                 var depth;

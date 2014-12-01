@@ -1,3 +1,6 @@
+
+
+/// <reference path="comments.ts" />
 module lib.ast.recast {
     import types = lib.ast.types;
     import assert = lib.utils.assert;

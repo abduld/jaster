@@ -31,7 +31,8 @@
 
 // from https://github.com/estools/escodegen
 
-/// <reference path="sourcemap/sourcemap.ts" /> 
+/// <reference path="sourcemap/sourcemap.ts" />
+/// <reference path="utils.ts" /> 
 
 module lib.ast {
     export module gen {

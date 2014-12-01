@@ -2,6 +2,7 @@
 /// <reference path="../types/types.ts" />
 /// <reference path="private.ts" />
 /// <reference path="options.ts" />
+/// <reference path="printer.ts" />
 module lib.ast {
     export module recast {
 

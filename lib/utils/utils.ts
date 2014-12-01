@@ -10,6 +10,16 @@
 /// <reference path="./testing.ts" />
 /// <reference path="./castTo.ts" />
 /// <reference path="./freeze.ts" />
+/// <reference path="./search.ts" />
+/// <reference path="./arrayset.ts" />
+/// <reference path="./base64.ts" />
+/// <reference path="./vlq.ts" />
+/// <reference path="./shim.ts" />
+/// <reference path="./semaphore.ts" />
+/// <reference path="./setImmediate.ts" />
+/// <reference path="./hash.ts" />
+/// <reference path="./internal.ts" />
+/// <reference path="./functional.ts" />
 
 
 module lib {
@@ -80,7 +90,7 @@ module lib {
         export function isObject(value): boolean {
             return typeof value === "object" || typeof value === 'function';
         }
-        
+
         export function isUndefined(value) {
             return typeof value == 'undefined';
         }

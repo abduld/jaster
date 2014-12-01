@@ -1,5 +1,10 @@
 
 /// <reference path="recast.ts" />
+/// <reference path="lines.ts" />
+/// <reference path="utils.ts" />
+/// <reference path="parser.ts" />
+/// <reference path="patcher.ts" />
+/// <reference path="../types/node-path.ts" />
 module lib.ast.recast {
     import sourceMap = lib.ast.sourcemap;
     import types = lib.ast.types;

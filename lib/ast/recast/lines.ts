@@ -1,5 +1,7 @@
 
 /// <reference path="recast.ts" />
+/// <reference path="mappings.ts" />
+/// <reference path="utils.ts" />
 
 module lib.ast.recast {
     import types = lib.ast.types;
