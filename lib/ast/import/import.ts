@@ -1,8 +1,8 @@
 
-/// <referenc path="cena.ts" />
+/// <reference path="cena.ts" />
 
 
 module lib.ast {
-    export module cena {
+    export module importer {
     }
 }
