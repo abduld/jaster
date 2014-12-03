@@ -2276,7 +2276,7 @@ module lib.ast {
         }
         merge(CodeGenerator.prototype, CodeGenerator.Statement);
         merge(CodeGenerator.prototype, CodeGenerator.Expression);
-        function generate(node, options) {
+        export function generate(node, options) {
             var defaultOptions = getDefaultOptions(), result, pair;
 
             if (options != null) {

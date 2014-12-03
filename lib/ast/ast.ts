@@ -5,7 +5,7 @@
 /// <reference path="traverse.ts" />
 /// <reference path="gen.ts" />
 /// <reference path="trace/trace.ts" />
-/// <reference path="import/import.ts" />
+/// <reference path="importer/importer.ts" />
 
 module lib {
     export module ast {

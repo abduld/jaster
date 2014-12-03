@@ -173,6 +173,8 @@
     <TypeScriptCompile Include="lib\ast\esprima.ts" />
     <TypeScriptCompile Include="lib\ast\eval.ts" />
     <TypeScriptCompile Include="lib\ast\gen.ts" />
+    <TypeScriptCompile Include="lib\ast\importer\cena.ts" />
+    <TypeScriptCompile Include="lib\ast\importer\importer.ts" />
     <TypeScriptCompile Include="lib\ast\recast\comments.ts" />
     <TypeScriptCompile Include="lib\ast\recast\lines.ts" />
     <TypeScriptCompile Include="lib\ast\recast\mappings.ts" />
@@ -261,6 +263,7 @@
     <TypeScriptCompile Include="lib\utils\logger.ts" />
     <TypeScriptCompile Include="lib\utils\map.ts" />
     <TypeScriptCompile Include="lib\utils\mixin.ts" />
+    <TypeScriptCompile Include="lib\utils\process.ts" />
     <TypeScriptCompile Include="lib\utils\rand.ts" />
     <TypeScriptCompile Include="lib\utils\search.ts" />
     <TypeScriptCompile Include="lib\utils\semaphore.ts" />
@@ -271,8 +274,11 @@
     <TypeScriptCompile Include="lib\utils\stacktrace\stacktrace-gps.ts" />
     <TypeScriptCompile Include="lib\utils\testing.ts" />
     <TypeScriptCompile Include="lib\utils\timer.ts" />
+    <TypeScriptCompile Include="lib\utils\tracer\count.ts" />
+    <TypeScriptCompile Include="lib\utils\tracer\trace.ts" />
     <TypeScriptCompile Include="lib\utils\utils.ts" />
     <TypeScriptCompile Include="lib\utils\vlq.ts" />
+    <TypeScriptCompile Include="lib\utils\vm.ts" />
     <TypeScriptCompile Include="lib\wb\arg.ts" />
     <TypeScriptCompile Include="lib\wb\file.ts" />
     <TypeScriptCompile Include="lib\wb\log.ts" />
@@ -347,7 +353,7 @@
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>True</TypeScriptSourceMap>
     <TypeScriptModuleKind>amd</TypeScriptModuleKind>
-    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <DefineConstants>DEBUG</DefineConstants>
     <TypeScriptOutFile>main.js</TypeScriptOutFile>

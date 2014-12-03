@@ -53,9 +53,9 @@ module lib.ast {
             // Function
             export interface Function extends Node {
                 id: Identifier // | null
-            params: Identifier[]
+            params: Node[]
             defaults: SomeExpression[]
-            rest: Identifier // | null
+            rest?: Identifier // | null
             body: BlockStatementOrExpression
             generator: boolean
             expression: boolean
@@ -229,11 +229,11 @@ module lib.ast {
             }
             export interface NewExpression extends Expression {
                 callee: SomeExpression
-            arguments: SomeExpression[]
+            arguments: Node[]
             }
             export interface CallExpression extends Expression {
                 callee: SomeExpression
-            arguments: SomeExpression[]
+            arguments: Node[]
             }
             export interface MemberExpression extends Expression {
                 object: SomeExpression
