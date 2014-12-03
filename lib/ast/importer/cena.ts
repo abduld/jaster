@@ -36,12 +36,30 @@ module lib.ast {
                         },
                         end: {
                             line: this.line,
-                            column: this.column
+                            column: this.column + (isUndefined(this.raw) ? 0 : this.raw.length)
                         }
                     }
                 }
-            }
 
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+            }
             export class EmptyExpression extends Node {
                 constructor() {
                     super("EmptyExpression", -1, -1, "");
@@ -52,16 +70,49 @@ module lib.ast {
                         value: "EmptyExpression"
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
             export class NullNode extends Node {
                 constructor() {
                     super("NullNode", -1, -1, "");
                 }
-                toEsprima() {
-                    return {
-                        type: "Comment",
-                        value: "NullNode"
-                    }
+                toEsprima(): esprima.Syntax.Node {
+                    return null;
+                }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
                 }
             }
             export class Literal<T> extends Node {
@@ -78,8 +129,25 @@ module lib.ast {
                         raw: this.raw
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class StringLiteral extends Literal<string> {
                 constructor(line: number, column: number, value: string, raw?: string) {
                     super(line, column, value, raw);
@@ -88,8 +156,25 @@ module lib.ast {
                 static fromCena(o: any): StringLiteral {
                     return new StringLiteral(o.line, o.column, o.value, o.raw);
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class BooleanLiteral extends Literal<boolean> {
                 constructor(line: number, column: number, value: boolean, raw?: string) {
                     super(line, column, value, raw);
@@ -98,8 +183,25 @@ module lib.ast {
                 static fromCena(o: any): Node {
                     return new BooleanLiteral(o.line, o.column, o.value, o.raw);
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class CharLiteral extends Node {
                 value: string
                 constructor(line: number, column: number, value: string, raw?: string) {
@@ -127,8 +229,25 @@ module lib.ast {
                         ]
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class Integer8Literal extends Node {
                 value: number
                 constructor(line: number, column: number, value: number, raw?: string) {
@@ -156,8 +275,25 @@ module lib.ast {
                         ]
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class Integer32Literal extends Node {
                 value: number
                 constructor(line: number, column: number, value: number, raw?: string) {
@@ -185,8 +321,25 @@ module lib.ast {
                         ]
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class Integer64Literal extends Node {
                 value: string
                 constructor(line: number, column: number, value: string, raw?: string) {
@@ -214,8 +367,25 @@ module lib.ast {
                         ]
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class Float32Literal extends Node {
                 value: number
                 constructor(line: number, column: number, value: number, raw?: string) {
@@ -243,8 +413,25 @@ module lib.ast {
                         ]
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class Float64Literal extends Literal<number> {
                 constructor(line: number, column: number, value: number, raw?: string) {
                     super(line, column, value, raw);
@@ -253,8 +440,25 @@ module lib.ast {
                 static fromCena(o: any): Node {
                     return new Float64Literal(o.line, o.column, o.value, o.raw);
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class TypeExpression extends Node {
                 addressSpace: string[]
                 qualifiers: string[]
@@ -275,6 +479,24 @@ module lib.ast {
                         raw: JSON.stringify({ addressSpace: this.addressSpace, qualifiers: this.qualifiers, bases: this.bases }),
                         loc: this.location
                     }
+                }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
                 }
             }
             export class Identifier extends Node {
@@ -301,8 +523,25 @@ module lib.ast {
                         loc: this.location
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
             }
-
             export class CompoundNode {
                 elements: Node[]
                 constructor(elements: any[]) {
@@ -314,9 +553,35 @@ module lib.ast {
                 toEsprima(): esprima.Syntax.Node[] {
                     return this.elements.map((elem) => elem.toEsprima())
                 }
+                hasChildren(): boolean {
+                    return _.isEmpty(this.elements);
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
+                    _.each(this.elements, (elem) => res = elem.postOrderTraverse(visit, data));
+                    return res;
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
+                    _.each(this.elements, (elem) => res = elem.preOrderTraverse(visit, data));
+                    return res;
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
+                    _.each(this.elements, (elem) => res = elem.inOrderTraverse(visit, data));
+                    return res;
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
+                    _.forEachRight(this.elements, (elem) => res = elem.reversePostOrderTraverse(visit, data));
+                    return res;
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
+                    _.forEachRight(this.elements, (elem) => res = elem.reversePreOrderTraverse(visit, data));
+                    return res;
+                }
             }
-
-
             export class BlockStatement extends Node {
                 body: CompoundNode
 
@@ -335,8 +600,30 @@ module lib.ast {
                         raw: this.raw
                     }
                 }
+                hasChildren(): boolean {
+                    return this.body.hasChildren();
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.body.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.body.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.body.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class FunctionExpression extends Node {
                 attributes: string[]
                 ret: TypeExpression
@@ -369,30 +656,105 @@ module lib.ast {
                         loc: this.location
                     }
                 }
+                hasChildren(): boolean {
+                    return this.body.hasChildren();
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.ret.postOrderTraverse(visit, data);
+                    this.id.postOrderTraverse(visit, data);
+                    this.params.postOrderTraverse(visit, data);
+                    return this.body.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.ret.preOrderTraverse(visit, data);
+                    this.id.preOrderTraverse(visit, data);
+                    this.params.preOrderTraverse(visit, data);
+                    return this.body.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.ret.inOrderTraverse(visit, data);
+                    this.id.inOrderTraverse(visit, data);
+                    this.params.inOrderTraverse(visit, data);
+                    return this.body.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePostOrderTraverse(visit, data);
+                    this.params.reversePostOrderTraverse(visit, data);
+                    this.id.reversePostOrderTraverse(visit, data);
+                    this.ret.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePreOrderTraverse(visit, data);
+                    this.params.reversePreOrderTraverse(visit, data);
+                    this.id.reversePreOrderTraverse(visit, data);
+                    this.ret.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class CallExpression extends Node {
                 callee: Identifier
                 args: CompoundNode
-                constructor(line: number, column: number, callee: any, args: any[], raw?: string) {
+                config: Node
+                isCUDA: boolean = false
+                constructor(line: number, column: number, callee: any, args: any[], config? : any, raw?: string) {
                     super("CallExpression", line, column, raw);
                     this.callee = Identifier.fromCena(callee);
                     this.args = new CompoundNode(args);
+                    this.config = fromCena(config);
+                    this.isCUDA = !isUndefined(config);
                 }
                 static fromCena(o: any): Node {
-                    return new CallExpression(o.line, o.column, o.callee, castTo<any[]>(o.args), o.raw);
+                    return new CallExpression(o.line, o.column, o.callee, castTo<any[]>(o.args), o.config, o.raw);
                 }
                 toEsprima(): esprima.Syntax.CallExpression {
                     return {
                         type: "CallExpression",
+                        config: this.config.toEsprima(),
+                        isCUDA: this.isCUDA,
                         callee: castTo<esprima.Syntax.SomeExpression>(this.callee.toEsprima()),
                         arguments: this.args.toEsprima(),
                         raw: this.raw,
                         loc: this.location
                     }
                 }
+                hasChildren(): boolean {
+                    return false;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.callee.postOrderTraverse(visit, data);
+                    this.config.postOrderTraverse(visit, data);
+                    return this.args.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.callee.preOrderTraverse(visit, data);
+                    this.config.postOrderTraverse(visit, data);
+                    return this.args.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.callee.inOrderTraverse(visit, data);
+                    this.config.postOrderTraverse(visit, data);
+                    return this.args.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.args.reversePostOrderTraverse(visit, data);
+                    this.config.postOrderTraverse(visit, data);
+                    this.callee.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.args.reversePreOrderTraverse(visit, data);
+                    this.config.postOrderTraverse(visit, data);
+                    this.callee.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class ParenExpression extends Node {
                 expression: Node
                 constructor(line: number, column: number, expression: any, raw?: string) {
@@ -410,39 +772,108 @@ module lib.ast {
                         loc: this.location
                     }
                 }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.expression.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.expression.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.expression.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.expression.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.expression.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class DereferenceExpression extends Node {
-                argument: any
+                argument: Node
+                rawArgument: any
                 constructor(line: number, column: number, argument: any, raw?: string) {
                     super("DereferenceExpression", line, column, raw);
-                    this.argument = argument;
+                    this.rawArgument = argument;
+                    this.argument = fromCena(argument);
                 }
                 static fromCena(o: any): Node {
                     return new DereferenceExpression(o.line, o.column, o.argument, o.raw);
                 }
                 toEsprima(): esprima.Syntax.CallExpression {
-                    var call: CallExpression = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "dereference"), [this.argument]);
+                    var call: CallExpression = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "dereference"), [this.rawArgument]);
                     return call.toEsprima();
                 }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class ReferenceExpression extends Node {
-                argument: any
+                argument: Node
+                rawArgument: any
                 constructor(line: number, column: number, argument: any, raw?: string) {
                     super("ReferenceExpression", line, column, raw);
-                    this.argument = argument;
+                    this.rawArgument = argument;
+                    this.argument = fromCena(argument);
                 }
                 static fromCena(o: any): Node {
                     return new ReferenceExpression(o.line, o.column, o.argument, o.raw);
                 }
                 toEsprima(): esprima.Syntax.CallExpression {
-                    var call: CallExpression = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "reference"), [this.argument]);
+                    var call: CallExpression = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "reference"), [this.rawArgument]);
                     return call.toEsprima();
                 }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
-
             export class UnaryExpression extends Node {
                 operator: string
                 rawArgument: any
@@ -482,8 +913,30 @@ module lib.ast {
                         raw: this.raw
                     }
                 }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class BinaryExpression extends Node {
                 operator: string
                 right: Node
@@ -511,13 +964,13 @@ module lib.ast {
                     "<<": new Identifier(0, 0, "shiftleft", undefined, "<<")
                 };
                 constructor(line: number, column: number, operator: string, right: any, left: any, raw?: string) {
-                    super("UnaryExpression", line, column, raw);
+                    super("BinaryExpression", line, column, raw);
                     this.operator = operator
                     this.right = fromCena(right);
                     this.left = fromCena(left);
                 }
                 static fromCena(o: any): Node {
-                    return new BinaryExpression(o.line, o.column, o.operator, o.argument, o.raw);
+                    return new BinaryExpression(o.line, o.column, o.operator, o.left, o.right, o.raw);
                 }
                 get property(): Identifier {
                     return BinaryExpression.PropertyTable[this.operator];
@@ -542,24 +995,310 @@ module lib.ast {
                         loc: this.location
                     }
                 }
-            }
-
-            export class IfStatement extends Node {
-
-            }
-
-            export class ForStatement extends Node {
-
-            }
-
-            export class ProgramExpression extends Node {
-                body: Node[];
-                constructor(line: number, column: number, body: Node[], raw?: string) {
-                    super("ProgramExpression", line, column, raw);
-                    this.body = body;
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.left.postOrderTraverse(visit, data);
+                    this.right.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.left.preOrderTraverse(visit, data);
+                    return this.right.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.left.inOrderTraverse(visit, data);
+                    visit(this, data);
+                    return this.right.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.left.reversePostOrderTraverse(visit, data);
+                    return this.right.reversePostOrderTraverse(visit, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.right.reversePreOrderTraverse(visit, data);
+                    this.left.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
                 }
             }
+            export class AssignmentExpression extends Node {
+                operator: string
+                right: Node
+                left: Node
+                constructor(line: number, column: number, operator: string, right: any, left: any, raw?: string) {
+                    super("AssignmentExpression", line, column, raw);
+                    this.operator = operator
+                    this.right = fromCena(right);
+                    this.left = fromCena(left);
+                }
+                static fromCena(o: any): Node {
+                    return new AssignmentExpression(o.line, o.column, o.operator, o.left, o.right, o.raw);
+                }
+                toEsprima(): esprima.Syntax.AssignmentExpression {
+                    return {
+                        type: "AssignmentExpression",
+                        operator: this.operator,
+                        left: castTo<esprima.Syntax.SomeExpression>(this.left.toEsprima()),
+                        right: castTo<esprima.Syntax.SomeExpression>(this.right.toEsprima()),
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.left.postOrderTraverse(visit, data);
+                    this.right.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.left.preOrderTraverse(visit, data);
+                    return this.right.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.left.inOrderTraverse(visit, data);
+                    visit(this, data);
+                    return this.right.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.left.reversePostOrderTraverse(visit, data);
+                    return this.right.reversePostOrderTraverse(visit, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.right.reversePreOrderTraverse(visit, data);
+                    this.left.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+            }
+            export class IfStatement extends Node {
+                test: Node
+                consequent: Node
+                alternate: Node
 
+                constructor(line: number, column: number, test: any, consequent: any, alternate?: any, raw?: string) {
+                    super("IfStatement", line, column, raw);
+                    this.test = fromCena(test);
+                    this.consequent = fromCena(consequent);
+                    this.alternate = fromCena(alternate);
+                }
+                static fromCena(o: any): Node {
+                    return new IfStatement(o.line, o.column, o.test, o.consequent, o.alternate, o.raw);
+                }
+                toEsprima(): esprima.Syntax.IfStatement {
+                    return {
+                        type: "IfStatement",
+                        test: castTo<esprima.Syntax.SomeExpression>(this.test.toEsprima()),
+                        alternate: castTo<esprima.Syntax.SomeStatement>(this.alternate.toEsprima()),
+                        consequent: castTo<esprima.Syntax.SomeStatement>(this.consequent.toEsprima()),
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.test.postOrderTraverse(visit, data);
+                    this.alternate.postOrderTraverse(visit, data);
+                    this.consequent.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.test.preOrderTraverse(visit, data);
+                    this.alternate.preOrderTraverse(visit, data);
+                    return this.consequent.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.test.inOrderTraverse(visit, data);
+                    this.alternate.inOrderTraverse(visit, data);
+                    return this.consequent.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.consequent.reversePostOrderTraverse(visit, data);
+                    this.alternate.reversePostOrderTraverse(visit, data);
+                    this.test.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.consequent.reversePreOrderTraverse(visit, data);
+                    this.alternate.reversePreOrderTraverse(visit, data);
+                    return this.test.reversePreOrderTraverse(visit, data);
+                }
+            }
+            export class ConditionalExpression extends Node {
+                test: Node
+                consequent: Node
+                alternate: Node
+                constructor(line: number, column: number, test: any, consequent: any, alternate?: any, raw?: string) {
+                    super("ConditionalExpression", line, column, raw);
+                    this.test = fromCena(test);
+                    this.consequent = fromCena(consequent);
+                    this.alternate = fromCena(alternate);
+                }
+                static fromCena(o: any): Node {
+                    return new ConditionalExpression(o.line, o.column, o.test, o.consequent, o.alternate, o.raw);
+                }
+                toEsprima(): esprima.Syntax.ConditionalExpression {
+                    return {
+                        type: "ConditionalExpression",
+                        test: castTo<esprima.Syntax.SomeExpression>(this.test.toEsprima()),
+                        alternate: castTo<esprima.Syntax.SomeExpression>(this.alternate.toEsprima()),
+                        consequent: castTo<esprima.Syntax.SomeExpression>(this.consequent.toEsprima()),
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.test.postOrderTraverse(visit, data);
+                    this.alternate.postOrderTraverse(visit, data);
+                    this.consequent.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.test.preOrderTraverse(visit, data);
+                    this.alternate.preOrderTraverse(visit, data);
+                    return this.consequent.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.test.inOrderTraverse(visit, data);
+                    this.alternate.inOrderTraverse(visit, data);
+                    return this.consequent.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.consequent.reversePostOrderTraverse(visit, data);
+                    this.alternate.reversePostOrderTraverse(visit, data);
+                    this.test.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.consequent.reversePreOrderTraverse(visit, data);
+                    this.alternate.reversePreOrderTraverse(visit, data);
+                    return this.test.reversePreOrderTraverse(visit, data);
+                }
+            }
+            export class ForStatement extends Node {
+                init: Node
+                test: Node
+                update: Node
+                body: Node
+
+                constructor(line: number, column: number, init: any, test: any, update: any, body: any, raw?: string) {
+                    super("ForStatement", line, column, raw);
+                    this.init = fromCena(init);
+                    this.test = fromCena(test);
+                    this.update = fromCena(update);
+                    this.body = fromCena(body);
+                }
+                static fromCena(o: any): Node {
+                    return new ForStatement(o.line, o.column, o.init, o.test, o.update, o.body, o.raw);
+                }
+                toEsprima(): esprima.Syntax.ForStatement {
+                    return {
+                        type: "ForStatement",
+                        init: castTo<esprima.Syntax.VariableDeclaratorOrExpression>(this.init.toEsprima()),
+                        test: castTo<esprima.Syntax.SomeExpression>(this.test.toEsprima()),
+                        update: castTo<esprima.Syntax.SomeExpression>(this.update.toEsprima()),
+                        body: castTo<esprima.Syntax.SomeStatement>(this.body.toEsprima()),
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.init.postOrderTraverse(visit, data);
+                    this.test.postOrderTraverse(visit, data);
+                    this.update.postOrderTraverse(visit, data);
+                    this.body.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.init.preOrderTraverse(visit, data);
+                    this.test.preOrderTraverse(visit, data);
+                    this.update.preOrderTraverse(visit, data);
+                    return this.body.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.init.inOrderTraverse(visit, data);
+                    this.test.inOrderTraverse(visit, data);
+                    this.update.inOrderTraverse(visit, data);
+                    return this.body.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePostOrderTraverse(visit, data);
+                    this.update.reversePostOrderTraverse(visit, data);
+                    this.test.reversePostOrderTraverse(visit, data);
+                    this.init.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.body.reversePostOrderTraverse(visit, data);
+                    this.update.reversePostOrderTraverse(visit, data);
+                    this.test.reversePostOrderTraverse(visit, data);
+                    return this.init.reversePostOrderTraverse(visit, data);
+                }
+
+            }
+            export class ProgramExpression extends Node {
+                body: CompoundNode;
+                constructor(line: number, column: number, body: any[], raw?: string) {
+                    super("ProgramExpression", line, column, raw);
+                    this.body = new CompoundNode(body);
+                }
+                static fromCena(o: any): Node {
+                    return new ProgramExpression(o.line, o.column, o.body, o.raw);
+                }
+                toEsprima(): esprima.Syntax.Program {
+                    return {
+                        type: "Program",
+                        body: castTo<esprima.Syntax.SomeStatement[]>(this.body.toEsprima()),
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return this.body.hasChildren();
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.body.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.body.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.body.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.body.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+            }
             export class ReturnStatement extends Node {
                 argument: Node;
                 constructor(line: number, column: number, argument?: Node, raw?: string) {
@@ -570,30 +1309,197 @@ module lib.ast {
                         this.argument = new EmptyExpression();
                     }
                 }
+                static fromCena(o: any): Node {
+                    return new ReturnStatement(o.line, o.column, o.argument, o.raw);
+                }
                 toEsprima(): esprima.Syntax.ReturnStatement {
                     return {
                         type: "ReturnStatement",
                         loc: this.location,
+                        raw: this.raw,
                         argument: lib.utils.castTo<esprima.Syntax.SomeExpression>(
                             this.argument.toEsprima()
                             )
                     }
                 }
+                hasChildren(): boolean {
+                    return !(this.argument instanceof EmptyExpression);
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.argument.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.argument.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class ExpressionStatement extends Node {
                 expression: Node;
                 constructor(line: number, column: number, expression: Node, raw?: string) {
                     super("ExpressionStatement", line, column, raw);
                     this.expression = expression;
                 }
+                static fromCena(o: any): Node {
+                    return new ReturnStatement(o.line, o.column, o.argument, o.raw);
+                }
+                toEsprima(): esprima.Syntax.ExpressionStatement {
+                    return {
+                        type: "ExpressionStatement",
+                        loc: this.location,
+                        raw: this.raw,
+                        expression: lib.utils.castTo<esprima.Syntax.SomeExpression>(
+                            this.expression.toEsprima()
+                            )
+                    }
+                }
+                hasChildren(): boolean {
+                    return !(this.expression instanceof EmptyExpression);
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.expression.postOrderTraverse(visit, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.expression.preOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.expression.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.expression.reversePreOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.expression.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
             }
-
             export class ErrorNode extends Node {
                 constructor(raw?: string) {
                     super("ErrorNode", -1, -1, raw);
                 }
             }
+
+
+            export class SubscriptExpression extends Node {
+                object: Node
+                property: Node
+                constructor(line: number, column: number, object: any, property: any, raw?: string) {
+                    super("SubscriptExpression", line, column, raw);
+                    this.object = fromCena(init);
+                    this.property = fromCena(property);
+                }
+                static fromCena(o: any): Node {
+                    return new SubscriptExpression(o.line, o.column, o.object, o.property, o.raw);
+                }
+                toEsprima(): esprima.Syntax.MemberExpression {
+                    return {
+                        type: "MemberExpression",
+                        object: castTo<esprima.Syntax.SomeExpression>(this.object.toEsprima()),
+                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property.toEsprima()),
+                        computed: true,
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.object.postOrderTraverse(visit, data);
+                    this.property.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.object.postOrderTraverse(visit, data);
+                    return this.property.postOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.object.inOrderTraverse(visit, data);
+                    return this.property.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.property.reversePostOrderTraverse(visit, data);
+                    this.object.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.property.reversePreOrderTraverse(visit, data);
+                    return this.object.reversePreOrderTraverse(visit, data);
+                }
+            }
+
+            export class MemberExpression extends Node {
+                object: Node
+                property: Node
+                computed: boolean
+                constructor(line: number, column: number, object: any, property: any, computed: boolean, raw?: string) {
+                    super("MemberExpression", line, column, raw);
+                    this.object = fromCena(init);
+                    this.property = fromCena(property);
+                    this.computed = computed;
+                }
+                static fromCena(o: any): Node {
+                    return new MemberExpression(o.line, o.column, o.object, o.property, o.computed, o.raw);
+                }
+                toEsprima(): esprima.Syntax.MemberExpression {
+                    return {
+                        type: "MemberExpression",
+                        object: castTo<esprima.Syntax.SomeExpression>(this.object.toEsprima()),
+                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property.toEsprima()),
+                        computed: this.computed,
+                        raw: this.raw,
+                        loc: this.location
+                    }
+                }
+                hasChildren(): boolean {
+                    return true;
+                }
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.object.postOrderTraverse(visit, data);
+                    this.property.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.object.postOrderTraverse(visit, data);
+                    return this.property.postOrderTraverse(visit, data);
+                }
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.object.inOrderTraverse(visit, data);
+                    return this.property.inOrderTraverse(visit, data);
+                }
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.property.reversePostOrderTraverse(visit, data);
+                    this.object.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.property.reversePreOrderTraverse(visit, data);
+                    return this.object.reversePreOrderTraverse(visit, data);
+                }
+            }
+
 
             var dispatch: Map<string, (o: any) => Node> = new Map<string, (o: any) => Node>();
 
@@ -620,7 +1526,35 @@ module lib.ast {
                     return;
                 }
                 initialized = true;
-                dispatch.set("test", Node.fromCena);
+                dispatch.set("EmptyExpression", EmptyExpression.fromCena);
+                dispatch.set("NullNode", NullNode.fromCena);
+                dispatch.set("StringLiteral", StringLiteral.fromCena);
+                dispatch.set("BooleanLiteral", BooleanLiteral.fromCena);
+                dispatch.set("CharLiteral", CharLiteral.fromCena);
+                dispatch.set("Integer8Literal", Integer8Literal.fromCena);
+                dispatch.set("Integer32Literal", Integer32Literal.fromCena);
+                dispatch.set("Integer64Literal", Integer64Literal.fromCena);
+                dispatch.set("Float32Literal", Float32Literal.fromCena);
+                dispatch.set("Float64Literal", Float64Literal.fromCena);
+                dispatch.set("TypeExpression", TypeExpression.fromCena);
+                dispatch.set("Identifier", Identifier.fromCena);
+                dispatch.set("BlockStatement", BlockStatement.fromCena);
+                dispatch.set("FunctionExpression", FunctionExpression.fromCena);
+                dispatch.set("CallExpression", CallExpression.fromCena);
+                dispatch.set("ParenExpression", ParenExpression.fromCena);
+                dispatch.set("DereferenceExpression", DereferenceExpression.fromCena);
+                dispatch.set("ReferenceExpression", ReferenceExpression.fromCena);
+                dispatch.set("UnaryExpression", UnaryExpression.fromCena);
+                dispatch.set("BinaryExpression", BinaryExpression.fromCena);
+                dispatch.set("AssignmentExpression", AssignmentExpression.fromCena);
+                dispatch.set("IfStatement", IfStatement.fromCena);
+                dispatch.set("ConditionalExpression", ConditionalExpression.fromCena);
+                dispatch.set("ForStatement", ForStatement.fromCena);
+                dispatch.set("ProgramExpression", ProgramExpression.fromCena);
+                dispatch.set("ReturnStatement", ReturnStatement.fromCena);
+                dispatch.set("ExpressionStatement", ExpressionStatement.fromCena);
+                dispatch.set("SubscriptExpression", SubscriptExpression.fromCena);
+                dispatch.set("MemberExpression", MemberExpression.fromCena);
             }
 
             init();

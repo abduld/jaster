@@ -14156,13 +14156,31 @@ var lib;
                                 },
                                 end: {
                                     line: this.line,
-                                    column: this.column
+                                    column: this.column + (isUndefined(this.raw) ? 0 : this.raw.length)
                                 }
                             };
                         },
                         enumerable: true,
                         configurable: true
                     });
+                    Node.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Node.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Node.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Node.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Node.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Node.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return Node;
                 })();
                 cena.Node = Node;
@@ -14177,6 +14195,24 @@ var lib;
                             value: "EmptyExpression"
                         };
                     };
+                    EmptyExpression.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    EmptyExpression.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    EmptyExpression.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    EmptyExpression.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    EmptyExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    EmptyExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return EmptyExpression;
                 })(Node);
                 cena.EmptyExpression = EmptyExpression;
@@ -14186,10 +14222,25 @@ var lib;
                         _super.call(this, "NullNode", -1, -1, "");
                     }
                     NullNode.prototype.toEsprima = function () {
-                        return {
-                            type: "Comment",
-                            value: "NullNode"
-                        };
+                        return null;
+                    };
+                    NullNode.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    NullNode.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    NullNode.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    NullNode.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    NullNode.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    NullNode.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
                     };
                     return NullNode;
                 })(Node);
@@ -14208,6 +14259,24 @@ var lib;
                             raw: this.raw
                         };
                     };
+                    Literal.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Literal.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Literal.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Literal.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Literal.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Literal.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return Literal;
                 })(Node);
                 cena.Literal = Literal;
@@ -14220,6 +14289,24 @@ var lib;
                     StringLiteral.fromCena = function (o) {
                         return new StringLiteral(o.line, o.column, o.value, o.raw);
                     };
+                    StringLiteral.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    StringLiteral.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    StringLiteral.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    StringLiteral.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    StringLiteral.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    StringLiteral.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return StringLiteral;
                 })(Literal);
                 cena.StringLiteral = StringLiteral;
@@ -14231,6 +14318,24 @@ var lib;
                     }
                     BooleanLiteral.fromCena = function (o) {
                         return new BooleanLiteral(o.line, o.column, o.value, o.raw);
+                    };
+                    BooleanLiteral.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    BooleanLiteral.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    BooleanLiteral.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    BooleanLiteral.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    BooleanLiteral.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    BooleanLiteral.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
                     };
                     return BooleanLiteral;
                 })(Literal);
@@ -14262,6 +14367,24 @@ var lib;
                             ]
                         };
                     };
+                    CharLiteral.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    CharLiteral.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    CharLiteral.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    CharLiteral.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    CharLiteral.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    CharLiteral.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return CharLiteral;
                 })(Node);
                 cena.CharLiteral = CharLiteral;
@@ -14291,6 +14414,24 @@ var lib;
                                 })
                             ]
                         };
+                    };
+                    Integer8Literal.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Integer8Literal.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer8Literal.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer8Literal.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer8Literal.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer8Literal.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
                     };
                     return Integer8Literal;
                 })(Node);
@@ -14322,6 +14463,24 @@ var lib;
                             ]
                         };
                     };
+                    Integer32Literal.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Integer32Literal.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer32Literal.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer32Literal.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer32Literal.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer32Literal.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return Integer32Literal;
                 })(Node);
                 cena.Integer32Literal = Integer32Literal;
@@ -14351,6 +14510,24 @@ var lib;
                                 })
                             ]
                         };
+                    };
+                    Integer64Literal.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Integer64Literal.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer64Literal.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer64Literal.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer64Literal.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Integer64Literal.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
                     };
                     return Integer64Literal;
                 })(Node);
@@ -14382,6 +14559,24 @@ var lib;
                             ]
                         };
                     };
+                    Float32Literal.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Float32Literal.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float32Literal.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float32Literal.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float32Literal.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float32Literal.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return Float32Literal;
                 })(Node);
                 cena.Float32Literal = Float32Literal;
@@ -14393,6 +14588,24 @@ var lib;
                     }
                     Float64Literal.fromCena = function (o) {
                         return new Float64Literal(o.line, o.column, o.value, o.raw);
+                    };
+                    Float64Literal.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Float64Literal.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float64Literal.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float64Literal.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float64Literal.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Float64Literal.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
                     };
                     return Float64Literal;
                 })(Literal);
@@ -14415,6 +14628,24 @@ var lib;
                             raw: JSON.stringify({ addressSpace: this.addressSpace, qualifiers: this.qualifiers, bases: this.bases }),
                             loc: this.location
                         };
+                    };
+                    TypeExpression.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    TypeExpression.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    TypeExpression.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    TypeExpression.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    TypeExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    TypeExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
                     };
                     return TypeExpression;
                 })(Node);
@@ -14444,6 +14675,24 @@ var lib;
                             loc: this.location
                         };
                     };
+                    Identifier.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    Identifier.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Identifier.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Identifier.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Identifier.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    Identifier.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
                     return Identifier;
                 })(Node);
                 cena.Identifier = Identifier;
@@ -14456,6 +14705,34 @@ var lib;
                     };
                     CompoundNode.prototype.toEsprima = function () {
                         return this.elements.map(function (elem) { return elem.toEsprima(); });
+                    };
+                    CompoundNode.prototype.hasChildren = function () {
+                        return _.isEmpty(this.elements);
+                    };
+                    CompoundNode.prototype.postOrderTraverse = function (visit, data) {
+                        var res;
+                        _.each(this.elements, function (elem) { return res = elem.postOrderTraverse(visit, data); });
+                        return res;
+                    };
+                    CompoundNode.prototype.preOrderTraverse = function (visit, data) {
+                        var res;
+                        _.each(this.elements, function (elem) { return res = elem.preOrderTraverse(visit, data); });
+                        return res;
+                    };
+                    CompoundNode.prototype.inOrderTraverse = function (visit, data) {
+                        var res;
+                        _.each(this.elements, function (elem) { return res = elem.inOrderTraverse(visit, data); });
+                        return res;
+                    };
+                    CompoundNode.prototype.reversePostOrderTraverse = function (visit, data) {
+                        var res;
+                        _.forEachRight(this.elements, function (elem) { return res = elem.reversePostOrderTraverse(visit, data); });
+                        return res;
+                    };
+                    CompoundNode.prototype.reversePreOrderTraverse = function (visit, data) {
+                        var res;
+                        _.forEachRight(this.elements, function (elem) { return res = elem.reversePreOrderTraverse(visit, data); });
+                        return res;
                     };
                     return CompoundNode;
                 })();
@@ -14476,6 +14753,29 @@ var lib;
                             loc: this.location,
                             raw: this.raw
                         };
+                    };
+                    BlockStatement.prototype.hasChildren = function () {
+                        return this.body.hasChildren();
+                    };
+                    BlockStatement.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.body.postOrderTraverse(visit, data);
+                    };
+                    BlockStatement.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.body.preOrderTraverse(visit, data);
+                    };
+                    BlockStatement.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.body.inOrderTraverse(visit, data);
+                    };
+                    BlockStatement.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.body.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    BlockStatement.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.body.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
                     };
                     return BlockStatement;
                 })(Node);
@@ -14508,27 +14808,103 @@ var lib;
                             loc: this.location
                         };
                     };
+                    FunctionExpression.prototype.hasChildren = function () {
+                        return this.body.hasChildren();
+                    };
+                    FunctionExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.ret.postOrderTraverse(visit, data);
+                        this.id.postOrderTraverse(visit, data);
+                        this.params.postOrderTraverse(visit, data);
+                        return this.body.postOrderTraverse(visit, data);
+                    };
+                    FunctionExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.ret.preOrderTraverse(visit, data);
+                        this.id.preOrderTraverse(visit, data);
+                        this.params.preOrderTraverse(visit, data);
+                        return this.body.preOrderTraverse(visit, data);
+                    };
+                    FunctionExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.ret.inOrderTraverse(visit, data);
+                        this.id.inOrderTraverse(visit, data);
+                        this.params.inOrderTraverse(visit, data);
+                        return this.body.inOrderTraverse(visit, data);
+                    };
+                    FunctionExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.body.reversePostOrderTraverse(visit, data);
+                        this.params.reversePostOrderTraverse(visit, data);
+                        this.id.reversePostOrderTraverse(visit, data);
+                        this.ret.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    FunctionExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.body.reversePreOrderTraverse(visit, data);
+                        this.params.reversePreOrderTraverse(visit, data);
+                        this.id.reversePreOrderTraverse(visit, data);
+                        this.ret.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
                     return FunctionExpression;
                 })(Node);
                 cena.FunctionExpression = FunctionExpression;
                 var CallExpression = (function (_super) {
                     __extends(CallExpression, _super);
-                    function CallExpression(line, column, callee, args, raw) {
+                    function CallExpression(line, column, callee, args, config, raw) {
                         _super.call(this, "CallExpression", line, column, raw);
+                        this.isCUDA = false;
                         this.callee = Identifier.fromCena(callee);
                         this.args = new CompoundNode(args);
+                        this.config = fromCena(config);
+                        this.isCUDA = !isUndefined(config);
                     }
                     CallExpression.fromCena = function (o) {
-                        return new CallExpression(o.line, o.column, o.callee, castTo(o.args), o.raw);
+                        return new CallExpression(o.line, o.column, o.callee, castTo(o.args), o.config, o.raw);
                     };
                     CallExpression.prototype.toEsprima = function () {
                         return {
                             type: "CallExpression",
+                            config: this.config.toEsprima(),
+                            isCUDA: this.isCUDA,
                             callee: castTo(this.callee.toEsprima()),
                             arguments: this.args.toEsprima(),
                             raw: this.raw,
                             loc: this.location
                         };
+                    };
+                    CallExpression.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    CallExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.callee.postOrderTraverse(visit, data);
+                        this.config.postOrderTraverse(visit, data);
+                        return this.args.postOrderTraverse(visit, data);
+                    };
+                    CallExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.callee.preOrderTraverse(visit, data);
+                        this.config.postOrderTraverse(visit, data);
+                        return this.args.preOrderTraverse(visit, data);
+                    };
+                    CallExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.callee.inOrderTraverse(visit, data);
+                        this.config.postOrderTraverse(visit, data);
+                        return this.args.inOrderTraverse(visit, data);
+                    };
+                    CallExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.args.reversePostOrderTraverse(visit, data);
+                        this.config.postOrderTraverse(visit, data);
+                        this.callee.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    CallExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.args.reversePreOrderTraverse(visit, data);
+                        this.config.postOrderTraverse(visit, data);
+                        this.callee.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
                     };
                     return CallExpression;
                 })(Node);
@@ -14550,6 +14926,29 @@ var lib;
                             loc: this.location
                         };
                     };
+                    ParenExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    ParenExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.expression.postOrderTraverse(visit, data);
+                    };
+                    ParenExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.expression.preOrderTraverse(visit, data);
+                    };
+                    ParenExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.expression.inOrderTraverse(visit, data);
+                    };
+                    ParenExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.expression.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ParenExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.expression.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
                     return ParenExpression;
                 })(Node);
                 cena.ParenExpression = ParenExpression;
@@ -14557,14 +14956,38 @@ var lib;
                     __extends(DereferenceExpression, _super);
                     function DereferenceExpression(line, column, argument, raw) {
                         _super.call(this, "DereferenceExpression", line, column, raw);
-                        this.argument = argument;
+                        this.rawArgument = argument;
+                        this.argument = fromCena(argument);
                     }
                     DereferenceExpression.fromCena = function (o) {
                         return new DereferenceExpression(o.line, o.column, o.argument, o.raw);
                     };
                     DereferenceExpression.prototype.toEsprima = function () {
-                        var call = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "dereference"), [this.argument]);
+                        var call = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "dereference"), [this.rawArgument]);
                         return call.toEsprima();
+                    };
+                    DereferenceExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    DereferenceExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.postOrderTraverse(visit, data);
+                    };
+                    DereferenceExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.preOrderTraverse(visit, data);
+                    };
+                    DereferenceExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.inOrderTraverse(visit, data);
+                    };
+                    DereferenceExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.argument.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    DereferenceExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.argument.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
                     };
                     return DereferenceExpression;
                 })(Node);
@@ -14573,14 +14996,38 @@ var lib;
                     __extends(ReferenceExpression, _super);
                     function ReferenceExpression(line, column, argument, raw) {
                         _super.call(this, "ReferenceExpression", line, column, raw);
-                        this.argument = argument;
+                        this.rawArgument = argument;
+                        this.argument = fromCena(argument);
                     }
                     ReferenceExpression.fromCena = function (o) {
                         return new ReferenceExpression(o.line, o.column, o.argument, o.raw);
                     };
                     ReferenceExpression.prototype.toEsprima = function () {
-                        var call = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "reference"), [this.argument]);
+                        var call = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "reference"), [this.rawArgument]);
                         return call.toEsprima();
+                    };
+                    ReferenceExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    ReferenceExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.postOrderTraverse(visit, data);
+                    };
+                    ReferenceExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.preOrderTraverse(visit, data);
+                    };
+                    ReferenceExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.inOrderTraverse(visit, data);
+                    };
+                    ReferenceExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.argument.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ReferenceExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.argument.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
                     };
                     return ReferenceExpression;
                 })(Node);
@@ -14624,19 +15071,42 @@ var lib;
                             raw: this.raw
                         };
                     };
+                    UnaryExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    UnaryExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.postOrderTraverse(visit, data);
+                    };
+                    UnaryExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.preOrderTraverse(visit, data);
+                    };
+                    UnaryExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.inOrderTraverse(visit, data);
+                    };
+                    UnaryExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.argument.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    UnaryExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.argument.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
                     return UnaryExpression;
                 })(Node);
                 cena.UnaryExpression = UnaryExpression;
                 var BinaryExpression = (function (_super) {
                     __extends(BinaryExpression, _super);
                     function BinaryExpression(line, column, operator, right, left, raw) {
-                        _super.call(this, "UnaryExpression", line, column, raw);
+                        _super.call(this, "BinaryExpression", line, column, raw);
                         this.operator = operator;
                         this.right = fromCena(right);
                         this.left = fromCena(left);
                     }
                     BinaryExpression.fromCena = function (o) {
-                        return new BinaryExpression(o.line, o.column, o.operator, o.argument, o.raw);
+                        return new BinaryExpression(o.line, o.column, o.operator, o.left, o.right, o.raw);
                     };
                     Object.defineProperty(BinaryExpression.prototype, "property", {
                         get: function () {
@@ -14662,6 +15132,34 @@ var lib;
                             loc: this.location
                         };
                     };
+                    BinaryExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    BinaryExpression.prototype.postOrderTraverse = function (visit, data) {
+                        this.left.postOrderTraverse(visit, data);
+                        this.right.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    BinaryExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.left.preOrderTraverse(visit, data);
+                        return this.right.preOrderTraverse(visit, data);
+                    };
+                    BinaryExpression.prototype.inOrderTraverse = function (visit, data) {
+                        this.left.inOrderTraverse(visit, data);
+                        visit(this, data);
+                        return this.right.inOrderTraverse(visit, data);
+                    };
+                    BinaryExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.left.reversePostOrderTraverse(visit, data);
+                        return this.right.reversePostOrderTraverse(visit, data);
+                    };
+                    BinaryExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.right.reversePreOrderTraverse(visit, data);
+                        this.left.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
                     BinaryExpression.PropertyTable = {
                         "+": new Identifier(0, 0, "plus", undefined, "+"),
                         "-": new Identifier(0, 0, "minus", undefined, "-"),
@@ -14685,19 +15183,233 @@ var lib;
                     return BinaryExpression;
                 })(Node);
                 cena.BinaryExpression = BinaryExpression;
+                var AssignmentExpression = (function (_super) {
+                    __extends(AssignmentExpression, _super);
+                    function AssignmentExpression(line, column, operator, right, left, raw) {
+                        _super.call(this, "AssignmentExpression", line, column, raw);
+                        this.operator = operator;
+                        this.right = fromCena(right);
+                        this.left = fromCena(left);
+                    }
+                    AssignmentExpression.fromCena = function (o) {
+                        return new AssignmentExpression(o.line, o.column, o.operator, o.left, o.right, o.raw);
+                    };
+                    AssignmentExpression.prototype.toEsprima = function () {
+                        return {
+                            type: "AssignmentExpression",
+                            operator: this.operator,
+                            left: castTo(this.left.toEsprima()),
+                            right: castTo(this.right.toEsprima()),
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    AssignmentExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    AssignmentExpression.prototype.postOrderTraverse = function (visit, data) {
+                        this.left.postOrderTraverse(visit, data);
+                        this.right.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    AssignmentExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.left.preOrderTraverse(visit, data);
+                        return this.right.preOrderTraverse(visit, data);
+                    };
+                    AssignmentExpression.prototype.inOrderTraverse = function (visit, data) {
+                        this.left.inOrderTraverse(visit, data);
+                        visit(this, data);
+                        return this.right.inOrderTraverse(visit, data);
+                    };
+                    AssignmentExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.left.reversePostOrderTraverse(visit, data);
+                        return this.right.reversePostOrderTraverse(visit, data);
+                    };
+                    AssignmentExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.right.reversePreOrderTraverse(visit, data);
+                        this.left.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    return AssignmentExpression;
+                })(Node);
+                cena.AssignmentExpression = AssignmentExpression;
                 var IfStatement = (function (_super) {
                     __extends(IfStatement, _super);
-                    function IfStatement() {
-                        _super.apply(this, arguments);
+                    function IfStatement(line, column, test, consequent, alternate, raw) {
+                        _super.call(this, "IfStatement", line, column, raw);
+                        this.test = fromCena(test);
+                        this.consequent = fromCena(consequent);
+                        this.alternate = fromCena(alternate);
                     }
+                    IfStatement.fromCena = function (o) {
+                        return new IfStatement(o.line, o.column, o.test, o.consequent, o.alternate, o.raw);
+                    };
+                    IfStatement.prototype.toEsprima = function () {
+                        return {
+                            type: "IfStatement",
+                            test: castTo(this.test.toEsprima()),
+                            alternate: castTo(this.alternate.toEsprima()),
+                            consequent: castTo(this.consequent.toEsprima()),
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    IfStatement.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    IfStatement.prototype.postOrderTraverse = function (visit, data) {
+                        this.test.postOrderTraverse(visit, data);
+                        this.alternate.postOrderTraverse(visit, data);
+                        this.consequent.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    IfStatement.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.test.preOrderTraverse(visit, data);
+                        this.alternate.preOrderTraverse(visit, data);
+                        return this.consequent.preOrderTraverse(visit, data);
+                    };
+                    IfStatement.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.test.inOrderTraverse(visit, data);
+                        this.alternate.inOrderTraverse(visit, data);
+                        return this.consequent.inOrderTraverse(visit, data);
+                    };
+                    IfStatement.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.consequent.reversePostOrderTraverse(visit, data);
+                        this.alternate.reversePostOrderTraverse(visit, data);
+                        this.test.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    IfStatement.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.consequent.reversePreOrderTraverse(visit, data);
+                        this.alternate.reversePreOrderTraverse(visit, data);
+                        return this.test.reversePreOrderTraverse(visit, data);
+                    };
                     return IfStatement;
                 })(Node);
                 cena.IfStatement = IfStatement;
+                var ConditionalExpression = (function (_super) {
+                    __extends(ConditionalExpression, _super);
+                    function ConditionalExpression(line, column, test, consequent, alternate, raw) {
+                        _super.call(this, "ConditionalExpression", line, column, raw);
+                        this.test = fromCena(test);
+                        this.consequent = fromCena(consequent);
+                        this.alternate = fromCena(alternate);
+                    }
+                    ConditionalExpression.fromCena = function (o) {
+                        return new ConditionalExpression(o.line, o.column, o.test, o.consequent, o.alternate, o.raw);
+                    };
+                    ConditionalExpression.prototype.toEsprima = function () {
+                        return {
+                            type: "ConditionalExpression",
+                            test: castTo(this.test.toEsprima()),
+                            alternate: castTo(this.alternate.toEsprima()),
+                            consequent: castTo(this.consequent.toEsprima()),
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    ConditionalExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    ConditionalExpression.prototype.postOrderTraverse = function (visit, data) {
+                        this.test.postOrderTraverse(visit, data);
+                        this.alternate.postOrderTraverse(visit, data);
+                        this.consequent.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ConditionalExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.test.preOrderTraverse(visit, data);
+                        this.alternate.preOrderTraverse(visit, data);
+                        return this.consequent.preOrderTraverse(visit, data);
+                    };
+                    ConditionalExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.test.inOrderTraverse(visit, data);
+                        this.alternate.inOrderTraverse(visit, data);
+                        return this.consequent.inOrderTraverse(visit, data);
+                    };
+                    ConditionalExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.consequent.reversePostOrderTraverse(visit, data);
+                        this.alternate.reversePostOrderTraverse(visit, data);
+                        this.test.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ConditionalExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.consequent.reversePreOrderTraverse(visit, data);
+                        this.alternate.reversePreOrderTraverse(visit, data);
+                        return this.test.reversePreOrderTraverse(visit, data);
+                    };
+                    return ConditionalExpression;
+                })(Node);
+                cena.ConditionalExpression = ConditionalExpression;
                 var ForStatement = (function (_super) {
                     __extends(ForStatement, _super);
-                    function ForStatement() {
-                        _super.apply(this, arguments);
+                    function ForStatement(line, column, init, test, update, body, raw) {
+                        _super.call(this, "ForStatement", line, column, raw);
+                        this.init = fromCena(init);
+                        this.test = fromCena(test);
+                        this.update = fromCena(update);
+                        this.body = fromCena(body);
                     }
+                    ForStatement.fromCena = function (o) {
+                        return new ForStatement(o.line, o.column, o.init, o.test, o.update, o.body, o.raw);
+                    };
+                    ForStatement.prototype.toEsprima = function () {
+                        return {
+                            type: "ForStatement",
+                            init: castTo(this.init.toEsprima()),
+                            test: castTo(this.test.toEsprima()),
+                            update: castTo(this.update.toEsprima()),
+                            body: castTo(this.body.toEsprima()),
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    ForStatement.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    ForStatement.prototype.postOrderTraverse = function (visit, data) {
+                        this.init.postOrderTraverse(visit, data);
+                        this.test.postOrderTraverse(visit, data);
+                        this.update.postOrderTraverse(visit, data);
+                        this.body.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ForStatement.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.init.preOrderTraverse(visit, data);
+                        this.test.preOrderTraverse(visit, data);
+                        this.update.preOrderTraverse(visit, data);
+                        return this.body.preOrderTraverse(visit, data);
+                    };
+                    ForStatement.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.init.inOrderTraverse(visit, data);
+                        this.test.inOrderTraverse(visit, data);
+                        this.update.inOrderTraverse(visit, data);
+                        return this.body.inOrderTraverse(visit, data);
+                    };
+                    ForStatement.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.body.reversePostOrderTraverse(visit, data);
+                        this.update.reversePostOrderTraverse(visit, data);
+                        this.test.reversePostOrderTraverse(visit, data);
+                        this.init.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ForStatement.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.body.reversePostOrderTraverse(visit, data);
+                        this.update.reversePostOrderTraverse(visit, data);
+                        this.test.reversePostOrderTraverse(visit, data);
+                        return this.init.reversePostOrderTraverse(visit, data);
+                    };
                     return ForStatement;
                 })(Node);
                 cena.ForStatement = ForStatement;
@@ -14705,8 +15417,42 @@ var lib;
                     __extends(ProgramExpression, _super);
                     function ProgramExpression(line, column, body, raw) {
                         _super.call(this, "ProgramExpression", line, column, raw);
-                        this.body = body;
+                        this.body = new CompoundNode(body);
                     }
+                    ProgramExpression.fromCena = function (o) {
+                        return new ProgramExpression(o.line, o.column, o.body, o.raw);
+                    };
+                    ProgramExpression.prototype.toEsprima = function () {
+                        return {
+                            type: "Program",
+                            body: castTo(this.body.toEsprima()),
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    ProgramExpression.prototype.hasChildren = function () {
+                        return this.body.hasChildren();
+                    };
+                    ProgramExpression.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.body.postOrderTraverse(visit, data);
+                    };
+                    ProgramExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.body.preOrderTraverse(visit, data);
+                    };
+                    ProgramExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.body.inOrderTraverse(visit, data);
+                    };
+                    ProgramExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.body.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ProgramExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.body.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
                     return ProgramExpression;
                 })(Node);
                 cena.ProgramExpression = ProgramExpression;
@@ -14721,12 +15467,39 @@ var lib;
                             this.argument = new EmptyExpression();
                         }
                     }
+                    ReturnStatement.fromCena = function (o) {
+                        return new ReturnStatement(o.line, o.column, o.argument, o.raw);
+                    };
                     ReturnStatement.prototype.toEsprima = function () {
                         return {
                             type: "ReturnStatement",
                             loc: this.location,
+                            raw: this.raw,
                             argument: lib.utils.castTo(this.argument.toEsprima())
                         };
+                    };
+                    ReturnStatement.prototype.hasChildren = function () {
+                        return !(this.argument instanceof EmptyExpression);
+                    };
+                    ReturnStatement.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.postOrderTraverse(visit, data);
+                    };
+                    ReturnStatement.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.preOrderTraverse(visit, data);
+                    };
+                    ReturnStatement.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.argument.inOrderTraverse(visit, data);
+                    };
+                    ReturnStatement.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.argument.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ReturnStatement.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.argument.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
                     };
                     return ReturnStatement;
                 })(Node);
@@ -14737,6 +15510,40 @@ var lib;
                         _super.call(this, "ExpressionStatement", line, column, raw);
                         this.expression = expression;
                     }
+                    ExpressionStatement.fromCena = function (o) {
+                        return new ReturnStatement(o.line, o.column, o.argument, o.raw);
+                    };
+                    ExpressionStatement.prototype.toEsprima = function () {
+                        return {
+                            type: "ExpressionStatement",
+                            loc: this.location,
+                            raw: this.raw,
+                            expression: lib.utils.castTo(this.expression.toEsprima())
+                        };
+                    };
+                    ExpressionStatement.prototype.hasChildren = function () {
+                        return !(this.expression instanceof EmptyExpression);
+                    };
+                    ExpressionStatement.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.expression.postOrderTraverse(visit, data);
+                    };
+                    ExpressionStatement.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.expression.preOrderTraverse(visit, data);
+                    };
+                    ExpressionStatement.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.expression.inOrderTraverse(visit, data);
+                    };
+                    ExpressionStatement.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.expression.reversePreOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ExpressionStatement.prototype.reversePreOrderTraverse = function (visit, data) {
+                        this.expression.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
                     return ExpressionStatement;
                 })(Node);
                 cena.ExpressionStatement = ExpressionStatement;
@@ -14748,6 +15555,109 @@ var lib;
                     return ErrorNode;
                 })(Node);
                 cena.ErrorNode = ErrorNode;
+                var SubscriptExpression = (function (_super) {
+                    __extends(SubscriptExpression, _super);
+                    function SubscriptExpression(line, column, object, property, raw) {
+                        _super.call(this, "SubscriptExpression", line, column, raw);
+                        this.object = fromCena(init);
+                        this.property = fromCena(property);
+                    }
+                    SubscriptExpression.fromCena = function (o) {
+                        return new SubscriptExpression(o.line, o.column, o.object, o.property, o.raw);
+                    };
+                    SubscriptExpression.prototype.toEsprima = function () {
+                        return {
+                            type: "MemberExpression",
+                            object: castTo(this.object.toEsprima()),
+                            property: castTo(this.property.toEsprima()),
+                            computed: true,
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    SubscriptExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    SubscriptExpression.prototype.postOrderTraverse = function (visit, data) {
+                        this.object.postOrderTraverse(visit, data);
+                        this.property.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    SubscriptExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.object.postOrderTraverse(visit, data);
+                        return this.property.postOrderTraverse(visit, data);
+                    };
+                    SubscriptExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.object.inOrderTraverse(visit, data);
+                        return this.property.inOrderTraverse(visit, data);
+                    };
+                    SubscriptExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.property.reversePostOrderTraverse(visit, data);
+                        this.object.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    SubscriptExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.property.reversePreOrderTraverse(visit, data);
+                        return this.object.reversePreOrderTraverse(visit, data);
+                    };
+                    return SubscriptExpression;
+                })(Node);
+                cena.SubscriptExpression = SubscriptExpression;
+                var MemberExpression = (function (_super) {
+                    __extends(MemberExpression, _super);
+                    function MemberExpression(line, column, object, property, computed, raw) {
+                        _super.call(this, "MemberExpression", line, column, raw);
+                        this.object = fromCena(init);
+                        this.property = fromCena(property);
+                        this.computed = computed;
+                    }
+                    MemberExpression.fromCena = function (o) {
+                        return new MemberExpression(o.line, o.column, o.object, o.property, o.computed, o.raw);
+                    };
+                    MemberExpression.prototype.toEsprima = function () {
+                        return {
+                            type: "MemberExpression",
+                            object: castTo(this.object.toEsprima()),
+                            property: castTo(this.property.toEsprima()),
+                            computed: this.computed,
+                            raw: this.raw,
+                            loc: this.location
+                        };
+                    };
+                    MemberExpression.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    MemberExpression.prototype.postOrderTraverse = function (visit, data) {
+                        this.object.postOrderTraverse(visit, data);
+                        this.property.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    MemberExpression.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.object.postOrderTraverse(visit, data);
+                        return this.property.postOrderTraverse(visit, data);
+                    };
+                    MemberExpression.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.object.inOrderTraverse(visit, data);
+                        return this.property.inOrderTraverse(visit, data);
+                    };
+                    MemberExpression.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.property.reversePostOrderTraverse(visit, data);
+                        this.object.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    MemberExpression.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        this.property.reversePreOrderTraverse(visit, data);
+                        return this.object.reversePreOrderTraverse(visit, data);
+                    };
+                    return MemberExpression;
+                })(Node);
+                cena.MemberExpression = MemberExpression;
                 var dispatch = new Map();
                 function fromCena(o) {
                     if (isUndefined(o) || isUndefined(o.type) || !dispatch.has(o.type)) {
@@ -14768,7 +15678,35 @@ var lib;
                         return;
                     }
                     initialized = true;
-                    dispatch.set("test", Node.fromCena);
+                    dispatch.set("EmptyExpression", EmptyExpression.fromCena);
+                    dispatch.set("NullNode", NullNode.fromCena);
+                    dispatch.set("StringLiteral", StringLiteral.fromCena);
+                    dispatch.set("BooleanLiteral", BooleanLiteral.fromCena);
+                    dispatch.set("CharLiteral", CharLiteral.fromCena);
+                    dispatch.set("Integer8Literal", Integer8Literal.fromCena);
+                    dispatch.set("Integer32Literal", Integer32Literal.fromCena);
+                    dispatch.set("Integer64Literal", Integer64Literal.fromCena);
+                    dispatch.set("Float32Literal", Float32Literal.fromCena);
+                    dispatch.set("Float64Literal", Float64Literal.fromCena);
+                    dispatch.set("TypeExpression", TypeExpression.fromCena);
+                    dispatch.set("Identifier", Identifier.fromCena);
+                    dispatch.set("BlockStatement", BlockStatement.fromCena);
+                    dispatch.set("FunctionExpression", FunctionExpression.fromCena);
+                    dispatch.set("CallExpression", CallExpression.fromCena);
+                    dispatch.set("ParenExpression", ParenExpression.fromCena);
+                    dispatch.set("DereferenceExpression", DereferenceExpression.fromCena);
+                    dispatch.set("ReferenceExpression", ReferenceExpression.fromCena);
+                    dispatch.set("UnaryExpression", UnaryExpression.fromCena);
+                    dispatch.set("BinaryExpression", BinaryExpression.fromCena);
+                    dispatch.set("AssignmentExpression", AssignmentExpression.fromCena);
+                    dispatch.set("IfStatement", IfStatement.fromCena);
+                    dispatch.set("ConditionalExpression", ConditionalExpression.fromCena);
+                    dispatch.set("ForStatement", ForStatement.fromCena);
+                    dispatch.set("ProgramExpression", ProgramExpression.fromCena);
+                    dispatch.set("ReturnStatement", ReturnStatement.fromCena);
+                    dispatch.set("ExpressionStatement", ExpressionStatement.fromCena);
+                    dispatch.set("SubscriptExpression", SubscriptExpression.fromCena);
+                    dispatch.set("MemberExpression", MemberExpression.fromCena);
                 }
                 cena.init = init;
                 init();
@@ -15812,7 +16750,7 @@ var lib;
             var Syntax = esprima.Syntax;
             var castTo = lib.utils.castTo;
             var hash = lib.utils.hash;
-            var leftMostHash = new lib.utils.Map();
+            var leftMostHash = new Map();
             function leftMost(node) {
                 var h = hash(node);
                 if (leftMostHash.has(h)) {
@@ -16490,7 +17428,7 @@ var lib;
     (function (ast) {
         var types;
         (function (types) {
-            var Node = esprima.Syntax.Node;
+            var Node = lib.ast.esprima.Syntax.Node;
             var assert = lib.utils.assert;
             var n = types.namedTypes;
             var b = types.builders;

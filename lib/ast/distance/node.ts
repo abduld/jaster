@@ -8,7 +8,7 @@ module lib.ast {
         import castTo = lib.utils.castTo;
         import hash = lib.utils.hash;
 
-        var leftMostHash: lib.utils.Map<string, Syntax.Node> = new lib.utils.Map<string, Syntax.Node>();
+        var leftMostHash: Map<string, Syntax.Node> = new Map<string, Syntax.Node>();
 
         export function leftMost(node: typeof undefined): Syntax.Node;
         export function leftMost(node: Array<Node>): Syntax.Node;
