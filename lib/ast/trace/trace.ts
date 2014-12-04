@@ -1,4 +1,3 @@
-
 /// <reference path="count.ts" />
 /// <reference path="event.ts" />
 
@@ -19,40 +18,46 @@ module lib.ast {
             id: number
         }
         class TracedNode {
-            private log_: LogEvent[];
-            private id_: NodeId;
-            private loc_: LineLocation;
-            constructor(loc: LineLocation) {
+            private log_:LogEvent[];
+            private id_:NodeId;
+            private loc_:LineLocation;
+
+            constructor(loc:LineLocation) {
                 this.loc_ = loc;
             }
+
             enter() {
 
             }
+
             exit() {
 
             }
+
             eval() {
 
             }
         }
         class TracedFunction extends TracedNode {
-            private fun_: Function;
-            constructor(loc: LineLocation, fun: Function) {
+            private fun_:Function;
+
+            constructor(loc:LineLocation, fun:Function) {
                 var self = this;
                 super(loc);
-                this.fun_ = function(...args: any[]) {
+                this.fun_ = function (...args:any[]) {
                     self.enter();
                     var res = fun(args);
                     self.exit();
                     return res;
                 }
-        }
+            }
+
             eval() {
 
             }
         }
 
-        export function makeTraceable(o: any) {
+        export function makeTraceable(o:any) {
 
         }
     }

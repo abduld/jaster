@@ -1,4 +1,3 @@
-
 module lib.ast.types {
     export module definitions {
         import core = lib.ast.types.definitions.core;
@@ -19,14 +18,14 @@ module lib.ast.types {
         def("LetStatement")
             .bases("Statement")
             .build("head", "body")
-        // TODO Deviating from the spec by reusing VariableDeclarator here.
+            // TODO Deviating from the spec by reusing VariableDeclarator here.
             .field("head", [def("VariableDeclarator")])
             .field("body", def("Statement"));
 
         def("LetExpression")
             .bases("Expression")
             .build("head", "body")
-        // TODO Deviating from the spec by reusing VariableDeclarator here.
+            // TODO Deviating from the spec by reusing VariableDeclarator here.
             .field("head", [def("VariableDeclarator")])
             .field("body", def("Expression"));
 

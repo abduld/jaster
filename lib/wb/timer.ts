@@ -1,5 +1,3 @@
-
-
 module lib.wb {
 
     interface TimeEntry {
@@ -9,8 +7,9 @@ module lib.wb {
         endTime?: number;
         stopped: boolean;
     }
-    var times_: Array<TimeEntry> = [];
-    export function wbTime_start(category: string, ...args: any[]) {
+    var times_:Array<TimeEntry> = [];
+
+    export function wbTime_start(category:string, ...args:any[]) {
         times_.unshift({
             category: category,
             message: args.join(""),
@@ -18,8 +17,9 @@ module lib.wb {
             startTime: lib.utils.timer.now()
         });
     }
-    export function wbTime_stop(category: string, ...args: any[]) {
-        var timer = _.find(times_, { 'category': category, 'stopped': false });
+
+    export function wbTime_stop(category:string, ...args:any[]) {
+        var timer = _.find(times_, {'category': category, 'stopped': false});
         if (lib.utils.isUndefined(timer)) {
             return;
         }

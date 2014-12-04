@@ -1,5 +1,4 @@
-
-module lib {
+﻿module lib {
     export module utils {
         export module detail {
 
@@ -12,16 +11,18 @@ module lib {
             }
 
             export class Logger {
-                private _level: LogType;
-                constructor(level?: LogType) {
+                private _level:LogType;
+
+                constructor(level?:LogType) {
                     if (level) {
                         this._level = level;
                     } else {
                         this._level = LogType.Debug;
                     }
                 }
-                private _go(msg: string, type: LogType) {
-                    var color: { [id: string]: string; } = {
+
+                private _go(msg:string, type:LogType) {
+                    var color:{ [id: string]: string; } = {
                         "LogType.Debug": '\033[39m',
                         "LogType.Trace": '\033[39m',
                         "LogType.Warn": '\033[33m',
@@ -46,11 +47,26 @@ module lib {
                         }
                     }
                 }
-                debug(msg) { this._go(msg, LogType.Debug); }
-                trace(msg: string) { this._go(msg, LogType.Trace); }
-                warn(msg: string) { this._go(msg, LogType.Warn); }
-                error(msg: string) { this._go(msg, LogType.Error); }
-                fatal(msg: string) { this._go(msg, LogType.Fatal); }
+
+                debug(msg) {
+                    this._go(msg, LogType.Debug);
+                }
+
+                trace(msg:string) {
+                    this._go(msg, LogType.Trace);
+                }
+
+                warn(msg:string) {
+                    this._go(msg, LogType.Warn);
+                }
+
+                error(msg:string) {
+                    this._go(msg, LogType.Error);
+                }
+
+                fatal(msg:string) {
+                    this._go(msg, LogType.Fatal);
+                }
             }
         }
 

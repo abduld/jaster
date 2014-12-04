@@ -1,22 +1,21 @@
-
 /// <reference path="recast.ts" />
 module lib.ast.recast {
     import types = lib.ast.types;
     import assert = lib.utils.assert;
     var n = types.namedTypes;
-    var isArray: types.Type = types.builtInTypes["array"];
-    var isObject: types.Type = types.builtInTypes["object"];
-    var isString: types.Type = types.builtInTypes["string"];
-    var isNumber: types.Type = types.builtInTypes["number"];
+    var isArray:types.Type = types.builtInTypes["array"];
+    var isObject:types.Type = types.builtInTypes["object"];
+    var isString:types.Type = types.builtInTypes["string"];
+    var isNumber:types.Type = types.builtInTypes["number"];
     import sourceMap = lib.ast.sourcemap;
-    var SourceLocation: types.Type = types.namedTypes["SourceLocation"];
-    var Position: types.Type = types.namedTypes["Position"];
+    var SourceLocation:types.Type = types.namedTypes["SourceLocation"];
+    var Position:types.Type = types.namedTypes["Position"];
 
     export class Mapping {
 
-        sourceLines: any;
-        sourceLoc: any;
-        targetLoc: any;
+        sourceLines:any;
+        sourceLoc:any;
+        targetLoc:any;
 
         constructor(sourceLines, sourceLoc, targetLoc?) {
             assert.ok(this instanceof Mapping);
@@ -32,16 +31,16 @@ module lib.ast.recast {
                     isNumber.check(targetLoc.start.column) &&
                     isNumber.check(targetLoc.end.line) &&
                     isNumber.check(targetLoc.end.column)
-                    );
+                );
             } else {
                 // Assume identity mapping if no targetLoc specified.
                 targetLoc = sourceLoc;
             }
 
             Object.defineProperties(this, {
-                sourceLines: { value: sourceLines },
-                sourceLoc: { value: sourceLoc },
-                targetLoc: { value: targetLoc }
+                sourceLines: {value: sourceLines},
+                sourceLoc: {value: sourceLoc},
+                targetLoc: {value: targetLoc}
             });
         }
 
@@ -73,7 +72,7 @@ module lib.ast.recast {
                 return skipChars(
                     sourceLines, sourceFromPos,
                     lines, targetFromPos, targetToPos
-                    );
+                );
             }
 
             if (comparePos(start, targetLoc.start) <= 0) {
@@ -114,7 +113,7 @@ module lib.ast.recast {
 
                     targetLoc = {
                         // Same as subtractPos(start, start.line, start.column):
-                        start: { line: 1, column: 0 },
+                        start: {line: 1, column: 0},
                         end: subtractPos(targetLoc.end, start.line, start.column)
                     };
 
@@ -126,7 +125,7 @@ module lib.ast.recast {
 
                     targetLoc = {
                         // Same as subtractPos(start, start.line, start.column):
-                        start: { line: 1, column: 0 },
+                        start: {line: 1, column: 0},
                         end: subtractPos(end, start.line, start.column)
                     };
                 }
@@ -173,8 +172,8 @@ module lib.ast.recast {
                 targetLoc.start = {
                     line: startLine,
                     column: noNegativeColumns
-                    ? Math.max(0, startColumn)
-                    : startColumn
+                        ? Math.max(0, startColumn)
+                        : startColumn
                 };
             }
 
@@ -183,8 +182,8 @@ module lib.ast.recast {
                 targetLoc.end = {
                     line: endLine,
                     column: noNegativeColumns
-                    ? Math.max(0, endColumn)
-                    : endColumn
+                        ? Math.max(0, endColumn)
+                        : endColumn
                 };
             }
 
@@ -198,8 +197,8 @@ module lib.ast.recast {
         return {
             line: toPos.line + line - 1,
             column: (toPos.line === 1)
-            ? toPos.column + column
-            : toPos.column
+                ? toPos.column + column
+                : toPos.column
         };
     }
 
@@ -208,13 +207,13 @@ module lib.ast.recast {
         return {
             line: fromPos.line - line + 1,
             column: (fromPos.line === line)
-            ? fromPos.column - column
-            : fromPos.column
+                ? fromPos.column - column
+                : fromPos.column
         };
     }
 
     function skipChars(sourceLines, sourceFromPos,
-        targetLines, targetFromPos, targetToPos) {
+                       targetLines, targetFromPos, targetToPos) {
         assert.ok(sourceLines instanceof Lines);
         assert.ok(targetLines instanceof Lines);
         Position.assert(sourceFromPos);
@@ -247,12 +246,12 @@ module lib.ast.recast {
             }
 
             while (comparePos(targetCursor, targetToPos) < 0 &&
-                targetLines.nextPos(targetCursor, true)) {
+            targetLines.nextPos(targetCursor, true)) {
                 assert.ok(sourceLines.nextPos(sourceCursor, true));
                 assert.strictEqual(
                     sourceLines.charAt(sourceCursor),
                     targetLines.charAt(targetCursor)
-                    );
+                );
             }
 
         } else {
@@ -275,12 +274,12 @@ module lib.ast.recast {
             }
 
             while (comparePos(targetToPos, targetCursor) < 0 &&
-                targetLines.prevPos(targetCursor, true)) {
+            targetLines.prevPos(targetCursor, true)) {
                 assert.ok(sourceLines.prevPos(sourceCursor, true));
                 assert.strictEqual(
                     sourceLines.charAt(sourceCursor),
                     targetLines.charAt(targetCursor)
-                    );
+                );
             }
         }
 

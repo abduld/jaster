@@ -32,7 +32,7 @@ module lib.ast {
                             false,
                             "Nodes differ in the following path: " +
                             problemPath.map(subscriptForProperty).join("")
-                            );
+                        );
                     }
                 }
             }

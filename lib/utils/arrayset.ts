@@ -34,17 +34,18 @@ module lib {
          * strings are supported for membership.
          */
         export class ArraySet {
-            private _array: string[] = [];
-            private _set: { [key: string]: number; } = {};
+            private _array:string[] = [];
+            private _set:{ [key: string]: number; } = {};
 
             constructor() {
                 this._array = [];
                 this._set = {};
             }
+
             /**
              * Static method for creating ArraySet instances from an existing array.
              */
-            static fromArray(aArray, aAllowDuplicates: boolean) {
+            static fromArray(aArray, aAllowDuplicates:boolean) {
                 var set = new ArraySet();
                 for (var i = 0, len = aArray.length; i < len; i++) {
                     set.add(aArray[i], aAllowDuplicates);
@@ -57,7 +58,7 @@ module lib {
              *
              * @param String aStr
              */
-            add(aStr: string, aAllowDuplicates?: boolean) {
+            add(aStr:string, aAllowDuplicates?:boolean) {
                 var isDuplicate = this.has(aStr);
                 var idx = this._array.length;
                 if (!isDuplicate || aAllowDuplicates) {
@@ -73,7 +74,7 @@ module lib {
              *
              * @param String aStr
              */
-            has(aStr: string): boolean {
+            has(aStr:string):boolean {
                 return Object.prototype.hasOwnProperty.call(this._set,
                     internal.toSetString(aStr));
             }
@@ -83,7 +84,7 @@ module lib {
              *
              * @param String aStr
              */
-            indexOf(aStr: string) {
+            indexOf(aStr:string) {
                 if (this.has(aStr)) {
                     return this._set[internal.toSetString(aStr)];
                 }
@@ -95,7 +96,7 @@ module lib {
              *
              * @param Number aIdx
              */
-            at(aIdx: number): string {
+            at(aIdx:number):string {
                 if (aIdx >= 0 && aIdx < this._array.length) {
                     return this._array[aIdx];
                 }
@@ -107,7 +108,7 @@ module lib {
              * indicated by indexOf). Note that this is a copy of the internal array used
              * for storing the members so that no one can mess with internal state.
              */
-            toArray(): string[] {
+            toArray():string[] {
                 return this._array.slice();
             }
         }

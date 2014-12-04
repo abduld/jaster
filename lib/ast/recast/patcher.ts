@@ -1,4 +1,3 @@
-
 /// <reference path="recast.ts" />
 module lib.ast.recast {
     import types = lib.ast.types;
@@ -6,10 +5,10 @@ module lib.ast.recast {
     import NodePath = types.NodePath;
     import sourceMap = lib.ast.sourcemap;
     var n = types.namedTypes;
-    var isArray: types.Type = types.builtInTypes["array"];
-    var isObject: types.Type = types.builtInTypes["object"];
-    var isString: types.Type = types.builtInTypes["string"];
-    var isFunction: types.Type = types.builtInTypes["function"];
+    var isArray:types.Type = types.builtInTypes["array"];
+    var isObject:types.Type = types.builtInTypes["object"];
+    var isString:types.Type = types.builtInTypes["string"];
+    var isFunction:types.Type = types.builtInTypes["function"];
     var b = types.builders;
     var Node = types.namedTypes["Node"];
     var Expression = types.namedTypes["Expression"];
@@ -22,7 +21,7 @@ module lib.ast.recast {
         var self = this,
             replacements = [];
 
-        self.replace = function(loc, lines) {
+        self.replace = function (loc, lines) {
             if (isString.check(lines))
                 lines = fromString(lines);
 
@@ -33,10 +32,10 @@ module lib.ast.recast {
             });
         };
 
-        self.get = function(loc) {
+        self.get = function (loc) {
             // If no location is provided, return the complete Lines object.
             loc = loc || {
-                start: { line: 1, column: 0 },
+                start: {line: 1, column: 0},
                 end: {
                     line: lines.length,
                     column: lines.getLineLength(lines.length)
@@ -51,17 +50,17 @@ module lib.ast.recast {
                 toConcat.push(lines.slice(from, to));
             }
 
-            replacements.sort(function(a, b) {
+            replacements.sort(function (a, b) {
                 return comparePos(a.start, b.start);
-            }).forEach(function(rep) {
-                    if (comparePos(sliceFrom, rep.start) > 0) {
-                        // Ignore nested replacement ranges.
-                    } else {
-                        pushSlice(sliceFrom, rep.start);
-                        toConcat.push(rep.lines);
-                        sliceFrom = rep.end;
-                    }
-                });
+            }).forEach(function (rep) {
+                if (comparePos(sliceFrom, rep.start) > 0) {
+                    // Ignore nested replacement ranges.
+                } else {
+                    pushSlice(sliceFrom, rep.start);
+                    toConcat.push(rep.lines);
+                    sliceFrom = rep.end;
+                }
+            });
 
             pushSlice(sliceFrom, loc.end);
 
@@ -86,16 +85,16 @@ module lib.ast.recast {
         if (!lines || !findReprints(path, reprints))
             return;
 
-        return function(print) {
+        return function (print) {
             var patcher = new Patcher(lines);
 
-            reprints.forEach(function(reprint) {
+            reprints.forEach(function (reprint) {
                 var old = reprint.oldPath.value;
                 SourceLocation.assert(old.loc, true);
                 patcher.replace(
                     old.loc,
                     print(reprint.newPath).indentTail(old.loc.indent)
-                    );
+                );
             });
 
             return patcher.get(origLoc).indentTail(-orig.loc.indent);
@@ -227,7 +226,7 @@ module lib.ast.recast {
 
     // This object is reused in hasOpeningParen and hasClosingParen to avoid
     // having to allocate a temporary object.
-    var reusablePos = { line: 1, column: 0 };
+    var reusablePos = {line: 1, column: 0};
 
     function hasOpeningParen(oldPath) {
         var oldNode = oldPath.value;

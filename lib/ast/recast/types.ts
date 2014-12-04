@@ -1,4 +1,3 @@
-
 /// <reference path="../types/def/core.ts" />
 /// <reference path="../types/def/e4x.ts" />
 /// <reference path="../types/def/es6.ts" />

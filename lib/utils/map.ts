@@ -1,4 +1,3 @@
-
 /*
  Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
  Redistribution and use in source and binary forms, with or without
@@ -29,24 +28,24 @@ module lib.utils {
             this.__data = {};
         }
 
-        get(key: K): V {
+        get(key:K):V {
             var skey = '$' + key;
             if (this.__data.hasOwnProperty(skey)) {
                 return this.__data[skey];
             }
         }
 
-        has(key: K) {
+        has(key:K) {
             var skey = '$' + key;
             return this.__data.hasOwnProperty(skey);
         }
 
-        set(key: K, val: V) {
+        set(key:K, val:V) {
             var skey = '$' + key;
             this.__data[skey] = val;
         }
 
-        delete(key: K) {
+        delete(key:K) {
             var skey = '$' + key;
             return delete this.__data[skey];
         }
@@ -56,7 +55,7 @@ module lib.utils {
         }
 
         forEach(callback, thisArg) {
-            var real, key: K;
+            var real, key:K;
             for (real in this.__data) {
                 if (this.__data.hasOwnProperty(real)) {
                     key = real.substring(1);

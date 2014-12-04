@@ -1,6 +1,3 @@
-
-
-
 module lib.ast {
     export module distance {
         import esprima = lib.ast.esprima;
@@ -8,21 +5,21 @@ module lib.ast {
         import castTo = lib.utils.castTo;
         import hash = lib.utils.hash;
 
-        var leftMostHash: Map<string, Syntax.Node> = new Map<string, Syntax.Node>();
+        var leftMostHash:Map<string, Syntax.Node> = new Map<string, Syntax.Node>();
 
-        export function leftMost(node: typeof undefined): Syntax.Node;
-        export function leftMost(node: Array<Node>): Syntax.Node;
-        export function leftMost(node: Syntax.Node): Syntax.Node;
-        export function leftMost(node: any): Syntax.Node {
+        export function leftMost(node:typeof undefined):Syntax.Node;
+        export function leftMost(node:Array<Node>):Syntax.Node;
+        export function leftMost(node:Syntax.Node):Syntax.Node;
+        export function leftMost(node:any):Syntax.Node {
             var h = hash(node);
             if (leftMostHash.has(h)) {
                 return leftMostHash.get(h);
             } else {
-                var res: Syntax.Node = function() {
+                var res:Syntax.Node = function () {
                     if (lib.utils.isUndefined(node)) {
                         return node;
                     } else if (lib.utils.isArray(node)) {
-                        var arry: Array<any> = castTo<Array<any>>(node);
+                        var arry:Array<any> = castTo<Array<any>>(node);
                         if (arry.length > 0) {
                             return leftMost(arry[0]);
                         } else {
@@ -77,7 +74,8 @@ module lib.ast {
                     } else if (node instanceof Syntax.ForStatement) {
                         return leftMost(castTo<Syntax.ForStatement>(node).init);
                     } else if (node instanceof Syntax.DoWhileStatement) {
-                        return leftMost(castTo<Syntax.DoWhileStatement>(node).test);;
+                        return leftMost(castTo<Syntax.DoWhileStatement>(node).test);
+                        ;
                     } else if (node instanceof Syntax.WhileStatement) {
                         return leftMost(castTo<Syntax.WhileStatement>(node).test);
                     } else if (node instanceof Syntax.TryStatement) {
@@ -107,7 +105,7 @@ module lib.ast {
                     } else {
                         return undefined;
                     }
-                } ();
+                }();
 
                 leftMostHash.set(h, res);
                 return res;

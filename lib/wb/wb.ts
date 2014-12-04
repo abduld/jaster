@@ -1,7 +1,6 @@
-
-
-module lib {
-    export module wb { }
+﻿module lib {
+    export module wb {
+    }
 }
 
 /// <reference path="timer.ts" />

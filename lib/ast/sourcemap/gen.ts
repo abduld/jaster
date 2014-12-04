@@ -1,4 +1,4 @@
-/* -*- Mode: js; js-indent-level: 2; -*- */
+﻿/* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE or:
@@ -35,12 +35,12 @@ module lib.ast {
                 this._sourcesContents = null;
             }
 
-            private _file: string;
-            private _sourceRoot: string;
-            private _sources: ArraySet;
-            private _names: ArraySet;
-            private _mappings: Array<any>;
-            private _sourcesContents: any;
+            private _file:string;
+            private _sourceRoot:string;
+            private _sources:ArraySet;
+            private _names:ArraySet;
+            private _mappings:Array<any>;
+            private _sourcesContents:any;
             private _version = 3;
 
             set file(val) {
@@ -103,8 +103,8 @@ module lib.ast {
                     file: aSourceMapConsumer.file,
                     sourceRoot: sourceRoot
                 });
-                aSourceMapConsumer.eachMapping(function(mapping) {
-                    var newMapping: {
+                aSourceMapConsumer.eachMapping(function (mapping) {
+                    var newMapping:{
                         source?: string;
                         name?: string;
                         original?: {
@@ -114,11 +114,11 @@ module lib.ast {
                             line: number; column: number;
                         }
                     } = {
-                            generated: {
-                                line: mapping.generatedLine,
-                                column: mapping.generatedColumn
-                            }
-                        };
+                        generated: {
+                            line: mapping.generatedLine,
+                            column: mapping.generatedColumn
+                        }
+                    };
 
                     if (mapping.source != null) {
                         newMapping.source = mapping.source;
@@ -138,7 +138,7 @@ module lib.ast {
 
                     generator.addMapping(newMapping);
                 });
-                aSourceMapConsumer.sources.forEach(function(sourceFile) {
+                aSourceMapConsumer.sources.forEach(function (sourceFile) {
                     var content = aSourceMapConsumer.sourceContentFor(sourceFile);
                     if (content != null) {
                         generator.setSourceContent(sourceFile, content);
@@ -233,7 +233,7 @@ module lib.ast {
                         throw new Error(
                             'applySourceMap requires either an explicit source file, ' +
                             'or the source map\'s "file" property. Both were omitted.'
-                            );
+                        );
                     }
                     sourceFile = aSourceMapConsumer.file;
                 }
@@ -248,7 +248,7 @@ module lib.ast {
                 var newNames = new ArraySet();
 
                 // Find mappings for the "sourceFile"
-                this._mappings.forEach(function(mapping) {
+                this._mappings.forEach(function (mapping) {
                     if (mapping.source === sourceFile && mapping.originalLine != null) {
                         // Check if it can be mapped by the source map, then update the mapping.
                         var original = aSourceMapConsumer.originalPositionFor({
@@ -287,7 +287,7 @@ module lib.ast {
                 this._names = newNames;
 
                 // Copy sourcesContents of applied map.
-                aSourceMapConsumer.sources.forEach(function(sourceFile) {
+                aSourceMapConsumer.sources.forEach(function (sourceFile) {
                     var content = aSourceMapConsumer.sourceContentFor(sourceFile);
                     if (content != null) {
                         if (aSourceMapPath != null) {
@@ -313,7 +313,7 @@ module lib.ast {
              * in to one of these categories.
              */
             private _validateMapping(aGenerated, aOriginal, aSource,
-                aName) {
+                                     aName) {
                 if (aGenerated && 'line' in aGenerated && 'column' in aGenerated
                     && aGenerated.line > 0 && aGenerated.column >= 0
                     && !aOriginal && !aSource && !aName) {
@@ -379,26 +379,26 @@ module lib.ast {
                     }
 
                     result += base64VLQ.encode(mapping.generatedColumn
-                        - previousGeneratedColumn);
+                    - previousGeneratedColumn);
                     previousGeneratedColumn = mapping.generatedColumn;
 
                     if (mapping.source != null) {
                         result += base64VLQ.encode(this._sources.indexOf(mapping.source)
-                            - previousSource);
+                        - previousSource);
                         previousSource = this._sources.indexOf(mapping.source);
 
                         // lines are stored 0-based in SourceMap spec version 3
                         result += base64VLQ.encode(mapping.originalLine - 1
-                            - previousOriginalLine);
+                        - previousOriginalLine);
                         previousOriginalLine = mapping.originalLine - 1;
 
                         result += base64VLQ.encode(mapping.originalColumn
-                            - previousOriginalColumn);
+                        - previousOriginalColumn);
                         previousOriginalColumn = mapping.originalColumn;
 
                         if (mapping.name != null) {
                             result += base64VLQ.encode(this._names.indexOf(mapping.name)
-                                - previousName);
+                            - previousName);
                             previousName = this._names.indexOf(mapping.name);
                         }
                     }
@@ -408,7 +408,7 @@ module lib.ast {
             }
 
             _generateSourcesContent(aSources, aSourceRoot) {
-                return aSources.map(function(source) {
+                return aSources.map(function (source) {
                     if (!this._sourcesContents) {
                         return null;
                     }
@@ -427,7 +427,7 @@ module lib.ast {
              * Externalize the source map.
              */
             toJSON() {
-                var map: {
+                var map:{
                     file?: string;
                     version: number;
                     sources: any[];
@@ -436,11 +436,11 @@ module lib.ast {
                     sourceRoot?: string;
                     sourcesContent?: any;
                 } = {
-                        version: this._version,
-                        sources: this._sources.toArray(),
-                        names: this._names.toArray(),
-                        mappings: this._serializeMappings()
-                    };
+                    version: this._version,
+                    sources: this._sources.toArray(),
+                    names: this._names.toArray(),
+                    mappings: this._serializeMappings()
+                };
                 if (this._file != null) {
                     map.file = this._file;
                 }

@@ -1,5 +1,4 @@
-
-/// <reference path='../../utils/utils.ts' />
+﻿/// <reference path='../../utils/utils.ts' />
 
 module lib.c {
     export module memory {
@@ -7,21 +6,24 @@ module lib.c {
             Shared,
             Global,
             Host
-        };
+        }
+        ;
         import CLiteral = lib.c.type.detail.CLiteral;
         import CLiteralKind = lib.c.type.detail.CLiteralKind;
         export class Reference {
-            id: string;
-            data: DataView;
-            addressSpace: AddressSpace;
-            KIND: CLiteralKind;
-            constructor(id: string, addressSpace: AddressSpace, data: DataView) {
+            id:string;
+            data:DataView;
+            addressSpace:AddressSpace;
+            KIND:CLiteralKind;
+
+            constructor(id:string, addressSpace:AddressSpace, data:DataView) {
                 this.id = id;
                 this.addressSpace = addressSpace;
                 this.data = data;
                 this.KIND = CLiteralKind.Int8;
             }
-            get(idx: number): CLiteral {
+
+            get(idx:number):CLiteral {
                 switch (this.KIND) {
                     case CLiteralKind.Int8:
                         return new lib.c.type.Int8(this.data.getInt8(idx));
@@ -39,16 +41,17 @@ module lib.c {
                         return new lib.c.type.Uint32(this.data.getUint32(idx));
                 }
             }
-            set(idx: number, val: number): CLiteral;
-            set(idx: number, val: CLiteral): CLiteral;
-            set(idx: number, val: any): any {
+
+            set(idx:number, val:number):CLiteral;
+            set(idx:number, val:CLiteral):CLiteral;
+            set(idx:number, val:any):any {
                 if (val instanceof lib.c.type.Int64) {
-                    var i64: lib.c.type.Int64 = utils.castTo<lib.c.type.Int64>(val);
+                    var i64:lib.c.type.Int64 = utils.castTo<lib.c.type.Int64>(val);
                     this.data.setInt32(2 * idx, i64.getHigh());
                     this.data.setInt32(2 * idx + 1, i64.getLow());
                     return this.get(idx);
                 } else if (val instanceof Object) {
-                    var tmp: CLiteral = utils.castTo<CLiteral>(val);
+                    var tmp:CLiteral = utils.castTo<CLiteral>(val);
                     val = tmp.getValue()[0];
                 }
 
@@ -78,48 +81,53 @@ module lib.c {
                 }
                 return this.get(idx);
             }
-            ref(): Reference {
+
+            ref():Reference {
                 return new Reference(
                     utils.guuid(),
                     this.addressSpace,
                     new DataView(this.data.buffer, 0, 1)
-                    );
+                );
             }
-            deref(): CLiteral {
+
+            deref():CLiteral {
                 return this.get(0);
             }
         }
 
-        var MB: number = 1024;
+        var MB:number = 1024;
         export class MemoryManager {
-            private addressSpace: AddressSpace;
+            private addressSpace:AddressSpace;
             //private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
-            private TOTAL_MEMORY: number;
-            private memory: ArrayBuffer;
-            private memoryOffset: number = 0;
+            private TOTAL_MEMORY:number;
+            private memory:ArrayBuffer;
+            private memoryOffset:number = 0;
 
-            constructor(addressSpace: AddressSpace) {
+            constructor(addressSpace:AddressSpace) {
                 this.TOTAL_MEMORY = 10 * MB;
                 this.addressSpace = addressSpace;
                 this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
             }
 
-            public malloc(n: number): Reference {
+            public malloc(n:number):Reference {
                 var buffer = new Reference(
                     utils.guuid(),
                     this.addressSpace,
                     new DataView(this.memory, this.memoryOffset, this.memoryOffset + n)
-                    );
+                );
                 //this.memmap.set(buffer.id, buffer);
                 this.memoryOffset += n;
                 return buffer;
             }
-            public free(mem: Reference): void {
+
+            public free(mem:Reference):void {
                 mem = undefined;
             }
+
             public ref(obj) {
                 return "todo";
             }
+
             public deref(mem) {
                 return mem[0];
             }

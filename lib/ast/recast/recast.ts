@@ -1,4 +1,3 @@
-
 /// <reference path="../types/types.ts" />
 /// <reference path="private.ts" />
 /// <reference path="options.ts" />
@@ -20,7 +19,7 @@ module lib.ast {
 
         export function run(code, transformer, options) {
             var writeback = options && options.writeback || defaultWriteback;
-            transformer(parse(code, options), function(node) {
+            transformer(parse(code, options), function (node) {
                 writeback(print(node, options).code);
             });
         }

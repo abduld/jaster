@@ -1,22 +1,27 @@
-
-
 /// <reference path="utils.ts" />
 // copied from https://github.com/paulmillr/es6-shim/blob/master/es6-shim.js
 module lib {
     export module utils {
 
-        export function toInt32(x: any): number {
+        export function toInt32(x:any):number {
             return x >> 0;
         }
-        export function toUint32(x: any): number {
+
+        export function toUint32(x:any):number {
             return x >>> 0;
         }
-        export function toInteger(value: any): number {
+
+        export function toInteger(value:any):number {
             var number = +value;
-            if (math.isNaN(number)) { return 0; }
-            if (number === 0 || !math.isFinite(number)) { return number; }
+            if (math.isNaN(number)) {
+                return 0;
+            }
+            if (number === 0 || !math.isFinite(number)) {
+                return number;
+            }
             return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
         }
+
         export module numberConversion {
             // from https://github.com/inexorabletash/polyfill/blob/master/typedarray.js#L176-L266
             // with permission and license, per https://twitter.com/inexorabletash/status/372206509540659200
@@ -137,34 +142,51 @@ module lib {
                 }
             }
 
-            function unpackFloat64(b) { return unpackIEEE754(b, 11, 52); }
-            function packFloat64(v) { return packIEEE754(v, 11, 52); }
-            function unpackFloat32(b) { return unpackIEEE754(b, 8, 23); }
-            function packFloat32(v) { return packIEEE754(v, 8, 23); }
+            function unpackFloat64(b) {
+                return unpackIEEE754(b, 11, 52);
+            }
 
-            export var toFloat32 = function(num: number) { return unpackFloat32(packFloat32(num)); }
+            function packFloat64(v) {
+                return packIEEE754(v, 11, 52);
+            }
+
+            function unpackFloat32(b) {
+                return unpackIEEE754(b, 8, 23);
+            }
+
+            function packFloat32(v) {
+                return packIEEE754(v, 8, 23);
+            }
+
+            export var toFloat32 = function (num:number) {
+                return unpackFloat32(packFloat32(num));
+            }
             if (typeof Float32Array !== 'undefined') {
                 var float32array = new Float32Array(1);
-                toFloat32 = function(num) {
+                toFloat32 = function (num) {
                     float32array[0] = num;
                     return float32array[0];
                 };
             }
         }
         export import toFloat32 = numberConversion.toFloat32;
-        export function isCallableWithoutNew(func: Function) {
-            try { func(); }
-            catch (e) { return false; }
+        export function isCallableWithoutNew(func:Function) {
+            try {
+                func();
+            }
+            catch (e) {
+                return false;
+            }
             return true;
         };
         export function isCallable(x) {
             return typeof x === 'function' &&
-                // some versions of IE say that typeof /abc/ === 'function'
+                    // some versions of IE say that typeof /abc/ === 'function'
                 _toString.call(x) === '[object Function]';
         }
 
 
-        var arePropertyDescriptorsSupported = function() {
+        var arePropertyDescriptorsSupported = function () {
             try {
                 Object.defineProperty({}, 'x', {});
                 return true;
@@ -173,8 +195,10 @@ module lib {
             }
         };
         var supportsDescriptors = !!Object.defineProperty && arePropertyDescriptorsSupported();
-        var defineProperty = function(object, name, value, force) {
-            if (!force && name in object) { return; }
+        var defineProperty = function (object, name, value, force) {
+            if (!force && name in object) {
+                return;
+            }
             if (supportsDescriptors) {
                 Object.defineProperty(object, name, {
                     configurable: true,
@@ -188,15 +212,15 @@ module lib {
         };
         // Define configurable, writable and non-enumerable props
         // if they don’t exist.
-        export var defineProperties = function(object, map) {
-            Object.keys(map).forEach(function(name) {
+        export var defineProperties = function (object, map) {
+            Object.keys(map).forEach(function (name) {
                 var method = map[name];
                 defineProperty(object, name, method, false);
             });
         };
 
         export module math {
-            export function isNaN(value: number): boolean {
+            export function isNaN(value:number):boolean {
                 // NaN !== NaN, but they are identical.
                 // NaNs are the only non-reflexive value, i.e., if x !== x,
                 // then x is NaN.
@@ -205,7 +229,7 @@ module lib {
                 return value !== value;
             }
 
-            export function acosh(value: number): number {
+            export function acosh(value:number):number {
                 value = Number(value);
                 if (isNaN(value) || value < 1) {
                     return NaN;
@@ -219,7 +243,7 @@ module lib {
                 return Math.log(value + Math.sqrt(value * value - 1));
             }
 
-            export function asinh(value: number): number {
+            export function asinh(value:number):number {
                 value = Number(value);
                 if (value === 0 || !global_isFinite(value)) {
                     return value;
@@ -227,7 +251,7 @@ module lib {
                 return value < 0 ? -asinh(-value) : Math.log(value + Math.sqrt(value * value + 1));
             }
 
-            export function atanh(value: number): number {
+            export function atanh(value:number):number {
                 value = Number(value);
                 if (isNaN(value) || value < -1 || value > 1) {
                     return NaN;
@@ -244,7 +268,7 @@ module lib {
                 return 0.5 * Math.log((1 + value) / (1 - value));
             }
 
-            export function cbrt(value: number): number {
+            export function cbrt(value:number):number {
                 value = Number(value);
                 if (value === 0) {
                     return value;
@@ -257,7 +281,7 @@ module lib {
                 return negate ? -result : result;
             }
 
-            export function clz32(value: number): number {
+            export function clz32(value:number):number {
                 // See https://bugs.ecmascript.org/show_bug.cgi?id=2465
                 value = Number(value);
                 var number = utils.toUint32(value);
@@ -267,7 +291,7 @@ module lib {
                 return 32 - (number).toString(2).length;
             }
 
-            export function cosh(value: number): number {
+            export function cosh(value:number):number {
                 value = Number(value);
                 if (value === 0) {
                     return 1;
@@ -287,7 +311,7 @@ module lib {
                 return (Math.exp(value) + Math.exp(-value)) / 2;
             }
 
-            export function expm1(value: number): number {
+            export function expm1(value:number):number {
                 value = Number(value);
                 if (value === -Infinity) {
                     return -1;
@@ -298,12 +322,12 @@ module lib {
                 return Math.exp(value) - 1;
             }
 
-            export function hypot(x: number, y: number): number {
+            export function hypot(x:number, y:number):number {
                 var anyNaN = false;
                 var allZero = true;
                 var anyInfinity = false;
                 var numbers = [];
-                Array.prototype.every.call(arguments, function(arg) {
+                Array.prototype.every.call(arguments, function (arg) {
                     var num = Number(arg);
                     if (isNaN(num)) {
                         anyNaN = true;
@@ -329,28 +353,28 @@ module lib {
                     return 0;
                 }
 
-                numbers.sort(function(a, b) {
+                numbers.sort(function (a, b) {
                     return b - a;
                 });
                 var largest = numbers[0];
-                var divided = numbers.map(function(number) {
+                var divided = numbers.map(function (number) {
                     return number / largest;
                 });
-                var sum = divided.reduce(function(sum, number) {
+                var sum = divided.reduce(function (sum, number) {
                     return sum += number * number;
                 }, 0);
                 return largest * Math.sqrt(sum);
             }
 
-            export function log2(value: number): number {
+            export function log2(value:number):number {
                 return Math.log(value) * Math.LOG2E;
             }
 
-            export function log10(value: number): number {
+            export function log10(value:number):number {
                 return Math.log(value) * Math.LOG10E;
             }
 
-            export function log1p(value: number): number {
+            export function log1p(value:number):number {
                 value = Number(value);
                 if (value < -1 || isNaN(value)) {
                     return NaN;
@@ -378,7 +402,7 @@ module lib {
                 return result;
             }
 
-            export function sign(value: number): number {
+            export function sign(value:number):number {
                 var number = +value;
                 if (number === 0) {
                     return number;
@@ -389,7 +413,7 @@ module lib {
                 return number < 0 ? -1 : 1;
             }
 
-            export function sinh(value: number): number {
+            export function sinh(value:number):number {
                 value = Number(value);
                 if (!global_isFinite(value) || value === 0) {
                     return value;
@@ -397,7 +421,7 @@ module lib {
                 return (Math.exp(value) - Math.exp(-value)) / 2;
             }
 
-            export function tanh(value: number) {
+            export function tanh(value:number) {
                 value = Number(value);
                 if (isNaN(value) || value === 0) {
                     return value;
@@ -411,12 +435,12 @@ module lib {
                 return (Math.exp(value) - Math.exp(-value)) / (Math.exp(value) + Math.exp(-value));
             }
 
-            export function trunc(value: number) {
+            export function trunc(value:number) {
                 var number = Number(value);
                 return number < 0 ? -Math.floor(-number) : Math.floor(number);
             }
 
-            export function imul(x: number, y: number): number {
+            export function imul(x:number, y:number):number {
                 // taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/imul
                 x = utils.toUint32(x);
                 y = utils.toUint32(y);
@@ -429,7 +453,7 @@ module lib {
                 return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0) | 0);
             }
 
-            export function fround(x: number) {
+            export function fround(x:number) {
                 if (x === 0 || x === Infinity || x === -Infinity || isNaN(x)) {
                     return x;
                 }
@@ -442,16 +466,16 @@ module lib {
             var MIN_SAFE_INTEGER = -maxSafeInteger;
             var EPSILON = 2.220446049250313e-16;
 
-            export function isFinite(value: number): boolean {
+            export function isFinite(value:number):boolean {
                 return typeof value === 'number' && global_isFinite(value);
             }
 
-            export function isInteger(value: number): boolean {
+            export function isInteger(value:number):boolean {
                 return isFinite(value) &&
                     utils.toInteger(value) === value;
             }
 
-            export function isSafeInteger(value: number): boolean {
+            export function isSafeInteger(value:number):boolean {
                 return isInteger(value) && Math.abs(value) <= MAX_SAFE_INTEGER;
             }
         }

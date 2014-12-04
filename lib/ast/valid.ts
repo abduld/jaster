@@ -112,31 +112,48 @@ module lib.ast {
         var UPDATE_OPERATORS = ["++", "--"];
 
         // isAssignmentOperator :: String -> Boolean
-        function isAssignmentOperator(op) { return ASSIGNMENT_OPERATORS.indexOf(op) >= 0; }
+        function isAssignmentOperator(op) {
+            return ASSIGNMENT_OPERATORS.indexOf(op) >= 0;
+        }
+
         // isBinaryOperator :: String -> Boolean
-        function isBinaryOperator(op) { return BINARY_OPERATORS.indexOf(op) >= 0; }
+        function isBinaryOperator(op) {
+            return BINARY_OPERATORS.indexOf(op) >= 0;
+        }
+
         // isLogicalOperator :: String -> Boolean
-        function isLogicalOperator(op) { return LOGICAL_OPERATORS.indexOf(op) >= 0; }
+        function isLogicalOperator(op) {
+            return LOGICAL_OPERATORS.indexOf(op) >= 0;
+        }
+
         // isUnaryOperator :: String -> Boolean
-        function isUnaryOperator(op) { return UNARY_OPERATORS.indexOf(op) >= 0; }
+        function isUnaryOperator(op) {
+            return UNARY_OPERATORS.indexOf(op) >= 0;
+        }
+
         // isUpdateOperator :: String -> Boolean
-        function isUpdateOperator(op) { return UPDATE_OPERATORS.indexOf(op) >= 0; }
+        function isUpdateOperator(op) {
+            return UPDATE_OPERATORS.indexOf(op) >= 0;
+        }
 
 
         var E;
         export var InvalidAstError = E = (function () {
-            function C() { }
+            function C() {
+            }
+
             C.prototype = Error.prototype;
             function InvalidAstError(node, message) {
                 Error.call(this);
                 this.node = node;
                 this.message = message;
             }
+
             InvalidAstError.prototype = new C;
             InvalidAstError.prototype.constructor = InvalidAstError;
             InvalidAstError.prototype.name = "InvalidAstError";
             return InvalidAstError;
-        } ());
+        }());
 
 
         // errorsP :: {labels :: [Label], inFunc :: Boolean, inIter :: Boolean, inSwitch :: Boolean} -> Node -> [InvalidAstError]
@@ -304,7 +321,7 @@ module lib.ast {
                         if (!isExpression(node.test))
                             errors.push(new E(node, "DoWhileStatement `test` member must be an expression node"));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
                         if (node.test != null)
                             [].push.apply(errors, recurse(node.test));
                         break;
@@ -331,7 +348,7 @@ module lib.ast {
                         if (node.right != null)
                             [].push.apply(errors, recurse(node.right));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
                         break;
 
                     case "ForStatement":
@@ -350,7 +367,7 @@ module lib.ast {
                         if (node.update != null)
                             [].push.apply(errors, recurse(node.update));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
                         break;
 
                     case "FunctionDeclaration":
@@ -382,12 +399,14 @@ module lib.ast {
                         if (node.id != null)
                             [].push.apply(errors, recurse(node.id));
                         if (node.body != null) {
-                            recursionFn = errorsP(merge({}, state, { inFunc: true }));
+                            recursionFn = errorsP(merge({}, state, {inFunc: true}));
                             if (node.body.type === "BlockStatement") {
-                                strict = state.strict || any(function (d) { return d === "use strict"; }, directives(node.body.body));
+                                strict = state.strict || any(function (d) {
+                                    return d === "use strict";
+                                }, directives(node.body.body));
                                 if (strict && !state.strict)
-                                    recursionFn = errorsP(merge({}, state, { strict: true, inFunc: true }));
-                                [].push.apply(errors, recursionFn({ type: "Program", body: node.body.body }));
+                                    recursionFn = errorsP(merge({}, state, {strict: true, inFunc: true}));
+                                [].push.apply(errors, recursionFn({type: "Program", body: node.body.body}));
                             } else {
                                 [].push.apply(errors, recursionFn(node.body));
                             }
@@ -425,12 +444,14 @@ module lib.ast {
                         if (node.id != null)
                             [].push.apply(errors, recurse(node.id));
                         if (node.body != null) {
-                            recursionFn = errorsP(merge({}, state, { inFunc: true }));
+                            recursionFn = errorsP(merge({}, state, {inFunc: true}));
                             if (node.body.type === "BlockStatement") {
-                                strict = state.strict || any(function (d) { return d === "use strict"; }, directives(node.body.body));
+                                strict = state.strict || any(function (d) {
+                                    return d === "use strict";
+                                }, directives(node.body.body));
                                 if (strict && !state.strict)
-                                    recursionFn = errorsP(merge({}, state, { strict: true, inFunc: true }));
-                                [].push.apply(errors, recursionFn({ type: "Program", body: node.body.body }));
+                                    recursionFn = errorsP(merge({}, state, {strict: true, inFunc: true}));
+                                [].push.apply(errors, recursionFn({type: "Program", body: node.body.body}));
                             } else {
                                 [].push.apply(errors, recursionFn(node.body));
                             }
@@ -477,7 +498,7 @@ module lib.ast {
                             errors.push(new E(node, "LabeledStatement `body` member must be a statement node"));
                         if (node.body != null) {
                             if (node.label != null)
-                                [].push.apply(errors, errorsP(merge({}, state, { labels: state.labels.concat(node.label.name) }))(node.body));
+                                [].push.apply(errors, errorsP(merge({}, state, {labels: state.labels.concat(node.label.name)}))(node.body));
                             else
                                 [].push.apply(errors, recurse(node.body));
                         }
@@ -569,7 +590,8 @@ module lib.ast {
                                 if (property.value != null)
                                     [].push.apply(es, recurse(property.value));
                                 switch (property.kind) {
-                                    case "init": break;
+                                    case "init":
+                                        break;
                                     case "get":
                                         if (property.value != null) {
                                             if (property.value.type !== "FunctionExpression")
@@ -646,8 +668,10 @@ module lib.ast {
                         if (node.body == null) {
                             errors.push(new E(node, "Program `body` member must be non-null"));
                         } else {
-                            strict = state.strict || any(function (d) { return d === "use strict"; }, directives(node.body));
-                            recursionFn = strict && !state.strict ? errorsP(merge({}, state, { strict: true })) : recurse;
+                            strict = state.strict || any(function (d) {
+                                return d === "use strict";
+                            }, directives(node.body));
+                            recursionFn = strict && !state.strict ? errorsP(merge({}, state, {strict: true})) : recurse;
                             [].push.apply(errors, concatMap(function (sourceElement) {
                                 var es = [];
                                 if (!isSourceElement(sourceElement))
@@ -695,7 +719,7 @@ module lib.ast {
                         if (node.consequent == null) {
                             errors.push(new E(node, "SwitchCase `consequent` member must be non-null"));
                         } else {
-                            recursionFn = errorsP(merge({}, state, { inSwitch: true }));
+                            recursionFn = errorsP(merge({}, state, {inSwitch: true}));
                             [].push.apply(errors, concatMap(function (stmt) {
                                 var es = [];
                                 if (!isStatement(stmt))
@@ -721,7 +745,9 @@ module lib.ast {
                                     [].push.apply(es, recurse(switchCase));
                                 return es;
                             }, node.cases));
-                            if (filter(node.cases, function (c) { return c != null && c.test == null; }).length > 1)
+                            if (filter(node.cases, function (c) {
+                                    return c != null && c.test == null;
+                                }).length > 1)
                                 errors.push(new E(node, "SwitchStatement `cases` member must contain no more than one SwitchCase with a null `test` member"));
                         }
                         if (node.discriminant != null)
@@ -821,7 +847,7 @@ module lib.ast {
                         if (node.test != null)
                             [].push.apply(errors, recurse(node.test));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
                         break;
 
                     case "WithStatement":
@@ -834,7 +860,7 @@ module lib.ast {
                         if (node.object != null)
                             [].push.apply(errors, recurse(node.object));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
                         break;
 
                     default:
@@ -855,32 +881,32 @@ module lib.ast {
             };
         }
 
-        var START_STATE = { labels: [], inFunc: false, inIter: false, inSwitch: false, strict: false };
+        var START_STATE = {labels: [], inFunc: false, inIter: false, inSwitch: false, strict: false};
 
 
-            // isValid :: Maybe Node -> Boolean
-            export function isValid(node) {
-                return node != null && node.type === "Program" &&
-                    errorsP(START_STATE)(node).length < 1;
+        // isValid :: Maybe Node -> Boolean
+        export function isValid(node) {
+            return node != null && node.type === "Program" &&
+                errorsP(START_STATE)(node).length < 1;
+        }
+
+        // isValidExpression :: Maybe Node -> Boolean
+        export function isValidExpression(node) {
+            return isExpression(node) && errorsP(START_STATE)(node).length < 1;
+        }
+
+
+        // errors :: Maybe Node -> [InvalidAstError]
+        export function errors(node) {
+            var errors = [];
+            if (node == null) {
+                errors.push(new E(node, "given AST node should be non-null"));
+            } else {
+                if (node.type !== "Program")
+                    errors.push(new E(node, "given AST node should be of type Program"));
+                [].push.apply(errors, errorsP(START_STATE)(node));
             }
-
-            // isValidExpression :: Maybe Node -> Boolean
-           export function isValidExpression(node) {
-                return isExpression(node) && errorsP(START_STATE)(node).length < 1;
-            }
-
-
-            // errors :: Maybe Node -> [InvalidAstError]
-            export function errors(node) {
-                var errors = [];
-                if (node == null) {
-                    errors.push(new E(node, "given AST node should be non-null"));
-                } else {
-                    if (node.type !== "Program")
-                        errors.push(new E(node, "given AST node should be of type Program"));
-                    [].push.apply(errors, errorsP(START_STATE)(node));
-                }
-                return errors;
-            }
+            return errors;
+        }
     }
 }

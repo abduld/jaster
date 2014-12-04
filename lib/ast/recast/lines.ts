@@ -1,4 +1,3 @@
-
 /// <reference path="recast.ts" />
 /// <reference path="mappings.ts" />
 /// <reference path="utils.ts" />
@@ -25,7 +24,7 @@ module lib.ast.recast {
     }
 
     export class Lines {
-        secretKey: {
+        secretKey:{
             infos: any[];
             mappings: any[];
             name: string;
@@ -111,17 +110,17 @@ module lib.ast.recast {
             var smg = new sourceMap.SourceMapGenerator(updateJSON());
             var sourcesToContents = {};
 
-            secret.mappings.forEach(function(mapping) {
+            secret.mappings.forEach(function (mapping) {
                 var sourceCursor = mapping.sourceLines.skipSpaces(
-                    mapping.sourceLoc.start
+                        mapping.sourceLoc.start
                     ) || mapping.sourceLines.lastPos();
 
                 var targetCursor = targetLines.skipSpaces(
-                    mapping.targetLoc.start
+                        mapping.targetLoc.start
                     ) || targetLines.lastPos();
 
                 while (comparePos(sourceCursor, mapping.sourceLoc.end) < 0 &&
-                    comparePos(targetCursor, mapping.targetLoc.end) < 0) {
+                comparePos(targetCursor, mapping.targetLoc.end) < 0) {
 
                     var sourceChar = mapping.sourceLines.charAt(sourceCursor);
                     var targetChar = targetLines.charAt(targetCursor);
@@ -212,7 +211,7 @@ module lib.ast.recast {
             return info.line.charAt(c);
         }
 
-        stripMargin(width: number, skipFirstLine?) {
+        stripMargin(width:number, skipFirstLine?) {
             if (width === 0)
                 return this;
 
@@ -223,7 +222,7 @@ module lib.ast.recast {
 
             var secret = getSecret(this);
 
-            var lines = new Lines(secret.infos.map(function(info: any, i) {
+            var lines = new Lines(secret.infos.map(function (info:any, i) {
                 if (info.line && (i > 0 || !skipFirstLine)) {
                     info = copyLineInfo(info);
                     info.indent = Math.max(0, info.indent - width);
@@ -234,7 +233,7 @@ module lib.ast.recast {
             if (secret.mappings.length > 0) {
                 var newMappings = getSecret(lines).mappings;
                 assert.strictEqual(newMappings.length, 0);
-                secret.mappings.forEach(function(mapping) {
+                secret.mappings.forEach(function (mapping) {
                     newMappings.push(mapping.indent(width, skipFirstLine, true));
                 });
             }
@@ -248,7 +247,7 @@ module lib.ast.recast {
 
             var secret = getSecret(this);
 
-            var lines = new Lines(secret.infos.map(function(info: any) {
+            var lines = new Lines(secret.infos.map(function (info:any) {
                 if (info.line) {
                     info = copyLineInfo(info);
                     info.indent += by;
@@ -259,7 +258,7 @@ module lib.ast.recast {
             if (secret.mappings.length > 0) {
                 var newMappings = getSecret(lines).mappings;
                 assert.strictEqual(newMappings.length, 0);
-                secret.mappings.forEach(function(mapping) {
+                secret.mappings.forEach(function (mapping) {
                     newMappings.push(mapping.indent(by));
                 });
             }
@@ -276,7 +275,7 @@ module lib.ast.recast {
 
             var secret = getSecret(this);
 
-            var lines = new Lines(secret.infos.map(function(info: any, i) {
+            var lines = new Lines(secret.infos.map(function (info:any, i) {
                 if (i > 0 && info.line) {
                     info = copyLineInfo(info);
                     info.indent += by;
@@ -288,7 +287,7 @@ module lib.ast.recast {
             if (secret.mappings.length > 0) {
                 var newMappings = getSecret(lines).mappings;
                 assert.strictEqual(newMappings.length, 0);
-                secret.mappings.forEach(function(mapping) {
+                secret.mappings.forEach(function (mapping) {
                     newMappings.push(mapping.indent(by, true));
                 });
             }
@@ -331,8 +330,8 @@ module lib.ast.recast {
             var result = 2;
 
             for (var tabWidth = 1;
-                tabWidth < counts.length;
-                tabWidth += 1) {
+                 tabWidth < counts.length;
+                 tabWidth += 1) {
                 if (hasOwn.call(counts, tabWidth) &&
                     counts[tabWidth] > maxCount) {
                     maxCount = counts[tabWidth];
@@ -422,7 +421,7 @@ module lib.ast.recast {
 
         firstPos() {
             // Trivial, but provided for completeness.
-            return { line: 1, column: 0 };
+            return {line: 1, column: 0};
         }
 
         lastPos() {
@@ -491,7 +490,7 @@ module lib.ast.recast {
 
             if (startPos) {
                 pos.line = startPos.line,
-                pos.column = startPos.column
+                    pos.column = startPos.column
             }
 
             if (skipSpaces && !this.skipSpaces(pos, false, true)) {
@@ -541,7 +540,7 @@ module lib.ast.recast {
             if (secret.mappings.length > 0) {
                 var newMappings = getSecret(lines).mappings;
                 assert.strictEqual(newMappings.length, 0);
-                secret.mappings.forEach(function(mapping) {
+                secret.mappings.forEach(function (mapping) {
                     var sliced = mapping.slice(this, start, end);
                     if (sliced) {
                         newMappings.push(sliced);
@@ -557,7 +556,7 @@ module lib.ast.recast {
             return this.slice(start, end).toString(options);
         }
 
-        sliceString(start, end, options?): any {
+        sliceString(start, end, options?):any {
             if (!end) {
                 if (!start) {
                     // The client seems to want a copy of this Lines object, but
@@ -655,7 +654,7 @@ module lib.ast.recast {
                     prevInfo.sliceEnd = prevInfo.line.length;
 
                     if (secret.mappings.length > 0) {
-                        secret.mappings.forEach(function(mapping) {
+                        secret.mappings.forEach(function (mapping) {
                             mappings.push(mapping.add(prevLine, prevColumn));
                         });
                     }
@@ -664,7 +663,7 @@ module lib.ast.recast {
                     mappings.push.apply(mappings, secret.mappings);
                 }
 
-                secret.infos.forEach(function(info, i) {
+                secret.infos.forEach(function (info, i) {
                     if (!prevInfo || i > 0) {
                         prevInfo = copyLineInfo(info);
                         infos.push(prevInfo);
@@ -678,7 +677,7 @@ module lib.ast.recast {
                 appendSecret(secret);
             }
 
-            elements.map(function(elem) {
+            elements.map(function (elem) {
                 var lines = fromString(elem);
                 if (lines.isEmpty())
                     return null;
@@ -812,7 +811,7 @@ module lib.ast.recast {
     /**
      * @param {Object} options - Options object that configures printing.
      */
-    export function fromString(str: any, options?) {
+    export function fromString(str:any, options?) {
         if (str instanceof Lines)
             return str;
 
@@ -827,7 +826,7 @@ module lib.ast.recast {
         if (cacheable && hasOwn.call(fromStringCache, str))
             return fromStringCache[str];
 
-        var lines = new Lines(str.split("\n").map(function(line) {
+        var lines = new Lines(str.split("\n").map(function (line) {
             var spaces = leadingSpaceExp.exec(line)[0];
             return {
                 line: line,

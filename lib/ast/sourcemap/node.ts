@@ -1,4 +1,4 @@
-/* -*- Mode: js; js-indent-level: 2; -*- */
+﻿/* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE or:
@@ -32,12 +32,12 @@ module lib.ast {
          * @param aName The original identifier.
          */
         export class SourceNode {
-            children: Array<any>;
-            sourceContents: any;
-            line: number;
-            column: number;
-            source: string;
-            name: string;
+            children:Array<any>;
+            sourceContents:any;
+            line:number;
+            column:number;
+            source:string;
+            name:string;
 
             constructor(aLine?, aColumn?, aSource?, aChunks?, aName?) {
                 this.children = [];
@@ -67,7 +67,7 @@ module lib.ast {
                 // (since `REGEX_NEWLINE` captures its match).
                 // Processed fragments are removed from this array, by calling `shiftNextLine`.
                 var remainingLines = aGeneratedCode.split(REGEX_NEWLINE);
-                var shiftNextLine = function() {
+                var shiftNextLine = function () {
                     var lineContents = remainingLines.shift();
                     // The last line of a file might not have a newline.
                     var newLine = remainingLines.shift() || "";
@@ -82,9 +82,9 @@ module lib.ast {
                 // Here we store the last mapping.
                 var lastMapping = null;
 
-                aSourceMapConsumer.eachMapping(function(mapping) {
+                aSourceMapConsumer.eachMapping(function (mapping) {
                     if (lastMapping !== null) {
-                        var code: string;
+                        var code:string;
                         // We add the code from "lastMapping" to "mapping":
                         // First check if there is a new line in between.
                         if (lastGeneratedLine < mapping.generatedLine) {
@@ -100,9 +100,9 @@ module lib.ast {
                             // "mapping.generatedColumn" with "lastMapping"
                             var nextLine = remainingLines[0];
                             code = nextLine.substr(0, mapping.generatedColumn -
-                                lastGeneratedColumn);
+                            lastGeneratedColumn);
                             remainingLines[0] = nextLine.substr(mapping.generatedColumn -
-                                lastGeneratedColumn);
+                            lastGeneratedColumn);
                             lastGeneratedColumn = mapping.generatedColumn;
                             addMappingWithCode(lastMapping, code);
                             // No more remaining code, continue
@@ -136,7 +136,7 @@ module lib.ast {
                 }
 
                 // Copy sourcesContent into SourceNode
-                aSourceMapConsumer.sources.forEach(function(sourceFile) {
+                aSourceMapConsumer.sources.forEach(function (sourceFile) {
                     var content = aSourceMapConsumer.sourceContentFor(sourceFile);
                     if (content != null) {
                         if (aRelativePath != null) {
@@ -172,7 +172,7 @@ module lib.ast {
              */
             add(aChunk) {
                 if (Array.isArray(aChunk)) {
-                    aChunk.forEach(function(chunk) {
+                    aChunk.forEach(function (chunk) {
                         this.add(chunk);
                     }, this);
                 }
@@ -184,7 +184,7 @@ module lib.ast {
                 else {
                     throw new TypeError(
                         "Expected a SourceNode, string, or an array of SourceNodes and strings. Got " + aChunk
-                        );
+                    );
                 }
                 return this;
             }
@@ -207,7 +207,7 @@ module lib.ast {
                 else {
                     throw new TypeError(
                         "Expected a SourceNode, string, or an array of SourceNodes and strings. Got " + aChunk
-                        );
+                    );
                 }
                 return this;
             }
@@ -318,7 +318,7 @@ module lib.ast {
              */
             toString() {
                 var str = "";
-                this.walk(function(chunk) {
+                this.walk(function (chunk) {
                     str += chunk;
                 });
                 return str;
@@ -340,7 +340,7 @@ module lib.ast {
                 var lastOriginalLine = null;
                 var lastOriginalColumn = null;
                 var lastOriginalName = null;
-                this.walk(function(chunk, original) {
+                this.walk(function (chunk, original) {
                     generated.code += chunk;
                     if (original.source !== null
                         && original.line !== null
@@ -377,7 +377,7 @@ module lib.ast {
                         lastOriginalSource = null;
                         sourceMappingActive = false;
                     }
-                    chunk.match(REGEX_CHARACTER).forEach(function(ch, idx, array) {
+                    chunk.match(REGEX_CHARACTER).forEach(function (ch, idx, array) {
                         if (REGEX_NEWLINE.test(ch)) {
                             generated.line++;
                             generated.column = 0;
@@ -404,11 +404,11 @@ module lib.ast {
                         }
                     });
                 });
-                this.walkSourceContents(function(sourceFile, sourceContent) {
+                this.walkSourceContents(function (sourceFile, sourceContent) {
                     map.setSourceContent(sourceFile, sourceContent);
                 });
 
-                return { code: generated.code, map: map };
+                return {code: generated.code, map: map};
             }
         }
     }

@@ -1,5 +1,3 @@
-
-
 module lib.ast.types {
     export module definitions {
         import core = lib.ast.types.definitions.core;

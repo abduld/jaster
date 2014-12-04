@@ -11,12 +11,12 @@ module lib.ast {
         var b = types.builders;
 
         export class Scope {
-            path: any;
-            node: any;
-            isGlobal: boolean;
-            depth: any;
-            parent: any;
-            bindings: any;
+            path:any;
+            node:any;
+            isGlobal:boolean;
+            depth:any;
+            parent:any;
+            bindings:any;
 
             constructor(path, parentScope) {
                 assert.ok(this instanceof Scope);
@@ -33,12 +33,12 @@ module lib.ast {
                 }
 
                 Object.defineProperties(this, {
-                    path: { value: path },
-                    node: { value: path.value },
-                    isGlobal: { value: !parentScope, enumerable: true },
-                    depth: { value: depth },
-                    parent: { value: parentScope },
-                    bindings: { value: {} }
+                    path: {value: path},
+                    node: {value: path.value},
+                    isGlobal: {value: !parentScope, enumerable: true},
+                    depth: {value: depth},
+                    parent: {value: parentScope},
+                    bindings: {value: {}}
                 });
             }
 
@@ -47,7 +47,7 @@ module lib.ast {
             }
 
             // Will be overridden after an instance lazily calls scanScope.
-            didScan: boolean = false;
+            didScan:boolean = false;
 
 
             declares(name) {
@@ -89,8 +89,8 @@ module lib.ast {
                     b["variableDeclaration"](
                         "var",
                         [b["variableDeclarator"](identifier, init || null)]
-                        )
-                    );
+                    )
+                );
 
                 return identifier;
             }
@@ -169,12 +169,12 @@ module lib.ast {
                 // None of the remaining cases matter if node is falsy.
 
             } else if (isArray.check(node)) {
-                path.each(function(childPath) {
+                path.each(function (childPath) {
                     recursiveScanChild(childPath, bindings);
                 });
 
             } else if (namedTypes["Function"].check(node)) {
-                path.get("params").each(function(paramPath) {
+                path.get("params").each(function (paramPath) {
                     addPattern(paramPath, bindings);
                 });
 
@@ -190,10 +190,10 @@ module lib.ast {
                 addPattern(
                     node.name ? path.get("name") : path.get("id"),
                     bindings
-                    );
+                );
 
             } else if (Node.check(node) && !Expression.check(node)) {
-                types.eachField(node, function(name, child) {
+                types.eachField(node, function (name, child) {
                     var childPath = path.get(name);
                     assert.strictEqual(childPath.value, child);
                     recursiveScanChild(childPath, bindings);

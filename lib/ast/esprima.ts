@@ -1,42 +1,40 @@
-
-
-module lib.ast {
+﻿module lib.ast {
 
     export declare module esprima {
-        export var version: string;
+        export var version:string;
 
         export interface Token {
             type: string
-        value: string
+            value: string
         }
 
         export interface Options {
             loc?: boolean
-        range?: boolean
-        raw?: boolean
-        tokens?: boolean
-        comment?: boolean
-        attachComment?: boolean
-        tolerant?: boolean
-        source?: boolean
+            range?: boolean
+            raw?: boolean
+            tokens?: boolean
+            comment?: boolean
+            attachComment?: boolean
+            tolerant?: boolean
+            source?: boolean
         }
 
         export module Syntax {
             // Node
             export interface Node {
                 type: string
-            loc?: LineLocation
-            range?: number[]
-            leadingComments?: Comment[]
-            trailingComments?: Comment[]
+                loc?: LineLocation
+                range?: number[]
+                leadingComments?: Comment[]
+                trailingComments?: Comment[]
             }
             export interface LineLocation {
                 start: Position
-            end: Position
+                end: Position
             }
             export interface Position {
                 line: number
-            column: number
+                column: number
             }
 
             // Comment
@@ -47,18 +45,18 @@ module lib.ast {
             // Program
             export interface Program extends Node {
                 body: SomeStatement[]
-            comments?: Comment[]
+                comments?: Comment[]
             }
 
             // Function
             export interface Function extends Node {
                 id: Identifier // | null
-            params: Node[]
-            defaults: SomeExpression[]
-            rest?: Identifier // | null
-            body: BlockStatementOrExpression
-            generator: boolean
-            expression: boolean
+                params: Node[]
+                defaults: SomeExpression[]
+                rest?: Identifier // | null
+                body: BlockStatementOrExpression
+                generator: boolean
+                expression: boolean
             }
             export interface BlockStatementOrExpression extends Array<SomeStatement>, BlockStatement, SomeExpression {
                 body: BlockStatementOrExpression
@@ -77,12 +75,12 @@ module lib.ast {
             }
             export interface IfStatement extends Statement {
                 test: SomeExpression
-            consequent: SomeStatement
-            alternate: SomeStatement
+                consequent: SomeStatement
+                alternate: SomeStatement
             }
             export interface LabeledStatement extends Statement {
                 label: Identifier
-            body: SomeStatement
+                body: SomeStatement
             }
             export interface BreakStatement extends Statement {
                 label: Identifier // | null
@@ -92,12 +90,12 @@ module lib.ast {
             }
             export interface WithStatement extends Statement {
                 object: SomeExpression
-            body: SomeStatement
+                body: SomeStatement
             }
             export interface SwitchStatement extends Statement {
                 discriminant: SomeExpression
-            cases: SwitchCase[]
-            lexical: boolean
+                cases: SwitchCase[]
+                lexical: boolean
             }
             export interface ReturnStatement extends Statement {
                 argument: SomeExpression // | null
@@ -107,39 +105,38 @@ module lib.ast {
             }
             export interface TryStatement extends Statement {
                 block: BlockStatement
-            handler: CatchClause // | null
-            guardedHandlers: CatchClause[]
-            finalizer: BlockStatement // | null
+                handler: CatchClause // | null
+                guardedHandlers: CatchClause[]
+                finalizer: BlockStatement // | null
             }
             export interface WhileStatement extends Statement {
                 test: SomeExpression
-            body: SomeStatement
+                body: SomeStatement
             }
             export interface DoWhileStatement extends Statement {
                 body: SomeStatement
-            test: SomeExpression
+                test: SomeExpression
             }
             export interface ForStatement extends Statement {
                 init: VariableDeclaratorOrExpression // | null
-            test: SomeExpression // | null
-            update: SomeExpression // | null
-            body: SomeStatement
+                test: SomeExpression // | null
+                update: SomeExpression // | null
+                body: SomeStatement
             }
             export interface ForInStatement extends Statement {
                 left: VariableDeclaratorOrExpression
-            right: SomeExpression
-            body: SomeStatement
-            each: boolean
+                right: SomeExpression
+                body: SomeStatement
+                each: boolean
             }
             export interface VariableDeclaratorOrExpression extends VariableDeclarator, SomeExpression {
             }
             export interface DebuggerStatement extends Statement {
             }
-            export interface SomeStatement extends
-            EmptyStatement, ExpressionStatement, BlockStatement, IfStatement,
-            LabeledStatement, BreakStatement, ContinueStatement, WithStatement,
-            SwitchStatement, ReturnStatement, ThrowStatement, TryStatement,
-            WhileStatement, DoWhileStatement, ForStatement, ForInStatement, DebuggerStatement {
+            export interface SomeStatement extends EmptyStatement, ExpressionStatement, BlockStatement, IfStatement,
+                LabeledStatement, BreakStatement, ContinueStatement, WithStatement,
+                SwitchStatement, ReturnStatement, ThrowStatement, TryStatement,
+                WhileStatement, DoWhileStatement, ForStatement, ForInStatement, DebuggerStatement {
                 body: SomeStatementOrList
             }
             export interface SomeStatementOrList extends Array<SomeStatement>, SomeStatement {
@@ -150,30 +147,29 @@ module lib.ast {
             }
             export interface FunctionDeclration extends Declration {
                 id: Identifier
-            params: Identifier[] // Pattern
-            defaults: SomeExpression[]
-            rest: Identifier
-            body: BlockStatementOrExpression
-            generator: boolean
-            expression: boolean
+                params: Identifier[] // Pattern
+                defaults: SomeExpression[]
+                rest: Identifier
+                body: BlockStatementOrExpression
+                generator: boolean
+                expression: boolean
             }
             export interface VariableDeclaration extends Declration {
                 declarations: VariableDeclarator[]
-            kind: string // "var" | "let" | "const"
+                kind: string // "var" | "let" | "const"
             }
             export interface VariableDeclarator extends Node {
                 id: Identifier // Pattern
-            init: SomeExpression
+                init: SomeExpression
             }
 
             // Expression
             export interface Expression extends Node { // | Pattern
             }
-            export interface SomeExpression extends
-            ThisExpression, ArrayExpression, ObjectExpression, FunctionExpression,
-            ArrowFunctionExpression, SequenceExpression, UnaryExpression, BinaryExpression,
-            AssignmentExpression, UpdateExpression, LogicalExpression, ConditionalExpression,
-            NewExpression, CallExpression, MemberExpression {
+            export interface SomeExpression extends ThisExpression, ArrayExpression, ObjectExpression, FunctionExpression,
+                ArrowFunctionExpression, SequenceExpression, UnaryExpression, BinaryExpression,
+                AssignmentExpression, UpdateExpression, LogicalExpression, ConditionalExpression,
+                NewExpression, CallExpression, MemberExpression {
             }
             export interface ThisExpression extends Expression {
             }
@@ -185,8 +181,8 @@ module lib.ast {
             }
             export interface Property extends Node {
                 key: LiteralOrIdentifier // Literal | Identifier
-            value: SomeExpression
-            kind: string // "init" | "get" | "set"
+                value: SomeExpression
+                kind: string // "init" | "get" | "set"
             }
             export interface LiteralOrIdentifier extends Literal, Identifier {
             }
@@ -199,46 +195,46 @@ module lib.ast {
             }
             export interface UnaryExpression extends Expression {
                 operator: string // UnaryOperator
-            prefix: boolean
-            argument: SomeExpression
+                prefix: boolean
+                argument: SomeExpression
             }
             export interface BinaryExpression extends Expression {
                 operator: string // BinaryOperator
-            left: SomeExpression
-            right: SomeExpression
+                left: SomeExpression
+                right: SomeExpression
             }
             export interface AssignmentExpression extends Expression {
                 operator: string // AssignmentOperator
-            left: SomeExpression
-            right: SomeExpression
+                left: SomeExpression
+                right: SomeExpression
             }
             export interface UpdateExpression extends Expression {
                 operator: string // UpdateOperator
-            argument: SomeExpression
-            prefix: boolean
+                argument: SomeExpression
+                prefix: boolean
             }
             export interface LogicalExpression extends Expression {
                 operator: string // LogicalOperator
-            left: SomeExpression
-            right: SomeExpression
+                left: SomeExpression
+                right: SomeExpression
             }
             export interface ConditionalExpression extends Expression {
                 test: SomeExpression
-            alternate: SomeExpression
-            consequent: SomeExpression
+                alternate: SomeExpression
+                consequent: SomeExpression
             }
             export interface NewExpression extends Expression {
                 callee: SomeExpression
-            arguments: Node[]
+                arguments: Node[]
             }
             export interface CallExpression extends Expression {
                 callee: SomeExpression
-            arguments: Node[]
+                arguments: Node[]
             }
             export interface MemberExpression extends Expression {
                 object: SomeExpression
-            property: IdentifierOrExpression // Identifier | Expression
-            computed: boolean
+                property: IdentifierOrExpression // Identifier | Expression
+                computed: boolean
             }
             export interface IdentifierOrExpression extends Identifier, SomeExpression {
             }
@@ -250,12 +246,12 @@ module lib.ast {
             // Clauses
             export interface SwitchCase extends Node {
                 test: SomeExpression
-            consequent: SomeStatement[]
+                consequent: SomeStatement[]
             }
             export interface CatchClause extends Node {
                 param: Identifier // Pattern
-            guard: SomeExpression
-            body: BlockStatement
+                guard: SomeExpression
+                body: BlockStatement
             }
 
             // Misc
@@ -273,48 +269,48 @@ module lib.ast {
 
 
         /*
-Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
-Copyright (C) 2013 Thaddee Tyl <thaddee.tyl@gmail.com>
-Copyright (C) 2013 Mathias Bynens <mathias@qiwi.be>
-Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
-Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
-Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
-Copyright (C) 2012 Kris Kowal <kris.kowal@cixar.com>
-Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
-Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
-Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+         Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
+         Copyright (C) 2013 Thaddee Tyl <thaddee.tyl@gmail.com>
+         Copyright (C) 2013 Mathias Bynens <mathias@qiwi.be>
+         Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
+         Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
+         Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
+         Copyright (C) 2012 Kris Kowal <kris.kowal@cixar.com>
+         Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
+         Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
+         Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+         Redistribution and use in source and binary forms, with or without
+         modification, are permitted provided that the following conditions are met:
 
-* Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
+         * Redistributions of source code must retain the above copyright
+         notice, this list of conditions and the following disclaimer.
+         * Redistributions in binary form must reproduce the above copyright
+         notice, this list of conditions and the following disclaimer in the
+         documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+         THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+         AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+         IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+         ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+         DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+         (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+         LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+         ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+         THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+         */
 
         /*jslint bitwise:true plusplus:true */
         /*global esprima:true, define:true, exports:true, window: true,
-        throwErrorTolerant: true,
-        throwError: true, generateStatement: true, peek: true,
-        parseAssignmentExpression: true, parseBlock: true, parseExpression: true,
-        parseFunctionDeclaration: true, parseFunctionExpression: true,
-        parseFunctionSourceElements: true, parseVariableIdentifier: true,
-        parseLeftHandSideExpression: true, parseParams: true, validateParam: true,
-        parseUnaryExpression: true,
-        parseStatement: true, parseSourceElement: true */
+         throwErrorTolerant: true,
+         throwError: true, generateStatement: true, peek: true,
+         parseAssignmentExpression: true, parseBlock: true, parseExpression: true,
+         parseFunctionDeclaration: true, parseFunctionExpression: true,
+         parseFunctionSourceElements: true, parseVariableIdentifier: true,
+         parseLeftHandSideExpression: true, parseParams: true, validateParam: true,
+         parseUnaryExpression: true,
+         parseStatement: true, parseSourceElement: true */
 
         export var Syntax;
         var Token,
@@ -360,10 +356,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         // A function following one of those tokens is an expression.
         FnExprTokens = ['(', '{', '[', 'in', 'typeof', 'instanceof', 'new',
             'return', 'case', 'delete', 'throw', 'void',
-        // assignment operators
+            // assignment operators
             '=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '>>>=',
             '&=', '|=', '^=', ',',
-        // binary/unary operators
+            // binary/unary operators
             '+', '-', '*', '/', '%', '++', '--', '<<', '>>', '>>>', '&',
             '|', '^', '!', '~', '&&', '||', '?', ':', '===', '==', '>=',
             '<=', '<', '>', '!=', '!=='];
@@ -1425,7 +1421,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             };
         }
 
-        function scanRegExp(): any {
+        function scanRegExp():any {
             var start, body, flags, value;
 
             lookahead = null;
@@ -1733,7 +1729,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         WrappingNode.prototype = Node.prototype = {
 
-            processComment: function() {
+            processComment: function () {
                 var lastChild,
                     trailingComments,
                     bottomRight = extra.bottomRightStack,
@@ -1785,7 +1781,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 bottomRight.push(this);
             },
 
-            finish: function() {
+            finish: function () {
                 if (extra.range) {
                     this.range[1] = index;
                 }
@@ -1801,14 +1797,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 }
             },
 
-            finishArrayExpression: function(elements) {
+            finishArrayExpression: function (elements) {
                 this.type = Syntax.ArrayExpression;
                 this.elements = elements;
                 this.finish();
                 return this;
             },
 
-            finishArrowFunctionExpression: function(params, defaults, body, expression) {
+            finishArrowFunctionExpression: function (params, defaults, body, expression) {
                 this.type = Syntax.ArrowFunctionExpression;
                 this.id = null;
                 this.params = params;
@@ -1821,7 +1817,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishAssignmentExpression: function(operator, left, right) {
+            finishAssignmentExpression: function (operator, left, right) {
                 this.type = Syntax.AssignmentExpression;
                 this.operator = operator;
                 this.left = left;
@@ -1830,7 +1826,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishBinaryExpression: function(operator, left, right) {
+            finishBinaryExpression: function (operator, left, right) {
                 this.type = (operator === '||' || operator === '&&') ? Syntax.LogicalExpression : Syntax.BinaryExpression;
                 this.operator = operator;
                 this.left = left;
@@ -1839,21 +1835,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishBlockStatement: function(body) {
+            finishBlockStatement: function (body) {
                 this.type = Syntax.BlockStatement;
                 this.body = body;
                 this.finish();
                 return this;
             },
 
-            finishBreakStatement: function(label) {
+            finishBreakStatement: function (label) {
                 this.type = Syntax.BreakStatement;
                 this.label = label;
                 this.finish();
                 return this;
             },
 
-            finishCallExpression: function(callee, args) {
+            finishCallExpression: function (callee, args) {
                 this.type = Syntax.CallExpression;
                 this.callee = callee;
                 this.arguments = args;
@@ -1861,7 +1857,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishCatchClause: function(param, body) {
+            finishCatchClause: function (param, body) {
                 this.type = Syntax.CatchClause;
                 this.param = param;
                 this.body = body;
@@ -1869,7 +1865,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishConditionalExpression: function(test, consequent, alternate) {
+            finishConditionalExpression: function (test, consequent, alternate) {
                 this.type = Syntax.ConditionalExpression;
                 this.test = test;
                 this.consequent = consequent;
@@ -1878,20 +1874,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishContinueStatement: function(label) {
+            finishContinueStatement: function (label) {
                 this.type = Syntax.ContinueStatement;
                 this.label = label;
                 this.finish();
                 return this;
             },
 
-            finishDebuggerStatement: function() {
+            finishDebuggerStatement: function () {
                 this.type = Syntax.DebuggerStatement;
                 this.finish();
                 return this;
             },
 
-            finishDoWhileStatement: function(body, test) {
+            finishDoWhileStatement: function (body, test) {
                 this.type = Syntax.DoWhileStatement;
                 this.body = body;
                 this.test = test;
@@ -1899,20 +1895,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishEmptyStatement: function() {
+            finishEmptyStatement: function () {
                 this.type = Syntax.EmptyStatement;
                 this.finish();
                 return this;
             },
 
-            finishExpressionStatement: function(expression) {
+            finishExpressionStatement: function (expression) {
                 this.type = Syntax.ExpressionStatement;
                 this.expression = expression;
                 this.finish();
                 return this;
             },
 
-            finishForStatement: function(init, test, update, body) {
+            finishForStatement: function (init, test, update, body) {
                 this.type = Syntax.ForStatement;
                 this.init = init;
                 this.test = test;
@@ -1922,7 +1918,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishForInStatement: function(left, right, body) {
+            finishForInStatement: function (left, right, body) {
                 this.type = Syntax.ForInStatement;
                 this.left = left;
                 this.right = right;
@@ -1932,7 +1928,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishFunctionDeclaration: function(id, params, defaults, body) {
+            finishFunctionDeclaration: function (id, params, defaults, body) {
                 this.type = Syntax.FunctionDeclaration;
                 this.id = id;
                 this.params = params;
@@ -1945,7 +1941,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishFunctionExpression: function(id, params, defaults, body) {
+            finishFunctionExpression: function (id, params, defaults, body) {
                 this.type = Syntax.FunctionExpression;
                 this.id = id;
                 this.params = params;
@@ -1958,14 +1954,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishIdentifier: function(name) {
+            finishIdentifier: function (name) {
                 this.type = Syntax.Identifier;
                 this.name = name;
                 this.finish();
                 return this;
             },
 
-            finishIfStatement: function(test, consequent, alternate) {
+            finishIfStatement: function (test, consequent, alternate) {
                 this.type = Syntax.IfStatement;
                 this.test = test;
                 this.consequent = consequent;
@@ -1974,7 +1970,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishLabeledStatement: function(label, body) {
+            finishLabeledStatement: function (label, body) {
                 this.type = Syntax.LabeledStatement;
                 this.label = label;
                 this.body = body;
@@ -1982,7 +1978,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishLiteral: function(token) {
+            finishLiteral: function (token) {
                 this.type = Syntax.Literal;
                 this.value = token.value;
                 this.raw = source.slice(token.start, token.end);
@@ -1990,7 +1986,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishMemberExpression: function(accessor, object, property) {
+            finishMemberExpression: function (accessor, object, property) {
                 this.type = Syntax.MemberExpression;
                 this.computed = accessor === '[';
                 this.object = object;
@@ -1999,7 +1995,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishNewExpression: function(callee, args) {
+            finishNewExpression: function (callee, args) {
                 this.type = Syntax.NewExpression;
                 this.callee = callee;
                 this.arguments = args;
@@ -2007,14 +2003,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishObjectExpression: function(properties) {
+            finishObjectExpression: function (properties) {
                 this.type = Syntax.ObjectExpression;
                 this.properties = properties;
                 this.finish();
                 return this;
             },
 
-            finishPostfixExpression: function(operator, argument) {
+            finishPostfixExpression: function (operator, argument) {
                 this.type = Syntax.UpdateExpression;
                 this.operator = operator;
                 this.argument = argument;
@@ -2023,14 +2019,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishProgram: function(body) {
+            finishProgram: function (body) {
                 this.type = Syntax.Program;
                 this.body = body;
                 this.finish();
                 return this;
             },
 
-            finishProperty: function(kind, key, value) {
+            finishProperty: function (kind, key, value) {
                 this.type = Syntax.Property;
                 this.key = key;
                 this.value = value;
@@ -2039,21 +2035,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishReturnStatement: function(argument) {
+            finishReturnStatement: function (argument) {
                 this.type = Syntax.ReturnStatement;
                 this.argument = argument;
                 this.finish();
                 return this;
             },
 
-            finishSequenceExpression: function(expressions) {
+            finishSequenceExpression: function (expressions) {
                 this.type = Syntax.SequenceExpression;
                 this.expressions = expressions;
                 this.finish();
                 return this;
             },
 
-            finishSwitchCase: function(test, consequent) {
+            finishSwitchCase: function (test, consequent) {
                 this.type = Syntax.SwitchCase;
                 this.test = test;
                 this.consequent = consequent;
@@ -2061,7 +2057,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishSwitchStatement: function(discriminant, cases) {
+            finishSwitchStatement: function (discriminant, cases) {
                 this.type = Syntax.SwitchStatement;
                 this.discriminant = discriminant;
                 this.cases = cases;
@@ -2069,20 +2065,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishThisExpression: function() {
+            finishThisExpression: function () {
                 this.type = Syntax.ThisExpression;
                 this.finish();
                 return this;
             },
 
-            finishThrowStatement: function(argument) {
+            finishThrowStatement: function (argument) {
                 this.type = Syntax.ThrowStatement;
                 this.argument = argument;
                 this.finish();
                 return this;
             },
 
-            finishTryStatement: function(block, guardedHandlers, handlers, finalizer) {
+            finishTryStatement: function (block, guardedHandlers, handlers, finalizer) {
                 this.type = Syntax.TryStatement;
                 this.block = block;
                 this.guardedHandlers = guardedHandlers;
@@ -2092,7 +2088,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishUnaryExpression: function(operator, argument) {
+            finishUnaryExpression: function (operator, argument) {
                 this.type = (operator === '++' || operator === '--') ? Syntax.UpdateExpression : Syntax.UnaryExpression;
                 this.operator = operator;
                 this.argument = argument;
@@ -2101,7 +2097,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishVariableDeclaration: function(declarations, kind) {
+            finishVariableDeclaration: function (declarations, kind) {
                 this.type = Syntax.VariableDeclaration;
                 this.declarations = declarations;
                 this.kind = kind;
@@ -2109,7 +2105,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishVariableDeclarator: function(id, init) {
+            finishVariableDeclarator: function (id, init) {
                 this.type = Syntax.VariableDeclarator;
                 this.id = id;
                 this.init = init;
@@ -2117,7 +2113,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishWhileStatement: function(test, body) {
+            finishWhileStatement: function (test, body) {
                 this.type = Syntax.WhileStatement;
                 this.test = test;
                 this.body = body;
@@ -2125,7 +2121,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 return this;
             },
 
-            finishWithStatement: function(object, body) {
+            finishWithStatement: function (object, body) {
                 this.type = Syntax.WithStatement;
                 this.object = object;
                 this.body = body;
@@ -2153,15 +2149,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         // Throw an exception
 
-        function throwError(token, messageFormat, ...args: any[]) {
+        function throwError(token, messageFormat, ...args:any[]) {
             var error,
                 msg = messageFormat.replace(
                     /%(\d)/g,
-                    function(whole, index) {
+                    function (whole, index) {
                         assert(index < args.length, 'Message reference must be in range');
                         return args[index];
                     }
-                    );
+                );
 
             if (typeof token.lineNumber === 'number') {
                 error = new Error('Line ' + token.lineNumber + ': ' + msg);
@@ -2179,7 +2175,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             throw error;
         }
 
-        function throwErrorTolerant(...args: any[]) {
+        function throwErrorTolerant(...args:any[]) {
             try {
                 throwError.apply(null, args);
             } catch (e) {
@@ -2936,7 +2932,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 throwError(
                     strict ? options.stricted : options.firstRestricted,
                     options.message
-                    );
+                );
             }
 
             if (defaultCount === 0) {
@@ -3157,7 +3153,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
         // 12.3 Empty Statement
 
-        function parseEmptyStatement(...args: any[]) {
+        function parseEmptyStatement(...args:any[]) {
             var node = new Node();
             expect(';');
             return node.finishEmptyStatement(args);
@@ -3852,7 +3848,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             };
         }
 
-        function parseFunctionDeclaration(...args: any[]) {
+        function parseFunctionDeclaration(...args:any[]) {
             var id, params = [], defaults = [], body, token, stricted, tmp, firstRestricted, message, previousStrict, node = new Node();
 
             expectKeyword('function');
@@ -4032,7 +4028,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             extra.tokens = tokens;
         }
 
-        export function tokenize(code: string, options?: Options): Array<Token> {
+        export function tokenize(code:string, options?:Options):Array<Token> {
             var toString,
                 tokens;
 
@@ -4113,7 +4109,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             return tokens;
         }
 
-        export function parse(code: string, options?: lib.ast.esprima.Options): lib.ast.esprima.Syntax.Program {
+        export function parse(code:string, options?:lib.ast.esprima.Options):lib.ast.esprima.Syntax.Program {
             var program, toString;
 
             source = code;
@@ -4182,12 +4178,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         }
 
         // Sync with *.json manifests.
-        export var version: string = '2.0.0-dev';
+        export var version:string = '2.0.0-dev';
 
 
         // Deep copy.
         /* istanbul ignore next */
-        Syntax = (function() {
+        Syntax = (function () {
             var name, types = {};
 
             if (typeof Object.create === 'function') {
@@ -4205,6 +4201,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             }
 
             return types;
-        } ());
+        }());
     }
 }

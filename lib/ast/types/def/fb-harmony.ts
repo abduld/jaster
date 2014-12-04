@@ -1,6 +1,3 @@
-
-
-
 module lib.ast.types {
     export module definitions {
         import core = lib.ast.types.definitions.core;
@@ -22,7 +19,7 @@ module lib.ast.types {
                 def("Literal"), // attr="value"
                 def("XJSExpressionContainer"), // attr={value}
                 null // attr= or just attr
-                ), defaults["null"]);
+            ), defaults["null"]);
 
         def("XJSIdentifier")
             .bases("Node")
@@ -46,7 +43,7 @@ module lib.ast.types {
             def("XJSIdentifier"),
             def("XJSNamespacedName"),
             def("XJSMemberExpression")
-            );
+        );
 
         def("XJSSpreadAttribute")
             .bases("Node")
@@ -56,7 +53,7 @@ module lib.ast.types {
         var XJSAttributes = [or(
             def("XJSAttribute"),
             def("XJSSpreadAttribute")
-            )];
+        )];
 
         def("XJSExpressionContainer")
             .bases("Expression")
