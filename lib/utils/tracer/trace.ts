@@ -13,6 +13,11 @@ module lib.utils {
                 line: number
                 column: number
             }
+            interface LogEvent {
+            }
+            interface NodeId {
+                id: number;
+            }
             class TracedNode {
                 private log_:LogEvent[];
                 private id_:NodeId;
@@ -35,9 +40,9 @@ module lib.utils {
                 private log_:LogEvent[];
                 private args_:any[];
                 private id_:NodeId;
-
+                private fun_:Function
                 constructor(fun:Function) {
-                    return function (...args:any[]) {
+                    this.fun_ = function (...args:any[]) {
 
                         var res = fun(args);
 

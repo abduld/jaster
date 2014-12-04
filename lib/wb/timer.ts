@@ -27,8 +27,8 @@ module lib.wb {
             category: category,
             message: args.join(""),
             stopped: true,
-            startTime: times.startTime,
-            startTime: lib.utils.timer.now()
+            startTime: timer.startTime,
+            endTime: lib.utils.timer.now()
         });
     }
 }

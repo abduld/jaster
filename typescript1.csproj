@@ -294,6 +294,7 @@
     <TypeScriptCompile Include="lib\worker\thread.ts" />
     <TypeScriptCompile Include="lib\worker\worker.ts" />
     <TypeScriptCompile Include="lib\worker\worker_pool.ts" />
+    <TypeScriptCompile Include="lib\mp.ts" />
     <TypeScriptCompile Include="Scripts\typings\codemirror\codemirror.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\debug\debug.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\es6-promise\es6-promise.d.ts" />
@@ -304,6 +305,21 @@
     <TypeScriptCompile Include="Scripts\typings\requirejs\require.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\jquery-2.1.1.min.js.map">
+      <DependentUpon>jquery-2.1.1.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\lodash.min.js.map">
+      <DependentUpon>lodash.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\q.min.js.map">
+      <DependentUpon>q.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\react\react-0.11.2.min.js.map">
+      <DependentUpon>react-0.11.2.min.js</DependentUpon>
+    </Content>
+    <Content Include="Scripts\react\react-with-addons-0.11.2.min.js.map">
+      <DependentUpon>react-with-addons-0.11.2.min.js</DependentUpon>
+    </Content>
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

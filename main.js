@@ -165,6 +165,46 @@ var lib;
         utils.applyMixins = applyMixins;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
+/// <reference path="../ref.ts" />
+/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
+var lib;
+(function (lib) {
+    var utils;
+    (function (utils) {
+        var detail;
+        (function (detail) {
+            var randArray = new Uint8Array(16);
+            var makeRandom = function () {
+                for (var i = 0, r; i < 16; i++) {
+                    if ((i & 0x03) === 0)
+                        r = Math.random() * 0x100000000;
+                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
+                }
+                return randArray;
+            };
+            // Maps for number <-> hex string conversion
+            var byteToHex = [];
+            var hexToByte = {};
+            for (var i = 0; i < 256; i++) {
+                byteToHex[i] = (i + 0x100).toString(16).substr(1);
+                hexToByte[byteToHex[i]] = i;
+            }
+            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
+            function unparse(buf) {
+                var i = 0, bth = byteToHex;
+                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
+            }
+            function guuid() {
+                var rnds = makeRandom();
+                rnds[6] = (rnds[6] & 0x0f) | 0x40;
+                rnds[8] = (rnds[8] & 0x3f) | 0x80;
+                return unparse(rnds);
+            }
+            detail.guuid = guuid;
+        })(detail = utils.detail || (utils.detail = {}));
+        utils.guuid = detail.guuid;
+    })(utils = lib.utils || (lib.utils = {}));
+})(lib || (lib = {}));
 var lib;
 (function (lib) {
     var utils;
@@ -211,11 +251,11 @@ var lib;
         (function (timer) {
             var now_ = performance.now || 
             /*
-            performance.mozNow ||
-            performance.msNow ||
-            performance.oNow ||
-            performance.webkitNow ||
-            */
+             performance.mozNow ||
+             performance.msNow ||
+             performance.oNow ||
+             performance.webkitNow ||
+             */
             function () {
                 return new Date().getTime();
             };
@@ -1161,9 +1201,9 @@ var lib;
                  * See http://pajhome.org.uk/crypt/md5 for more info.
                  */
                 /*
-         * Add integers, wrapping at 2^32. This uses 16-bit operations internally
-         * to work around bugs in some JS interpreters.
-         */
+                 * Add integers, wrapping at 2^32. This uses 16-bit operations internally
+                 * to work around bugs in some JS interpreters.
+                 */
                 var safe_add = function (x, y) {
                     var lsw = (x & 0xFFFF) + (y & 0xFFFF);
                     var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
@@ -4118,47 +4158,47 @@ var lib;
         var esprima;
         (function (esprima) {
             /*
-    Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
-    Copyright (C) 2013 Thaddee Tyl <thaddee.tyl@gmail.com>
-    Copyright (C) 2013 Mathias Bynens <mathias@qiwi.be>
-    Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
-    Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
-    Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
-    Copyright (C) 2012 Kris Kowal <kris.kowal@cixar.com>
-    Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
-    Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
-    Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
+             Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
+             Copyright (C) 2013 Thaddee Tyl <thaddee.tyl@gmail.com>
+             Copyright (C) 2013 Mathias Bynens <mathias@qiwi.be>
+             Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
+             Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
+             Copyright (C) 2012 Joost-Wim Boekesteijn <joost-wim@boekesteijn.nl>
+             Copyright (C) 2012 Kris Kowal <kris.kowal@cixar.com>
+             Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
+             Copyright (C) 2012 Arpad Borsos <arpad.borsos@googlemail.com>
+             Copyright (C) 2011 Ariya Hidayat <ariya.hidayat@gmail.com>
     
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
+             Redistribution and use in source and binary forms, with or without
+             modification, are permitted provided that the following conditions are met:
     
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
+             * Redistributions of source code must retain the above copyright
+             notice, this list of conditions and the following disclaimer.
+             * Redistributions in binary form must reproduce the above copyright
+             notice, this list of conditions and the following disclaimer in the
+             documentation and/or other materials provided with the distribution.
     
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-    */
+             THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+             AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+             IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+             ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+             DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+             (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+             LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+             ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+             (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+             THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+             */
             /*jslint bitwise:true plusplus:true */
             /*global esprima:true, define:true, exports:true, window: true,
-            throwErrorTolerant: true,
-            throwError: true, generateStatement: true, peek: true,
-            parseAssignmentExpression: true, parseBlock: true, parseExpression: true,
-            parseFunctionDeclaration: true, parseFunctionExpression: true,
-            parseFunctionSourceElements: true, parseVariableIdentifier: true,
-            parseLeftHandSideExpression: true, parseParams: true, validateParam: true,
-            parseUnaryExpression: true,
-            parseStatement: true, parseSourceElement: true */
+             throwErrorTolerant: true,
+             throwError: true, generateStatement: true, peek: true,
+             parseAssignmentExpression: true, parseBlock: true, parseExpression: true,
+             parseFunctionDeclaration: true, parseFunctionExpression: true,
+             parseFunctionSourceElements: true, parseVariableIdentifier: true,
+             parseLeftHandSideExpression: true, parseParams: true, validateParam: true,
+             parseUnaryExpression: true,
+             parseStatement: true, parseSourceElement: true */
             esprima.Syntax;
             var Token, TokenName, FnExprTokens, PlaceHolders, PropertyKind, Messages, Regex, source, strict, index, lineNumber, lineStart, length, lookahead, state, extra;
             Token = {
@@ -14131,15 +14171,25 @@ var lib;
             (function (cena) {
                 var castTo = lib.utils.castTo;
                 var isUndefined = lib.utils.isUndefined;
+                var unknownLocation = {
+                    start: {
+                        line: -1,
+                        column: -1
+                    },
+                    end: {
+                        line: -1,
+                        column: -1
+                    }
+                };
                 var Node = (function () {
-                    function Node(type, line, column, raw) {
+                    function Node(type, loc, raw, cform) {
                         this.type = type;
-                        this.line = line;
-                        this.column = column;
+                        this.loc = castTo(loc);
                         this.raw = raw;
+                        this.cform = cform;
                     }
                     Node.fromCena = function (o) {
-                        return new Node("Unknown", -1, -1, "");
+                        return new Node("Unknown", unknownLocation, "", "");
                     };
                     Node.prototype.toEsprima = function () {
                         return {
@@ -14147,22 +14197,6 @@ var lib;
                             value: "Node"
                         };
                     };
-                    Object.defineProperty(Node.prototype, "location", {
-                        get: function () {
-                            return {
-                                start: {
-                                    line: this.line,
-                                    column: this.column
-                                },
-                                end: {
-                                    line: this.line,
-                                    column: this.column + (isUndefined(this.raw) ? 0 : this.raw.length)
-                                }
-                            };
-                        },
-                        enumerable: true,
-                        configurable: true
-                    });
                     Node.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14187,7 +14221,7 @@ var lib;
                 var EmptyExpression = (function (_super) {
                     __extends(EmptyExpression, _super);
                     function EmptyExpression() {
-                        _super.call(this, "EmptyExpression", -1, -1, "");
+                        _super.call(this, "EmptyExpression", unknownLocation, "", "");
                     }
                     EmptyExpression.prototype.toEsprima = function () {
                         return {
@@ -14219,7 +14253,7 @@ var lib;
                 var NullNode = (function (_super) {
                     __extends(NullNode, _super);
                     function NullNode() {
-                        _super.call(this, "NullNode", -1, -1, "");
+                        _super.call(this, "NullNode", unknownLocation, "", "");
                     }
                     NullNode.prototype.toEsprima = function () {
                         return null;
@@ -14247,16 +14281,17 @@ var lib;
                 cena.NullNode = NullNode;
                 var Literal = (function (_super) {
                     __extends(Literal, _super);
-                    function Literal(line, column, value, raw) {
-                        _super.call(this, "Literal", line, column, raw);
+                    function Literal(loc, raw, cform, value) {
+                        _super.call(this, "Literal", loc, raw, cform);
                         this.value = value;
                     }
                     Literal.prototype.toEsprima = function () {
                         return {
                             type: "Literal",
                             value: this.value,
-                            loc: this.location,
-                            raw: this.raw
+                            loc: this.loc,
+                            raw: this.raw,
+                            cform: this.cform
                         };
                     };
                     Literal.prototype.hasChildren = function () {
@@ -14282,12 +14317,12 @@ var lib;
                 cena.Literal = Literal;
                 var StringLiteral = (function (_super) {
                     __extends(StringLiteral, _super);
-                    function StringLiteral(line, column, value, raw) {
-                        _super.call(this, line, column, value, raw);
+                    function StringLiteral(loc, raw, cform, value) {
+                        _super.call(this, loc, raw, cform, value);
                         this.type = "StringLiteral";
                     }
                     StringLiteral.fromCena = function (o) {
-                        return new StringLiteral(o.line, o.column, o.value, o.raw);
+                        return new StringLiteral(o.loc, o.raw, o.cform, o.value);
                     };
                     StringLiteral.prototype.hasChildren = function () {
                         return false;
@@ -14312,12 +14347,12 @@ var lib;
                 cena.StringLiteral = StringLiteral;
                 var BooleanLiteral = (function (_super) {
                     __extends(BooleanLiteral, _super);
-                    function BooleanLiteral(line, column, value, raw) {
-                        _super.call(this, line, column, value, raw);
+                    function BooleanLiteral(loc, raw, cform, value) {
+                        _super.call(this, loc, raw, cform, value);
                         this.type = "BooleanLiteral";
                     }
                     BooleanLiteral.fromCena = function (o) {
-                        return new BooleanLiteral(o.line, o.column, o.value, o.raw);
+                        return new BooleanLiteral(o.loc, o.raw, o.cform, o.value);
                     };
                     BooleanLiteral.prototype.hasChildren = function () {
                         return false;
@@ -14342,26 +14377,30 @@ var lib;
                 cena.BooleanLiteral = BooleanLiteral;
                 var CharLiteral = (function (_super) {
                     __extends(CharLiteral, _super);
-                    function CharLiteral(line, column, value, raw) {
-                        _super.call(this, "CharLiteral", line, column, raw);
+                    function CharLiteral(loc, raw, cform, value) {
+                        _super.call(this, "CharLiteral", loc, raw, cform);
                         this.value = value;
                     }
                     CharLiteral.fromCena = function (o) {
-                        return new CharLiteral(o.line, o.column, o.value, o.raw);
+                        return new CharLiteral(o.loc, o.raw, o.cform, o.value);
                     };
                     CharLiteral.prototype.toEsprima = function () {
                         return {
                             type: "NewExpression",
-                            loc: this.location,
+                            loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
                                 value: "CharLiteral",
-                                loc: this.location
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
                             }),
                             arguments: [
                                 castTo({
                                     type: "Literal",
-                                    loc: this.location,
+                                    loc: this.loc,
+                                    raw: this.raw,
+                                    cform: this.cform,
                                     value: this.value
                                 })
                             ]
@@ -14390,26 +14429,30 @@ var lib;
                 cena.CharLiteral = CharLiteral;
                 var Integer8Literal = (function (_super) {
                     __extends(Integer8Literal, _super);
-                    function Integer8Literal(line, column, value, raw) {
-                        _super.call(this, "Integer8Literal", line, column, raw);
+                    function Integer8Literal(loc, raw, cform, value) {
+                        _super.call(this, "Integer8Literal", loc, raw, cform);
                         this.value = value;
                     }
                     Integer8Literal.fromCena = function (o) {
-                        return new Integer8Literal(o.line, o.column, o.value, o.raw);
+                        return new Integer8Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Integer8Literal.prototype.toEsprima = function () {
                         return {
                             type: "NewExpression",
-                            loc: this.location,
+                            loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
                                 value: "Int8",
-                                loc: this.location
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
                             }),
                             arguments: [
                                 castTo({
                                     type: "Literal",
-                                    loc: this.location,
+                                    loc: this.loc,
+                                    raw: this.raw,
+                                    cform: this.cform,
                                     value: this.value
                                 })
                             ]
@@ -14438,26 +14481,30 @@ var lib;
                 cena.Integer8Literal = Integer8Literal;
                 var Integer32Literal = (function (_super) {
                     __extends(Integer32Literal, _super);
-                    function Integer32Literal(line, column, value, raw) {
-                        _super.call(this, "Integer8Literal", line, column, raw);
+                    function Integer32Literal(loc, raw, cform, value) {
+                        _super.call(this, "Integer8Literal", loc, raw, cform);
                         this.value = value;
                     }
                     Integer32Literal.fromCena = function (o) {
-                        return new Integer32Literal(o.line, o.column, o.value, o.raw);
+                        return new Integer32Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Integer32Literal.prototype.toEsprima = function () {
                         return {
                             type: "NewExpression",
-                            loc: this.location,
+                            loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
                                 value: "Int32",
-                                loc: this.location
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
                             }),
                             arguments: [
                                 castTo({
                                     type: "Literal",
-                                    loc: this.location,
+                                    loc: this.loc,
+                                    raw: this.raw,
+                                    cform: this.cform,
                                     value: this.value
                                 })
                             ]
@@ -14486,26 +14533,28 @@ var lib;
                 cena.Integer32Literal = Integer32Literal;
                 var Integer64Literal = (function (_super) {
                     __extends(Integer64Literal, _super);
-                    function Integer64Literal(line, column, value, raw) {
-                        _super.call(this, "Integer8Literal", line, column, raw);
+                    function Integer64Literal(loc, raw, cform, value) {
+                        _super.call(this, "Integer8Literal", loc, raw, cform);
                         this.value = value;
                     }
                     Integer64Literal.fromCena = function (o) {
-                        return new Integer64Literal(o.line, o.column, o.value, o.raw);
+                        return new Integer64Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Integer64Literal.prototype.toEsprima = function () {
                         return {
                             type: "NewExpression",
-                            loc: this.location,
+                            loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
                                 value: "Int64",
-                                loc: this.location
+                                loc: this.loc
                             }),
                             arguments: [
                                 castTo({
                                     type: "Literal",
-                                    loc: this.location,
+                                    loc: this.loc,
+                                    raw: this.raw,
+                                    cform: this.cform,
                                     value: this.value
                                 })
                             ]
@@ -14534,26 +14583,26 @@ var lib;
                 cena.Integer64Literal = Integer64Literal;
                 var Float32Literal = (function (_super) {
                     __extends(Float32Literal, _super);
-                    function Float32Literal(line, column, value, raw) {
-                        _super.call(this, "FloatLiteral", line, column, raw);
+                    function Float32Literal(loc, raw, cform, value) {
+                        _super.call(this, "FloatLiteral", loc, raw, cform);
                         this.value = value;
                     }
                     Float32Literal.fromCena = function (o) {
-                        return new Float32Literal(o.line, o.column, o.value, o.raw);
+                        return new Float32Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Float32Literal.prototype.toEsprima = function () {
                         return {
                             type: "NewExpression",
-                            loc: this.location,
+                            loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
                                 value: "Float32",
-                                loc: this.location
+                                loc: this.loc
                             }),
                             arguments: [
                                 castTo({
                                     type: "Literal",
-                                    loc: this.location,
+                                    loc: this.loc,
                                     value: this.value
                                 })
                             ]
@@ -14582,12 +14631,12 @@ var lib;
                 cena.Float32Literal = Float32Literal;
                 var Float64Literal = (function (_super) {
                     __extends(Float64Literal, _super);
-                    function Float64Literal(line, column, value, raw) {
-                        _super.call(this, line, column, value, raw);
+                    function Float64Literal(loc, raw, cform, value) {
+                        _super.call(this, loc, raw, cform, value);
                         this.type = "BooleanLiteral";
                     }
                     Float64Literal.fromCena = function (o) {
-                        return new Float64Literal(o.line, o.column, o.value, o.raw);
+                        return new Float64Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Float64Literal.prototype.hasChildren = function () {
                         return false;
@@ -14612,21 +14661,25 @@ var lib;
                 cena.Float64Literal = Float64Literal;
                 var TypeExpression = (function (_super) {
                     __extends(TypeExpression, _super);
-                    function TypeExpression(line, column, addressSpace, qualifiers, bases, raw) {
-                        _super.call(this, "TypeExpression", line, column, raw);
+                    function TypeExpression(loc, raw, cform, addressSpace, qualifiers, bases) {
+                        _super.call(this, "TypeExpression", loc, raw, cform);
                         this.addressSpace = addressSpace;
                         this.qualifiers = qualifiers;
                         this.bases = bases;
                     }
                     TypeExpression.fromCena = function (o) {
-                        return new TypeExpression(o.line, o.column, o.addressSpace, o.qualifiers, o.bases, o.raw);
+                        return new TypeExpression(o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
                     };
                     TypeExpression.prototype.toEsprima = function () {
                         return {
                             type: "Comment",
                             value: [this.addressSpace, this.qualifiers, this.bases].join(" "),
-                            raw: JSON.stringify({ addressSpace: this.addressSpace, qualifiers: this.qualifiers, bases: this.bases }),
-                            loc: this.location
+                            raw: JSON.stringify({
+                                addressSpace: this.addressSpace,
+                                qualifiers: this.qualifiers,
+                                bases: this.bases
+                            }),
+                            loc: this.loc
                         };
                     };
                     TypeExpression.prototype.hasChildren = function () {
@@ -14652,8 +14705,8 @@ var lib;
                 cena.TypeExpression = TypeExpression;
                 var Identifier = (function (_super) {
                     __extends(Identifier, _super);
-                    function Identifier(line, column, name, kind, raw) {
-                        _super.call(this, "Identifier", line, column, raw);
+                    function Identifier(loc, raw, cform, name, kind) {
+                        _super.call(this, "Identifier", loc, raw, cform);
                         this.name = name;
                         if (isUndefined(kind)) {
                             this.kind = castTo(new EmptyExpression());
@@ -14664,7 +14717,7 @@ var lib;
                         ;
                     }
                     Identifier.fromCena = function (o) {
-                        return new Identifier(o.line, o.column, o.name, o.kind, o.raw);
+                        return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
                     };
                     Identifier.prototype.toEsprima = function () {
                         return {
@@ -14672,7 +14725,8 @@ var lib;
                             name: this.name,
                             kind: this.kind.toEsprima(),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     Identifier.prototype.hasChildren = function () {
@@ -14698,13 +14752,18 @@ var lib;
                 cena.Identifier = Identifier;
                 var CompoundNode = (function () {
                     function CompoundNode(elements) {
-                        this.elements = elements.map(function (elem) { return fromCena(elem); });
+                        this.elements = isUndefined(elements) ? [] : elements.map(function (elem) { return fromCena(elem); });
                     }
                     CompoundNode.fromCena = function (o) {
                         return new CompoundNode(o);
                     };
                     CompoundNode.prototype.toEsprima = function () {
-                        return this.elements.map(function (elem) { return elem.toEsprima(); });
+                        if (isUndefined(this.elements)) {
+                            return [];
+                        }
+                        else {
+                            return this.elements.map(function (elem) { return elem.toEsprima(); });
+                        }
                     };
                     CompoundNode.prototype.hasChildren = function () {
                         return _.isEmpty(this.elements);
@@ -14739,19 +14798,20 @@ var lib;
                 cena.CompoundNode = CompoundNode;
                 var BlockStatement = (function (_super) {
                     __extends(BlockStatement, _super);
-                    function BlockStatement(line, column, body, raw) {
-                        _super.call(this, "BlockStatement", line, column, raw);
+                    function BlockStatement(loc, raw, cform, body) {
+                        _super.call(this, "BlockStatement", loc, raw, cform);
                         this.body = new CompoundNode(body.body);
                     }
                     BlockStatement.fromCena = function (o) {
-                        return new BlockStatement(o.line, o.column, o.body, o.raw);
+                        return new BlockStatement(o.loc, o.raw, o.cform, o.body);
                     };
                     BlockStatement.prototype.toEsprima = function () {
                         return {
                             type: "BlockStatement",
                             body: castTo(this.body.toEsprima()),
-                            loc: this.location,
-                            raw: this.raw
+                            loc: this.loc,
+                            raw: this.raw,
+                            cform: this.cform
                         };
                     };
                     BlockStatement.prototype.hasChildren = function () {
@@ -14782,16 +14842,16 @@ var lib;
                 cena.BlockStatement = BlockStatement;
                 var FunctionExpression = (function (_super) {
                     __extends(FunctionExpression, _super);
-                    function FunctionExpression(line, column, attributes, ret, id, params, body, raw) {
-                        _super.call(this, "FunctionExpression", line, column, raw);
+                    function FunctionExpression(loc, raw, cform, attributes, ret, id, params, body) {
+                        _super.call(this, "FunctionExpression", loc, raw, cform);
                         this.attributes = attributes;
-                        this.ret = TypeExpression.fromCena(ret);
+                        this.ret = isUndefined(ret) ? new EmptyExpression() : TypeExpression.fromCena(ret);
                         this.id = Identifier.fromCena(id);
                         this.params = CompoundNode.fromCena(params);
-                        this.body = BlockStatement.fromCena(body);
+                        this.body = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
                     }
                     FunctionExpression.fromCena = function (o) {
-                        return new FunctionExpression(o.line, o.column, o.attributes, o.ret, o.id, o.params, o.body, o.raw);
+                        return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                     };
                     FunctionExpression.prototype.toEsprima = function () {
                         return {
@@ -14805,7 +14865,8 @@ var lib;
                             generator: false,
                             expression: false,
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     FunctionExpression.prototype.hasChildren = function () {
@@ -14851,16 +14912,16 @@ var lib;
                 cena.FunctionExpression = FunctionExpression;
                 var CallExpression = (function (_super) {
                     __extends(CallExpression, _super);
-                    function CallExpression(line, column, callee, args, config, raw) {
-                        _super.call(this, "CallExpression", line, column, raw);
+                    function CallExpression(loc, raw, cform, callee, args, config) {
+                        _super.call(this, "CallExpression", loc, raw, cform);
                         this.isCUDA = false;
                         this.callee = Identifier.fromCena(callee);
                         this.args = new CompoundNode(args);
-                        this.config = fromCena(config);
+                        this.config = isUndefined(config) ? new EmptyExpression() : fromCena(config);
                         this.isCUDA = !isUndefined(config);
                     }
                     CallExpression.fromCena = function (o) {
-                        return new CallExpression(o.line, o.column, o.callee, castTo(o.args), o.config, o.raw);
+                        return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo(o.args), o.config);
                     };
                     CallExpression.prototype.toEsprima = function () {
                         return {
@@ -14870,7 +14931,8 @@ var lib;
                             callee: castTo(this.callee.toEsprima()),
                             arguments: this.args.toEsprima(),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     CallExpression.prototype.hasChildren = function () {
@@ -14911,19 +14973,20 @@ var lib;
                 cena.CallExpression = CallExpression;
                 var ParenExpression = (function (_super) {
                     __extends(ParenExpression, _super);
-                    function ParenExpression(line, column, expression, raw) {
-                        _super.call(this, "ParenExpression", line, column, raw);
+                    function ParenExpression(loc, raw, cform, expression) {
+                        _super.call(this, "ParenExpression", loc, raw, cform);
                         this.expression = fromCena(expression);
                     }
                     ParenExpression.fromCena = function (o) {
-                        return new CallExpression(o.line, o.column, o.expression, o.raw);
+                        return new ParenExpression(o.loc, o.raw, o.cform, o.expression);
                     };
                     ParenExpression.prototype.toEsprima = function () {
                         return {
                             type: "ExpressionStatement",
                             expression: castTo(this.expression.toEsprima()),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     ParenExpression.prototype.hasChildren = function () {
@@ -14954,16 +15017,16 @@ var lib;
                 cena.ParenExpression = ParenExpression;
                 var DereferenceExpression = (function (_super) {
                     __extends(DereferenceExpression, _super);
-                    function DereferenceExpression(line, column, argument, raw) {
-                        _super.call(this, "DereferenceExpression", line, column, raw);
+                    function DereferenceExpression(loc, raw, cform, argument) {
+                        _super.call(this, "DereferenceExpression", loc, raw, cform);
                         this.rawArgument = argument;
                         this.argument = fromCena(argument);
                     }
                     DereferenceExpression.fromCena = function (o) {
-                        return new DereferenceExpression(o.line, o.column, o.argument, o.raw);
+                        return new DereferenceExpression(o.loc, o.raw, o.cform, o.argument);
                     };
                     DereferenceExpression.prototype.toEsprima = function () {
-                        var call = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "dereference"), [this.rawArgument]);
+                        var call = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
                         return call.toEsprima();
                     };
                     DereferenceExpression.prototype.hasChildren = function () {
@@ -14994,16 +15057,16 @@ var lib;
                 cena.DereferenceExpression = DereferenceExpression;
                 var ReferenceExpression = (function (_super) {
                     __extends(ReferenceExpression, _super);
-                    function ReferenceExpression(line, column, argument, raw) {
-                        _super.call(this, "ReferenceExpression", line, column, raw);
+                    function ReferenceExpression(loc, raw, cform, argument) {
+                        _super.call(this, "ReferenceExpression", loc, raw, cform);
                         this.rawArgument = argument;
                         this.argument = fromCena(argument);
                     }
                     ReferenceExpression.fromCena = function (o) {
-                        return new ReferenceExpression(o.line, o.column, o.argument, o.raw);
+                        return new ReferenceExpression(o.loc, o.raw, o.cform, o.argument);
                     };
                     ReferenceExpression.prototype.toEsprima = function () {
-                        var call = new CallExpression(this.line, this.column, new Identifier(this.line, this.column, "reference"), [this.rawArgument]);
+                        var call = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "reference"), [this.rawArgument]);
                         return call.toEsprima();
                     };
                     ReferenceExpression.prototype.hasChildren = function () {
@@ -15034,8 +15097,8 @@ var lib;
                 cena.ReferenceExpression = ReferenceExpression;
                 var UnaryExpression = (function (_super) {
                     __extends(UnaryExpression, _super);
-                    function UnaryExpression(line, column, operator, argument, raw) {
-                        _super.call(this, "UnaryExpression", line, column, raw);
+                    function UnaryExpression(loc, raw, cform, operator, argument) {
+                        _super.call(this, "UnaryExpression", loc, raw, cform);
                         this.operator = operator;
                         this.rawArgument = argument;
                         this.argument = fromCena(argument);
@@ -15051,24 +15114,25 @@ var lib;
                             return ReferenceExpression.fromCena(o);
                         }
                         else {
-                            return new UnaryExpression(o.line, o.column, o.operator, o.argument, o.raw);
+                            return new UnaryExpression(o.loc, o.raw, o.cform, o.operator, o.argument);
                         }
                     };
                     UnaryExpression.prototype.toEsprima = function () {
                         if (this.operator === "*") {
-                            var nd = new DereferenceExpression(this.line, this.column, this.rawArgument, this.raw);
+                            var nd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
                             return nd.toEsprima();
                         }
                         else if (this.operator === "&") {
-                            var nd = new ReferenceExpression(this.line, this.column, this.rawArgument, this.raw);
+                            var nd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
                             return nd.toEsprima();
                         }
                         return {
                             type: "UnaryExpression",
                             argument: this.argument.toEsprima(),
                             operator: this.operator,
-                            loc: this.location,
-                            raw: this.raw
+                            loc: this.loc,
+                            raw: this.raw,
+                            cform: this.cform
                         };
                     };
                     UnaryExpression.prototype.hasChildren = function () {
@@ -15097,16 +15161,19 @@ var lib;
                     return UnaryExpression;
                 })(Node);
                 cena.UnaryExpression = UnaryExpression;
+                function makeOp(op, symbol) {
+                    return new Identifier(unknownLocation, op, op, symbol);
+                }
                 var BinaryExpression = (function (_super) {
                     __extends(BinaryExpression, _super);
-                    function BinaryExpression(line, column, operator, right, left, raw) {
-                        _super.call(this, "BinaryExpression", line, column, raw);
+                    function BinaryExpression(loc, raw, cform, operator, right, left) {
+                        _super.call(this, "BinaryExpression", loc, raw, cform);
                         this.operator = operator;
                         this.right = fromCena(right);
                         this.left = fromCena(left);
                     }
                     BinaryExpression.fromCena = function (o) {
-                        return new BinaryExpression(o.line, o.column, o.operator, o.left, o.right, o.raw);
+                        return new BinaryExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                     };
                     Object.defineProperty(BinaryExpression.prototype, "property", {
                         get: function () {
@@ -15121,15 +15188,17 @@ var lib;
                             object: castTo(this.right.toEsprima()),
                             property: castTo(this.property.toEsprima()),
                             computed: false,
-                            loc: this.right.location,
-                            raw: this.right.raw
+                            loc: this.right.loc,
+                            raw: this.right.raw,
+                            cform: this.right.cform,
                         };
                         return {
                             type: "CallExpression",
                             callee: castTo(method),
                             arguments: castTo([this.left.toEsprima()]),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     BinaryExpression.prototype.hasChildren = function () {
@@ -15161,38 +15230,138 @@ var lib;
                         return visit(this, data);
                     };
                     BinaryExpression.PropertyTable = {
-                        "+": new Identifier(0, 0, "plus", undefined, "+"),
-                        "-": new Identifier(0, 0, "minus", undefined, "-"),
-                        "*": new Identifier(0, 0, "times", undefined, "*"),
-                        "/": new Identifier(0, 0, "divide", undefined, "/"),
-                        "%": new Identifier(0, 0, "mod", undefined, "%"),
-                        "&&": new Identifier(0, 0, "and", undefined, "&&"),
-                        "||": new Identifier(0, 0, "or", undefined, "||"),
-                        "==": new Identifier(0, 0, "equals", undefined, "=="),
-                        "!=": new Identifier(0, 0, "notequals", undefined, "!="),
-                        ">": new Identifier(0, 0, "greaterthan", undefined, ">"),
-                        ">=": new Identifier(0, 0, "greaterthanequals", undefined, ">="),
-                        "<": new Identifier(0, 0, "lessthan", undefined, "<"),
-                        "<=": new Identifier(0, 0, "lessthanequals", undefined, "<="),
-                        "|": new Identifier(0, 0, "bitor", undefined, "|"),
-                        "&": new Identifier(0, 0, "bitand", undefined, "&"),
-                        "^": new Identifier(0, 0, "bitxor", undefined, "^"),
-                        ">>": new Identifier(0, 0, "shiftright", undefined, ">>"),
-                        "<<": new Identifier(0, 0, "shiftleft", undefined, "<<")
+                        "+": makeOp("plus", "+"),
+                        "-": makeOp("minus", "-"),
+                        "*": makeOp("times", "*"),
+                        "/": makeOp("divide", "/"),
+                        "%": makeOp("mod", "%"),
+                        "&&": makeOp("and", "&&"),
+                        "||": makeOp("or", "||"),
+                        "==": makeOp("equals", "=="),
+                        "!=": makeOp("notequals", "!="),
+                        ">": makeOp("greaterthan", ">"),
+                        ">=": makeOp("greaterthanequals", ">="),
+                        "<": makeOp("lessthan", "<"),
+                        "<=": makeOp("lessthanequals", "<="),
+                        "|": makeOp("bitor", "|"),
+                        "&": makeOp("bitand", "&"),
+                        "^": makeOp("bitxor", "^"),
+                        ">>": makeOp("shiftright", ">>"),
+                        "<<": makeOp("shiftleft", "<<")
                     };
                     return BinaryExpression;
                 })(Node);
                 cena.BinaryExpression = BinaryExpression;
+                var VariableDeclarator = (function (_super) {
+                    __extends(VariableDeclarator, _super);
+                    function VariableDeclarator(loc, raw, cform, init, id) {
+                        _super.call(this, "VariableDeclarator", loc, raw, cform);
+                        this.init = isUndefined(init) ? new EmptyExpression() : fromCena(init);
+                        this.id = Identifier.fromCena(id);
+                    }
+                    VariableDeclarator.fromCena = function (o) {
+                        return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id);
+                    };
+                    VariableDeclarator.prototype.toEsprima = function () {
+                        return {
+                            type: "VariableDeclarator",
+                            init: castTo(this.init.toEsprima()),
+                            id: this.id.toEsprima(),
+                            raw: this.raw,
+                            cform: this.cform,
+                            loc: this.loc
+                        };
+                    };
+                    VariableDeclarator.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    VariableDeclarator.prototype.postOrderTraverse = function (visit, data) {
+                        lib.utils.logger.fatal("unimplemented");
+                        return visit(this, data);
+                    };
+                    VariableDeclarator.prototype.preOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        lib.utils.logger.fatal("unimplemented");
+                        return visit(this, data);
+                    };
+                    VariableDeclarator.prototype.inOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        lib.utils.logger.fatal("unimplemented");
+                        return visit(this, data);
+                    };
+                    VariableDeclarator.prototype.reversePostOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        lib.utils.logger.fatal("unimplemented");
+                        return visit(this, data);
+                    };
+                    VariableDeclarator.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        lib.utils.logger.fatal("unimplemented");
+                        return visit(this, data);
+                    };
+                    return VariableDeclarator;
+                })(Node);
+                cena.VariableDeclarator = VariableDeclarator;
+                var VariableDeclaration = (function (_super) {
+                    __extends(VariableDeclaration, _super);
+                    function VariableDeclaration(loc, raw, cform, declarations) {
+                        _super.call(this, "VariableDeclaration", loc, raw, cform);
+                        this.declarations = declarations.map(fromCena);
+                    }
+                    VariableDeclaration.fromCena = function (o) {
+                        return new VariableDeclaration(o.loc, o.raw, o.cform, o.declarations);
+                    };
+                    VariableDeclaration.prototype.toEsprima = function () {
+                        return {
+                            type: "VariableDeclaration",
+                            declarations: castTo(this.declarations.map(function (decl) { return decl.toEsprima(); })),
+                            kind: "var",
+                            raw: this.raw,
+                            cform: this.cform,
+                            loc: this.loc
+                        };
+                    };
+                    VariableDeclaration.prototype.hasChildren = function () {
+                        return true;
+                    };
+                    VariableDeclaration.prototype.postOrderTraverse = function (visit, data) {
+                        _.each(this.declarations, function (decl) { return decl.postOrderTraverse(visit, data); });
+                        return visit(this, data);
+                    };
+                    VariableDeclaration.prototype.preOrderTraverse = function (visit, data) {
+                        var res;
+                        visit(this, data);
+                        _.each(this.declarations, function (decl) { return res = decl.preOrderTraverse(visit, data); });
+                        return res;
+                    };
+                    VariableDeclaration.prototype.inOrderTraverse = function (visit, data) {
+                        _.each(this.declarations, function (decl) { return decl.inOrderTraverse(visit, data); });
+                        return visit(this, data);
+                    };
+                    VariableDeclaration.prototype.reversePostOrderTraverse = function (visit, data) {
+                        var res;
+                        visit(this, data);
+                        _.eachRight(this.declarations, function (decl) { return res = decl.reversePostOrderTraverse(visit, data); });
+                        return res;
+                    };
+                    VariableDeclaration.prototype.reversePreOrderTraverse = function (visit, data) {
+                        var res;
+                        _.eachRight(this.declarations, function (decl) { return res = decl.reversePreOrderTraverse(visit, data); });
+                        return visit(this, data);
+                    };
+                    return VariableDeclaration;
+                })(Node);
+                cena.VariableDeclaration = VariableDeclaration;
                 var AssignmentExpression = (function (_super) {
                     __extends(AssignmentExpression, _super);
-                    function AssignmentExpression(line, column, operator, right, left, raw) {
-                        _super.call(this, "AssignmentExpression", line, column, raw);
+                    function AssignmentExpression(loc, raw, cform, operator, right, left) {
+                        _super.call(this, "AssignmentExpression", loc, raw, cform);
                         this.operator = operator;
                         this.right = fromCena(right);
                         this.left = fromCena(left);
                     }
                     AssignmentExpression.fromCena = function (o) {
-                        return new AssignmentExpression(o.line, o.column, o.operator, o.left, o.right, o.raw);
+                        return new AssignmentExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                     };
                     AssignmentExpression.prototype.toEsprima = function () {
                         return {
@@ -15201,7 +15370,8 @@ var lib;
                             left: castTo(this.left.toEsprima()),
                             right: castTo(this.right.toEsprima()),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     AssignmentExpression.prototype.hasChildren = function () {
@@ -15237,14 +15407,14 @@ var lib;
                 cena.AssignmentExpression = AssignmentExpression;
                 var IfStatement = (function (_super) {
                     __extends(IfStatement, _super);
-                    function IfStatement(line, column, test, consequent, alternate, raw) {
-                        _super.call(this, "IfStatement", line, column, raw);
+                    function IfStatement(loc, raw, cform, test, consequent, alternate) {
+                        _super.call(this, "IfStatement", loc, raw, cform);
                         this.test = fromCena(test);
                         this.consequent = fromCena(consequent);
-                        this.alternate = fromCena(alternate);
+                        this.alternate = isUndefined(alternate) ? new EmptyExpression() : fromCena(alternate);
                     }
                     IfStatement.fromCena = function (o) {
-                        return new IfStatement(o.line, o.column, o.test, o.consequent, o.alternate, o.raw);
+                        return new IfStatement(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                     };
                     IfStatement.prototype.toEsprima = function () {
                         return {
@@ -15253,7 +15423,8 @@ var lib;
                             alternate: castTo(this.alternate.toEsprima()),
                             consequent: castTo(this.consequent.toEsprima()),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     IfStatement.prototype.hasChildren = function () {
@@ -15294,14 +15465,14 @@ var lib;
                 cena.IfStatement = IfStatement;
                 var ConditionalExpression = (function (_super) {
                     __extends(ConditionalExpression, _super);
-                    function ConditionalExpression(line, column, test, consequent, alternate, raw) {
-                        _super.call(this, "ConditionalExpression", line, column, raw);
+                    function ConditionalExpression(loc, raw, cform, test, consequent, alternate) {
+                        _super.call(this, "ConditionalExpression", loc, raw, cform);
                         this.test = fromCena(test);
                         this.consequent = fromCena(consequent);
                         this.alternate = fromCena(alternate);
                     }
                     ConditionalExpression.fromCena = function (o) {
-                        return new ConditionalExpression(o.line, o.column, o.test, o.consequent, o.alternate, o.raw);
+                        return new ConditionalExpression(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                     };
                     ConditionalExpression.prototype.toEsprima = function () {
                         return {
@@ -15310,7 +15481,8 @@ var lib;
                             alternate: castTo(this.alternate.toEsprima()),
                             consequent: castTo(this.consequent.toEsprima()),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     ConditionalExpression.prototype.hasChildren = function () {
@@ -15351,15 +15523,15 @@ var lib;
                 cena.ConditionalExpression = ConditionalExpression;
                 var ForStatement = (function (_super) {
                     __extends(ForStatement, _super);
-                    function ForStatement(line, column, init, test, update, body, raw) {
-                        _super.call(this, "ForStatement", line, column, raw);
+                    function ForStatement(loc, raw, cform, init, test, update, body) {
+                        _super.call(this, "ForStatement", loc, raw, cform);
                         this.init = fromCena(init);
                         this.test = fromCena(test);
                         this.update = fromCena(update);
                         this.body = fromCena(body);
                     }
                     ForStatement.fromCena = function (o) {
-                        return new ForStatement(o.line, o.column, o.init, o.test, o.update, o.body, o.raw);
+                        return new ForStatement(o.loc, o.raw, o.cform, o.init, o.test, o.update, o.body);
                     };
                     ForStatement.prototype.toEsprima = function () {
                         return {
@@ -15369,7 +15541,8 @@ var lib;
                             update: castTo(this.update.toEsprima()),
                             body: castTo(this.body.toEsprima()),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     ForStatement.prototype.hasChildren = function () {
@@ -15415,19 +15588,20 @@ var lib;
                 cena.ForStatement = ForStatement;
                 var ProgramExpression = (function (_super) {
                     __extends(ProgramExpression, _super);
-                    function ProgramExpression(line, column, body, raw) {
-                        _super.call(this, "ProgramExpression", line, column, raw);
+                    function ProgramExpression(loc, raw, cform, body) {
+                        _super.call(this, "ProgramExpression", loc, raw, cform);
                         this.body = new CompoundNode(body);
                     }
                     ProgramExpression.fromCena = function (o) {
-                        return new ProgramExpression(o.line, o.column, o.body, o.raw);
+                        return new ProgramExpression(o.loc, o.raw, o.cform, o.body);
                     };
                     ProgramExpression.prototype.toEsprima = function () {
                         return {
                             type: "Program",
                             body: castTo(this.body.toEsprima()),
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     ProgramExpression.prototype.hasChildren = function () {
@@ -15458,8 +15632,8 @@ var lib;
                 cena.ProgramExpression = ProgramExpression;
                 var ReturnStatement = (function (_super) {
                     __extends(ReturnStatement, _super);
-                    function ReturnStatement(line, column, argument, raw) {
-                        _super.call(this, "ReturnStatement", line, column, raw);
+                    function ReturnStatement(loc, raw, cform, argument) {
+                        _super.call(this, "ReturnStatement", loc, raw, cform);
                         if (argument) {
                             this.argument = argument;
                         }
@@ -15468,13 +15642,14 @@ var lib;
                         }
                     }
                     ReturnStatement.fromCena = function (o) {
-                        return new ReturnStatement(o.line, o.column, o.argument, o.raw);
+                        return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
                     };
                     ReturnStatement.prototype.toEsprima = function () {
                         return {
                             type: "ReturnStatement",
-                            loc: this.location,
+                            loc: this.loc,
                             raw: this.raw,
+                            cform: this.cform,
                             argument: lib.utils.castTo(this.argument.toEsprima())
                         };
                     };
@@ -15506,18 +15681,19 @@ var lib;
                 cena.ReturnStatement = ReturnStatement;
                 var ExpressionStatement = (function (_super) {
                     __extends(ExpressionStatement, _super);
-                    function ExpressionStatement(line, column, expression, raw) {
-                        _super.call(this, "ExpressionStatement", line, column, raw);
+                    function ExpressionStatement(loc, raw, cform, expression) {
+                        _super.call(this, "ExpressionStatement", loc, raw, cform);
                         this.expression = expression;
                     }
                     ExpressionStatement.fromCena = function (o) {
-                        return new ReturnStatement(o.line, o.column, o.argument, o.raw);
+                        return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
                     };
                     ExpressionStatement.prototype.toEsprima = function () {
                         return {
                             type: "ExpressionStatement",
-                            loc: this.location,
+                            loc: this.loc,
                             raw: this.raw,
+                            cform: this.cform,
                             expression: lib.utils.castTo(this.expression.toEsprima())
                         };
                     };
@@ -15550,20 +15726,20 @@ var lib;
                 var ErrorNode = (function (_super) {
                     __extends(ErrorNode, _super);
                     function ErrorNode(raw) {
-                        _super.call(this, "ErrorNode", -1, -1, raw);
+                        _super.call(this, "ErrorNode", unknownLocation, raw, raw);
                     }
                     return ErrorNode;
                 })(Node);
                 cena.ErrorNode = ErrorNode;
                 var SubscriptExpression = (function (_super) {
                     __extends(SubscriptExpression, _super);
-                    function SubscriptExpression(line, column, object, property, raw) {
-                        _super.call(this, "SubscriptExpression", line, column, raw);
+                    function SubscriptExpression(loc, raw, cform, object, property) {
+                        _super.call(this, "SubscriptExpression", loc, raw, cform);
                         this.object = fromCena(init);
                         this.property = fromCena(property);
                     }
                     SubscriptExpression.fromCena = function (o) {
-                        return new SubscriptExpression(o.line, o.column, o.object, o.property, o.raw);
+                        return new SubscriptExpression(o.loc, o.raw, o.cform, o.object, o.property);
                     };
                     SubscriptExpression.prototype.toEsprima = function () {
                         return {
@@ -15572,7 +15748,8 @@ var lib;
                             property: castTo(this.property.toEsprima()),
                             computed: true,
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     SubscriptExpression.prototype.hasChildren = function () {
@@ -15608,14 +15785,14 @@ var lib;
                 cena.SubscriptExpression = SubscriptExpression;
                 var MemberExpression = (function (_super) {
                     __extends(MemberExpression, _super);
-                    function MemberExpression(line, column, object, property, computed, raw) {
-                        _super.call(this, "MemberExpression", line, column, raw);
-                        this.object = fromCena(init);
+                    function MemberExpression(loc, raw, cform, object, property, computed) {
+                        _super.call(this, "MemberExpression", loc, raw, cform);
+                        this.object = fromCena(object);
                         this.property = fromCena(property);
                         this.computed = computed;
                     }
                     MemberExpression.fromCena = function (o) {
-                        return new MemberExpression(o.line, o.column, o.object, o.property, o.computed, o.raw);
+                        return new MemberExpression(o.loc, o.raw, o.cform, o.object, o.property, o.computed);
                     };
                     MemberExpression.prototype.toEsprima = function () {
                         return {
@@ -15624,7 +15801,8 @@ var lib;
                             property: castTo(this.property.toEsprima()),
                             computed: this.computed,
                             raw: this.raw,
-                            loc: this.location
+                            cform: this.cform,
+                            loc: this.loc
                         };
                     };
                     MemberExpression.prototype.hasChildren = function () {
@@ -15660,8 +15838,11 @@ var lib;
                 cena.MemberExpression = MemberExpression;
                 var dispatch = new Map();
                 function fromCena(o) {
-                    if (isUndefined(o) || isUndefined(o.type) || !dispatch.has(o.type)) {
-                        lib.utils.logger.error("Invalid input type toEsprima");
+                    if (isUndefined(o) || isUndefined(o.type)) {
+                        return new EmptyExpression();
+                    }
+                    else if (!dispatch.has(o.type)) {
+                        lib.utils.logger.trace("Invalid input type toEsprima");
                         return new ErrorNode(JSON.stringify(o));
                     }
                     var f = dispatch.get(o.type);
@@ -15707,6 +15888,11 @@ var lib;
                     dispatch.set("ExpressionStatement", ExpressionStatement.fromCena);
                     dispatch.set("SubscriptExpression", SubscriptExpression.fromCena);
                     dispatch.set("MemberExpression", MemberExpression.fromCena);
+                    dispatch.set("Program", ProgramExpression.fromCena);
+                    dispatch.set("Function", FunctionExpression.fromCena);
+                    dispatch.set("ParameterExpression", function (o) { return Identifier.fromCena(o.data); });
+                    dispatch.set("VariableDeclaration", VariableDeclaration.fromCena);
+                    dispatch.set("VariableDeclarator", VariableDeclarator.fromCena);
                 }
                 cena.init = init;
                 init();
@@ -16574,97 +16760,55 @@ var lib;
         parallel.ParallelWorker = ParallelWorker;
     })(parallel = lib.parallel || (lib.parallel = {}));
 })(lib || (lib = {}));
-/// <reference path="../ref.ts" />
-/// based on https://github.com/broofa/node-uuid/blob/master/uuid.js
 var lib;
 (function (lib) {
-    var utils;
-    (function (utils) {
-        var detail;
-        (function (detail) {
-            var randArray = new Uint8Array(16);
-            var makeRandom = function () {
-                for (var i = 0, r; i < 16; i++) {
-                    if ((i & 0x03) === 0)
-                        r = Math.random() * 0x100000000;
-                    randArray[i] = r >>> ((i & 0x03) << 3) & 0xff;
-                }
-                return randArray;
-            };
-            // Maps for number <-> hex string conversion
-            var byteToHex = [];
-            var hexToByte = {};
-            for (var i = 0; i < 256; i++) {
-                byteToHex[i] = (i + 0x100).toString(16).substr(1);
-                hexToByte[byteToHex[i]] = i;
-            }
-            // **`unparse()` - Convert UUID byte array (ala parse()) into a string*
-            function unparse(buf) {
-                var i = 0, bth = byteToHex;
-                return bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + '-' + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]] + bth[buf[i++]];
-            }
-            function guuid() {
-                var rnds = makeRandom();
-                rnds[6] = (rnds[6] & 0x0f) | 0x40;
-                rnds[8] = (rnds[8] & 0x3f) | 0x80;
-                return unparse(rnds);
-            }
-            detail.guuid = guuid;
-        })(detail = utils.detail || (utils.detail = {}));
-        utils.guuid = detail.guuid;
-    })(utils = lib.utils || (lib.utils = {}));
+    var example;
+    (function (example) {
+        example.mp1 = { "body": [{ "attributes": ["__global__"], "body": { "body": [{ "cform": "int  idx = blockIdx.x * blockDim.x + threadIdx.x", "declarations": [{ "cform": "int  idx = blockIdx.x * blockDim.x + threadIdx.x", "id": { "cform": "idx", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "name": "idx", "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "Identifier" }, "init": { "cform": "blockIdx.x * blockDim.x + threadIdx.x", "left": { "cform": "blockIdx.x * blockDim.x", "left": { "cform": "blockIdx.x", "left": { "cform": "blockIdx", "kind": { "address_spaces": [], "bases": [{ "cform": "uint3", "loc": { "end": { "column": 31, "line": 22 }, "start": { "column": 1, "line": 22 } }, "raw": "uint3", "type": "Literal", "value": "uint3" }], "cform": "const uint3 ", "loc": { "end": { "column": 31, "line": 22 }, "start": { "column": 1, "line": 22 } }, "qualifiers": [{ "cform": "const", "loc": { "end": { "column": 31, "line": 22 }, "start": { "column": 1, "line": 22 } }, "raw": "uint3 __device__ extern const blockIdx", "type": "Literal", "value": "const" }], "raw": "uint3 __device__ extern const blockIdx", "type": "TypeSpecification" }, "loc": { "end": { "column": 31, "line": 22 }, "start": { "column": 1, "line": 22 } }, "name": "blockIdx", "raw": "uint3 __device__ extern const blockIdx", "type": "Identifier" }, "loc": { "end": { "column": 24, "line": 7 }, "start": { "column": 15, "line": 7 } }, "operator": ".", "raw": "blockIdx.x", "right": { "cform": "x", "kind": { "address_spaces": [], "bases": [{ "cform": "unsigned int", "loc": { "end": { "column": 18, "line": 12 }, "start": { "column": 5, "line": 12 } }, "raw": "unsigned int", "type": "Literal", "value": "unsigned int" }], "cform": "unsigned int ", "loc": { "end": { "column": 18, "line": 12 }, "start": { "column": 5, "line": 12 } }, "qualifiers": [], "raw": "unsigned int x", "type": "TypeSpecification" }, "loc": { "end": { "column": 18, "line": 12 }, "start": { "column": 5, "line": 12 } }, "name": "x", "raw": "unsigned int x", "type": "Identifier" }, "type": "MemberExpression" }, "loc": { "end": { "column": 37, "line": 7 }, "start": { "column": 15, "line": 7 } }, "operator": "*", "raw": "blockIdx.x * blockDim.x", "right": { "cform": "blockDim.x", "left": { "cform": "blockDim", "kind": { "address_spaces": [], "bases": [{ "cform": "struct dim3", "loc": { "end": { "column": 30, "line": 23 }, "start": { "column": 1, "line": 23 } }, "raw": "struct dim3", "type": "Literal", "value": "struct dim3" }], "cform": "const struct dim3 ", "loc": { "end": { "column": 30, "line": 23 }, "start": { "column": 1, "line": 23 } }, "qualifiers": [{ "cform": "const", "loc": { "end": { "column": 30, "line": 23 }, "start": { "column": 1, "line": 23 } }, "raw": "dim3 __device__ extern const blockDim", "type": "Literal", "value": "const" }], "raw": "dim3 __device__ extern const blockDim", "type": "TypeSpecification" }, "loc": { "end": { "column": 30, "line": 23 }, "start": { "column": 1, "line": 23 } }, "name": "blockDim", "raw": "dim3 __device__ extern const blockDim", "type": "Identifier" }, "loc": { "end": { "column": 37, "line": 7 }, "start": { "column": 28, "line": 7 } }, "operator": ".", "raw": "blockDim.x", "right": { "cform": "x", "kind": { "address_spaces": [], "bases": [{ "cform": "unsigned int", "loc": { "end": { "column": 16, "line": 16 }, "start": { "column": 3, "line": 16 } }, "raw": "unsigned int", "type": "Literal", "value": "unsigned int" }], "cform": "unsigned int ", "loc": { "end": { "column": 16, "line": 16 }, "start": { "column": 3, "line": 16 } }, "qualifiers": [], "raw": "unsigned int x", "type": "TypeSpecification" }, "loc": { "end": { "column": 16, "line": 16 }, "start": { "column": 3, "line": 16 } }, "name": "x", "raw": "unsigned int x", "type": "Identifier" }, "type": "MemberExpression" }, "type": "BinaryExpression" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 15, "line": 7 } }, "operator": "+", "raw": "blockIdx.x * blockDim.x + threadIdx.x", "right": { "cform": "threadIdx.x", "left": { "cform": "threadIdx", "kind": { "address_spaces": [], "bases": [{ "cform": "uint3", "loc": { "end": { "column": 31, "line": 21 }, "start": { "column": 1, "line": 21 } }, "raw": "uint3", "type": "Literal", "value": "uint3" }], "cform": "const uint3 ", "loc": { "end": { "column": 31, "line": 21 }, "start": { "column": 1, "line": 21 } }, "qualifiers": [{ "cform": "const", "loc": { "end": { "column": 31, "line": 21 }, "start": { "column": 1, "line": 21 } }, "raw": "uint3 __device__ extern const threadIdx", "type": "Literal", "value": "const" }], "raw": "uint3 __device__ extern const threadIdx", "type": "TypeSpecification" }, "loc": { "end": { "column": 31, "line": 21 }, "start": { "column": 1, "line": 21 } }, "name": "threadIdx", "raw": "uint3 __device__ extern const threadIdx", "type": "Identifier" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 41, "line": 7 } }, "operator": ".", "raw": "threadIdx.x", "right": { "cform": "x", "kind": { "address_spaces": [], "bases": [{ "cform": "unsigned int", "loc": { "end": { "column": 18, "line": 12 }, "start": { "column": 5, "line": 12 } }, "raw": "unsigned int", "type": "Literal", "value": "unsigned int" }], "cform": "unsigned int ", "loc": { "end": { "column": 18, "line": 12 }, "start": { "column": 5, "line": 12 } }, "qualifiers": [], "raw": "unsigned int x", "type": "TypeSpecification" }, "loc": { "end": { "column": 18, "line": 12 }, "start": { "column": 5, "line": 12 } }, "name": "x", "raw": "unsigned int x", "type": "Identifier" }, "type": "MemberExpression" }, "type": "BinaryExpression" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "VariableDeclarator" }], "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "VariableDeclaration" }, { "cform": "if (idx < len){\nout[idx] = in1[idx] + in2[idx]; /* Assign*/\n}\n", "consequent": { "body": [{ "cform": "out[idx] = in1[idx] + in2[idx]", "left": { "cform": "out[idx]", "computed": true, "loc": { "end": { "column": 25, "line": 8 }, "start": { "column": 18, "line": 8 } }, "object": { "cform": "out", "kind": { "cform": "float *", "loc": { "end": { "column": 58, "line": 5 }, "start": { "column": 50, "line": 5 } }, "raw": "float * out", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 58, "line": 5 }, "start": { "column": 50, "line": 5 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 58, "line": 5 }, "start": { "column": 50, "line": 5 } }, "qualifiers": [], "raw": "float * out", "type": "TypeSpecification" } }, "loc": { "end": { "column": 58, "line": 5 }, "start": { "column": 50, "line": 5 } }, "name": "out", "raw": "float * out", "type": "Identifier" }, "property": { "cform": "idx", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "qualifiers": [], "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "TypeSpecification" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "name": "idx", "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "Identifier" }, "raw": "out[idx]", "type": "SubscriptExpression" }, "loc": { "end": { "column": 47, "line": 8 }, "start": { "column": 18, "line": 8 } }, "operator": "=", "raw": "out[idx] = in1[idx] + in2[idx]", "right": { "cform": "in1[idx] + in2[idx]", "left": { "cform": "in1[idx]", "computed": true, "loc": { "end": { "column": 36, "line": 8 }, "start": { "column": 29, "line": 8 } }, "object": { "cform": "in1", "kind": { "cform": "float *", "loc": { "end": { "column": 32, "line": 5 }, "start": { "column": 24, "line": 5 } }, "raw": "float * in1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 32, "line": 5 }, "start": { "column": 24, "line": 5 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 32, "line": 5 }, "start": { "column": 24, "line": 5 } }, "qualifiers": [], "raw": "float * in1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 32, "line": 5 }, "start": { "column": 24, "line": 5 } }, "name": "in1", "raw": "float * in1", "type": "Identifier" }, "property": { "cform": "idx", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "qualifiers": [], "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "TypeSpecification" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "name": "idx", "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "Identifier" }, "raw": "in1[idx]", "type": "SubscriptExpression" }, "loc": { "end": { "column": 47, "line": 8 }, "start": { "column": 29, "line": 8 } }, "operator": "+", "raw": "in1[idx] + in2[idx]", "right": { "cform": "in2[idx]", "computed": true, "loc": { "end": { "column": 47, "line": 8 }, "start": { "column": 40, "line": 8 } }, "object": { "cform": "in2", "kind": { "cform": "float *", "loc": { "end": { "column": 45, "line": 5 }, "start": { "column": 37, "line": 5 } }, "raw": "float * in2", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 45, "line": 5 }, "start": { "column": 37, "line": 5 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 45, "line": 5 }, "start": { "column": 37, "line": 5 } }, "qualifiers": [], "raw": "float * in2", "type": "TypeSpecification" } }, "loc": { "end": { "column": 45, "line": 5 }, "start": { "column": 37, "line": 5 } }, "name": "in2", "raw": "float * in2", "type": "Identifier" }, "property": { "cform": "idx", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "qualifiers": [], "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "TypeSpecification" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "name": "idx", "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "Identifier" }, "raw": "in2[idx]", "type": "SubscriptExpression" }, "type": "BinaryExpression" }, "type": "AssignmentExpression" }], "cform": "{\nout[idx] = in1[idx] + in2[idx]; /* Assign*/\n}\n", "loc": { "end": { "column": 47, "line": 8 }, "start": { "column": 5, "line": 8 } }, "raw": "if (idx<len) out[idx] = in1[idx] + in2[idx]", "type": "BlockStatement" }, "loc": { "end": { "column": 47, "line": 8 }, "start": { "column": 5, "line": 8 } }, "raw": "if (idx<len) out[idx] = in1[idx] + in2[idx]", "test": { "cform": "idx < len", "left": { "cform": "idx", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "qualifiers": [], "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "TypeSpecification" }, "loc": { "end": { "column": 51, "line": 7 }, "start": { "column": 5, "line": 7 } }, "name": "idx", "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 8 }, "start": { "column": 9, "line": 8 } }, "operator": "<", "raw": "idx<len", "right": { "cform": "len", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 67, "line": 5 }, "start": { "column": 63, "line": 5 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 67, "line": 5 }, "start": { "column": 63, "line": 5 } }, "qualifiers": [], "raw": "int len", "type": "TypeSpecification" }, "loc": { "end": { "column": 67, "line": 5 }, "start": { "column": 63, "line": 5 } }, "name": "len", "raw": "int len", "type": "Identifier" }, "type": "BinaryExpression" }, "type": "IfStatement" }], "cform": "{\nint  idx = blockIdx.x * blockDim.x + threadIdx.x; /* Declare*/\nif (idx < len){\nout[idx] = in1[idx] + in2[idx]; /* Assign*/\n}\n}\n", "loc": { "end": { "column": 1, "line": 9 }, "start": { "column": 1, "line": 5 } }, "raw": "", "type": "BlockStatement" }, "cform": "__global__ void  vecAdd(float * in1 /* Parameter*/, float * in2 /* Parameter*/, float * out /* Parameter*/, int  len){\nint  idx = blockIdx.x * blockDim.x + threadIdx.x; /* Declare*/\nif (idx < len){\nout[idx] = in1[idx] + in2[idx]; /* Assign*/\n}\n}\n", "id": "vecAdd", "loc": { "end": { "column": 1, "line": 9 }, "start": { "column": 1, "line": 5 } }, "params": [{ "data": { "cform": "in1", "loc": { "end": { "column": 32, "line": 5 }, "start": { "column": 24, "line": 5 } }, "name": "in1", "raw": "float * in1", "type": "Identifier" }, "type": "ParameterExpression" }, { "data": { "cform": "in2", "loc": { "end": { "column": 45, "line": 5 }, "start": { "column": 37, "line": 5 } }, "name": "in2", "raw": "float * in2", "type": "Identifier" }, "type": "ParameterExpression" }, { "data": { "cform": "out", "loc": { "end": { "column": 58, "line": 5 }, "start": { "column": 50, "line": 5 } }, "name": "out", "raw": "float * out", "type": "Identifier" }, "type": "ParameterExpression" }, { "data": { "cform": "len", "loc": { "end": { "column": 67, "line": 5 }, "start": { "column": 63, "line": 5 } }, "name": "len", "raw": "int len", "type": "Identifier" }, "type": "ParameterExpression" }], "raw": "", "type": "Function" }, { "attributes": [], "body": { "body": [{ "cform": "int  args", "declarations": [{ "cform": "int  args", "id": { "cform": "args", "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "name": "args", "raw": "wbArg_t args", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "raw": "wbArg_t args", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "raw": "wbArg_t args", "type": "VariableDeclaration" }, { "cform": "int  inputLength", "declarations": [{ "cform": "int  inputLength", "id": { "cform": "inputLength", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int inputLength", "type": "VariableDeclarator" }], "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int inputLength", "type": "VariableDeclaration" }, { "cform": "float * hostInput1", "declarations": [{ "cform": "float * hostInput1", "id": { "cform": "hostInput1", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "name": "hostInput1", "raw": "float * hostInput1", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float * hostInput1", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float * hostInput1", "type": "VariableDeclaration" }, { "cform": "float * hostInput2", "declarations": [{ "cform": "float * hostInput2", "id": { "cform": "hostInput2", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "name": "hostInput2", "raw": "float * hostInput2", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "raw": "float * hostInput2", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "raw": "float * hostInput2", "type": "VariableDeclaration" }, { "cform": "float * hostOutput", "declarations": [{ "cform": "float * hostOutput", "id": { "cform": "hostOutput", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "name": "hostOutput", "raw": "float * hostOutput", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float * hostOutput", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float * hostOutput", "type": "VariableDeclaration" }, { "cform": "float * deviceInput1", "declarations": [{ "cform": "float * deviceInput1", "id": { "cform": "deviceInput1", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "name": "deviceInput1", "raw": "float * deviceInput1", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float * deviceInput1", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float * deviceInput1", "type": "VariableDeclaration" }, { "cform": "float * deviceInput2", "declarations": [{ "cform": "float * deviceInput2", "id": { "cform": "deviceInput2", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "name": "deviceInput2", "raw": "float * deviceInput2", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float * deviceInput2", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float * deviceInput2", "type": "VariableDeclaration" }, { "cform": "float * deviceOutput", "declarations": [{ "cform": "float * deviceOutput", "id": { "cform": "deviceOutput", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "name": "deviceOutput", "raw": "float * deviceOutput", "type": "Identifier" }, "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float * deviceOutput", "type": "VariableDeclarator" }], "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float * deviceOutput", "type": "VariableDeclaration" }, { "cform": "args = wbArg_read(argc /* Identifier*/, argv)", "left": { "cform": "args", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "qualifiers": [], "raw": "wbArg_t args", "type": "TypeSpecification" }, "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "name": "args", "raw": "wbArg_t args", "type": "Identifier" }, "loc": { "end": { "column": 33, "line": 21 }, "start": { "column": 5, "line": 21 } }, "operator": "=", "raw": "args = wbArg_read(argc, argv)", "right": { "arguments": [{ "cform": "argc", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 14, "line": 11 }, "start": { "column": 10, "line": 11 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 14, "line": 11 }, "start": { "column": 10, "line": 11 } }, "qualifiers": [], "raw": "int argc", "type": "TypeSpecification" }, "loc": { "end": { "column": 14, "line": 11 }, "start": { "column": 10, "line": 11 } }, "name": "argc", "raw": "int argc", "type": "Identifier" }, { "cform": "argv", "kind": { "cform": "char **", "loc": { "end": { "column": 28, "line": 11 }, "start": { "column": 20, "line": 11 } }, "raw": "char ** argv", "type": "ReferenceType", "value": { "cform": "char *", "loc": { "end": { "column": 28, "line": 11 }, "start": { "column": 20, "line": 11 } }, "raw": "char ** argv", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "char", "loc": { "end": { "column": 28, "line": 11 }, "start": { "column": 20, "line": 11 } }, "raw": "char", "type": "Literal", "value": "char" }], "cform": "char ", "loc": { "end": { "column": 28, "line": 11 }, "start": { "column": 20, "line": 11 } }, "qualifiers": [], "raw": "char ** argv", "type": "TypeSpecification" } } }, "loc": { "end": { "column": 28, "line": 11 }, "start": { "column": 20, "line": 11 } }, "name": "argv", "raw": "char ** argv", "type": "Identifier" }], "callee": { "cform": "wbArg_read", "loc": { "end": { "column": 33, "line": 21 }, "start": { "column": 12, "line": 21 } }, "name": "wbArg_read", "raw": "wbArg_read(argc, argv)", "type": "Identifier" }, "cform": "wbArg_read(argc /* Identifier*/, argv)", "loc": { "end": { "column": 33, "line": 21 }, "start": { "column": 12, "line": 21 } }, "raw": "wbArg_read(argc, argv)", "type": "CallExpression" }, "type": "AssignmentExpression" }, { "arguments": [{ "cform": "\"Generic\"", "loc": { "end": { "column": 5, "line": 23 }, "start": { "column": 5, "line": 23 } }, "raw": "Generic", "type": "Literal", "value": "\"Generic\"" }, { "cform": "\"Importing data and creating memory on host\"", "loc": { "end": { "column": 5, "line": 23 }, "start": { "column": 5, "line": 23 } }, "raw": "Importing data and creating memory on host", "type": "Literal", "value": "\"Importing data and creating memory on host\"" }], "callee": { "cform": "wbTime_start", "loc": { "end": { "column": 5, "line": 23 }, "start": { "column": 5, "line": 23 } }, "name": "wbTime_start", "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_start(\"Generic\" /* String*/, \"Importing data and creating memory on host\")", "loc": { "end": { "column": 5, "line": 23 }, "start": { "column": 5, "line": 23 } }, "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "cform": "hostInput1 = wbImport(\"input0\" /* String*/, & inputLength)", "left": { "cform": "hostInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float * hostInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "qualifiers": [], "raw": "float * hostInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "name": "hostInput1", "raw": "float * hostInput1", "type": "Identifier" }, "loc": { "end": { "column": 78, "line": 24 }, "start": { "column": 5, "line": 24 } }, "operator": "=", "raw": "hostInput1 = (float *) wbImport(wbArg_getInputFile(args, 0), &inputLength)", "right": { "arguments": [{ "cform": "\"input0\"", "loc": { "end": { "column": 37, "line": 24 }, "start": { "column": 37, "line": 24 } }, "raw": "input0", "type": "Literal", "value": "\"input0\"" }, { "argument": { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "cform": "& inputLength", "loc": { "end": { "column": 67, "line": 24 }, "start": { "column": 66, "line": 24 } }, "operator": "&", "prefix": true, "raw": "&inputLength", "type": "UnaryExpression" }], "callee": { "cform": "wbImport", "loc": { "end": { "column": 78, "line": 24 }, "start": { "column": 28, "line": 24 } }, "name": "wbImport", "raw": "wbImport(wbArg_getInputFile(args, 0), &inputLength)", "type": "Identifier" }, "cform": "wbImport(\"input0\" /* String*/, & inputLength)", "loc": { "end": { "column": 78, "line": 24 }, "start": { "column": 28, "line": 24 } }, "raw": "wbImport(wbArg_getInputFile(args, 0), &inputLength)", "type": "CallExpression" }, "type": "AssignmentExpression" }, { "cform": "hostInput2 = wbImport(\"input1\" /* String*/, & inputLength)", "left": { "cform": "hostInput2", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "raw": "float * hostInput2", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "qualifiers": [], "raw": "float * hostInput2", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "name": "hostInput2", "raw": "float * hostInput2", "type": "Identifier" }, "loc": { "end": { "column": 78, "line": 25 }, "start": { "column": 5, "line": 25 } }, "operator": "=", "raw": "hostInput2 = (float *) wbImport(wbArg_getInputFile(args, 1), &inputLength)", "right": { "arguments": [{ "cform": "\"input1\"", "loc": { "end": { "column": 37, "line": 25 }, "start": { "column": 37, "line": 25 } }, "raw": "input1", "type": "Literal", "value": "\"input1\"" }, { "argument": { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "cform": "& inputLength", "loc": { "end": { "column": 67, "line": 25 }, "start": { "column": 66, "line": 25 } }, "operator": "&", "prefix": true, "raw": "&inputLength", "type": "UnaryExpression" }], "callee": { "cform": "wbImport", "loc": { "end": { "column": 78, "line": 25 }, "start": { "column": 28, "line": 25 } }, "name": "wbImport", "raw": "wbImport(wbArg_getInputFile(args, 1), &inputLength)", "type": "Identifier" }, "cform": "wbImport(\"input1\" /* String*/, & inputLength)", "loc": { "end": { "column": 78, "line": 25 }, "start": { "column": 28, "line": 25 } }, "raw": "wbImport(wbArg_getInputFile(args, 1), &inputLength)", "type": "CallExpression" }, "type": "AssignmentExpression" }, { "cform": "hostOutput = malloc(inputLength * sizeof(float ))", "left": { "cform": "hostOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float * hostOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "qualifiers": [], "raw": "float * hostOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "name": "hostOutput", "raw": "float * hostOutput", "type": "Identifier" }, "loc": { "end": { "column": 62, "line": 26 }, "start": { "column": 5, "line": 26 } }, "operator": "=", "raw": "hostOutput = (float *) malloc(inputLength * sizeof(float))", "right": { "arguments": [{ "cform": "inputLength * sizeof(float )", "left": { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "loc": { "end": { "column": 61, "line": 26 }, "start": { "column": 35, "line": 26 } }, "operator": "*", "raw": "inputLength * sizeof(float)", "right": { "arguments": [{ "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 61, "line": 26 }, "start": { "column": 49, "line": 26 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 61, "line": 26 }, "start": { "column": 49, "line": 26 } }, "qualifiers": [], "raw": "sizeof(float)", "type": "TypeSpecification" }], "callee": { "cform": "sizeof", "loc": { "end": { "column": 61, "line": 26 }, "start": { "column": 49, "line": 26 } }, "name": "sizeof", "raw": "sizeof(float)", "type": "Identifier" }, "cform": "sizeof(float )", "loc": { "end": { "column": 61, "line": 26 }, "start": { "column": 49, "line": 26 } }, "raw": "sizeof(float)", "type": "CallExpression" }, "type": "BinaryExpression" }], "callee": { "cform": "malloc", "loc": { "end": { "column": 62, "line": 26 }, "start": { "column": 28, "line": 26 } }, "name": "malloc", "raw": "malloc(inputLength * sizeof(float))", "type": "Identifier" }, "cform": "malloc(inputLength * sizeof(float ))", "loc": { "end": { "column": 62, "line": 26 }, "start": { "column": 28, "line": 26 } }, "raw": "malloc(inputLength * sizeof(float))", "type": "CallExpression" }, "type": "AssignmentExpression" }, { "arguments": [{ "cform": "\"Generic\"", "loc": { "end": { "column": 5, "line": 27 }, "start": { "column": 5, "line": 27 } }, "raw": "Generic", "type": "Literal", "value": "\"Generic\"" }, { "cform": "\"Importing data and creating memory on host\"", "loc": { "end": { "column": 5, "line": 27 }, "start": { "column": 5, "line": 27 } }, "raw": "Importing data and creating memory on host", "type": "Literal", "value": "\"Importing data and creating memory on host\"" }], "callee": { "cform": "wbTime_stop", "loc": { "end": { "column": 5, "line": 27 }, "start": { "column": 5, "line": 27 } }, "name": "wbTime_stop", "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_stop(\"Generic\" /* String*/, \"Importing data and creating memory on host\")", "loc": { "end": { "column": 5, "line": 27 }, "start": { "column": 5, "line": 27 } }, "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "\"TRACE\"", "loc": { "end": { "column": 5, "line": 29 }, "start": { "column": 5, "line": 29 } }, "raw": "TRACE", "type": "Literal", "value": "\"TRACE\"" }, { "cform": "\"The input length is \"", "loc": { "end": { "column": 5, "line": 29 }, "start": { "column": 5, "line": 29 } }, "raw": "The input length is ", "type": "Literal", "value": "\"The input length is \"" }, { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, { "cform": "\" elements\"", "loc": { "end": { "column": 5, "line": 29 }, "start": { "column": 5, "line": 29 } }, "raw": " elements", "type": "Literal", "value": "\" elements\"" }], "callee": { "cform": "wbLog", "loc": { "end": { "column": 5, "line": 29 }, "start": { "column": 5, "line": 29 } }, "name": "wbLog", "raw": "wbLog(#level, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbLog(\"TRACE\" /* String*/, \"The input length is \" /* String*/, inputLength /* Identifier*/, \" elements\")", "loc": { "end": { "column": 5, "line": 29 }, "start": { "column": 5, "line": 29 } }, "raw": "wbLog(#level, __VA_ARGS__)", "type": "CallExpression" }, { "arguments": [{ "cform": "\"GPU\"", "loc": { "end": { "column": 5, "line": 32 }, "start": { "column": 5, "line": 32 } }, "raw": "GPU", "type": "Literal", "value": "\"GPU\"" }, { "cform": "\"Allocating GPU memory.\"", "loc": { "end": { "column": 5, "line": 32 }, "start": { "column": 5, "line": 32 } }, "raw": "Allocating GPU memory.", "type": "Literal", "value": "\"Allocating GPU memory.\"" }], "callee": { "cform": "wbTime_start", "loc": { "end": { "column": 5, "line": 32 }, "start": { "column": 5, "line": 32 } }, "name": "wbTime_start", "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_start(\"GPU\" /* String*/, \"Allocating GPU memory.\")", "loc": { "end": { "column": 5, "line": 32 }, "start": { "column": 5, "line": 32 } }, "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "cform": "int  byteSize = sizeof(float ) * inputLength", "declarations": [{ "cform": "int  byteSize = sizeof(float ) * inputLength", "id": { "cform": "byteSize", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }, "init": { "cform": "sizeof(float ) * inputLength", "left": { "arguments": [{ "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 31, "line": 34 }, "start": { "column": 19, "line": 34 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 31, "line": 34 }, "start": { "column": 19, "line": 34 } }, "qualifiers": [], "raw": "sizeof(float)", "type": "TypeSpecification" }], "callee": { "cform": "sizeof", "loc": { "end": { "column": 31, "line": 34 }, "start": { "column": 19, "line": 34 } }, "name": "sizeof", "raw": "sizeof(float)", "type": "Identifier" }, "cform": "sizeof(float )", "loc": { "end": { "column": 31, "line": 34 }, "start": { "column": 19, "line": 34 } }, "raw": "sizeof(float)", "type": "CallExpression" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 19, "line": 34 } }, "operator": "*", "raw": "sizeof(float) * inputLength", "right": { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "type": "BinaryExpression" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int byteSize =sizeof(float) * inputLength", "type": "VariableDeclarator" }], "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int byteSize =sizeof(float) * inputLength", "type": "VariableDeclaration" }, { "arguments": [{ "cform": "\"GPU\"", "loc": { "end": { "column": 5, "line": 36 }, "start": { "column": 5, "line": 36 } }, "raw": "GPU", "type": "Literal", "value": "\"GPU\"" }, { "cform": "\"Allocating GPU memory.\"", "loc": { "end": { "column": 5, "line": 36 }, "start": { "column": 5, "line": 36 } }, "raw": "Allocating GPU memory.", "type": "Literal", "value": "\"Allocating GPU memory.\"" }], "callee": { "cform": "wbTime_stop", "loc": { "end": { "column": 5, "line": 36 }, "start": { "column": 5, "line": 36 } }, "name": "wbTime_stop", "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_stop(\"GPU\" /* String*/, \"Allocating GPU memory.\")", "loc": { "end": { "column": 5, "line": 36 }, "start": { "column": 5, "line": 36 } }, "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "\"GPU\"", "loc": { "end": { "column": 5, "line": 38 }, "start": { "column": 5, "line": 38 } }, "raw": "GPU", "type": "Literal", "value": "\"GPU\"" }, { "cform": "\"Copying input memory to the GPU.\"", "loc": { "end": { "column": 5, "line": 38 }, "start": { "column": 5, "line": 38 } }, "raw": "Copying input memory to the GPU.", "type": "Literal", "value": "\"Copying input memory to the GPU.\"" }], "callee": { "cform": "wbTime_start", "loc": { "end": { "column": 5, "line": 38 }, "start": { "column": 5, "line": 38 } }, "name": "wbTime_start", "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_start(\"GPU\" /* String*/, \"Copying input memory to the GPU.\")", "loc": { "end": { "column": 5, "line": 38 }, "start": { "column": 5, "line": 38 } }, "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "argument": { "cform": "deviceInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float * deviceInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "qualifiers": [], "raw": "float * deviceInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "name": "deviceInput1", "raw": "float * deviceInput1", "type": "Identifier" }, "cform": "& deviceInput1", "loc": { "end": { "column": 27, "line": 41 }, "start": { "column": 26, "line": 41 } }, "operator": "&", "prefix": true, "raw": "&deviceInput1", "type": "UnaryExpression" }, { "cform": "byteSize", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "qualifiers": [], "raw": "int byteSize =sizeof(float) * inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }], "callee": { "cform": "cudaMalloc", "loc": { "end": { "column": 49, "line": 41 }, "start": { "column": 5, "line": 41 } }, "name": "cudaMalloc", "raw": "cudaMalloc((void **) &deviceInput1, byteSize)", "type": "Identifier" }, "cform": "cudaMalloc(& deviceInput1 /* UnaryOperator*/, byteSize)", "loc": { "end": { "column": 49, "line": 41 }, "start": { "column": 5, "line": 41 } }, "raw": "cudaMalloc((void **) &deviceInput1, byteSize)", "type": "CallExpression" }, { "arguments": [{ "argument": { "cform": "deviceInput2", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float * deviceInput2", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "qualifiers": [], "raw": "float * deviceInput2", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "name": "deviceInput2", "raw": "float * deviceInput2", "type": "Identifier" }, "cform": "& deviceInput2", "loc": { "end": { "column": 27, "line": 42 }, "start": { "column": 26, "line": 42 } }, "operator": "&", "prefix": true, "raw": "&deviceInput2", "type": "UnaryExpression" }, { "cform": "byteSize", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "qualifiers": [], "raw": "int byteSize =sizeof(float) * inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }], "callee": { "cform": "cudaMalloc", "loc": { "end": { "column": 49, "line": 42 }, "start": { "column": 5, "line": 42 } }, "name": "cudaMalloc", "raw": "cudaMalloc((void **) &deviceInput2, byteSize)", "type": "Identifier" }, "cform": "cudaMalloc(& deviceInput2 /* UnaryOperator*/, byteSize)", "loc": { "end": { "column": 49, "line": 42 }, "start": { "column": 5, "line": 42 } }, "raw": "cudaMalloc((void **) &deviceInput2, byteSize)", "type": "CallExpression" }, { "arguments": [{ "argument": { "cform": "deviceOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float * deviceOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "qualifiers": [], "raw": "float * deviceOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "name": "deviceOutput", "raw": "float * deviceOutput", "type": "Identifier" }, "cform": "& deviceOutput", "loc": { "end": { "column": 27, "line": 43 }, "start": { "column": 26, "line": 43 } }, "operator": "&", "prefix": true, "raw": "&deviceOutput", "type": "UnaryExpression" }, { "cform": "byteSize", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "qualifiers": [], "raw": "int byteSize =sizeof(float) * inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }], "callee": { "cform": "cudaMalloc", "loc": { "end": { "column": 49, "line": 43 }, "start": { "column": 5, "line": 43 } }, "name": "cudaMalloc", "raw": "cudaMalloc((void **) &deviceOutput, byteSize)", "type": "Identifier" }, "cform": "cudaMalloc(& deviceOutput /* UnaryOperator*/, byteSize)", "loc": { "end": { "column": 49, "line": 43 }, "start": { "column": 5, "line": 43 } }, "raw": "cudaMalloc((void **) &deviceOutput, byteSize)", "type": "CallExpression" }, { "arguments": [{ "cform": "\"GPU\"", "loc": { "end": { "column": 5, "line": 46 }, "start": { "column": 5, "line": 46 } }, "raw": "GPU", "type": "Literal", "value": "\"GPU\"" }, { "cform": "\"Copying input memory to the GPU.\"", "loc": { "end": { "column": 5, "line": 46 }, "start": { "column": 5, "line": 46 } }, "raw": "Copying input memory to the GPU.", "type": "Literal", "value": "\"Copying input memory to the GPU.\"" }], "callee": { "cform": "wbTime_stop", "loc": { "end": { "column": 5, "line": 46 }, "start": { "column": 5, "line": 46 } }, "name": "wbTime_stop", "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_stop(\"GPU\" /* String*/, \"Copying input memory to the GPU.\")", "loc": { "end": { "column": 5, "line": 46 }, "start": { "column": 5, "line": 46 } }, "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "deviceInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float * deviceInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "qualifiers": [], "raw": "float * deviceInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "name": "deviceInput1", "raw": "float * deviceInput1", "type": "Identifier" }, { "cform": "hostInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float * hostInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "qualifiers": [], "raw": "float * hostInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "name": "hostInput1", "raw": "float * hostInput1", "type": "Identifier" }, { "cform": "byteSize", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "qualifiers": [], "raw": "int byteSize =sizeof(float) * inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }, { "cform": "cudaMemcpyHostToDevice", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "const int ", "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "qualifiers": [{ "cform": "const", "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "raw": "const int cudaMemcpyHostToDevice = 0", "type": "Literal", "value": "const" }], "raw": "const int cudaMemcpyHostToDevice = 0", "type": "TypeSpecification" }, "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "name": "cudaMemcpyHostToDevice", "raw": "const int cudaMemcpyHostToDevice = 0", "type": "Identifier" }], "callee": { "cform": "cudaMemcpy", "loc": { "end": { "column": 73, "line": 49 }, "start": { "column": 5, "line": 49 } }, "name": "cudaMemcpy", "raw": "cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice)", "type": "Identifier" }, "cform": "cudaMemcpy(deviceInput1 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice)", "loc": { "end": { "column": 73, "line": 49 }, "start": { "column": 5, "line": 49 } }, "raw": "cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice)", "type": "CallExpression" }, { "arguments": [{ "cform": "deviceInput2", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float * deviceInput2", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "qualifiers": [], "raw": "float * deviceInput2", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "name": "deviceInput2", "raw": "float * deviceInput2", "type": "Identifier" }, { "cform": "hostInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float * hostInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "qualifiers": [], "raw": "float * hostInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "name": "hostInput1", "raw": "float * hostInput1", "type": "Identifier" }, { "cform": "byteSize", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "qualifiers": [], "raw": "int byteSize =sizeof(float) * inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }, { "cform": "cudaMemcpyHostToDevice", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "const int ", "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "qualifiers": [{ "cform": "const", "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "raw": "const int cudaMemcpyHostToDevice = 0", "type": "Literal", "value": "const" }], "raw": "const int cudaMemcpyHostToDevice = 0", "type": "TypeSpecification" }, "loc": { "end": { "column": 36, "line": 40 }, "start": { "column": 1, "line": 40 } }, "name": "cudaMemcpyHostToDevice", "raw": "const int cudaMemcpyHostToDevice = 0", "type": "Identifier" }], "callee": { "cform": "cudaMemcpy", "loc": { "end": { "column": 73, "line": 51 }, "start": { "column": 5, "line": 51 } }, "name": "cudaMemcpy", "raw": "cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice)", "type": "Identifier" }, "cform": "cudaMemcpy(deviceInput2 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice)", "loc": { "end": { "column": 73, "line": 51 }, "start": { "column": 5, "line": 51 } }, "raw": "cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice)", "type": "CallExpression" }, { "arguments": [{ "cform": "\"Compute\"", "loc": { "end": { "column": 5, "line": 54 }, "start": { "column": 5, "line": 54 } }, "raw": "Compute", "type": "Literal", "value": "\"Compute\"" }, { "cform": "\"Performing CUDA computation\"", "loc": { "end": { "column": 5, "line": 54 }, "start": { "column": 5, "line": 54 } }, "raw": "Performing CUDA computation", "type": "Literal", "value": "\"Performing CUDA computation\"" }], "callee": { "cform": "wbTime_start", "loc": { "end": { "column": 5, "line": 54 }, "start": { "column": 5, "line": 54 } }, "name": "wbTime_start", "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_start(\"Compute\" /* String*/, \"Performing CUDA computation\")", "loc": { "end": { "column": 5, "line": 54 }, "start": { "column": 5, "line": 54 } }, "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "cform": "int  block_size = 16", "declarations": [{ "cform": "int  block_size = 16", "id": { "cform": "block_size", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "name": "block_size", "raw": "int block_size = 16", "type": "Identifier" }, "init": { "cform": "16", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 23, "line": 56 } }, "raw": "16", "type": "Literal", "value": "16" }, "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "raw": "int block_size = 16", "type": "VariableDeclarator" }], "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "raw": "int block_size = 16", "type": "VariableDeclaration" }, { "cform": "int  n_blocks = inputLength / block_size + (inputLength % block_size == 0 ? 0 : 1)", "declarations": [{ "cform": "int  n_blocks = inputLength / block_size + (inputLength % block_size == 0 ? 0 : 1)", "id": { "cform": "n_blocks", "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 6, "line": 57 } }, "name": "n_blocks", "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)", "type": "Identifier" }, "init": { "cform": "inputLength / block_size + (inputLength % block_size == 0 ? 0 : 1)", "left": { "cform": "inputLength / block_size", "left": { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "loc": { "end": { "column": 34, "line": 57 }, "start": { "column": 21, "line": 57 } }, "operator": "/", "raw": "inputLength /block_size", "right": { "cform": "block_size", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "qualifiers": [], "raw": "int block_size = 16", "type": "TypeSpecification" }, "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "name": "block_size", "raw": "int block_size = 16", "type": "Identifier" }, "type": "BinaryExpression" }, "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 21, "line": 57 } }, "operator": "+", "raw": "inputLength /block_size + (inputLength%block_size == 0 ? 0:1)", "right": { "cform": "(inputLength % block_size == 0 ? 0 : 1)", "expression": { "alternate": { "cform": "1", "loc": { "end": { "column": 80, "line": 57 }, "start": { "column": 80, "line": 57 } }, "raw": "1", "type": "Literal", "value": "1" }, "cform": "inputLength % block_size == 0 ? 0 : 1", "consequent": { "cform": "0", "loc": { "end": { "column": 78, "line": 57 }, "start": { "column": 78, "line": 57 } }, "raw": "0", "type": "Literal", "value": "0" }, "loc": { "end": { "column": 80, "line": 57 }, "start": { "column": 48, "line": 57 } }, "raw": "inputLength%block_size == 0 ? 0:1", "test": { "cform": "inputLength % block_size == 0", "left": { "cform": "inputLength % block_size", "left": { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }, "loc": { "end": { "column": 60, "line": 57 }, "start": { "column": 48, "line": 57 } }, "operator": "%", "raw": "inputLength%block_size", "right": { "cform": "block_size", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "qualifiers": [], "raw": "int block_size = 16", "type": "TypeSpecification" }, "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "name": "block_size", "raw": "int block_size = 16", "type": "Identifier" }, "type": "BinaryExpression" }, "loc": { "end": { "column": 74, "line": 57 }, "start": { "column": 48, "line": 57 } }, "operator": "==", "raw": "inputLength%block_size == 0", "right": { "cform": "0", "loc": { "end": { "column": 74, "line": 57 }, "start": { "column": 74, "line": 57 } }, "raw": "0", "type": "Literal", "value": "0" }, "type": "BinaryExpression" }, "type": "ConditionalExpression" }, "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 47, "line": 57 } }, "raw": "(inputLength%block_size == 0 ? 0:1)", "type": "ExpressionStatement" }, "type": "BinaryExpression" }, "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 6, "line": 57 } }, "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)", "type": "VariableDeclarator" }], "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 6, "line": 57 } }, "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)", "type": "VariableDeclaration" }, { "arguments": [{ "cform": "deviceInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float * deviceInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "qualifiers": [], "raw": "float * deviceInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 17 }, "start": { "column": 5, "line": 17 } }, "name": "deviceInput1", "raw": "float * deviceInput1", "type": "Identifier" }, { "cform": "deviceInput2", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float * deviceInput2", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "qualifiers": [], "raw": "float * deviceInput2", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 18 }, "start": { "column": 5, "line": 18 } }, "name": "deviceInput2", "raw": "float * deviceInput2", "type": "Identifier" }, { "cform": "deviceOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float * deviceOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "qualifiers": [], "raw": "float * deviceOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "name": "deviceOutput", "raw": "float * deviceOutput", "type": "Identifier" }, { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }], "callee": "vecAdd", "cform": "vecAdd<<<{n_blocks} /* CompoundNode*/, {block_size}>>>(deviceInput1 /* Identifier*/, deviceInput2 /* Identifier*/, deviceOutput /* Identifier*/, inputLength)", "config": [{ "cform": "{n_blocks}", "elements": [{ "cform": "n_blocks", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 6, "line": 57 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 6, "line": 57 } }, "qualifiers": [], "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)", "type": "TypeSpecification" }, "loc": { "end": { "column": 81, "line": 57 }, "start": { "column": 6, "line": 57 } }, "name": "n_blocks", "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)", "type": "Identifier" }], "loc": { "end": { "column": 15, "line": 60 }, "start": { "column": 15, "line": 60 } }, "raw": "n_blocks", "type": "ArrayExpression" }, { "cform": "{block_size}", "elements": [{ "cform": "block_size", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "qualifiers": [], "raw": "int block_size = 16", "type": "TypeSpecification" }, "loc": { "end": { "column": 23, "line": 56 }, "start": { "column": 6, "line": 56 } }, "name": "block_size", "raw": "int block_size = 16", "type": "Identifier" }], "loc": { "end": { "column": 25, "line": 60 }, "start": { "column": 25, "line": 60 } }, "raw": "block_size", "type": "ArrayExpression" }], "loc": { "end": { "column": 92, "line": 60 }, "start": { "column": 5, "line": 60 } }, "raw": "vecAdd<<< n_blocks, block_size>>>(deviceInput1, deviceInput2, deviceOutput, inputLength)", "type": "CallExpression" }, { "arguments": [], "callee": { "cform": "cudaThreadSynchronize", "loc": { "end": { "column": 27, "line": 63 }, "start": { "column": 5, "line": 63 } }, "name": "cudaThreadSynchronize", "raw": "cudaThreadSynchronize()", "type": "Identifier" }, "cform": "cudaThreadSynchronize()", "loc": { "end": { "column": 27, "line": 63 }, "start": { "column": 5, "line": 63 } }, "raw": "cudaThreadSynchronize()", "type": "CallExpression" }, { "arguments": [{ "cform": "\"Compute\"", "loc": { "end": { "column": 5, "line": 64 }, "start": { "column": 5, "line": 64 } }, "raw": "Compute", "type": "Literal", "value": "\"Compute\"" }, { "cform": "\"Performing CUDA computation\"", "loc": { "end": { "column": 5, "line": 64 }, "start": { "column": 5, "line": 64 } }, "raw": "Performing CUDA computation", "type": "Literal", "value": "\"Performing CUDA computation\"" }], "callee": { "cform": "wbTime_stop", "loc": { "end": { "column": 5, "line": 64 }, "start": { "column": 5, "line": 64 } }, "name": "wbTime_stop", "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_stop(\"Compute\" /* String*/, \"Performing CUDA computation\")", "loc": { "end": { "column": 5, "line": 64 }, "start": { "column": 5, "line": 64 } }, "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "\"Copy\"", "loc": { "end": { "column": 5, "line": 66 }, "start": { "column": 5, "line": 66 } }, "raw": "Copy", "type": "Literal", "value": "\"Copy\"" }, { "cform": "\"Copying output memory to the CPU\"", "loc": { "end": { "column": 5, "line": 66 }, "start": { "column": 5, "line": 66 } }, "raw": "Copying output memory to the CPU", "type": "Literal", "value": "\"Copying output memory to the CPU\"" }], "callee": { "cform": "wbTime_start", "loc": { "end": { "column": 5, "line": 66 }, "start": { "column": 5, "line": 66 } }, "name": "wbTime_start", "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_start(\"Copy\" /* String*/, \"Copying output memory to the CPU\")", "loc": { "end": { "column": 5, "line": 66 }, "start": { "column": 5, "line": 66 } }, "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "hostOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float * hostOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "qualifiers": [], "raw": "float * hostOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "name": "hostOutput", "raw": "float * hostOutput", "type": "Identifier" }, { "cform": "deviceOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float * deviceOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "qualifiers": [], "raw": "float * deviceOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 19 }, "start": { "column": 5, "line": 19 } }, "name": "deviceOutput", "raw": "float * deviceOutput", "type": "Identifier" }, { "cform": "byteSize", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "qualifiers": [], "raw": "int byteSize =sizeof(float) * inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 35, "line": 34 }, "start": { "column": 5, "line": 34 } }, "name": "byteSize", "raw": "int byteSize =sizeof(float) * inputLength", "type": "Identifier" }, { "cform": "cudaMemcpyDeviceToHost", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 36, "line": 41 }, "start": { "column": 1, "line": 41 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "const int ", "loc": { "end": { "column": 36, "line": 41 }, "start": { "column": 1, "line": 41 } }, "qualifiers": [{ "cform": "const", "loc": { "end": { "column": 36, "line": 41 }, "start": { "column": 1, "line": 41 } }, "raw": "const int cudaMemcpyDeviceToHost = 1", "type": "Literal", "value": "const" }], "raw": "const int cudaMemcpyDeviceToHost = 1", "type": "TypeSpecification" }, "loc": { "end": { "column": 36, "line": 41 }, "start": { "column": 1, "line": 41 } }, "name": "cudaMemcpyDeviceToHost", "raw": "const int cudaMemcpyDeviceToHost = 1", "type": "Identifier" }], "callee": { "cform": "cudaMemcpy", "loc": { "end": { "column": 73, "line": 68 }, "start": { "column": 5, "line": 68 } }, "name": "cudaMemcpy", "raw": "cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost)", "type": "Identifier" }, "cform": "cudaMemcpy(hostOutput /* Identifier*/, deviceOutput /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyDeviceToHost)", "loc": { "end": { "column": 73, "line": 68 }, "start": { "column": 5, "line": 68 } }, "raw": "cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost)", "type": "CallExpression" }, { "arguments": [{ "cform": "\"Copy\"", "loc": { "end": { "column": 5, "line": 70 }, "start": { "column": 5, "line": 70 } }, "raw": "Copy", "type": "Literal", "value": "\"Copy\"" }, { "cform": "\"Copying output memory to the CPU\"", "loc": { "end": { "column": 5, "line": 70 }, "start": { "column": 5, "line": 70 } }, "raw": "Copying output memory to the CPU", "type": "Literal", "value": "\"Copying output memory to the CPU\"" }], "callee": { "cform": "wbTime_stop", "loc": { "end": { "column": 5, "line": 70 }, "start": { "column": 5, "line": 70 } }, "name": "wbTime_stop", "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_stop(\"Copy\" /* String*/, \"Copying output memory to the CPU\")", "loc": { "end": { "column": 5, "line": 70 }, "start": { "column": 5, "line": 70 } }, "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "\"GPU\"", "loc": { "end": { "column": 5, "line": 72 }, "start": { "column": 5, "line": 72 } }, "raw": "GPU", "type": "Literal", "value": "\"GPU\"" }, { "cform": "\"Freeing GPU Memory\"", "loc": { "end": { "column": 5, "line": 72 }, "start": { "column": 5, "line": 72 } }, "raw": "Freeing GPU Memory", "type": "Literal", "value": "\"Freeing GPU Memory\"" }], "callee": { "cform": "wbTime_start", "loc": { "end": { "column": 5, "line": 72 }, "start": { "column": 5, "line": 72 } }, "name": "wbTime_start", "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_start(\"GPU\" /* String*/, \"Freeing GPU Memory\")", "loc": { "end": { "column": 5, "line": 72 }, "start": { "column": 5, "line": 72 } }, "raw": "wbTime_start(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "\"GPU\"", "loc": { "end": { "column": 5, "line": 76 }, "start": { "column": 5, "line": 76 } }, "raw": "GPU", "type": "Literal", "value": "\"GPU\"" }, { "cform": "\"Freeing GPU Memory\"", "loc": { "end": { "column": 5, "line": 76 }, "start": { "column": 5, "line": 76 } }, "raw": "Freeing GPU Memory", "type": "Literal", "value": "\"Freeing GPU Memory\"" }], "callee": { "cform": "wbTime_stop", "loc": { "end": { "column": 5, "line": 76 }, "start": { "column": 5, "line": 76 } }, "name": "wbTime_stop", "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "Identifier" }, "cform": "wbTime_stop(\"GPU\" /* String*/, \"Freeing GPU Memory\")", "loc": { "end": { "column": 5, "line": 76 }, "start": { "column": 5, "line": 76 } }, "raw": "wbTime_stop(#kind, __VA_ARGS__)", "type": "CallExpression" }, {}, { "arguments": [{ "cform": "args", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "qualifiers": [], "raw": "wbArg_t args", "type": "TypeSpecification" }, "loc": { "end": { "column": 13, "line": 12 }, "start": { "column": 5, "line": 12 } }, "name": "args", "raw": "wbArg_t args", "type": "Identifier" }, { "cform": "hostOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float * hostOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "qualifiers": [], "raw": "float * hostOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "name": "hostOutput", "raw": "float * hostOutput", "type": "Identifier" }, { "cform": "inputLength", "kind": { "address_spaces": [], "bases": [{ "cform": "int", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "raw": "int", "type": "Literal", "value": "int" }], "cform": "int ", "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "qualifiers": [], "raw": "int inputLength", "type": "TypeSpecification" }, "loc": { "end": { "column": 9, "line": 13 }, "start": { "column": 5, "line": 13 } }, "name": "inputLength", "raw": "int inputLength", "type": "Identifier" }], "callee": { "cform": "wbSolution", "loc": { "end": { "column": 45, "line": 78 }, "start": { "column": 5, "line": 78 } }, "name": "wbSolution", "raw": "wbSolution(args, hostOutput, inputLength)", "type": "Identifier" }, "cform": "wbSolution(args /* Identifier*/, hostOutput /* Identifier*/, inputLength)", "loc": { "end": { "column": 45, "line": 78 }, "start": { "column": 5, "line": 78 } }, "raw": "wbSolution(args, hostOutput, inputLength)", "type": "CallExpression" }, { "arguments": [{ "cform": "hostInput1", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float * hostInput1", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "qualifiers": [], "raw": "float * hostInput1", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 14 }, "start": { "column": 5, "line": 14 } }, "name": "hostInput1", "raw": "float * hostInput1", "type": "Identifier" }], "callee": { "cform": "free", "loc": { "end": { "column": 20, "line": 80 }, "start": { "column": 5, "line": 80 } }, "name": "free", "raw": "free(hostInput1)", "type": "Identifier" }, "cform": "free(hostInput1)", "loc": { "end": { "column": 20, "line": 80 }, "start": { "column": 5, "line": 80 } }, "raw": "free(hostInput1)", "type": "CallExpression" }, { "arguments": [{ "cform": "hostInput2", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "raw": "float * hostInput2", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "qualifiers": [], "raw": "float * hostInput2", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 15 }, "start": { "column": 5, "line": 15 } }, "name": "hostInput2", "raw": "float * hostInput2", "type": "Identifier" }], "callee": { "cform": "free", "loc": { "end": { "column": 20, "line": 81 }, "start": { "column": 5, "line": 81 } }, "name": "free", "raw": "free(hostInput2)", "type": "Identifier" }, "cform": "free(hostInput2)", "loc": { "end": { "column": 20, "line": 81 }, "start": { "column": 5, "line": 81 } }, "raw": "free(hostInput2)", "type": "CallExpression" }, { "arguments": [{ "cform": "hostOutput", "kind": { "cform": "float *", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float * hostOutput", "type": "ReferenceType", "value": { "address_spaces": [], "bases": [{ "cform": "float", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "raw": "float", "type": "Literal", "value": "float" }], "cform": "float ", "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "qualifiers": [], "raw": "float * hostOutput", "type": "TypeSpecification" } }, "loc": { "end": { "column": 13, "line": 16 }, "start": { "column": 5, "line": 16 } }, "name": "hostOutput", "raw": "float * hostOutput", "type": "Identifier" }], "callee": { "cform": "free", "loc": { "end": { "column": 20, "line": 82 }, "start": { "column": 5, "line": 82 } }, "name": "free", "raw": "free(hostOutput)", "type": "Identifier" }, "cform": "free(hostOutput)", "loc": { "end": { "column": 20, "line": 82 }, "start": { "column": 5, "line": 82 } }, "raw": "free(hostOutput)", "type": "CallExpression" }, { "argument": { "cform": "0", "loc": { "end": { "column": 12, "line": 84 }, "start": { "column": 12, "line": 84 } }, "raw": "0", "type": "Literal", "value": "0" }, "cform": "return 0", "loc": { "end": { "column": 12, "line": 84 }, "start": { "column": 5, "line": 84 } }, "raw": "return 0", "type": "ReturnStatement" }], "cform": "{\nint  args; /* Declare*/\nint  inputLength; /* Declare*/\nfloat * hostInput1; /* Declare*/\nfloat * hostInput2; /* Declare*/\nfloat * hostOutput; /* Declare*/\nfloat * deviceInput1; /* Declare*/\nfloat * deviceInput2; /* Declare*/\nfloat * deviceOutput; /* Declare*/\nargs = wbArg_read(argc /* Identifier*/, argv); /* Assign*/\nwbTime_start(\"Generic\" /* String*/, \"Importing data and creating memory on host\"); /* Call*/\nhostInput1 = wbImport(\"input0\" /* String*/, & inputLength); /* Assign*/\nhostInput2 = wbImport(\"input1\" /* String*/, & inputLength); /* Assign*/\nhostOutput = malloc(inputLength * sizeof(float )); /* Assign*/\nwbTime_stop(\"Generic\" /* String*/, \"Importing data and creating memory on host\"); /* Call*/\nwbLog(\"TRACE\" /* String*/, \"The input length is \" /* String*/, inputLength /* Identifier*/, \" elements\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Allocating GPU memory.\"); /* Call*/\nint  byteSize = sizeof(float ) * inputLength; /* Declare*/\nwbTime_stop(\"GPU\" /* String*/, \"Allocating GPU memory.\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Copying input memory to the GPU.\"); /* Call*/\ncudaMalloc(& deviceInput1 /* UnaryOperator*/, byteSize); /* Call*/\ncudaMalloc(& deviceInput2 /* UnaryOperator*/, byteSize); /* Call*/\ncudaMalloc(& deviceOutput /* UnaryOperator*/, byteSize); /* Call*/\nwbTime_stop(\"GPU\" /* String*/, \"Copying input memory to the GPU.\"); /* Call*/\ncudaMemcpy(deviceInput1 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice); /* Call*/\ncudaMemcpy(deviceInput2 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice); /* Call*/\nwbTime_start(\"Compute\" /* String*/, \"Performing CUDA computation\"); /* Call*/\nint  block_size = 16; /* Declare*/\nint  n_blocks = inputLength / block_size + (inputLength % block_size == 0 ? 0 : 1); /* Declare*/\nvecAdd<<<{n_blocks} /* CompoundNode*/, {block_size}>>>(deviceInput1 /* Identifier*/, deviceInput2 /* Identifier*/, deviceOutput /* Identifier*/, inputLength); /* Call*/\ncudaThreadSynchronize(); /* Call*/\nwbTime_stop(\"Compute\" /* String*/, \"Performing CUDA computation\"); /* Call*/\nwbTime_start(\"Copy\" /* String*/, \"Copying output memory to the CPU\"); /* Call*/\ncudaMemcpy(hostOutput /* Identifier*/, deviceOutput /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyDeviceToHost); /* Call*/\nwbTime_stop(\"Copy\" /* String*/, \"Copying output memory to the CPU\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Freeing GPU Memory\"); /* Call*/\nwbTime_stop(\"GPU\" /* String*/, \"Freeing GPU Memory\"); /* Call*/\nwbSolution(args /* Identifier*/, hostOutput /* Identifier*/, inputLength); /* Call*/\nfree(hostInput1); /* Call*/\nfree(hostInput2); /* Call*/\nfree(hostOutput); /* Call*/\nreturn 0; /* Return*/\n}\n", "loc": { "end": { "column": 1, "line": 85 }, "start": { "column": 1, "line": 11 } }, "raw": ";\r\n    float * hostInput2;\r\n    float * hostOutput;\r\n    float * deviceInput1;\r\n    float * deviceInput2;\r\n    float * deviceOutput;\r\n\r\n    args = wbArg_read(argc, argv);\r\n\r\n    wbTime_start(Generic, \"Importing data and creating memory on host\");\r\n    hostInput1 = (float *) wbImport(wbArg_getInputFile(args, 0), &inputLength);\r\n    hostInput2 = (float *) wbImport(wbArg_getInputFile(args, 1), &inputLength);\r\n    hostOutput = (float *) malloc(inputLength * sizeof(float));\r\n    wbTime_stop(Generic, \"Importing data and creating memory on host\");\r\n\r\n    wbLog(TRACE, \"The input length is \", inputLength, \" elements\");\r\n\r\n\r\n    wbTime_start(GPU, \"Allocating GPU memory.\");\r\n    //@@ Allocate GPU memory here\r\n    int byteSize =sizeof(float) * inputLength;\r\n\r\n    wbTime_stop(GPU, \"Allocating GPU memory.\");\r\n\r\n    wbTime_start(GPU, \"Copying input memory to the GPU.\");\r\n    //@@ Copy memory to the GPU here\r\n\r\n    cudaMalloc((void **) &deviceInput1, byteSize);\r\n    cudaMalloc((void **) &deviceInput2, byteSize);\r\n    cudaMalloc((void **) &deviceOutput, byteSize);\r\n\r\n\r\n    wbTime_stop(GPU, \"Copying input memory to the GPU.\");\r\n\r\n    //@@ Initialize the grid and block dimensions here\r\n    cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice);\r\n\r\n    cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice);\r\n\r\n\r\n    wbTime_start(Compute, \"Performing CUDA computation\");\r\n    //@@ Launch the GPU Kernel here\r\n     int block_size = 16;\r\n     int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1);\r\n\r\n\r\n    vecAdd<<< n_blocks, block_size>>>(deviceInput1, deviceInput2, deviceOutput, inputLength);\r\n\r\n\r\n    cudaThreadSynchronize();\r\n    wbTime_stop(Compute, \"Performing CUDA computation\");\r\n\r\n    wbTime_start(Copy, \"Copying output memory to the CPU\");\r\n    //@@ Copy the GPU memory back to the CPU here\r\n    cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost);\r\n\r\n    wbTime_stop(Copy, \"Copying output memory to the CPU\");\r\n\r\n    wbTime_start(GPU, \"Freeing GPU Memory\");\r\n    //@@ Free the GPU memory here\r\n\r\n\r\n    wbTime_stop(GPU, \"Freeing GPU Memory\");\r\n\r\n    wbSolution(args, hostOutput, inputLength);\r\n\r\n    free(hostInput1);\r\n    free(hostInput2);\r\n    free(hostOutput);\r\n\r\n    return 0;\r\n}...", "type": "BlockStatement" }, "cform": "int  main(int  argc /* Parameter*/, char ** argv){\nint  args; /* Declare*/\nint  inputLength; /* Declare*/\nfloat * hostInput1; /* Declare*/\nfloat * hostInput2; /* Declare*/\nfloat * hostOutput; /* Declare*/\nfloat * deviceInput1; /* Declare*/\nfloat * deviceInput2; /* Declare*/\nfloat * deviceOutput; /* Declare*/\nargs = wbArg_read(argc /* Identifier*/, argv); /* Assign*/\nwbTime_start(\"Generic\" /* String*/, \"Importing data and creating memory on host\"); /* Call*/\nhostInput1 = wbImport(\"input0\" /* String*/, & inputLength); /* Assign*/\nhostInput2 = wbImport(\"input1\" /* String*/, & inputLength); /* Assign*/\nhostOutput = malloc(inputLength * sizeof(float )); /* Assign*/\nwbTime_stop(\"Generic\" /* String*/, \"Importing data and creating memory on host\"); /* Call*/\nwbLog(\"TRACE\" /* String*/, \"The input length is \" /* String*/, inputLength /* Identifier*/, \" elements\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Allocating GPU memory.\"); /* Call*/\nint  byteSize = sizeof(float ) * inputLength; /* Declare*/\nwbTime_stop(\"GPU\" /* String*/, \"Allocating GPU memory.\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Copying input memory to the GPU.\"); /* Call*/\ncudaMalloc(& deviceInput1 /* UnaryOperator*/, byteSize); /* Call*/\ncudaMalloc(& deviceInput2 /* UnaryOperator*/, byteSize); /* Call*/\ncudaMalloc(& deviceOutput /* UnaryOperator*/, byteSize); /* Call*/\nwbTime_stop(\"GPU\" /* String*/, \"Copying input memory to the GPU.\"); /* Call*/\ncudaMemcpy(deviceInput1 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice); /* Call*/\ncudaMemcpy(deviceInput2 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice); /* Call*/\nwbTime_start(\"Compute\" /* String*/, \"Performing CUDA computation\"); /* Call*/\nint  block_size = 16; /* Declare*/\nint  n_blocks = inputLength / block_size + (inputLength % block_size == 0 ? 0 : 1); /* Declare*/\nvecAdd<<<{n_blocks} /* CompoundNode*/, {block_size}>>>(deviceInput1 /* Identifier*/, deviceInput2 /* Identifier*/, deviceOutput /* Identifier*/, inputLength); /* Call*/\ncudaThreadSynchronize(); /* Call*/\nwbTime_stop(\"Compute\" /* String*/, \"Performing CUDA computation\"); /* Call*/\nwbTime_start(\"Copy\" /* String*/, \"Copying output memory to the CPU\"); /* Call*/\ncudaMemcpy(hostOutput /* Identifier*/, deviceOutput /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyDeviceToHost); /* Call*/\nwbTime_stop(\"Copy\" /* String*/, \"Copying output memory to the CPU\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Freeing GPU Memory\"); /* Call*/\nwbTime_stop(\"GPU\" /* String*/, \"Freeing GPU Memory\"); /* Call*/\nwbSolution(args /* Identifier*/, hostOutput /* Identifier*/, inputLength); /* Call*/\nfree(hostInput1); /* Call*/\nfree(hostInput2); /* Call*/\nfree(hostOutput); /* Call*/\nreturn 0; /* Return*/\n}\n", "id": "main", "loc": { "end": { "column": 1, "line": 85 }, "start": { "column": 1, "line": 11 } }, "params": [{ "data": { "cform": "argc", "loc": { "end": { "column": 14, "line": 11 }, "start": { "column": 10, "line": 11 } }, "name": "argc", "raw": "int argc", "type": "Identifier" }, "type": "ParameterExpression" }, { "data": { "cform": "argv", "loc": { "end": { "column": 28, "line": 11 }, "start": { "column": 20, "line": 11 } }, "name": "argv", "raw": "char ** argv", "type": "Identifier" }, "type": "ParameterExpression" }], "raw": ";\r\n    float * hostInput2;\r\n    float * hostOutput;\r\n    float * deviceInput1;\r\n    float * deviceInput2;\r\n    float * deviceOutput;\r\n\r\n    args = wbArg_read(argc, argv);\r\n\r\n    wbTime_start(Generic, \"Importing data and creating memory on host\");\r\n    hostInput1 = (float *) wbImport(wbArg_getInputFile(args, 0), &inputLength);\r\n    hostInput2 = (float *) wbImport(wbArg_getInputFile(args, 1), &inputLength);\r\n    hostOutput = (float *) malloc(inputLength * sizeof(float));\r\n    wbTime_stop(Generic, \"Importing data and creating memory on host\");\r\n\r\n    wbLog(TRACE, \"The input length is \", inputLength, \" elements\");\r\n\r\n\r\n    wbTime_start(GPU, \"Allocating GPU memory.\");\r\n    //@@ Allocate GPU memory here\r\n    int byteSize =sizeof(float) * inputLength;\r\n\r\n    wbTime_stop(GPU, \"Allocating GPU memory.\");\r\n\r\n    wbTime_start(GPU, \"Copying input memory to the GPU.\");\r\n    //@@ Copy memory to the GPU here\r\n\r\n    cudaMalloc((void **) &deviceInput1, byteSize);\r\n    cudaMalloc((void **) &deviceInput2, byteSize);\r\n    cudaMalloc((void **) &deviceOutput, byteSize);\r\n\r\n\r\n    wbTime_stop(GPU, \"Copying input memory to the GPU.\");\r\n\r\n    //@@ Initialize the grid and block dimensions here\r\n    cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice);\r\n\r\n    cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice);\r\n\r\n\r\n    wbTime_start(Compute, \"Performing CUDA computation\");\r\n    //@@ Launch the GPU Kernel here\r\n     int block_size = 16;\r\n     int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1);\r\n\r\n\r\n    vecAdd<<< n_blocks, block_size>>>(deviceInput1, deviceInput2, deviceOutput, inputLength);\r\n\r\n\r\n    cudaThreadSynchronize();\r\n    wbTime_stop(Compute, \"Performing CUDA computation\");\r\n\r\n    wbTime_start(Copy, \"Copying output memory to the CPU\");\r\n    //@@ Copy the GPU memory back to the CPU here\r\n    cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost);\r\n\r\n    wbTime_stop(Copy, \"Copying output memory to the CPU\");\r\n\r\n    wbTime_start(GPU, \"Freeing GPU Memory\");\r\n    //@@ Free the GPU memory here\r\n\r\n\r\n    wbTime_stop(GPU, \"Freeing GPU Memory\");\r\n\r\n    wbSolution(args, hostOutput, inputLength);\r\n\r\n    free(hostInput1);\r\n    free(hostInput2);\r\n    free(hostOutput);\r\n\r\n    return 0;\r\n}...", "type": "Function" }], "cform": "__global__ void  vecAdd(float * in1 /* Parameter*/, float * in2 /* Parameter*/, float * out /* Parameter*/, int  len){\nint  idx = blockIdx.x * blockDim.x + threadIdx.x; /* Declare*/\nif (idx < len){\nout[idx] = in1[idx] + in2[idx]; /* Assign*/\n}\n}\nint  main(int  argc /* Parameter*/, char ** argv){\nint  args; /* Declare*/\nint  inputLength; /* Declare*/\nfloat * hostInput1; /* Declare*/\nfloat * hostInput2; /* Declare*/\nfloat * hostOutput; /* Declare*/\nfloat * deviceInput1; /* Declare*/\nfloat * deviceInput2; /* Declare*/\nfloat * deviceOutput; /* Declare*/\nargs = wbArg_read(argc /* Identifier*/, argv); /* Assign*/\nwbTime_start(\"Generic\" /* String*/, \"Importing data and creating memory on host\"); /* Call*/\nhostInput1 = wbImport(\"input0\" /* String*/, & inputLength); /* Assign*/\nhostInput2 = wbImport(\"input1\" /* String*/, & inputLength); /* Assign*/\nhostOutput = malloc(inputLength * sizeof(float )); /* Assign*/\nwbTime_stop(\"Generic\" /* String*/, \"Importing data and creating memory on host\"); /* Call*/\nwbLog(\"TRACE\" /* String*/, \"The input length is \" /* String*/, inputLength /* Identifier*/, \" elements\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Allocating GPU memory.\"); /* Call*/\nint  byteSize = sizeof(float ) * inputLength; /* Declare*/\nwbTime_stop(\"GPU\" /* String*/, \"Allocating GPU memory.\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Copying input memory to the GPU.\"); /* Call*/\ncudaMalloc(& deviceInput1 /* UnaryOperator*/, byteSize); /* Call*/\ncudaMalloc(& deviceInput2 /* UnaryOperator*/, byteSize); /* Call*/\ncudaMalloc(& deviceOutput /* UnaryOperator*/, byteSize); /* Call*/\nwbTime_stop(\"GPU\" /* String*/, \"Copying input memory to the GPU.\"); /* Call*/\ncudaMemcpy(deviceInput1 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice); /* Call*/\ncudaMemcpy(deviceInput2 /* Identifier*/, hostInput1 /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyHostToDevice); /* Call*/\nwbTime_start(\"Compute\" /* String*/, \"Performing CUDA computation\"); /* Call*/\nint  block_size = 16; /* Declare*/\nint  n_blocks = inputLength / block_size + (inputLength % block_size == 0 ? 0 : 1); /* Declare*/\nvecAdd<<<{n_blocks} /* CompoundNode*/, {block_size}>>>(deviceInput1 /* Identifier*/, deviceInput2 /* Identifier*/, deviceOutput /* Identifier*/, inputLength); /* Call*/\ncudaThreadSynchronize(); /* Call*/\nwbTime_stop(\"Compute\" /* String*/, \"Performing CUDA computation\"); /* Call*/\nwbTime_start(\"Copy\" /* String*/, \"Copying output memory to the CPU\"); /* Call*/\ncudaMemcpy(hostOutput /* Identifier*/, deviceOutput /* Identifier*/, byteSize /* Identifier*/, cudaMemcpyDeviceToHost); /* Call*/\nwbTime_stop(\"Copy\" /* String*/, \"Copying output memory to the CPU\"); /* Call*/\nwbTime_start(\"GPU\" /* String*/, \"Freeing GPU Memory\"); /* Call*/\nwbTime_stop(\"GPU\" /* String*/, \"Freeing GPU Memory\"); /* Call*/\nwbSolution(args /* Identifier*/, hostOutput /* Identifier*/, inputLength); /* Call*/\nfree(hostInput1); /* Call*/\nfree(hostInput2); /* Call*/\nfree(hostOutput); /* Call*/\nreturn 0; /* Return*/\n}\n", "loc": { "end": { "column": 0, "line": 0 }, "start": { "column": 0, "line": 0 } }, "raw": "", "type": "Program" };
+    })(example = lib.example || (lib.example = {}));
 })(lib || (lib = {}));
 /// <reference path="./lib/ref.ts" />
 var app;
 (function (app) {
     var Greeter = (function () {
-        function Greeter(element) {
-            this.element = element;
-            this.element.innerHTML += "The time is: ";
-            this.span = document.createElement('span');
-            this.element.appendChild(this.span);
-            this.span.innerText = new Date().toUTCString();
+        function Greeter() {
         }
         Greeter.prototype.start = function () {
-            var b = lib.ast.types.builders;
-            b["identifier"]("foo");
+            lib.utils.globals.output = lib.ast.importer.cena.fromCena(lib.example.mp1);
         };
         Greeter.prototype.stop = function () {
-            lib.utils.assert.ok(1 == 1, "test");
-            clearTimeout(this.timerToken);
         };
         return Greeter;
     })();
     app.Greeter = Greeter;
 })(app || (app = {}));
 window.onload = function () {
-    var el = document.getElementById('content');
-    var greeter = new app.Greeter(el);
-    greeter.start();
+    lib.ast.importer.cena.fromCena(lib.example.mp1);
 };
+lib.ast.importer.cena.fromCena(lib.example.mp1);
 /*
 
-This is free and unencumbered software released into the public domain.
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-For more information, please refer to <http://unlicense.org/>
-*/
+ This is free and unencumbered software released into the public domain.
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any
+ means.
+ In jurisdictions that recognize copyright laws, the author or authors
+ of this software dedicate any and all copyright interest in the
+ software to the public domain. We make this dedication for the benefit
+ of the public at large and to the detriment of our heirs and
+ successors. We intend this dedication to be an overt act of
+ relinquishment in perpetuity of all present and future rights to this
+ software under copyright law.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+ For more information, please refer to <http://unlicense.org/>
+ */
 // from https://github.com/gf3/Levenshtein
 var lib;
 (function (lib) {
@@ -18519,121 +18663,6 @@ var lib;
         })(validate = ast.validate || (ast.validate = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/// <reference path='../../utils/utils.ts' />
-var lib;
-(function (lib) {
-    var c;
-    (function (c) {
-        var memory;
-        (function (memory) {
-            (function (AddressSpace) {
-                AddressSpace[AddressSpace["Shared"] = 0] = "Shared";
-                AddressSpace[AddressSpace["Global"] = 1] = "Global";
-                AddressSpace[AddressSpace["Host"] = 2] = "Host";
-            })(memory.AddressSpace || (memory.AddressSpace = {}));
-            var AddressSpace = memory.AddressSpace;
-            ;
-            var CLiteralKind = lib.c.type.detail.CLiteralKind;
-            var Reference = (function () {
-                function Reference(id, addressSpace, data) {
-                    this.id = id;
-                    this.addressSpace = addressSpace;
-                    this.data = data;
-                    this.KIND = 10 /* Int8 */;
-                }
-                Reference.prototype.get = function (idx) {
-                    switch (this.KIND) {
-                        case 10 /* Int8 */:
-                            return new lib.c.type.Int8(this.data.getInt8(idx));
-                        case 20 /* Int16 */:
-                            return new lib.c.type.Int16(this.data.getInt16(idx));
-                        case 30 /* Int32 */:
-                            return new lib.c.type.Int32(this.data.getInt32(idx));
-                        case 40 /* Int64 */:
-                            return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
-                        case 11 /* Uint8 */:
-                            return new lib.c.type.Uint8(this.data.getUint8(idx));
-                        case 21 /* Uint16 */:
-                            return new lib.c.type.Uint16(this.data.getUint16(idx));
-                        case 31 /* Uint32 */:
-                            return new lib.c.type.Uint32(this.data.getUint32(idx));
-                    }
-                };
-                Reference.prototype.set = function (idx, val) {
-                    if (val instanceof lib.c.type.Int64) {
-                        var i64 = lib.utils.castTo(val);
-                        this.data.setInt32(2 * idx, i64.getHigh());
-                        this.data.setInt32(2 * idx + 1, i64.getLow());
-                        return this.get(idx);
-                    }
-                    else if (val instanceof Object) {
-                        var tmp = lib.utils.castTo(val);
-                        val = tmp.getValue()[0];
-                    }
-                    switch (this.KIND) {
-                        case 10 /* Int8 */:
-                            this.data.setInt8(idx, val);
-                            break;
-                        case 20 /* Int16 */:
-                            this.data.setInt16(idx, val);
-                            break;
-                        case 30 /* Int32 */:
-                            this.data.setInt32(idx, val);
-                            break;
-                        case 40 /* Int64 */:
-                            this.data.setInt32(2 * idx, 0);
-                            this.data.setInt32(2 * idx + 1, val);
-                            break;
-                        case 11 /* Uint8 */:
-                            this.data.setUint8(idx, val);
-                            break;
-                        case 21 /* Uint16 */:
-                            this.data.setUint16(idx, val);
-                            break;
-                        case 31 /* Uint32 */:
-                            this.data.setUint32(idx, val);
-                            break;
-                    }
-                    return this.get(idx);
-                };
-                Reference.prototype.ref = function () {
-                    return new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.data.buffer, 0, 1));
-                };
-                Reference.prototype.deref = function () {
-                    return this.get(0);
-                };
-                return Reference;
-            })();
-            memory.Reference = Reference;
-            var MB = 1024;
-            var MemoryManager = (function () {
-                function MemoryManager(addressSpace) {
-                    this.memoryOffset = 0;
-                    this.TOTAL_MEMORY = 10 * MB;
-                    this.addressSpace = addressSpace;
-                    this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
-                }
-                MemoryManager.prototype.malloc = function (n) {
-                    var buffer = new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.memory, this.memoryOffset, this.memoryOffset + n));
-                    //this.memmap.set(buffer.id, buffer);
-                    this.memoryOffset += n;
-                    return buffer;
-                };
-                MemoryManager.prototype.free = function (mem) {
-                    mem = undefined;
-                };
-                MemoryManager.prototype.ref = function (obj) {
-                    return "todo";
-                };
-                MemoryManager.prototype.deref = function (mem) {
-                    return mem[0];
-                };
-                return MemoryManager;
-            })();
-            memory.MemoryManager = MemoryManager;
-        })(memory = c.memory || (c.memory = {}));
-    })(c = lib.c || (lib.c = {}));
-})(lib || (lib = {}));
 /// <reference path="../../ref.ts" />
 var lib;
 (function (lib) {
@@ -18816,6 +18845,121 @@ var lib;
         })(exec = cuda.exec || (cuda.exec = {}));
     })(cuda = lib.cuda || (lib.cuda = {}));
 })(lib || (lib = {}));
+/// <reference path='../../utils/utils.ts' />
+var lib;
+(function (lib) {
+    var c;
+    (function (c) {
+        var memory;
+        (function (memory) {
+            (function (AddressSpace) {
+                AddressSpace[AddressSpace["Shared"] = 0] = "Shared";
+                AddressSpace[AddressSpace["Global"] = 1] = "Global";
+                AddressSpace[AddressSpace["Host"] = 2] = "Host";
+            })(memory.AddressSpace || (memory.AddressSpace = {}));
+            var AddressSpace = memory.AddressSpace;
+            ;
+            var CLiteralKind = lib.c.type.detail.CLiteralKind;
+            var Reference = (function () {
+                function Reference(id, addressSpace, data) {
+                    this.id = id;
+                    this.addressSpace = addressSpace;
+                    this.data = data;
+                    this.KIND = 10 /* Int8 */;
+                }
+                Reference.prototype.get = function (idx) {
+                    switch (this.KIND) {
+                        case 10 /* Int8 */:
+                            return new lib.c.type.Int8(this.data.getInt8(idx));
+                        case 20 /* Int16 */:
+                            return new lib.c.type.Int16(this.data.getInt16(idx));
+                        case 30 /* Int32 */:
+                            return new lib.c.type.Int32(this.data.getInt32(idx));
+                        case 40 /* Int64 */:
+                            return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
+                        case 11 /* Uint8 */:
+                            return new lib.c.type.Uint8(this.data.getUint8(idx));
+                        case 21 /* Uint16 */:
+                            return new lib.c.type.Uint16(this.data.getUint16(idx));
+                        case 31 /* Uint32 */:
+                            return new lib.c.type.Uint32(this.data.getUint32(idx));
+                    }
+                };
+                Reference.prototype.set = function (idx, val) {
+                    if (val instanceof lib.c.type.Int64) {
+                        var i64 = lib.utils.castTo(val);
+                        this.data.setInt32(2 * idx, i64.getHigh());
+                        this.data.setInt32(2 * idx + 1, i64.getLow());
+                        return this.get(idx);
+                    }
+                    else if (val instanceof Object) {
+                        var tmp = lib.utils.castTo(val);
+                        val = tmp.getValue()[0];
+                    }
+                    switch (this.KIND) {
+                        case 10 /* Int8 */:
+                            this.data.setInt8(idx, val);
+                            break;
+                        case 20 /* Int16 */:
+                            this.data.setInt16(idx, val);
+                            break;
+                        case 30 /* Int32 */:
+                            this.data.setInt32(idx, val);
+                            break;
+                        case 40 /* Int64 */:
+                            this.data.setInt32(2 * idx, 0);
+                            this.data.setInt32(2 * idx + 1, val);
+                            break;
+                        case 11 /* Uint8 */:
+                            this.data.setUint8(idx, val);
+                            break;
+                        case 21 /* Uint16 */:
+                            this.data.setUint16(idx, val);
+                            break;
+                        case 31 /* Uint32 */:
+                            this.data.setUint32(idx, val);
+                            break;
+                    }
+                    return this.get(idx);
+                };
+                Reference.prototype.ref = function () {
+                    return new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.data.buffer, 0, 1));
+                };
+                Reference.prototype.deref = function () {
+                    return this.get(0);
+                };
+                return Reference;
+            })();
+            memory.Reference = Reference;
+            var MB = 1024;
+            var MemoryManager = (function () {
+                function MemoryManager(addressSpace) {
+                    this.memoryOffset = 0;
+                    this.TOTAL_MEMORY = 10 * MB;
+                    this.addressSpace = addressSpace;
+                    this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
+                }
+                MemoryManager.prototype.malloc = function (n) {
+                    var buffer = new Reference(lib.utils.guuid(), this.addressSpace, new DataView(this.memory, this.memoryOffset, this.memoryOffset + n));
+                    //this.memmap.set(buffer.id, buffer);
+                    this.memoryOffset += n;
+                    return buffer;
+                };
+                MemoryManager.prototype.free = function (mem) {
+                    mem = undefined;
+                };
+                MemoryManager.prototype.ref = function (obj) {
+                    return "todo";
+                };
+                MemoryManager.prototype.deref = function (mem) {
+                    return mem[0];
+                };
+                return MemoryManager;
+            })();
+            memory.MemoryManager = MemoryManager;
+        })(memory = c.memory || (c.memory = {}));
+    })(c = lib.c || (lib.c = {}));
+})(lib || (lib = {}));
 /// <reference path="../ref.ts" />
 var System;
 (function (System) {
@@ -18952,31 +19096,31 @@ var lib;
     })(utils = lib.utils || (lib.utils = {}));
 })(lib || (lib = {}));
 /*
-This is free and unencumbered software released into the public domain.
+ This is free and unencumbered software released into the public domain.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any
+ means.
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+ In jurisdictions that recognize copyright laws, the author or authors
+ of this software dedicate any and all copyright interest in the
+ software to the public domain. We make this dedication for the benefit
+ of the public at large and to the detriment of our heirs and
+ successors. We intend this dedication to be an overt act of
+ relinquishment in perpetuity of all present and future rights to this
+ software under copyright law.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
 
-For more information, please refer to <http://unlicense.org>
-*/
+ For more information, please refer to <http://unlicense.org>
+ */
 // from https://github.com/stacktracejs/error-stack-parser
 var lib;
 (function (lib) {
@@ -19174,29 +19318,29 @@ var lib;
 })(lib || (lib = {}));
 /*This is free and unencumbered software released into the public domain.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any
+ means.
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+ In jurisdictions that recognize copyright laws, the author or authors
+ of this software dedicate any and all copyright interest in the
+ software to the public domain. We make this dedication for the benefit
+ of the public at large and to the detriment of our heirs and
+ successors. We intend this dedication to be an overt act of
+ relinquishment in perpetuity of all present and future rights to this
+ software under copyright law.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
 
-For more information, please refer to <http://unlicense.org>
-*/
+ For more information, please refer to <http://unlicense.org>
+ */
 // from https://github.com/stacktracejs/stackframe
 var lib;
 (function (lib) {
@@ -19283,29 +19427,29 @@ var lib;
 })(lib || (lib = {}));
 /*This is free and unencumbered software released into the public domain.
 
-Anyone is free to copy, modify, publish, use, compile, sell, or
-distribute this software, either in source code form or as a compiled
-binary, for any purpose, commercial or non-commercial, and by any
-means.
+ Anyone is free to copy, modify, publish, use, compile, sell, or
+ distribute this software, either in source code form or as a compiled
+ binary, for any purpose, commercial or non-commercial, and by any
+ means.
 
-In jurisdictions that recognize copyright laws, the author or authors
-of this software dedicate any and all copyright interest in the
-software to the public domain. We make this dedication for the benefit
-of the public at large and to the detriment of our heirs and
-successors. We intend this dedication to be an overt act of
-relinquishment in perpetuity of all present and future rights to this
-software under copyright law.
+ In jurisdictions that recognize copyright laws, the author or authors
+ of this software dedicate any and all copyright interest in the
+ software to the public domain. We make this dedication for the benefit
+ of the public at large and to the detriment of our heirs and
+ successors. We intend this dedication to be an overt act of
+ relinquishment in perpetuity of all present and future rights to this
+ software under copyright law.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
 
-For more information, please refer to <http://unlicense.org>
-*/
+ For more information, please refer to <http://unlicense.org>
+ */
 // from https://github.com/stacktracejs/stacktrace-gps
 /// <reference path="../../../Scripts/typings/es6-promise/es6-promise.d.ts" />
 var lib;
@@ -19571,7 +19715,7 @@ var lib;
                 })();
                 var TracedFunction = (function () {
                     function TracedFunction(fun) {
-                        return function () {
+                        this.fun_ = function () {
                             var args = [];
                             for (var _i = 0; _i < arguments.length; _i++) {
                                 args[_i - 0] = arguments[_i];
@@ -19623,8 +19767,8 @@ var lib;
                 category: category,
                 message: args.join(""),
                 stopped: true,
-                startTime: times.startTime,
-                startTime: lib.utils.timer.now()
+                startTime: timer.startTime,
+                endTime: lib.utils.timer.now()
             });
         }
         wb.wbTime_stop = wbTime_stop;
