@@ -22,12 +22,14 @@ module lib.ast {
                 loc: esprima.Syntax.LineLocation
                 raw: string
                 cform: string
+                marker: any
 
                 constructor(type: string, loc: any, raw: string, cform: string) {
                     this.type = type;
                     this.loc = castTo<esprima.Syntax.LineLocation>(loc);
                     this.raw = raw;
                     this.cform = cform;
+                    this.marker = {}
                 }
 
                 static fromCena(o: any): Node {
@@ -41,6 +43,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [];
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -683,6 +688,9 @@ module lib.ast {
                         return this.elements.map((elem) => elem.toEsprima());
                     }
                 }
+                get children(): Node[] {
+                    return this.elements;
+                }
 
                 hasChildren(): boolean {
                     return _.isEmpty(this.elements);
@@ -737,6 +745,9 @@ module lib.ast {
                         loc: this.loc,
                         raw: this.raw, cform: this.cform
                     }
+                }
+                get children(): Node[] {
+                    return this.body.children;
                 }
 
                 hasChildren(): boolean {
@@ -804,6 +815,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return _.flatten<Node>([this.body, this.ret, this.id, this.params.children]);
+                }
                 hasChildren(): boolean {
                     return this.body.hasChildren();
                 }
@@ -878,6 +892,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return _.flatten<Node>([this.callee, this.args.children]);
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -938,6 +955,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.expression];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -986,6 +1006,9 @@ module lib.ast {
                     return call.toEsprima();
                 }
 
+                get children(): Node[] {
+                    return [this.argument];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1034,6 +1057,9 @@ module lib.ast {
                     return call.toEsprima();
                 }
 
+                get children(): Node[] {
+                    return [this.argument];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1106,6 +1132,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.argument];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1202,6 +1231,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.left, this.right];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1259,37 +1291,41 @@ module lib.ast {
                         loc: this.loc
                     }
                 }
+                get children(): Node[] {
+                    return [this.init, this.id];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
 
                 postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    lib.utils.logger.fatal("unimplemented");
+                    this.id.postOrderTraverse(visit, data);
+                    this.init.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
                 preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
-                    lib.utils.logger.fatal("unimplemented");
-                    return visit(this, data);
+                    this.id.preOrderTraverse(visit, data);
+                    return this.init.preOrderTraverse(visit, data);
                 }
 
                 inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    visit(this, data);
-                    lib.utils.logger.fatal("unimplemented");
+                    this.id.inOrderTraverse(visit, data);
+                    this.init.inOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
                 reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
-                    lib.utils.logger.fatal("unimplemented");
-                    return visit(this, data);
+                    this.id.reversePostOrderTraverse(visit, data);
+                    return this.init.reversePostOrderTraverse(visit, data);
                 }
 
                 reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
-                    lib.utils.logger.fatal("unimplemented");
-                    return visit(this, data);
+                    this.init.reversePreOrderTraverse(visit, data);
+                    return this.id.reversePreOrderTraverse(visit, data);
                 }
             }
 
@@ -1315,6 +1351,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return this.declarations;
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1376,6 +1415,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.left, this.right];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1437,6 +1479,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.test, this.consequent, this.alternate];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1503,6 +1548,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.test, this.consequent, this.alternate];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1572,6 +1620,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.init, this.test, this.update, this.body];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1638,6 +1689,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return this.body.children;
+                }
                 hasChildren(): boolean {
                     return this.body.hasChildren();
                 }
@@ -1694,6 +1748,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.argument];
+                }
                 hasChildren(): boolean {
                     return !(this.argument instanceof EmptyExpression);
                 }
@@ -1746,6 +1803,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.expression];
+                }
                 hasChildren(): boolean {
                     return !(this.expression instanceof EmptyExpression);
                 }
@@ -1807,6 +1867,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.object, this.property];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1869,6 +1932,9 @@ module lib.ast {
                     }
                 }
 
+                get children(): Node[] {
+                    return [this.object, this.property];
+                }
                 hasChildren(): boolean {
                     return true;
                 }
@@ -1907,11 +1973,11 @@ module lib.ast {
 
             var dispatch: Map<string, (o: any) => Node> = new Map<string, (o: any) => Node>();
 
-            export function fromCena(o: any) {
+            export function fromCena(o: any) : Node {
                 if (isUndefined(o) || isUndefined(o.type)) {
                     return new EmptyExpression();
                 } else if (!dispatch.has(o.type)) {
-                    lib.utils.logger.trace("Invalid input type toEsprima");
+                    lib.utils.logger.trace("Invalid input type toEsprima " + o.type);
                     return new ErrorNode(JSON.stringify(o));
                 }
                 var f = dispatch.get(o.type);

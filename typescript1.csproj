@@ -176,6 +176,7 @@
     <TypeScriptCompile Include="lib\ast\importer\cena.ts" />
     <TypeScriptCompile Include="lib\ast\importer\fix.ts" />
     <TypeScriptCompile Include="lib\ast\importer\importer.ts" />
+    <TypeScriptCompile Include="lib\ast\importer\memory.ts" />
     <TypeScriptCompile Include="lib\ast\recast\comments.ts" />
     <TypeScriptCompile Include="lib\ast\recast\lines.ts" />
     <TypeScriptCompile Include="lib\ast\recast\mappings.ts" />
@@ -240,6 +241,7 @@
     <TypeScriptCompile Include="lib\c\type\uint32.ts" />
     <TypeScriptCompile Include="lib\c\type\uint64.ts" />
     <TypeScriptCompile Include="lib\c\type\uint8.ts" />
+    <TypeScriptCompile Include="lib\editor\editor.ts" />
     <TypeScriptCompile Include="lib\memory\buffer.ts" />
     <TypeScriptCompile Include="lib\memory\constant.ts" />
     <TypeScriptCompile Include="lib\memory\global.ts" />

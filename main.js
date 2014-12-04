@@ -14187,6 +14187,7 @@ var lib;
                         this.loc = castTo(loc);
                         this.raw = raw;
                         this.cform = cform;
+                        this.marker = {};
                     }
                     Node.fromCena = function (o) {
                         return new Node("Unknown", unknownLocation, "", "");
@@ -14197,6 +14198,13 @@ var lib;
                             value: "Node"
                         };
                     };
+                    Object.defineProperty(Node.prototype, "children", {
+                        get: function () {
+                            return [];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     Node.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14765,6 +14773,13 @@ var lib;
                             return this.elements.map(function (elem) { return elem.toEsprima(); });
                         }
                     };
+                    Object.defineProperty(CompoundNode.prototype, "children", {
+                        get: function () {
+                            return this.elements;
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     CompoundNode.prototype.hasChildren = function () {
                         return _.isEmpty(this.elements);
                     };
@@ -14814,6 +14829,13 @@ var lib;
                             cform: this.cform
                         };
                     };
+                    Object.defineProperty(BlockStatement.prototype, "children", {
+                        get: function () {
+                            return this.body.children;
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     BlockStatement.prototype.hasChildren = function () {
                         return this.body.hasChildren();
                     };
@@ -14869,6 +14891,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(FunctionExpression.prototype, "children", {
+                        get: function () {
+                            return _.flatten([this.body, this.ret, this.id, this.params.children]);
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     FunctionExpression.prototype.hasChildren = function () {
                         return this.body.hasChildren();
                     };
@@ -14935,6 +14964,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(CallExpression.prototype, "children", {
+                        get: function () {
+                            return _.flatten([this.callee, this.args.children]);
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     CallExpression.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14989,6 +15025,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(ParenExpression.prototype, "children", {
+                        get: function () {
+                            return [this.expression];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ParenExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15029,6 +15072,13 @@ var lib;
                         var call = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
                         return call.toEsprima();
                     };
+                    Object.defineProperty(DereferenceExpression.prototype, "children", {
+                        get: function () {
+                            return [this.argument];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     DereferenceExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15069,6 +15119,13 @@ var lib;
                         var call = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "reference"), [this.rawArgument]);
                         return call.toEsprima();
                     };
+                    Object.defineProperty(ReferenceExpression.prototype, "children", {
+                        get: function () {
+                            return [this.argument];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ReferenceExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15135,6 +15192,13 @@ var lib;
                             cform: this.cform
                         };
                     };
+                    Object.defineProperty(UnaryExpression.prototype, "children", {
+                        get: function () {
+                            return [this.argument];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     UnaryExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15201,6 +15265,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(BinaryExpression.prototype, "children", {
+                        get: function () {
+                            return [this.left, this.right];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     BinaryExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15272,32 +15343,40 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(VariableDeclarator.prototype, "children", {
+                        get: function () {
+                            return [this.init, this.id];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     VariableDeclarator.prototype.hasChildren = function () {
                         return true;
                     };
                     VariableDeclarator.prototype.postOrderTraverse = function (visit, data) {
-                        lib.utils.logger.fatal("unimplemented");
+                        this.id.postOrderTraverse(visit, data);
+                        this.init.postOrderTraverse(visit, data);
                         return visit(this, data);
                     };
                     VariableDeclarator.prototype.preOrderTraverse = function (visit, data) {
                         visit(this, data);
-                        lib.utils.logger.fatal("unimplemented");
-                        return visit(this, data);
+                        this.id.preOrderTraverse(visit, data);
+                        return this.init.preOrderTraverse(visit, data);
                     };
                     VariableDeclarator.prototype.inOrderTraverse = function (visit, data) {
-                        visit(this, data);
-                        lib.utils.logger.fatal("unimplemented");
+                        this.id.inOrderTraverse(visit, data);
+                        this.init.inOrderTraverse(visit, data);
                         return visit(this, data);
                     };
                     VariableDeclarator.prototype.reversePostOrderTraverse = function (visit, data) {
                         visit(this, data);
-                        lib.utils.logger.fatal("unimplemented");
-                        return visit(this, data);
+                        this.id.reversePostOrderTraverse(visit, data);
+                        return this.init.reversePostOrderTraverse(visit, data);
                     };
                     VariableDeclarator.prototype.reversePreOrderTraverse = function (visit, data) {
                         visit(this, data);
-                        lib.utils.logger.fatal("unimplemented");
-                        return visit(this, data);
+                        this.init.reversePreOrderTraverse(visit, data);
+                        return this.id.reversePreOrderTraverse(visit, data);
                     };
                     return VariableDeclarator;
                 })(Node);
@@ -15321,6 +15400,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(VariableDeclaration.prototype, "children", {
+                        get: function () {
+                            return this.declarations;
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     VariableDeclaration.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15374,6 +15460,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(AssignmentExpression.prototype, "children", {
+                        get: function () {
+                            return [this.left, this.right];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     AssignmentExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15427,6 +15520,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(IfStatement.prototype, "children", {
+                        get: function () {
+                            return [this.test, this.consequent, this.alternate];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     IfStatement.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15485,6 +15585,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(ConditionalExpression.prototype, "children", {
+                        get: function () {
+                            return [this.test, this.consequent, this.alternate];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ConditionalExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15545,6 +15652,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(ForStatement.prototype, "children", {
+                        get: function () {
+                            return [this.init, this.test, this.update, this.body];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ForStatement.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15604,6 +15718,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(ProgramExpression.prototype, "children", {
+                        get: function () {
+                            return this.body.children;
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ProgramExpression.prototype.hasChildren = function () {
                         return this.body.hasChildren();
                     };
@@ -15653,6 +15774,13 @@ var lib;
                             argument: lib.utils.castTo(this.argument.toEsprima())
                         };
                     };
+                    Object.defineProperty(ReturnStatement.prototype, "children", {
+                        get: function () {
+                            return [this.argument];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ReturnStatement.prototype.hasChildren = function () {
                         return !(this.argument instanceof EmptyExpression);
                     };
@@ -15697,6 +15825,13 @@ var lib;
                             expression: lib.utils.castTo(this.expression.toEsprima())
                         };
                     };
+                    Object.defineProperty(ExpressionStatement.prototype, "children", {
+                        get: function () {
+                            return [this.expression];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     ExpressionStatement.prototype.hasChildren = function () {
                         return !(this.expression instanceof EmptyExpression);
                     };
@@ -15752,6 +15887,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(SubscriptExpression.prototype, "children", {
+                        get: function () {
+                            return [this.object, this.property];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     SubscriptExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15805,6 +15947,13 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    Object.defineProperty(MemberExpression.prototype, "children", {
+                        get: function () {
+                            return [this.object, this.property];
+                        },
+                        enumerable: true,
+                        configurable: true
+                    });
                     MemberExpression.prototype.hasChildren = function () {
                         return true;
                     };
@@ -15842,7 +15991,7 @@ var lib;
                         return new EmptyExpression();
                     }
                     else if (!dispatch.has(o.type)) {
-                        lib.utils.logger.trace("Invalid input type toEsprima");
+                        lib.utils.logger.trace("Invalid input type toEsprima " + o.type);
                         return new ErrorNode(JSON.stringify(o));
                     }
                     var f = dispatch.get(o.type);
@@ -15901,6 +16050,50 @@ var lib;
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
 /// <reference path="cena.ts" />
+var lib;
+(function (lib) {
+    var ast;
+    (function (ast) {
+        var importer;
+        (function (importer) {
+            var memory;
+            (function (memory) {
+                var castTo = lib.utils.castTo;
+                var cena = lib.ast.importer.cena;
+                function markNeeded(nd) {
+                    nd.marker = _.extend(nd.marker, {
+                        neededinstruction: true
+                    });
+                }
+                function visitor(nd, data) {
+                    if (nd instanceof cena.SubscriptExpression) {
+                        var sub = castTo(nd);
+                        markNeeded(sub);
+                        _.each(sub.children, markNeeded);
+                    }
+                    else if (nd instanceof cena.Identifier) {
+                        var id = castTo(nd);
+                        if (id.marker.neededInstruction) {
+                            data.set(id.name, true);
+                        }
+                        if (data.has(id.name)) {
+                            markNeeded(id);
+                            _.each(id.children, markNeeded);
+                        }
+                    }
+                    return nd;
+                }
+                function mark(prog) {
+                    var data = new Map();
+                    return prog.postOrderTraverse(visitor, data);
+                }
+                memory.mark = mark;
+            })(memory = importer.memory || (importer.memory = {}));
+        })(importer = ast.importer || (ast.importer = {}));
+    })(ast = lib.ast || (lib.ast = {}));
+})(lib || (lib = {}));
+/// <reference path="cena.ts" />
+/// <reference path="memory.ts" />
 /// <reference path="sourcemap/sourcemap.ts" />
 /// <reference path="types/types.ts" />
 /// <reference path="recast/recast.ts" />
@@ -16785,7 +16978,8 @@ var app;
 window.onload = function () {
     lib.ast.importer.cena.fromCena(lib.example.mp1);
 };
-lib.ast.importer.cena.fromCena(lib.example.mp1);
+var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
+lib.ast.importer.memory.mark(ast);
 /*
 
  This is free and unencumbered software released into the public domain.

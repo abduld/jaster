@@ -21,4 +21,5 @@ window.onload = () => {
     lib.ast.importer.cena.fromCena(lib.example.mp1)
 };
 
-lib.ast.importer.cena.fromCena(lib.example.mp1)
+var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
+lib.ast.importer.memory.mark(ast);
