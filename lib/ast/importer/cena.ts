@@ -44,7 +44,9 @@ module lib.ast {
                         value: "Node"
                     }
                 }
-
+                toCString(): string {
+                    return "";
+                }
                 protected setChildParents() {
                     var self = this;
                     _.each(this.children, (child) => child.parent = self);
@@ -164,6 +166,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return this.value.toString();
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -199,6 +204,9 @@ module lib.ast {
                     return new StringLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
+                toCString(): string {
+                    return "\"" + this.value + "\"";
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -234,6 +242,9 @@ module lib.ast {
                     return new BooleanLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
+                toCString(): string {
+                    return this.value ? "true" : "false";
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -271,6 +282,9 @@ module lib.ast {
                     return new CharLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
+                toCString(): string {
+                    return "'" + this.value + "'";
+                }
                 toEsprima(): esprima.Syntax.NewExpression {
                     return {
                         type: "NewExpression",
@@ -350,6 +364,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return "" + this.value;
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -408,6 +425,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return "" + this.value;
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -465,6 +485,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return "" + this.value;
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -521,6 +544,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return "" + this.value;
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -556,6 +582,9 @@ module lib.ast {
                     return new Float64Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
+                toCString(): string {
+                    return "" + this.value;
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -610,6 +639,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return [this.addressSpace, this.qualifiers, this.bases].join(" ");
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -663,6 +695,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return this.name;
+                }
                 hasChildren(): boolean {
                     return false;
                 }
@@ -707,6 +742,7 @@ module lib.ast {
                         return this.elements.map((elem) => elem.toEsprima());
                     }
                 }
+
                 get children(): Node[] {
                     return this.elements;
                 }
@@ -766,6 +802,10 @@ module lib.ast {
                         loc: this.loc,
                         raw: this.raw, cform: this.cform
                     }
+                }
+
+                toCString(): string {
+                    return "{" + _.map(this.body.elements, (elem : Node) => elem.toCString()).join(";\n") + "}";
                 }
                 get children(): Node[] {
                     return this.body.children;
@@ -843,6 +883,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, (p : Node) => p.toCString()).join(", ") + ") " + this.body.toCString();
+                }
                 get children(): Node[] {
                     return _.flatten<Node>([this.body, this.ret, this.id, this.params.children]);
                 }
@@ -921,6 +964,14 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    var ret : string = this.callee.toCString();
+                    if (this.isCUDA) {
+                        ret += "<<<" + this.config.toCString() + ">>>";
+                    }
+                    ret += " (" + _.map(this.args.elements, (p: Node) => p.toCString()).join(", ") + ") ";
+                    return ret;
+                }
                 get children(): Node[] {
                     return _.flatten<Node>([this.callee, this.args.children]);
                 }
@@ -985,6 +1036,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return "(" + this.expression.toCString() + ")";
+                }
                 get children(): Node[] {
                     return [this.expression];
                 }
@@ -1037,6 +1091,9 @@ module lib.ast {
                     return call.toEsprima();
                 }
 
+                toCString(): string {
+                    return "&" + this.argument.toCString();
+                }
                 get children(): Node[] {
                     return [this.argument];
                 }
@@ -1089,6 +1146,9 @@ module lib.ast {
                     return call.toEsprima();
                 }
 
+                toCString(): string {
+                    return "*" + this.argument.toCString();
+                }
                 get children(): Node[] {
                     return [this.argument];
                 }
@@ -1165,6 +1225,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return this.operator + this.argument.toCString();
+                }
                 get children(): Node[] {
                     return [this.argument];
                 }
@@ -1265,6 +1328,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
+                }
                 get children(): Node[] {
                     return [this.left, this.right];
                 }
@@ -1326,6 +1392,15 @@ module lib.ast {
                         loc: this.loc
                     }
                 }
+
+                toCString(): string {
+                    if (this.init.type != "EmptyExpression") {
+                        return this.id.toCString() + " = " + this.init.toCString();
+                    } else {
+                        return this.id.toCString();
+                    }
+                }
+
                 get children(): Node[] {
                     return [this.init, this.id];
                 }
@@ -1387,6 +1462,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return _.map(this.declarations, (decl: Node) => decl.toCString()).join(", ");
+                }
                 get children(): Node[] {
                     return this.declarations;
                 }
@@ -1452,6 +1530,9 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
+                }
                 get children(): Node[] {
                     return [this.left, this.right];
                 }
@@ -1517,6 +1598,13 @@ module lib.ast {
                     }
                 }
 
+                toCString(): string {
+                    var ret : string = "if (" + this.test.toCString() + ")" + this.consequent.toCString() + " " ;
+                    if (this.alternate.type != "EmptyExpression") {
+                        ret += " else " + this.alternate.toCString();
+                    }
+                    return ret;
+                }
                 get children(): Node[] {
                     return [this.test, this.consequent, this.alternate];
                 }
@@ -1585,6 +1673,10 @@ module lib.ast {
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
                     }
+                }
+
+                toCString(): string {
+                    return this.test.toCString() + " ? " + this.consequent.toCString() + " : " + this.alternate.toCString();
                 }
 
                 get children(): Node[] {
@@ -1730,6 +1822,10 @@ module lib.ast {
                     }
                 }
 
+
+                toCString(): string {
+                    return _.map(this.body.elements, (elem: Node) => elem.toCString()).join("\n");
+                }
                 get children(): Node[] {
                     return this.body.children;
                 }

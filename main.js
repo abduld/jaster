@@ -14159,6 +14159,9 @@ var lib;
                             value: "Node"
                         };
                     };
+                    Node.prototype.toCString = function () {
+                        return "";
+                    };
                     Node.prototype.setChildParents = function () {
                         var self = this;
                         _.each(this.children, function (child) { return child.parent = self; });
@@ -14268,6 +14271,9 @@ var lib;
                             cform: this.cform
                         };
                     };
+                    Literal.prototype.toCString = function () {
+                        return this.value.toString();
+                    };
                     Literal.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14298,6 +14304,9 @@ var lib;
                     }
                     StringLiteral.fromCena = function (o) {
                         return new StringLiteral(o.loc, o.raw, o.cform, o.value);
+                    };
+                    StringLiteral.prototype.toCString = function () {
+                        return "\"" + this.value + "\"";
                     };
                     StringLiteral.prototype.hasChildren = function () {
                         return false;
@@ -14330,6 +14339,9 @@ var lib;
                     BooleanLiteral.fromCena = function (o) {
                         return new BooleanLiteral(o.loc, o.raw, o.cform, o.value);
                     };
+                    BooleanLiteral.prototype.toCString = function () {
+                        return this.value ? "true" : "false";
+                    };
                     BooleanLiteral.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14360,6 +14372,9 @@ var lib;
                     }
                     CharLiteral.fromCena = function (o) {
                         return new CharLiteral(o.loc, o.raw, o.cform, o.value);
+                    };
+                    CharLiteral.prototype.toCString = function () {
+                        return "'" + this.value + "'";
                     };
                     CharLiteral.prototype.toEsprima = function () {
                         return {
@@ -14436,6 +14451,9 @@ var lib;
                             ]
                         };
                     };
+                    Integer8Literal.prototype.toCString = function () {
+                        return "" + this.value;
+                    };
                     Integer8Literal.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14489,6 +14507,9 @@ var lib;
                             ]
                         };
                     };
+                    Integer32Literal.prototype.toCString = function () {
+                        return "" + this.value;
+                    };
                     Integer32Literal.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14540,6 +14561,9 @@ var lib;
                             ]
                         };
                     };
+                    Integer64Literal.prototype.toCString = function () {
+                        return "" + this.value;
+                    };
                     Integer64Literal.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14589,6 +14613,9 @@ var lib;
                             ]
                         };
                     };
+                    Float32Literal.prototype.toCString = function () {
+                        return "" + this.value;
+                    };
                     Float32Literal.prototype.hasChildren = function () {
                         return false;
                     };
@@ -14619,6 +14646,9 @@ var lib;
                     }
                     Float64Literal.fromCena = function (o) {
                         return new Float64Literal(o.loc, o.raw, o.cform, o.value);
+                    };
+                    Float64Literal.prototype.toCString = function () {
+                        return "" + this.value;
                     };
                     Float64Literal.prototype.hasChildren = function () {
                         return false;
@@ -14664,6 +14694,9 @@ var lib;
                             }),
                             loc: this.loc
                         };
+                    };
+                    TypeExpression.prototype.toCString = function () {
+                        return [this.addressSpace, this.qualifiers, this.bases].join(" ");
                     };
                     TypeExpression.prototype.hasChildren = function () {
                         return false;
@@ -14711,6 +14744,9 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    Identifier.prototype.toCString = function () {
+                        return this.name;
                     };
                     Identifier.prototype.hasChildren = function () {
                         return false;
@@ -14807,6 +14843,9 @@ var lib;
                             cform: this.cform
                         };
                     };
+                    BlockStatement.prototype.toCString = function () {
+                        return "{" + _.map(this.body.elements, function (elem) { return elem.toCString(); }).join(";\n") + "}";
+                    };
                     Object.defineProperty(BlockStatement.prototype, "children", {
                         get: function () {
                             return this.body.children;
@@ -14877,6 +14916,9 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    FunctionExpression.prototype.toCString = function () {
+                        return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, function (p) { return p.toCString(); }).join(", ") + ") " + this.body.toCString();
                     };
                     Object.defineProperty(FunctionExpression.prototype, "children", {
                         get: function () {
@@ -14952,6 +14994,14 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    CallExpression.prototype.toCString = function () {
+                        var ret = this.callee.toCString();
+                        if (this.isCUDA) {
+                            ret += "<<<" + this.config.toCString() + ">>>";
+                        }
+                        ret += " (" + _.map(this.args.elements, function (p) { return p.toCString(); }).join(", ") + ") ";
+                        return ret;
+                    };
                     Object.defineProperty(CallExpression.prototype, "children", {
                         get: function () {
                             return _.flatten([this.callee, this.args.children]);
@@ -15014,6 +15064,9 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    ParenExpression.prototype.toCString = function () {
+                        return "(" + this.expression.toCString() + ")";
+                    };
                     Object.defineProperty(ParenExpression.prototype, "children", {
                         get: function () {
                             return [this.expression];
@@ -15062,6 +15115,9 @@ var lib;
                         var call = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
                         return call.toEsprima();
                     };
+                    DereferenceExpression.prototype.toCString = function () {
+                        return "&" + this.argument.toCString();
+                    };
                     Object.defineProperty(DereferenceExpression.prototype, "children", {
                         get: function () {
                             return [this.argument];
@@ -15109,6 +15165,9 @@ var lib;
                     ReferenceExpression.prototype.toEsprima = function () {
                         var call = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "reference"), [this.rawArgument]);
                         return call.toEsprima();
+                    };
+                    ReferenceExpression.prototype.toCString = function () {
+                        return "*" + this.argument.toCString();
                     };
                     Object.defineProperty(ReferenceExpression.prototype, "children", {
                         get: function () {
@@ -15184,6 +15243,9 @@ var lib;
                             cform: this.cform
                         };
                     };
+                    UnaryExpression.prototype.toCString = function () {
+                        return this.operator + this.argument.toCString();
+                    };
                     Object.defineProperty(UnaryExpression.prototype, "children", {
                         get: function () {
                             return [this.argument];
@@ -15257,6 +15319,9 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    BinaryExpression.prototype.toCString = function () {
+                        return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
                     };
                     Object.defineProperty(BinaryExpression.prototype, "children", {
                         get: function () {
@@ -15337,6 +15402,14 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    VariableDeclarator.prototype.toCString = function () {
+                        if (this.init.type != "EmptyExpression") {
+                            return this.id.toCString() + " = " + this.init.toCString();
+                        }
+                        else {
+                            return this.id.toCString();
+                        }
+                    };
                     Object.defineProperty(VariableDeclarator.prototype, "children", {
                         get: function () {
                             return [this.init, this.id];
@@ -15394,6 +15467,9 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    VariableDeclaration.prototype.toCString = function () {
+                        return _.map(this.declarations, function (decl) { return decl.toCString(); }).join(", ");
                     };
                     Object.defineProperty(VariableDeclaration.prototype, "children", {
                         get: function () {
@@ -15456,6 +15532,9 @@ var lib;
                             loc: this.loc
                         };
                     };
+                    AssignmentExpression.prototype.toCString = function () {
+                        return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
+                    };
                     Object.defineProperty(AssignmentExpression.prototype, "children", {
                         get: function () {
                             return [this.left, this.right];
@@ -15516,6 +15595,13 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    IfStatement.prototype.toCString = function () {
+                        var ret = "if (" + this.test.toCString() + ")" + this.consequent.toCString() + " ";
+                        if (this.alternate.type != "EmptyExpression") {
+                            ret += " else " + this.alternate.toCString();
+                        }
+                        return ret;
                     };
                     Object.defineProperty(IfStatement.prototype, "children", {
                         get: function () {
@@ -15582,6 +15668,9 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    ConditionalExpression.prototype.toCString = function () {
+                        return this.test.toCString() + " ? " + this.consequent.toCString() + " : " + this.alternate.toCString();
                     };
                     Object.defineProperty(ConditionalExpression.prototype, "children", {
                         get: function () {
@@ -15717,6 +15806,9 @@ var lib;
                             cform: this.cform,
                             loc: this.loc
                         };
+                    };
+                    ProgramExpression.prototype.toCString = function () {
+                        return _.map(this.body.elements, function (elem) { return elem.toCString(); }).join("\n");
                     };
                     Object.defineProperty(ProgramExpression.prototype, "children", {
                         get: function () {
@@ -16063,26 +16155,62 @@ var lib;
             var memory;
             (function (memory) {
                 var castTo = lib.utils.castTo;
-                function markNeeded(nd) {
+                function markNeeded(nd, deep) {
                     nd.marker = _.extend(nd.marker, {
-                        neededinstruction: true
+                        neededInstruction: true
                     });
+                    if (deep) {
+                        if (nd.hasChildren()) {
+                            _.each(nd.children, function (nd) { return markNeeded(nd, deep); });
+                        }
+                    }
                 }
                 function visitor(nd, data) {
+                    if (!lib.utils.isNullOrUndefined(nd.parent) && nd.parent.type === "FunctionExpression") {
+                        var fun = castTo(nd);
+                        if (!_.contains(fun.attributes, "__global__")) {
+                            markNeeded(fun, true);
+                        }
+                    }
                     if (nd.type === "SubscriptExpression") {
                         var sub = castTo(nd);
                         markNeeded(sub);
-                        _.each(sub.children, markNeeded);
+                        _.each(sub.children, function (nd) { return markNeeded(nd, true); });
                         markNeeded(sub.parent);
                     }
                     else if (nd.type === "Identifier") {
                         var id = castTo(nd);
-                        if (id.marker.neededInstruction) {
+                        if (id.marker.neededInstruction || _.any(id.children, function (child) { return !lib.utils.isUndefined(child) && _.has(child, "neededInstruction"); })) {
+                            markNeeded(id);
                             data.set(id.name, true);
                         }
                         if (data.has(id.name)) {
                             markNeeded(id);
-                            _.each(id.children, markNeeded);
+                            _.each(id.children, function (nd) { return markNeeded(nd, true); });
+                        }
+                        markNeeded(id.parent);
+                    }
+                    else if (nd.type === "BinaryExpression") {
+                        var bop = castTo(nd);
+                        if (bop.marker.neededInstruction || _.any(bop.children, function (child) { return !lib.utils.isUndefined(child) && _.has(child, "neededInstruction"); })) {
+                            markNeeded(bop);
+                            _.each(bop.children, function (nd) { return markNeeded(nd, true); });
+                            markNeeded(bop.parent);
+                        }
+                    }
+                    else if (nd.type === "AssignmentExpression") {
+                        var ass = castTo(nd);
+                        if (ass.marker.neededInstruction || _.any(bop.children, function (child) { return !lib.utils.isUndefined(child) && _.has(child, "neededInstruction"); })) {
+                            markNeeded(ass);
+                            _.each(ass.children, function (nd) { return markNeeded(nd, true); });
+                            markNeeded(ass.parent);
+                        }
+                    }
+                    else {
+                        if (nd.marker.neededInstruction || _.any(nd.children, function (child) { return !lib.utils.isUndefined(child) && _.has(child, "neededInstruction"); })) {
+                            markNeeded(nd);
+                            _.each(nd.children, function (nd) { return markNeeded(nd, true); });
+                            markNeeded(nd.parent);
                         }
                     }
                     return nd;
