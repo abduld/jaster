@@ -14614,7 +14614,7 @@ var lib;
                     __extends(Float64Literal, _super);
                     function Float64Literal(loc, raw, cform, value) {
                         _super.call(this, loc, raw, cform, value);
-                        this.type = "BooleanLiteral";
+                        this.type = "Float64Literal";
                         this.setChildParents();
                     }
                     Float64Literal.fromCena = function (o) {
