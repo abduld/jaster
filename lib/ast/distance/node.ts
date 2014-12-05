@@ -7,6 +7,11 @@ module lib.ast {
 
         var leftMostHash:Map<string, Syntax.Node> = new Map<string, Syntax.Node>();
 
+
+        export function keyroot(node: Syntax.Node) : Syntax.Node {
+            return null
+        }
+
         export function leftMost(node:typeof undefined):Syntax.Node;
         export function leftMost(node:Array<Node>):Syntax.Node;
         export function leftMost(node:Syntax.Node):Syntax.Node;

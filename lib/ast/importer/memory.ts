@@ -11,11 +11,12 @@ module lib.ast.importer {
         }
         function visitor(nd: cena.Node, data: Map<string, boolean>) : cena.Node {
             
-            if (nd instanceof cena.SubscriptExpression) {
+            if (nd.type === "SubscriptExpression") {
                 var sub: cena.SubscriptExpression = castTo<cena.SubscriptExpression>(nd);
                 markNeeded(sub);
                 _.each(sub.children, markNeeded);
-            } else if (nd instanceof cena.Identifier) {
+                markNeeded(sub.parent);
+            } else if (nd.type === "Identifier") {
                 var id: cena.Identifier = castTo<cena.Identifier>(nd);
                 if (id.marker.neededInstruction) {
                     data.set(id.name, true);

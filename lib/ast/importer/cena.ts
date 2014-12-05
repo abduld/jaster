@@ -23,13 +23,15 @@ module lib.ast {
                 raw: string
                 cform: string
                 marker: any
+                parent: Node
 
                 constructor(type: string, loc: any, raw: string, cform: string) {
                     this.type = type;
                     this.loc = castTo<esprima.Syntax.LineLocation>(loc);
                     this.raw = raw;
                     this.cform = cform;
-                    this.marker = {}
+                    this.marker = {};
+                    this.parent = null;
                 }
 
                 static fromCena(o: any): Node {
@@ -43,6 +45,11 @@ module lib.ast {
                     }
                 }
 
+                protected setChildParents() {
+                    var self = this;
+                    _.each(this.children, (child) => child.parent = self);
+                }
+                
                 get children(): Node[] {
                     return [];
                 }
@@ -145,6 +152,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, value: T) {
                     super("Literal", loc, raw, cform);
                     this.value = value;
+                    this.setChildParents();
                 }
 
                 toEsprima(): esprima.Syntax.Literal {
@@ -184,6 +192,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, value: string) {
                     super(loc, raw, cform, value);
                     this.type = "StringLiteral";
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): StringLiteral {
@@ -218,6 +227,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, value: boolean) {
                     super(loc, raw, cform, value);
                     this.type = "BooleanLiteral";
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -254,6 +264,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, value: string) {
                     super("CharLiteral", loc, raw, cform);
                     this.value = value;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): CharLiteral {
@@ -310,7 +321,8 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, value: number) {
                     super("Integer8Literal", loc, raw, cform);
-                    this.value = value
+                    this.value = value;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Integer8Literal {
@@ -367,7 +379,8 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, value: number) {
                     super("Integer8Literal", loc, raw, cform);
-                    this.value = value
+                    this.value = value;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Integer32Literal {
@@ -424,7 +437,8 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, value: string) {
                     super("Integer8Literal", loc, raw, cform);
-                    this.value = value
+                    this.value = value;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Integer64Literal {
@@ -480,7 +494,8 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, value: number) {
                     super("FloatLiteral", loc, raw, cform);
-                    this.value = value
+                    this.value = value;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Float32Literal {
@@ -534,6 +549,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, value: number) {
                     super(loc, raw, cform, value);
                     this.type = "BooleanLiteral";
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -574,6 +590,7 @@ module lib.ast {
                     this.addressSpace = addressSpace;
                     this.qualifiers = qualifiers;
                     this.bases = bases;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): TypeExpression {
@@ -629,7 +646,7 @@ module lib.ast {
                     } else {
                         this.kind = TypeExpression.fromCena(kind);
                     }
-                    ;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Identifier {
@@ -672,9 +689,11 @@ module lib.ast {
             }
             export class CompoundNode {
                 elements: Node[]
-
+                parent : Node
                 constructor(elements: any[]) {
                     this.elements = isUndefined(elements) ? [] : elements.map((elem) => fromCena(elem));
+                    var self = this;
+                    _.each(this.elements, (elem : Node) => elem.parent = self.parent);
                 }
 
                 static fromCena(o: any): CompoundNode {
@@ -695,6 +714,7 @@ module lib.ast {
                 hasChildren(): boolean {
                     return _.isEmpty(this.elements);
                 }
+
 
                 postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     var res: Node;
@@ -731,7 +751,8 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, body: any) {
                     super("BlockStatement", loc, raw, cform);
-                    this.body = new CompoundNode(body.body);
+                    this.body = new CompoundNode(body);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): BlockStatement {
@@ -760,8 +781,8 @@ module lib.ast {
                 }
 
                 preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    visit(this, data);
-                    return this.body.preOrderTraverse(visit, data);
+                    this.body.preOrderTraverse(visit, data);
+                    return visit(this, data);
                 }
 
                 inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
@@ -775,8 +796,8 @@ module lib.ast {
                 }
 
                 reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    this.body.reversePostOrderTraverse(visit, data);
-                    return visit(this, data);
+                    visit(this, data);
+                    return this.body.reversePostOrderTraverse(visit, data);
                 }
             }
             export class FunctionExpression extends Node {
@@ -784,15 +805,22 @@ module lib.ast {
                 ret: Node
                 id: Identifier
                 params: CompoundNode
-                body: BlockStatement
+                body: Node
 
                 constructor(loc: any, raw: string, cform: string, attributes: string[], ret: any, id: any, params: any[], body: any) {
                     super("FunctionExpression", loc, raw, cform);
                     this.attributes = attributes;
                     this.ret = isUndefined(ret) ? new EmptyExpression() : TypeExpression.fromCena(ret);
-                    this.id = Identifier.fromCena(id);
+                    this.id = Identifier.fromCena({ loc: loc, raw: raw, cform: cform, name: id});
                     this.params = CompoundNode.fromCena(params);
-                    this.body = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
+                    if (isUndefined(body)) {
+                        this.body = new EmptyExpression();
+                    } else if (body.type === "BlockStatement") {
+                        this.body = fromCena(body);
+                    } else {
+                        this.body = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
+                    }
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -874,6 +902,7 @@ module lib.ast {
                     this.args = new CompoundNode(args);
                     this.config = isUndefined(config) ? new EmptyExpression() : fromCena(config);
                     this.isCUDA = !isUndefined(config);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -940,6 +969,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, expression: any) {
                     super("ParenExpression", loc, raw, cform);
                     this.expression = fromCena(expression);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -995,6 +1025,7 @@ module lib.ast {
                     super("DereferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1046,6 +1077,7 @@ module lib.ast {
                     super("ReferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1099,6 +1131,7 @@ module lib.ast {
                     this.operator = operator
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1200,6 +1233,7 @@ module lib.ast {
                     this.operator = operator
                     this.right = fromCena(right);
                     this.left = fromCena(left);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1276,6 +1310,7 @@ module lib.ast {
                     super("VariableDeclarator", loc, raw, cform);
                     this.init = isUndefined(init) ? new EmptyExpression() : fromCena(init);
                     this.id = Identifier.fromCena(id);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1335,6 +1370,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, declarations: any) {
                     super("VariableDeclaration", loc, raw, cform);
                     this.declarations = declarations.map(fromCena);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1398,6 +1434,7 @@ module lib.ast {
                     this.operator = operator
                     this.right = fromCena(right);
                     this.left = fromCena(left);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1462,6 +1499,7 @@ module lib.ast {
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
                     this.alternate = isUndefined(alternate) ? new EmptyExpression() : fromCena(alternate);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1531,6 +1569,7 @@ module lib.ast {
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
                     this.alternate = fromCena(alternate);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1602,6 +1641,7 @@ module lib.ast {
                     this.test = fromCena(test);
                     this.update = fromCena(update);
                     this.body = fromCena(body);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1674,6 +1714,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, body: any[]) {
                     super("ProgramExpression", loc, raw, cform);
                     this.body = new CompoundNode(body);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1727,10 +1768,11 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, argument?: Node) {
                     super("ReturnStatement", loc, raw, cform);
                     if (argument) {
-                        this.argument = argument;
+                        this.argument = fromCena(argument);
                     } else {
                         this.argument = new EmptyExpression();
                     }
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1786,6 +1828,7 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, expression: Node) {
                     super("ExpressionStatement", loc, raw, cform);
                     this.expression = expression;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1850,6 +1893,7 @@ module lib.ast {
                     super("SubscriptExpression", loc, raw, cform);
                     this.object = fromCena(init);
                     this.property = fromCena(property);
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
@@ -1915,6 +1959,7 @@ module lib.ast {
                     this.object = fromCena(object);
                     this.property = fromCena(property);
                     this.computed = computed;
+                    this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
