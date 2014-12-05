@@ -533,7 +533,7 @@ module lib.ast {
             export class Float64Literal extends Literal<number> {
                 constructor(loc: any, raw: string, cform: string, value: number) {
                     super(loc, raw, cform, value);
-                    this.type = "BooleanLiteral";
+                    this.type = "Float64Literal";
                 }
 
                 static fromCena(o: any): Node {
