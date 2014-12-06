@@ -51,7 +51,7 @@ module lib.ast {
                     var self = this;
                     _.each(this.children, (child) => child.parent = self);
                 }
-                
+
                 get children(): Node[] {
                     return [];
                 }
@@ -193,6 +193,44 @@ module lib.ast {
                     return visit(this, data);
                 }
             }
+            export class SymbolLiteral extends Literal<string> {
+                constructor(loc: any, raw: string, cform: string, value: string) {
+                    super(loc, raw, cform, value);
+                    this.type = "SymbolLiteral";
+                    this.setChildParents();
+                }
+
+                static fromCena(o: any): SymbolLiteral {
+                    return new SymbolLiteral(o.loc, o.raw, o.cform, o.value);
+                }
+
+                toCString(): string {
+                    return this.value;
+                }
+                hasChildren(): boolean {
+                    return false;
+                }
+
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    return visit(this, data);
+                }
+            }
             export class StringLiteral extends Literal<string> {
                 constructor(loc: any, raw: string, cform: string, value: string) {
                     super(loc, raw, cform, value);
@@ -205,7 +243,7 @@ module lib.ast {
                 }
 
                 toCString(): string {
-                    return "\"" + this.value + "\"";
+                    return this.value;
                 }
                 hasChildren(): boolean {
                     return false;
@@ -609,6 +647,61 @@ module lib.ast {
                     return visit(this, data);
                 }
             }
+
+            export class ReferenceType extends Node {
+                value: Node
+
+                constructor(loc: any, raw: string, cform: string, value: any) {
+                    super("ReferenceType", loc, raw, cform);
+                    this.value = fromCena(value);
+                    this.setChildParents();
+                }
+
+                static fromCena(o: any): ReferenceType {
+                    return new ReferenceType(o.loc, o.raw, o.cform, o.value);
+                }
+
+                toEsprima(): esprima.Syntax.Comment {
+                    return {
+                        type: "Comment",
+                        value: this.value.toCString(),
+                        raw: this.raw,
+                        loc: this.loc
+                    }
+                }
+
+                toCString(): string {
+                    return this.value.toCString() + "*";
+                }
+                hasChildren(): boolean {
+                    return false;
+                }
+
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.value.postOrderTraverse(visit, data);
+                }
+
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.value.preOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.value.inOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    this.value.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    return this.value.reversePreOrderTraverse(visit, data);
+                }
+            }
             export class TypeExpression extends Node {
                 addressSpace: string[]
                 qualifiers: string[]
@@ -616,9 +709,9 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, addressSpace: string[], qualifiers: string[], bases: string[]) {
                     super("TypeExpression", loc, raw, cform);
-                    this.addressSpace = addressSpace;
-                    this.qualifiers = qualifiers;
-                    this.bases = bases;
+                    this.addressSpace = _.map(addressSpace || [undefined], (b: Node) => fromCena(b).toCString());
+                    this.qualifiers = _.map(qualifiers || [undefined], (b: Node) => fromCena(b).toCString());
+                    this.bases = _.map(bases || [undefined], (b : Node) => fromCena(b).toCString());
                     this.setChildParents();
                 }
 
@@ -640,7 +733,7 @@ module lib.ast {
                 }
 
                 toCString(): string {
-                    return [this.addressSpace, this.qualifiers, this.bases].join(" ");
+                    return _.flatten([this.addressSpace, this.qualifiers, this.bases]).join(" ");
                 }
                 hasChildren(): boolean {
                     return false;
@@ -667,16 +760,16 @@ module lib.ast {
                 }
             }
             export class Identifier extends Node {
-                kind: TypeExpression
+                kind: Node
                 name: string
 
                 constructor(loc: any, raw: string, cform: string, name: string, kind?: any) {
                     super("Identifier", loc, raw, cform);
                     this.name = name;
                     if (isUndefined(kind)) {
-                        this.kind = castTo<TypeExpression>(new EmptyExpression());
+                        this.kind = new EmptyExpression();
                     } else {
-                        this.kind = TypeExpression.fromCena(kind);
+                        this.kind = fromCena(kind);
                     }
                     this.setChildParents();
                 }
@@ -696,7 +789,11 @@ module lib.ast {
                 }
 
                 toCString(): string {
-                    return this.name;
+                    if (this.kind.type != "EmptyExpression") {
+                        return this.kind.toCString() + " " + this.name;
+                    } else {
+                        return this.name;
+                    }
                 }
                 hasChildren(): boolean {
                     return false;
@@ -724,11 +821,11 @@ module lib.ast {
             }
             export class CompoundNode {
                 elements: Node[]
-                parent : Node
+                parent: Node
                 constructor(elements: any[]) {
                     this.elements = isUndefined(elements) ? [] : elements.map((elem) => fromCena(elem));
                     var self = this;
-                    _.each(this.elements, (elem : Node) => elem.parent = self.parent);
+                    _.each(this.elements, (elem: Node) => elem.parent = self.parent);
                 }
 
                 static fromCena(o: any): CompoundNode {
@@ -782,6 +879,14 @@ module lib.ast {
                     return res;
                 }
             }
+            function endsWith(subjectString : string, searchString : string, position?) {
+                if (position === undefined || position > subjectString.length) {
+                    position = subjectString.length;
+                }
+                position -= searchString.length;
+                var lastIndex = subjectString.indexOf(searchString, position);
+                return lastIndex !== -1 && lastIndex === position;
+            }
             export class BlockStatement extends Node {
                 body: CompoundNode
 
@@ -805,7 +910,10 @@ module lib.ast {
                 }
 
                 toCString(): string {
-                    return "{" + _.map(this.body.elements, (elem : Node) => elem.toCString()).join(";\n") + "}";
+                    var prog: string[] = _.map(this.body.elements, (elem: Node) => elem.toCString());
+                    prog = _.map(prog, (elem : string) => endsWith(elem, ";") ? elem.substring(0, elem.length - 1).trim() : elem.trim());
+                    prog = _.filter(prog, (elem : string) => elem !== "");
+                    return "{\n" + prog.join(";\n") + "\n}";
                 }
                 get children(): Node[] {
                     return this.body.children;
@@ -850,8 +958,8 @@ module lib.ast {
                 constructor(loc: any, raw: string, cform: string, attributes: string[], ret: any, id: any, params: any[], body: any) {
                     super("FunctionExpression", loc, raw, cform);
                     this.attributes = attributes;
-                    this.ret = isUndefined(ret) ? new EmptyExpression() : TypeExpression.fromCena(ret);
-                    this.id = Identifier.fromCena({ loc: loc, raw: raw, cform: cform, name: id});
+                    this.ret = isUndefined(ret) ? new EmptyExpression() : fromCena(ret);
+                    this.id = Identifier.fromCena({ loc: loc, raw: raw, cform: cform, name: id });
                     this.params = CompoundNode.fromCena(params);
                     if (isUndefined(body)) {
                         this.body = new EmptyExpression();
@@ -884,7 +992,7 @@ module lib.ast {
                 }
 
                 toCString(): string {
-                    return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, (p : Node) => p.toCString()).join(", ") + ") " + this.body.toCString();
+                    return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, (p: Node) => p.toCString()).join(", ") + ") " + this.body.toCString();
                 }
                 get children(): Node[] {
                     return _.flatten<Node>([this.body, this.ret, this.id, this.params.children]);
@@ -935,21 +1043,21 @@ module lib.ast {
             }
             export class CallExpression extends Node {
                 callee: Identifier
-                args: CompoundNode
+                arguments: CompoundNode
                 config: Node
                 isCUDA: boolean = false
 
-                constructor(loc: any, raw: string, cform: string, callee: any, args: any[], config?: any) {
+                constructor(loc: any, raw: string, cform: string, callee: any, arguments: any[], config?: any) {
                     super("CallExpression", loc, raw, cform);
                     this.callee = Identifier.fromCena(callee);
-                    this.args = new CompoundNode(args);
+                    this.arguments = new CompoundNode(arguments);
                     this.config = isUndefined(config) ? new EmptyExpression() : fromCena(config);
                     this.isCUDA = !isUndefined(config);
                     this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
-                    return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.args), o.config);
+                    return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.arguments), o.config);
                 }
 
                 toEsprima(): esprima.Syntax.CallExpression {
@@ -958,22 +1066,22 @@ module lib.ast {
                         config: this.config.toEsprima(),
                         isCUDA: this.isCUDA,
                         callee: castTo<esprima.Syntax.SomeExpression>(this.callee.toEsprima()),
-                        arguments: this.args.toEsprima(),
+                        arguments: this.arguments.toEsprima(),
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
                     }
                 }
 
                 toCString(): string {
-                    var ret : string = this.callee.toCString();
+                    var ret: string = this.callee.toCString();
                     if (this.isCUDA) {
                         ret += "<<<" + this.config.toCString() + ">>>";
                     }
-                    ret += " (" + _.map(this.args.elements, (p: Node) => p.toCString()).join(", ") + ") ";
+                    ret += " (" + _.map(this.arguments.elements, (p: Node) => p.toCString()).join(", ") + ") ";
                     return ret;
                 }
                 get children(): Node[] {
-                    return _.flatten<Node>([this.callee, this.args.children]);
+                    return _.flatten<Node>([this.callee, this.arguments.children]);
                 }
                 hasChildren(): boolean {
                     return false;
@@ -983,32 +1091,32 @@ module lib.ast {
                     visit(this, data);
                     this.callee.postOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
-                    return this.args.postOrderTraverse(visit, data);
+                    return this.arguments.postOrderTraverse(visit, data);
                 }
 
                 preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    visit(this, data);
                     this.callee.preOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
-                    return this.args.preOrderTraverse(visit, data);
+                    this.arguments.preOrderTraverse(visit, data);
+                    return visit(this, data);
                 }
 
                 inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.callee.inOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
-                    return this.args.inOrderTraverse(visit, data);
+                    return this.arguments.inOrderTraverse(visit, data);
                 }
 
                 reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    this.args.reversePostOrderTraverse(visit, data);
+                    this.arguments.reversePostOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     this.callee.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
                 reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    this.args.reversePreOrderTraverse(visit, data);
+                    this.arguments.reversePreOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     this.callee.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
@@ -1507,7 +1615,7 @@ module lib.ast {
                 right: Node
                 left: Node
 
-                constructor(loc: any, raw: string, cform: string, operator: string, right: any, left: any) {
+                constructor(loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
                     super("AssignmentExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
@@ -1599,7 +1707,7 @@ module lib.ast {
                 }
 
                 toCString(): string {
-                    var ret : string = "if (" + this.test.toCString() + ")" + this.consequent.toCString() + " " ;
+                    var ret: string = "if (" + this.test.toCString() + ") " + this.consequent.toCString() + " ";
                     if (this.alternate.type != "EmptyExpression") {
                         ret += " else " + this.alternate.toCString();
                     }
@@ -2114,7 +2222,7 @@ module lib.ast {
 
             var dispatch: Map<string, (o: any) => Node> = new Map<string, (o: any) => Node>();
 
-            export function fromCena(o: any) : Node {
+            export function fromCena(o: any): Node {
                 if (isUndefined(o) || isUndefined(o.type)) {
                     return new EmptyExpression();
                 } else if (!dispatch.has(o.type)) {
@@ -2151,6 +2259,7 @@ module lib.ast {
                 dispatch.set("Float32Literal", Float32Literal.fromCena);
                 dispatch.set("Float64Literal", Float64Literal.fromCena);
                 dispatch.set("TypeExpression", TypeExpression.fromCena);
+                dispatch.set("TypeSpecification", TypeExpression.fromCena);
                 dispatch.set("Identifier", Identifier.fromCena);
                 dispatch.set("BlockStatement", BlockStatement.fromCena);
                 dispatch.set("FunctionExpression", FunctionExpression.fromCena);
@@ -2174,6 +2283,9 @@ module lib.ast {
                 dispatch.set("ParameterExpression", (o) => Identifier.fromCena(o.data));
                 dispatch.set("VariableDeclaration", VariableDeclaration.fromCena);
                 dispatch.set("VariableDeclarator", VariableDeclarator.fromCena);
+                dispatch.set("SymbolLiteral", SymbolLiteral.fromCena);
+                dispatch.set("Literal", SymbolLiteral.fromCena);
+                dispatch.set("ReferenceType", ReferenceType.fromCena);
             }
 
             init();

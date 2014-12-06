@@ -14295,6 +14295,40 @@ var lib;
                     return Literal;
                 })(Node);
                 cena.Literal = Literal;
+                var SymbolLiteral = (function (_super) {
+                    __extends(SymbolLiteral, _super);
+                    function SymbolLiteral(loc, raw, cform, value) {
+                        _super.call(this, loc, raw, cform, value);
+                        this.type = "SymbolLiteral";
+                        this.setChildParents();
+                    }
+                    SymbolLiteral.fromCena = function (o) {
+                        return new SymbolLiteral(o.loc, o.raw, o.cform, o.value);
+                    };
+                    SymbolLiteral.prototype.toCString = function () {
+                        return this.value;
+                    };
+                    SymbolLiteral.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    SymbolLiteral.prototype.postOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    SymbolLiteral.prototype.preOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    SymbolLiteral.prototype.inOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    SymbolLiteral.prototype.reversePostOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    SymbolLiteral.prototype.reversePreOrderTraverse = function (visit, data) {
+                        return visit(this, data);
+                    };
+                    return SymbolLiteral;
+                })(Literal);
+                cena.SymbolLiteral = SymbolLiteral;
                 var StringLiteral = (function (_super) {
                     __extends(StringLiteral, _super);
                     function StringLiteral(loc, raw, cform, value) {
@@ -14306,7 +14340,7 @@ var lib;
                         return new StringLiteral(o.loc, o.raw, o.cform, o.value);
                     };
                     StringLiteral.prototype.toCString = function () {
-                        return "\"" + this.value + "\"";
+                        return this.value;
                     };
                     StringLiteral.prototype.hasChildren = function () {
                         return false;
@@ -14671,13 +14705,60 @@ var lib;
                     return Float64Literal;
                 })(Literal);
                 cena.Float64Literal = Float64Literal;
+                var ReferenceType = (function (_super) {
+                    __extends(ReferenceType, _super);
+                    function ReferenceType(loc, raw, cform, value) {
+                        _super.call(this, "ReferenceType", loc, raw, cform);
+                        this.value = fromCena(value);
+                        this.setChildParents();
+                    }
+                    ReferenceType.fromCena = function (o) {
+                        return new ReferenceType(o.loc, o.raw, o.cform, o.value);
+                    };
+                    ReferenceType.prototype.toEsprima = function () {
+                        return {
+                            type: "Comment",
+                            value: this.value.toCString(),
+                            raw: this.raw,
+                            loc: this.loc
+                        };
+                    };
+                    ReferenceType.prototype.toCString = function () {
+                        return this.value.toCString() + "*";
+                    };
+                    ReferenceType.prototype.hasChildren = function () {
+                        return false;
+                    };
+                    ReferenceType.prototype.postOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.value.postOrderTraverse(visit, data);
+                    };
+                    ReferenceType.prototype.preOrderTraverse = function (visit, data) {
+                        this.value.preOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ReferenceType.prototype.inOrderTraverse = function (visit, data) {
+                        this.value.inOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ReferenceType.prototype.reversePostOrderTraverse = function (visit, data) {
+                        this.value.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ReferenceType.prototype.reversePreOrderTraverse = function (visit, data) {
+                        visit(this, data);
+                        return this.value.reversePreOrderTraverse(visit, data);
+                    };
+                    return ReferenceType;
+                })(Node);
+                cena.ReferenceType = ReferenceType;
                 var TypeExpression = (function (_super) {
                     __extends(TypeExpression, _super);
                     function TypeExpression(loc, raw, cform, addressSpace, qualifiers, bases) {
                         _super.call(this, "TypeExpression", loc, raw, cform);
-                        this.addressSpace = addressSpace;
-                        this.qualifiers = qualifiers;
-                        this.bases = bases;
+                        this.addressSpace = _.map(addressSpace || [undefined], function (b) { return fromCena(b).toCString(); });
+                        this.qualifiers = _.map(qualifiers || [undefined], function (b) { return fromCena(b).toCString(); });
+                        this.bases = _.map(bases || [undefined], function (b) { return fromCena(b).toCString(); });
                         this.setChildParents();
                     }
                     TypeExpression.fromCena = function (o) {
@@ -14696,7 +14777,7 @@ var lib;
                         };
                     };
                     TypeExpression.prototype.toCString = function () {
-                        return [this.addressSpace, this.qualifiers, this.bases].join(" ");
+                        return _.flatten([this.addressSpace, this.qualifiers, this.bases]).join(" ");
                     };
                     TypeExpression.prototype.hasChildren = function () {
                         return false;
@@ -14725,10 +14806,10 @@ var lib;
                         _super.call(this, "Identifier", loc, raw, cform);
                         this.name = name;
                         if (isUndefined(kind)) {
-                            this.kind = castTo(new EmptyExpression());
+                            this.kind = new EmptyExpression();
                         }
                         else {
-                            this.kind = TypeExpression.fromCena(kind);
+                            this.kind = fromCena(kind);
                         }
                         this.setChildParents();
                     }
@@ -14746,7 +14827,12 @@ var lib;
                         };
                     };
                     Identifier.prototype.toCString = function () {
-                        return this.name;
+                        if (this.kind.type != "EmptyExpression") {
+                            return this.kind.toCString() + " " + this.name;
+                        }
+                        else {
+                            return this.name;
+                        }
                     };
                     Identifier.prototype.hasChildren = function () {
                         return false;
@@ -14824,6 +14910,14 @@ var lib;
                     return CompoundNode;
                 })();
                 cena.CompoundNode = CompoundNode;
+                function endsWith(subjectString, searchString, position) {
+                    if (position === undefined || position > subjectString.length) {
+                        position = subjectString.length;
+                    }
+                    position -= searchString.length;
+                    var lastIndex = subjectString.indexOf(searchString, position);
+                    return lastIndex !== -1 && lastIndex === position;
+                }
                 var BlockStatement = (function (_super) {
                     __extends(BlockStatement, _super);
                     function BlockStatement(loc, raw, cform, body) {
@@ -14844,7 +14938,10 @@ var lib;
                         };
                     };
                     BlockStatement.prototype.toCString = function () {
-                        return "{" + _.map(this.body.elements, function (elem) { return elem.toCString(); }).join(";\n") + "}";
+                        var prog = _.map(this.body.elements, function (elem) { return elem.toCString(); });
+                        prog = _.map(prog, function (elem) { return endsWith(elem, ";") ? elem.substring(0, elem.length - 1).trim() : elem.trim(); });
+                        prog = _.filter(prog, function (elem) { return elem !== ""; });
+                        return "{\n" + prog.join(";\n") + "\n}";
                     };
                     Object.defineProperty(BlockStatement.prototype, "children", {
                         get: function () {
@@ -14884,7 +14981,7 @@ var lib;
                     function FunctionExpression(loc, raw, cform, attributes, ret, id, params, body) {
                         _super.call(this, "FunctionExpression", loc, raw, cform);
                         this.attributes = attributes;
-                        this.ret = isUndefined(ret) ? new EmptyExpression() : TypeExpression.fromCena(ret);
+                        this.ret = isUndefined(ret) ? new EmptyExpression() : fromCena(ret);
                         this.id = Identifier.fromCena({ loc: loc, raw: raw, cform: cform, name: id });
                         this.params = CompoundNode.fromCena(params);
                         if (isUndefined(body)) {
@@ -14970,17 +15067,17 @@ var lib;
                 cena.FunctionExpression = FunctionExpression;
                 var CallExpression = (function (_super) {
                     __extends(CallExpression, _super);
-                    function CallExpression(loc, raw, cform, callee, args, config) {
+                    function CallExpression(loc, raw, cform, callee, arguments, config) {
                         _super.call(this, "CallExpression", loc, raw, cform);
                         this.isCUDA = false;
                         this.callee = Identifier.fromCena(callee);
-                        this.args = new CompoundNode(args);
+                        this.arguments = new CompoundNode(arguments);
                         this.config = isUndefined(config) ? new EmptyExpression() : fromCena(config);
                         this.isCUDA = !isUndefined(config);
                         this.setChildParents();
                     }
                     CallExpression.fromCena = function (o) {
-                        return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo(o.args), o.config);
+                        return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo(o.arguments), o.config);
                     };
                     CallExpression.prototype.toEsprima = function () {
                         return {
@@ -14988,7 +15085,7 @@ var lib;
                             config: this.config.toEsprima(),
                             isCUDA: this.isCUDA,
                             callee: castTo(this.callee.toEsprima()),
-                            arguments: this.args.toEsprima(),
+                            arguments: this.arguments.toEsprima(),
                             raw: this.raw,
                             cform: this.cform,
                             loc: this.loc
@@ -14999,12 +15096,12 @@ var lib;
                         if (this.isCUDA) {
                             ret += "<<<" + this.config.toCString() + ">>>";
                         }
-                        ret += " (" + _.map(this.args.elements, function (p) { return p.toCString(); }).join(", ") + ") ";
+                        ret += " (" + _.map(this.arguments.elements, function (p) { return p.toCString(); }).join(", ") + ") ";
                         return ret;
                     };
                     Object.defineProperty(CallExpression.prototype, "children", {
                         get: function () {
-                            return _.flatten([this.callee, this.args.children]);
+                            return _.flatten([this.callee, this.arguments.children]);
                         },
                         enumerable: true,
                         configurable: true
@@ -15016,28 +15113,28 @@ var lib;
                         visit(this, data);
                         this.callee.postOrderTraverse(visit, data);
                         this.config.postOrderTraverse(visit, data);
-                        return this.args.postOrderTraverse(visit, data);
+                        return this.arguments.postOrderTraverse(visit, data);
                     };
                     CallExpression.prototype.preOrderTraverse = function (visit, data) {
-                        visit(this, data);
                         this.callee.preOrderTraverse(visit, data);
                         this.config.postOrderTraverse(visit, data);
-                        return this.args.preOrderTraverse(visit, data);
+                        this.arguments.preOrderTraverse(visit, data);
+                        return visit(this, data);
                     };
                     CallExpression.prototype.inOrderTraverse = function (visit, data) {
                         visit(this, data);
                         this.callee.inOrderTraverse(visit, data);
                         this.config.postOrderTraverse(visit, data);
-                        return this.args.inOrderTraverse(visit, data);
+                        return this.arguments.inOrderTraverse(visit, data);
                     };
                     CallExpression.prototype.reversePostOrderTraverse = function (visit, data) {
-                        this.args.reversePostOrderTraverse(visit, data);
+                        this.arguments.reversePostOrderTraverse(visit, data);
                         this.config.postOrderTraverse(visit, data);
                         this.callee.reversePostOrderTraverse(visit, data);
                         return visit(this, data);
                     };
                     CallExpression.prototype.reversePreOrderTraverse = function (visit, data) {
-                        this.args.reversePreOrderTraverse(visit, data);
+                        this.arguments.reversePreOrderTraverse(visit, data);
                         this.config.postOrderTraverse(visit, data);
                         this.callee.reversePreOrderTraverse(visit, data);
                         return visit(this, data);
@@ -15511,7 +15608,7 @@ var lib;
                 cena.VariableDeclaration = VariableDeclaration;
                 var AssignmentExpression = (function (_super) {
                     __extends(AssignmentExpression, _super);
-                    function AssignmentExpression(loc, raw, cform, operator, right, left) {
+                    function AssignmentExpression(loc, raw, cform, operator, left, right) {
                         _super.call(this, "AssignmentExpression", loc, raw, cform);
                         this.operator = operator;
                         this.right = fromCena(right);
@@ -15597,7 +15694,7 @@ var lib;
                         };
                     };
                     IfStatement.prototype.toCString = function () {
-                        var ret = "if (" + this.test.toCString() + ")" + this.consequent.toCString() + " ";
+                        var ret = "if (" + this.test.toCString() + ") " + this.consequent.toCString() + " ";
                         if (this.alternate.type != "EmptyExpression") {
                             ret += " else " + this.alternate.toCString();
                         }
@@ -16115,6 +16212,7 @@ var lib;
                     dispatch.set("Float32Literal", Float32Literal.fromCena);
                     dispatch.set("Float64Literal", Float64Literal.fromCena);
                     dispatch.set("TypeExpression", TypeExpression.fromCena);
+                    dispatch.set("TypeSpecification", TypeExpression.fromCena);
                     dispatch.set("Identifier", Identifier.fromCena);
                     dispatch.set("BlockStatement", BlockStatement.fromCena);
                     dispatch.set("FunctionExpression", FunctionExpression.fromCena);
@@ -16138,6 +16236,9 @@ var lib;
                     dispatch.set("ParameterExpression", function (o) { return Identifier.fromCena(o.data); });
                     dispatch.set("VariableDeclaration", VariableDeclaration.fromCena);
                     dispatch.set("VariableDeclarator", VariableDeclarator.fromCena);
+                    dispatch.set("SymbolLiteral", SymbolLiteral.fromCena);
+                    dispatch.set("Literal", SymbolLiteral.fromCena);
+                    dispatch.set("ReferenceType", ReferenceType.fromCena);
                 }
                 cena.init = init;
                 init();
