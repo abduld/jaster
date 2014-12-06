@@ -1,4 +1,5 @@
 ﻿
+/// <reference path="./typings/tsd.d.ts" />
 /// <reference path="./lib/ref.ts" />
 
 module app {
@@ -23,3 +24,4 @@ window.onload = () => {
 
 var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
 lib.ast.importer.memory.mark(ast);
+lib.ast.importer.stack.mark(ast);

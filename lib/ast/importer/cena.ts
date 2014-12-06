@@ -1,3 +1,6 @@
+
+/// <referench path="../../../typings/tsd.d.ts" />
+
 module lib.ast {
     export module importer {
         export module cena {
@@ -8,12 +11,12 @@ module lib.ast {
 
             var unknownLocation: esprima.Syntax.LineLocation = {
                 start: {
-                    line: -1,
-                    column: -1
+                    line: 1,
+                    column: 1
                 },
                 end: {
-                    line: -1,
-                    column: -1
+                    line: 1,
+                    column: 1
                 }
             };
 
@@ -24,14 +27,29 @@ module lib.ast {
                 cform: string
                 marker: any
                 parent: Node
+                deleted: boolean
 
                 constructor(type: string, loc: any, raw: string, cform: string) {
                     this.type = type;
-                    this.loc = castTo<esprima.Syntax.LineLocation>(loc);
+                    if (isUndefined(loc)) {
+                        this.loc = unknownLocation;
+                    } else {
+                        this.loc = castTo<esprima.Syntax.LineLocation>({
+                            start: {
+                                line: loc.start.line + 1,
+                                column: loc.start.column + 1
+                            },
+                            end: {
+                                line: loc.end.line + 1,
+                                column: loc.end.column + 1
+                            }
+                        });
+                    }
                     this.raw = raw;
                     this.cform = cform;
                     this.marker = {};
                     this.parent = null;
+                    this.deleted = false;
                 }
 
                 static fromCena(o: any): Node {
@@ -39,43 +57,101 @@ module lib.ast {
                 }
 
                 toEsprima(): esprima.Syntax.Node {
-                    return {
-                        type: "Comment",
-                        value: "Node"
+                    if (this.deleted) {
+                        return (new EmptyExpression()).toEsprima();
+                    } else {
+                        return this.toEsprima_();
                     }
                 }
                 toCString(): string {
+                    return this.deleted ? "" : this.toCString_();
+                }
+                setChildParents() {
+                    if (this.deleted) {
+                        return ;
+                    }
+                    return this.setChildParents_();
+                }
+
+                get children(): Node[] {
+                    if (this.deleted) {
+                        return [];
+                    }
+                    return this.children_();
+                }
+                hasChildren(): boolean {
+                    return this.deleted ? false : this.hasChildren_();
+                }
+
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (this.deleted) {
+                        return this;
+                    }
+                    return this.postOrderTraverse_(visit, data);
+                }
+
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (this.deleted) {
+                        return this;
+                    }
+                    return this.preOrderTraverse_(visit, data);
+                }
+
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (this.deleted) {
+                        return this;
+                    }
+                    return this.inOrderTraverse_(visit, data);
+                }
+
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (this.deleted) {
+                        return this;
+                    }
+                    return this.reversePostOrderTraverse_(visit, data);
+                }
+
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (this.deleted) {
+                        return this;
+                    }
+                    return this.reversePreOrderTraverse_(visit, data);
+                }
+                toEsprima_(): esprima.Syntax.Node {
+                    return null
+                }
+                toCString_(): string {
                     return "";
                 }
-                protected setChildParents() {
+                setChildParents_() {
                     var self = this;
                     _.each(this.children, (child) => child.parent = self);
                 }
 
-                get children(): Node[] {
+                children_(): Node[] {
                     return [];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -85,33 +161,30 @@ module lib.ast {
                 }
 
                 toEsprima() {
-                    return {
-                        type: "Comment",
-                        value: "EmptyExpression"
-                    }
+                    return null
                 }
 
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -120,31 +193,31 @@ module lib.ast {
                     super("NullNode", unknownLocation, "", "");
                 }
 
-                toEsprima(): esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
                     return null;
                 }
 
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -157,7 +230,7 @@ module lib.ast {
                     this.setChildParents();
                 }
 
-                toEsprima(): esprima.Syntax.Literal {
+                toEsprima_(): esprima.Syntax.Literal {
                     return {
                         type: "Literal",
                         value: this.value,
@@ -166,30 +239,30 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.value.toString();
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -204,30 +277,30 @@ module lib.ast {
                     return new SymbolLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -242,30 +315,30 @@ module lib.ast {
                     return new StringLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -280,30 +353,30 @@ module lib.ast {
                     return new BooleanLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.value ? "true" : "false";
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -320,10 +393,10 @@ module lib.ast {
                     return new CharLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "'" + this.value + "'";
                 }
-                toEsprima(): esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     return {
                         type: "NewExpression",
                         loc: this.loc,
@@ -344,27 +417,27 @@ module lib.ast {
                     }
                 }
 
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -381,7 +454,7 @@ module lib.ast {
                     return new Integer8Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima(): esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     return {
                         type: "NewExpression",
                         loc: this.loc,
@@ -402,30 +475,30 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "" + this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -442,7 +515,7 @@ module lib.ast {
                     return new Integer32Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima(): esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     return {
                         type: "NewExpression",
                         loc: this.loc,
@@ -463,30 +536,30 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "" + this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -503,7 +576,7 @@ module lib.ast {
                     return new Integer64Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima(): esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     return {
                         type: "NewExpression",
                         loc: this.loc,
@@ -523,30 +596,30 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "" + this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -563,7 +636,7 @@ module lib.ast {
                     return new Float32Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima(): esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     return {
                         type: "NewExpression",
                         loc: this.loc,
@@ -582,30 +655,30 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "" + this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -620,30 +693,30 @@ module lib.ast {
                     return new Float64Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "" + this.value;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -661,43 +734,43 @@ module lib.ast {
                     return new ReferenceType(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima(): esprima.Syntax.Comment {
-                    return {
+                toEsprima_(): esprima.Syntax.Comment {
+                    return null /* {
                         type: "Comment",
                         value: this.value.toCString(),
                         raw: this.raw,
                         loc: this.loc
-                    }
+                    } */
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.value.toCString() + "*";
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.value.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.value.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.value.inOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.value.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.value.reversePreOrderTraverse(visit, data);
                 }
@@ -719,8 +792,8 @@ module lib.ast {
                     return new TypeExpression(o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
                 }
 
-                toEsprima(): esprima.Syntax.Comment {
-                    return {
+                toEsprima_(): esprima.Syntax.Comment {
+                    return null /* {
                         type: "Comment",
                         value: [this.addressSpace, this.qualifiers, this.bases].join(" "),
                         raw: JSON.stringify({
@@ -729,33 +802,33 @@ module lib.ast {
                             bases: this.bases
                         }),
                         loc: this.loc
-                    }
+                    } */
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return _.flatten([this.addressSpace, this.qualifiers, this.bases]).join(" ");
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -778,7 +851,7 @@ module lib.ast {
                     return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
                 }
 
-                toEsprima(): esprima.Syntax.Identifier {
+                toEsprima_(): esprima.Syntax.Identifier {
                     return {
                         type: "Identifier",
                         name: this.name,
@@ -788,44 +861,46 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
-                    if (this.kind.type != "EmptyExpression") {
+                toCString_(): string {
+                    if (false && this.kind.type != "EmptyExpression") {
                         return this.kind.toCString() + " " + this.name;
                     } else {
                         return this.name;
                     }
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class CompoundNode {
                 elements: Node[]
                 parent: Node
+                deleted : boolean;
                 constructor(elements: any[]) {
                     this.elements = isUndefined(elements) ? [] : elements.map((elem) => fromCena(elem));
                     var self = this;
                     _.each(this.elements, (elem: Node) => elem.parent = self.parent);
+                    this.deleted = false;
                 }
 
                 static fromCena(o: any): CompoundNode {
@@ -833,7 +908,7 @@ module lib.ast {
                 }
 
                 toEsprima(): esprima.Syntax.Node[] {
-                    if (isUndefined(this.elements)) {
+                    if (this.deleted || isUndefined(this.elements)) {
                         return [];
                     } else {
                         return this.elements.map((elem) => elem.toEsprima());
@@ -841,42 +916,62 @@ module lib.ast {
                 }
 
                 get children(): Node[] {
-                    return this.elements;
+                    return this.deleted ? [] : this.elements;
                 }
 
                 hasChildren(): boolean {
-                    return _.isEmpty(this.elements);
+                    return this.deleted ? false : _.isEmpty(this.elements);
                 }
 
 
                 postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    var res: Node;
-                    _.each(this.elements, (elem) => res = elem.postOrderTraverse(visit, data));
-                    return res;
+                    if (!this.deleted) {
+                        var res:Node;
+                        _.each(this.elements, (elem) => res = elem.postOrderTraverse(visit, data));
+                        return res;
+                    } else {
+                        return null;
+                    }
                 }
 
                 preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (!this.deleted) {
                     var res: Node;
                     _.each(this.elements, (elem) => res = elem.preOrderTraverse(visit, data));
                     return res;
+                } else {
+                return null;
+            }
                 }
 
                 inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (!this.deleted) {
                     var res: Node;
                     _.each(this.elements, (elem) => res = elem.inOrderTraverse(visit, data));
                     return res;
+    } else {
+        return null;
+    }
                 }
 
                 reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (!this.deleted) {
                     var res: Node;
                     _.forEachRight(this.elements, (elem) => res = elem.reversePostOrderTraverse(visit, data));
                     return res;
+} else {
+    return null;
+}
                 }
 
                 reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                    if (!this.deleted) {
                     var res: Node;
                     _.forEachRight(this.elements, (elem) => res = elem.reversePreOrderTraverse(visit, data));
                     return res;
+} else {
+    return null;
+}
                 }
             }
             function endsWith(subjectString : string, searchString : string, position?) {
@@ -900,7 +995,7 @@ module lib.ast {
                     return new BlockStatement(o.loc, o.raw, o.cform, o.body);
                 }
 
-                toEsprima(): esprima.Syntax.BlockStatement {
+                toEsprima_(): esprima.Syntax.BlockStatement {
                     return {
                         type: "BlockStatement",
                         body: castTo<esprima.Syntax.SomeStatement[]>(this.body.toEsprima()),
@@ -909,41 +1004,41 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     var prog: string[] = _.map(this.body.elements, (elem: Node) => elem.toCString());
                     prog = _.map(prog, (elem : string) => endsWith(elem, ";") ? elem.substring(0, elem.length - 1).trim() : elem.trim());
                     prog = _.filter(prog, (elem : string) => elem !== "");
                     return "{\n" + prog.join(";\n") + "\n}";
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return this.body.children;
                 }
 
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return this.body.hasChildren();
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.reversePostOrderTraverse(visit, data);
                 }
@@ -975,10 +1070,10 @@ module lib.ast {
                     return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                 }
 
-                toEsprima(): esprima.Syntax.Function {
+                toEsprima_(): esprima.Syntax.Function {
                     return {
                         type: "FunctionExpression",
-                        id: this.id.toEsprima(),
+                        id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
                         params: this.params.toEsprima(),
                         body: castTo<esprima.Syntax.BlockStatementOrExpression>(this.body.toEsprima()),
                         ret: this.ret.toEsprima(),
@@ -990,18 +1085,17 @@ module lib.ast {
                         loc: this.loc
                     }
                 }
-
-                toCString(): string {
+                toCString_(): string {
                     return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, (p: Node) => p.toCString()).join(", ") + ") " + this.body.toCString();
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return _.flatten<Node>([this.body, this.ret, this.id, this.params.children]);
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return this.body.hasChildren();
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.ret.postOrderTraverse(visit, data);
                     this.id.postOrderTraverse(visit, data);
@@ -1009,7 +1103,7 @@ module lib.ast {
                     return this.body.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.ret.preOrderTraverse(visit, data);
                     this.id.preOrderTraverse(visit, data);
@@ -1017,7 +1111,7 @@ module lib.ast {
                     return this.body.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.ret.inOrderTraverse(visit, data);
                     this.id.inOrderTraverse(visit, data);
@@ -1025,7 +1119,7 @@ module lib.ast {
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePostOrderTraverse(visit, data);
                     this.params.reversePostOrderTraverse(visit, data);
                     this.id.reversePostOrderTraverse(visit, data);
@@ -1033,7 +1127,7 @@ module lib.ast {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePreOrderTraverse(visit, data);
                     this.params.reversePreOrderTraverse(visit, data);
                     this.id.reversePreOrderTraverse(visit, data);
@@ -1060,7 +1154,7 @@ module lib.ast {
                     return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.arguments), o.config);
                 }
 
-                toEsprima(): esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     return {
                         type: "CallExpression",
                         config: this.config.toEsprima(),
@@ -1072,7 +1166,7 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     var ret: string = this.callee.toCString();
                     if (this.isCUDA) {
                         ret += "<<<" + this.config.toCString() + ">>>";
@@ -1080,42 +1174,42 @@ module lib.ast {
                     ret += " (" + _.map(this.arguments.elements, (p: Node) => p.toCString()).join(", ") + ") ";
                     return ret;
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return _.flatten<Node>([this.callee, this.arguments.children]);
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.callee.postOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     return this.arguments.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.callee.preOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     this.arguments.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.callee.inOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     return this.arguments.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.arguments.reversePostOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     this.callee.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.arguments.reversePreOrderTraverse(visit, data);
                     this.config.postOrderTraverse(visit, data);
                     this.callee.reversePreOrderTraverse(visit, data);
@@ -1135,7 +1229,7 @@ module lib.ast {
                     return new ParenExpression(o.loc, o.raw, o.cform, o.expression);
                 }
 
-                toEsprima(): esprima.Syntax.ExpressionStatement {
+                toEsprima_(): esprima.Syntax.ExpressionStatement {
                     return {
                         type: "ExpressionStatement",
                         expression: castTo<esprima.Syntax.SomeExpression>(this.expression.toEsprima()),
@@ -1144,37 +1238,37 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "(" + this.expression.toCString() + ")";
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.expression];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1194,42 +1288,42 @@ module lib.ast {
                     return new DereferenceExpression(o.loc, o.raw, o.cform, o.argument);
                 }
 
-                toEsprima(): esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     var call: CallExpression = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
-                    return call.toEsprima();
+                    return castTo<esprima.Syntax.CallExpression>(call.toEsprima());
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "&" + this.argument.toCString();
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1249,42 +1343,42 @@ module lib.ast {
                     return new ReferenceExpression(o.loc, o.raw, o.cform, o.argument);
                 }
 
-                toEsprima(): esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     var call: CallExpression = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "reference"), [this.rawArgument]);
-                    return call.toEsprima();
+                    return castTo<esprima.Syntax.CallExpression>(call.toEsprima());
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return "*" + this.argument.toCString();
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1314,9 +1408,9 @@ module lib.ast {
                     }
                 }
 
-                toEsprima(): esprima.Syntax.CallExpression;
-                toEsprima(): esprima.Syntax.UnaryExpression;
-                toEsprima(): any {
+                toEsprima_(): esprima.Syntax.CallExpression;
+                toEsprima_(): esprima.Syntax.UnaryExpression;
+                toEsprima_(): any {
                     if (this.operator === "*") {
                         var nd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
                         return nd.toEsprima();
@@ -1333,37 +1427,37 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.operator + this.argument.toCString();
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1415,7 +1509,7 @@ module lib.ast {
                     return BinaryExpression.PropertyTable[this.operator];
                 }
 
-                toEsprima(): esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     var method: esprima.Syntax.MemberExpression = {
                         type: "MemberExpression",
                         object: castTo<esprima.Syntax.SomeExpression>(this.right.toEsprima()),
@@ -1425,7 +1519,7 @@ module lib.ast {
                          If computed === false, the node corresponds to a static e1.x expression and
                          property is an Identifier.*/
                         loc: this.right.loc,
-                        raw: this.right.raw, cform: this.right.cform,
+                        raw: this.right.raw, cform: this.right.cform
                     };
                     return {
                         type: "CallExpression",
@@ -1436,41 +1530,41 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.left, this.right];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.postOrderTraverse(visit, data);
                     this.right.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.preOrderTraverse(visit, data);
                     return this.right.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.inOrderTraverse(visit, data);
                     visit(this, data);
                     return this.right.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.reversePostOrderTraverse(visit, data);
                     return this.right.reversePostOrderTraverse(visit, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.right.reversePreOrderTraverse(visit, data);
                     this.left.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
@@ -1479,11 +1573,13 @@ module lib.ast {
             export class VariableDeclarator extends Node {
                 init: Node
                 id: Identifier
+                kind: Node
 
                 constructor(loc: any, raw: string, cform: string, init: any, id: any) {
                     super("VariableDeclarator", loc, raw, cform);
                     this.init = isUndefined(init) ? new EmptyExpression() : fromCena(init);
-                    this.id = Identifier.fromCena(id);
+                    this.id = castTo<Identifier>(fromCena(id));
+                    this.kind = this.id.kind;
                     this.setChildParents();
                 }
 
@@ -1491,56 +1587,56 @@ module lib.ast {
                     return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id);
                 }
 
-                toEsprima(): esprima.Syntax.VariableDeclarator {
+                toEsprima_(): esprima.Syntax.VariableDeclarator {
                     return {
                         type: "VariableDeclarator",
                         init: castTo<esprima.Syntax.SomeExpression>(this.init.toEsprima()),
-                        id: this.id.toEsprima(),
+                        id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     if (this.init.type != "EmptyExpression") {
-                        return this.id.toCString() + " = " + this.init.toCString();
+                        return this.kind.toCString() + " " + this.id.toCString() + " = " + this.init.toCString();
                     } else {
-                        return this.id.toCString();
+                        return this.kind.toCString() + " " + this.id.toCString();
                     }
                 }
 
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.init, this.id];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.id.postOrderTraverse(visit, data);
                     this.init.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.id.preOrderTraverse(visit, data);
                     return this.init.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.id.inOrderTraverse(visit, data);
                     this.init.inOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.id.reversePostOrderTraverse(visit, data);
                     return this.init.reversePostOrderTraverse(visit, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.init.reversePreOrderTraverse(visit, data);
                     return this.id.reversePreOrderTraverse(visit, data);
@@ -1552,7 +1648,7 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, declarations: any) {
                     super("VariableDeclaration", loc, raw, cform);
-                    this.declarations = declarations.map(fromCena);
+                    this.declarations = _.map(declarations, fromCena);
                     this.setChildParents();
                 }
 
@@ -1560,7 +1656,7 @@ module lib.ast {
                     return new VariableDeclaration(o.loc, o.raw, o.cform, o.declarations);
                 }
 
-                toEsprima(): esprima.Syntax.VariableDeclaration {
+                toEsprima_(): esprima.Syntax.VariableDeclaration {
                     return {
                         type: "VariableDeclaration",
                         declarations: castTo<esprima.Syntax.VariableDeclarator[]>(this.declarations.map((decl) => decl.toEsprima())),
@@ -1570,41 +1666,41 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return _.map(this.declarations, (decl: Node) => decl.toCString()).join(", ");
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return this.declarations;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.declarations, (decl) => decl.postOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     var res;
                     visit(this, data);
                     _.each(this.declarations, (decl) => res = decl.preOrderTraverse(visit, data));
                     return res;
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.declarations, (decl) => decl.inOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     var res;
                     visit(this, data);
                     _.eachRight(this.declarations, (decl) => res = decl.reversePostOrderTraverse(visit, data));
                     return res;
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     var res;
                     _.eachRight(this.declarations, (decl) => res = decl.reversePreOrderTraverse(visit, data));
                     return visit(this, data);
@@ -1627,7 +1723,7 @@ module lib.ast {
                     return new AssignmentExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                 }
 
-                toEsprima(): esprima.Syntax.AssignmentExpression {
+                toEsprima_(): esprima.Syntax.AssignmentExpression {
                     return {
                         type: "AssignmentExpression",
                         operator: this.operator,
@@ -1638,41 +1734,41 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.left, this.right];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.postOrderTraverse(visit, data);
                     this.right.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.preOrderTraverse(visit, data);
                     return this.right.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.inOrderTraverse(visit, data);
                     visit(this, data);
                     return this.right.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.reversePostOrderTraverse(visit, data);
                     return this.right.reversePostOrderTraverse(visit, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.right.reversePreOrderTraverse(visit, data);
                     this.left.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
@@ -1695,7 +1791,7 @@ module lib.ast {
                     return new IfStatement(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                 }
 
-                toEsprima(): esprima.Syntax.IfStatement {
+                toEsprima_(): esprima.Syntax.IfStatement {
                     return {
                         type: "IfStatement",
                         test: castTo<esprima.Syntax.SomeExpression>(this.test.toEsprima()),
@@ -1706,49 +1802,49 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     var ret: string = "if (" + this.test.toCString() + ") " + this.consequent.toCString() + " ";
                     if (this.alternate.type != "EmptyExpression") {
                         ret += " else " + this.alternate.toCString();
                     }
                     return ret;
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.test, this.consequent, this.alternate];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.test.postOrderTraverse(visit, data);
                     this.alternate.postOrderTraverse(visit, data);
                     this.consequent.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.preOrderTraverse(visit, data);
                     this.alternate.preOrderTraverse(visit, data);
                     return this.consequent.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.inOrderTraverse(visit, data);
                     this.alternate.inOrderTraverse(visit, data);
                     return this.consequent.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.consequent.reversePostOrderTraverse(visit, data);
                     this.alternate.reversePostOrderTraverse(visit, data);
                     this.test.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.consequent.reversePreOrderTraverse(visit, data);
                     this.alternate.reversePreOrderTraverse(visit, data);
@@ -1772,7 +1868,7 @@ module lib.ast {
                     return new ConditionalExpression(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                 }
 
-                toEsprima(): esprima.Syntax.ConditionalExpression {
+                toEsprima_(): esprima.Syntax.ConditionalExpression {
                     return {
                         type: "ConditionalExpression",
                         test: castTo<esprima.Syntax.SomeExpression>(this.test.toEsprima()),
@@ -1783,46 +1879,46 @@ module lib.ast {
                     }
                 }
 
-                toCString(): string {
+                toCString_(): string {
                     return this.test.toCString() + " ? " + this.consequent.toCString() + " : " + this.alternate.toCString();
                 }
 
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.test, this.consequent, this.alternate];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.test.postOrderTraverse(visit, data);
                     this.alternate.postOrderTraverse(visit, data);
                     this.consequent.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.preOrderTraverse(visit, data);
                     this.alternate.preOrderTraverse(visit, data);
                     return this.consequent.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.inOrderTraverse(visit, data);
                     this.alternate.inOrderTraverse(visit, data);
                     return this.consequent.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.consequent.reversePostOrderTraverse(visit, data);
                     this.alternate.reversePostOrderTraverse(visit, data);
                     this.test.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.consequent.reversePreOrderTraverse(visit, data);
                     this.alternate.reversePreOrderTraverse(visit, data);
@@ -1848,7 +1944,7 @@ module lib.ast {
                     return new ForStatement(o.loc, o.raw, o.cform, o.init, o.test, o.update, o.body);
                 }
 
-                toEsprima(): esprima.Syntax.ForStatement {
+                toEsprima_(): esprima.Syntax.ForStatement {
                     return {
                         type: "ForStatement",
                         init: castTo<esprima.Syntax.VariableDeclaratorOrExpression>(this.init.toEsprima()),
@@ -1860,14 +1956,14 @@ module lib.ast {
                     }
                 }
 
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.init, this.test, this.update, this.body];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.init.postOrderTraverse(visit, data);
                     this.test.postOrderTraverse(visit, data);
                     this.update.postOrderTraverse(visit, data);
@@ -1875,7 +1971,7 @@ module lib.ast {
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.init.preOrderTraverse(visit, data);
                     this.test.preOrderTraverse(visit, data);
@@ -1883,7 +1979,7 @@ module lib.ast {
                     return this.body.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.init.inOrderTraverse(visit, data);
                     this.test.inOrderTraverse(visit, data);
@@ -1891,7 +1987,7 @@ module lib.ast {
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePostOrderTraverse(visit, data);
                     this.update.reversePostOrderTraverse(visit, data);
                     this.test.reversePostOrderTraverse(visit, data);
@@ -1899,7 +1995,7 @@ module lib.ast {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.body.reversePostOrderTraverse(visit, data);
                     this.update.reversePostOrderTraverse(visit, data);
@@ -1921,7 +2017,7 @@ module lib.ast {
                     return new ProgramExpression(o.loc, o.raw, o.cform, o.body);
                 }
 
-                toEsprima(): esprima.Syntax.Program {
+                toEsprima_(): esprima.Syntax.Program {
                     return {
                         type: "Program",
                         body: castTo<esprima.Syntax.SomeStatement[]>(this.body.toEsprima()),
@@ -1931,37 +2027,37 @@ module lib.ast {
                 }
 
 
-                toCString(): string {
+                toCString_(): string {
                     return _.map(this.body.elements, (elem: Node) => elem.toCString()).join("\n");
                 }
-                get children(): Node[] {
+                children_(): Node[] {
                     return this.body.children;
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return this.body.hasChildren();
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1983,7 +2079,7 @@ module lib.ast {
                     return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
                 }
 
-                toEsprima(): esprima.Syntax.ReturnStatement {
+                toEsprima_(): esprima.Syntax.ReturnStatement {
                     return {
                         type: "ReturnStatement",
                         loc: this.loc,
@@ -1994,34 +2090,34 @@ module lib.ast {
                     }
                 }
 
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return !(this.argument instanceof EmptyExpression);
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -2039,7 +2135,7 @@ module lib.ast {
                     return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
                 }
 
-                toEsprima(): esprima.Syntax.ExpressionStatement {
+                toEsprima_(): esprima.Syntax.ExpressionStatement {
                     return {
                         type: "ExpressionStatement",
                         loc: this.loc,
@@ -2049,35 +2145,37 @@ module lib.ast {
                             )
                     }
                 }
-
-                get children(): Node[] {
+toCString() : string {
+    return this.expression.toCString();
+}
+                children_(): Node[] {
                     return [this.expression];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return !(this.expression instanceof EmptyExpression);
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -2095,7 +2193,7 @@ module lib.ast {
 
                 constructor(loc: any, raw: string, cform: string, object: any, property: any) {
                     super("SubscriptExpression", loc, raw, cform);
-                    this.object = fromCena(init);
+                    this.object = fromCena(object);
                     this.property = fromCena(property);
                     this.setChildParents();
                 }
@@ -2104,7 +2202,10 @@ module lib.ast {
                     return new SubscriptExpression(o.loc, o.raw, o.cform, o.object, o.property);
                 }
 
-                toEsprima(): esprima.Syntax.MemberExpression {
+                toCString() : string {
+                    return this.object.toCString() + "[" + this.property.toCString() + "]";
+                }
+                toEsprima_(): esprima.Syntax.MemberExpression {
                     return {
                         type: "MemberExpression",
                         object: castTo<esprima.Syntax.SomeExpression>(this.object.toEsprima()),
@@ -2115,38 +2216,38 @@ module lib.ast {
                     }
                 }
 
-                get children(): Node[] {
+                children_(): Node[] {
                     return [this.object, this.property];
                 }
-                hasChildren(): boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.object.postOrderTraverse(visit, data);
                     this.property.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.object.postOrderTraverse(visit, data);
                     return this.property.postOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.object.inOrderTraverse(visit, data);
                     return this.property.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.property.reversePostOrderTraverse(visit, data);
                     this.object.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.property.reversePreOrderTraverse(visit, data);
                     return this.object.reversePreOrderTraverse(visit, data);
@@ -2154,68 +2255,77 @@ module lib.ast {
             }
 
             export class MemberExpression extends Node {
-                object: Node
-                property: Node
+                right: Node
+                left: Node
+                operator: string
                 computed: boolean
 
-                constructor(loc: any, raw: string, cform: string, object: any, property: any, computed: boolean) {
+                constructor(loc: any, raw: string, cform: string, left: any, operator: string, right: any, computed?: boolean) {
                     super("MemberExpression", loc, raw, cform);
-                    this.object = fromCena(object);
-                    this.property = fromCena(property);
+                    this.left = fromCena(left);
+                    this.right = fromCena(right);
+                    this.operator = operator;
                     this.computed = computed;
                     this.setChildParents();
                 }
 
                 static fromCena(o: any): Node {
-                    return new MemberExpression(o.loc, o.raw, o.cform, o.object, o.property, o.computed);
+                    return new MemberExpression(o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
                 }
 
-                toEsprima(): esprima.Syntax.MemberExpression {
+                toEsprima_(): esprima.Syntax.MemberExpression {
                     return {
                         type: "MemberExpression",
-                        object: castTo<esprima.Syntax.SomeExpression>(this.object.toEsprima()),
-                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property.toEsprima()),
+                        object: castTo<esprima.Syntax.SomeExpression>(this.left.toEsprima()),
+                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.right.toEsprima()),
                         computed: this.computed,
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
                     }
                 }
 
-                get children(): Node[] {
-                    return [this.object, this.property];
+                toCString() : string {
+                    if (this.computed === true || isUndefined(this.computed)) {
+                        return this.left.toCString() + this.operator + this.right.toCString();
+                    } else {
+                        return this.left.toCString() + "[" + this.right.toCString() + "]";
+                    }
                 }
-                hasChildren(): boolean {
+                children_(): Node[] {
+                    return [this.left, this.right];
+                }
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    this.object.postOrderTraverse(visit, data);
-                    this.property.postOrderTraverse(visit, data);
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    this.left.postOrderTraverse(visit, data);
+                    this.right.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
-                    this.object.postOrderTraverse(visit, data);
-                    return this.property.postOrderTraverse(visit, data);
+                    this.left.postOrderTraverse(visit, data);
+                    return this.right.postOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    this.left.inOrderTraverse(visit, data);
                     visit(this, data);
-                    this.object.inOrderTraverse(visit, data);
-                    return this.property.inOrderTraverse(visit, data);
+                    return this.right.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
-                    this.property.reversePostOrderTraverse(visit, data);
-                    this.object.reversePostOrderTraverse(visit, data);
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    this.right.reversePostOrderTraverse(visit, data);
+                    this.left.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
-                    this.property.reversePreOrderTraverse(visit, data);
-                    return this.object.reversePreOrderTraverse(visit, data);
+                    this.right.reversePreOrderTraverse(visit, data);
+                    return this.left.reversePreOrderTraverse(visit, data);
                 }
             }
 

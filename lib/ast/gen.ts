@@ -606,7 +606,12 @@ module lib.ast {
                 rightSource,
                 leftCharCode,
                 rightCharCode;
-
+if (lib.utils.isNullOrUndefined(left)) {
+    return [right];
+}
+            if (lib.utils.isNullOrUndefined(right)) {
+    return [left];
+}
             leftSource = toSourceNodeWhenNeeded(left).toString();
             if (leftSource.length === 0) {
                 return [right];
@@ -2224,6 +2229,9 @@ module lib.ast {
             generateExpression(expr, precedence, flags) {
                 var result, type;
 
+                if (expr === null) {
+                    return toSourceNodeWhenNeeded("");
+                }
                 type = expr.type || Syntax.Property;
 
                 if (extra.verbatim && expr.hasOwnProperty(extra.verbatim)) {
@@ -2242,7 +2250,9 @@ module lib.ast {
             generateStatement(stmt, flags) {
                 var result,
                     fragment;
-
+if (stmt === null) {
+    return toSourceNodeWhenNeeded("");
+}
                 result = this[stmt.type](stmt, flags);
 
                 // Attach comments
@@ -2263,6 +2273,9 @@ module lib.ast {
                 var codegen;
 
                 codegen = new CodeGenerator();
+                if (node === null) {
+                    return toSourceNodeWhenNeeded("");
+                }
                 if (isStatement(node)) {
                     return codegen.generateStatement(node, S_TFFF);
                 }
@@ -2276,6 +2289,20 @@ module lib.ast {
         }
         merge(CodeGenerator.prototype, CodeGenerator.Statement);
         merge(CodeGenerator.prototype, CodeGenerator.Expression);
+        function generateInternal(node) {
+        var codegen;
+
+        codegen = new CodeGenerator();
+        if (isStatement(node)) {
+            return codegen.generateStatement(node, S_TFFF);
+        }
+
+        if (isExpression(node)) {
+            return codegen.generateExpression(node, Precedence.Sequence, E_TTT);
+        }
+
+        throw new Error('Unknown node type: ' + node.type);
+    }
         export function generate(node, options) {
             var defaultOptions = getDefaultOptions(), result, pair;
 
@@ -2322,7 +2349,7 @@ module lib.ast {
             sourceMap = options.sourceMap;
             extra = options;
 
-            result = this.generateInternal(node);
+            result = generateInternal(node);
 
             if (!sourceMap) {
                 pair = {code: result.toString(), map: null};

@@ -28,7 +28,8 @@
 module lib.ast {
     export module traverse {
 
-        var Syntax,
+        export var Syntax;
+        var
             isArray,
             VisitorOption,
             VisitorKeys,
@@ -314,7 +315,7 @@ module lib.ast {
             this.ref = ref;
         }
 
-        class Controller {
+        export class Controller {
 
 
             visitor:any;
@@ -705,17 +706,17 @@ module lib.ast {
             return (nodeType === Syntax.ObjectExpression || nodeType === Syntax.ObjectPattern) && 'properties' === key;
         }
 
-        function traverse(root, visitor) {
+        export function traverse(root, visitor) {
             var controller = new Controller();
             return controller.traverse(root, visitor);
         }
 
-        function replace(root, visitor) {
+        export function replace(root, visitor) {
             var controller = new Controller();
             return controller.replace(root, visitor);
         }
 
-        function extendCommentRange(comment, tokens) {
+        export function extendCommentRange(comment, tokens) {
             var target;
 
             target = upperBound(tokens, function search(token) {
@@ -736,7 +737,7 @@ module lib.ast {
             return comment;
         }
 
-        function attachComments(tree, providedComments, tokens) {
+        export function attachComments(tree, providedComments, tokens) {
             // At first, we should calculate extended comment ranges.
             var comments = [], comment, len, i, cursor;
 

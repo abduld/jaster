@@ -6,6 +6,7 @@
 /// <reference path="gen.ts" />
 /// <reference path="trace/trace.ts" />
 /// <reference path="importer/importer.ts" />
+/// <reference path="valid.ts" />
 
 module lib {
     export module ast {
