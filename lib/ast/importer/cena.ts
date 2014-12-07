@@ -2587,79 +2587,66 @@ module lib.ast {
             }
 
             export class ArrayExpression extends Node {
-                right:Node
-                left:Node
-                operator:string
-                computed:boolean
+                elements: Node[]
 
-                constructor(loc:any, raw:string, cform:string, left:any, operator:string, right:any, computed?:boolean) {
-                    super("MemberExpression", loc, raw, cform);
-                    this.left = fromCena(left);
-                    this.right = fromCena(right);
-                    this.operator = operator;
-                    this.computed = computed;
+                constructor(loc:any, raw:string, cform:string, elements:any[]) {
+                    super("ArrayExpression", loc, raw, cform);
+                    this.elements = _.map(elements, fromCena);
                     this.setChildParents();
                 }
 
                 static fromCena(o:any):Node {
-                    return new MemberExpression(o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
+                    return new ArrayExpression(o.loc, o.raw, o.cform, o.elements);
                 }
 
-                toEsprima_():esprima.Syntax.MemberExpression {
+                toEsprima_():esprima.Syntax.ArrayExpression {
                     return {
-                        type: "MemberExpression",
-                        object: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
-                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.right.toEsprima()),
-                        computed: this.computed,
+                        type: "ArrayExpression",
+                        elements: castTo<esprima.Syntax.Expression[]>(_.map(this.elements, (elem) => elem.toEsprima())),
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
                     }
                 }
 
                 toCString():string {
-                    if (this.computed === true || isUndefined(this.computed)) {
-                        return this.left.toCString() + this.operator + this.right.toCString();
-                    } else {
-                        return this.left.toCString() + "[" + this.right.toCString() + "]";
-                    }
+                    return "[" + (this.elements, (elem) => elem.toCString()).join(", ") + "]";
                 }
 
                 children_():Node[] {
-                    return [this.left, this.right];
+                    return this.elements;
                 }
 
                 hasChildren_():boolean {
-                    return true;
+                    return this.elements.length > 0;
                 }
 
                 postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    this.left.postOrderTraverse(visit, data);
-                    this.right.postOrderTraverse(visit, data);
+                    _.each(this.elements, (elem) => elem.postOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
                 preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    var res : Node;
                     visit(this, data);
-                    this.left.postOrderTraverse(visit, data);
-                    return this.right.postOrderTraverse(visit, data);
+                    _.each(this.elements, (elem) => res = elem.preOrderTraverse(visit, data));
+                    return res;
                 }
 
                 inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    this.left.inOrderTraverse(visit, data);
-                    visit(this, data);
-                    return this.right.inOrderTraverse(visit, data);
+                    _.each(this.elements, (elem) => elem.inOrderTraverse(visit, data));
+                    return visit(this, data);
                 }
 
                 reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    this.right.reversePostOrderTraverse(visit, data);
-                    this.left.reversePostOrderTraverse(visit, data);
+                    _.each(this.elements, (elem) => elem.reversePostOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
                 reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    var res : Node;
                     visit(this, data);
-                    this.right.reversePreOrderTraverse(visit, data);
-                    return this.left.reversePreOrderTraverse(visit, data);
+                    _.each(this.elements, (elem) => res = elem.reversePreOrderTraverse(visit, data));
+                    return res;
                 }
             }
 
@@ -2669,7 +2656,7 @@ module lib.ast {
                 if (isUndefined(o) || isUndefined(o.type)) {
                     return new EmptyExpression();
                 } else if (lib.utils.isArray(o)) {
-                    return _.map(o, fromCena);
+                    return castTo<Node>(new CompoundNode(o));
                 } else if (!dispatch.has(o.type)) {
                     lib.utils.logger.trace("Invalid input type toEsprima " + o.type);
                     return new ErrorNode(JSON.stringify(o));
@@ -2679,8 +2666,9 @@ module lib.ast {
             }
 
             export function toJS(o:any):{ code: string; map: lib.ast.sourcemap.SourceNode; } { // from Cena
+                var nd : esprima.Syntax.Node = fromCena(o).toEsprima();
                 return lib.ast.gen.generate(
-                    fromCena(o),
+                    nd,
                     // we might have to do  extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
                     {sourceMap: true, sourceMapWithCode: true, comment: true}
                 );

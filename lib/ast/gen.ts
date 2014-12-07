@@ -2304,7 +2304,7 @@ module lib.ast {
             throw new Error('Unknown node type: ' + node.type);
         }
 
-        export function generate(node, options) {
+        export function generate(node : esprima.Syntax.Node, options) {
             var defaultOptions = getDefaultOptions(), result, pair;
 
             if (options != null) {
