@@ -41,6 +41,7 @@ module lib.utils {
                 private args_:any[];
                 private id_:NodeId;
                 private fun_:Function
+
                 constructor(fun:Function) {
                     this.fun_ = function (...args:any[]) {
 

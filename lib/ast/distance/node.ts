@@ -8,7 +8,7 @@ module lib.ast {
         var leftMostHash:Map<string, Syntax.Node> = new Map<string, Syntax.Node>();
 
 
-        export function keyroot(node: Syntax.Node) : Syntax.Node {
+        export function keyroot(node:Syntax.Node):Syntax.Node {
             return null
         }
 

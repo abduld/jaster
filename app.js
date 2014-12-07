@@ -3973,7 +3973,7 @@ var lib;
             ;
             var shared;
             (function (shared) {
-                var builtin = types.builtInTypes;
+                var builtin = lib.ast.types.builtInTypes;
                 var isNumber = builtin["number"];
                 // An example of constructing a new type with arbitrary constraints from
                 // an existing type.
@@ -4017,138 +4017,6 @@ var lib;
             _types.isPrimitive = shared.isPrimitive;
             _types.defaults = shared.defaults;
         })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/*
- Copyright (c) 2014 Ben Newman <bn@cs.stanford.edu>
-
- Permission is hereby granted, free of charge, to any person obtaining
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
-
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-// from https://github.com/benjamn/private
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var priv;
-            (function (priv) {
-                var originalObject = Object;
-                var originalDefProp = Object.defineProperty;
-                var originalCreate = Object.create;
-                function defProp(obj, name, value) {
-                    if (originalDefProp)
-                        try {
-                            originalDefProp.call(originalObject, obj, name, { value: value });
-                        }
-                        catch (definePropertyIsBrokenInIE8) {
-                            obj[name] = value;
-                        }
-                    else {
-                        obj[name] = value;
-                    }
-                }
-                // For functions that will be invoked using .call or .apply, we need to
-                // define those methods on the function objects themselves, rather than
-                // inheriting them from Function.prototype, so that a malicious or clumsy
-                // third party cannot interfere with the functionality of this module by
-                // redefining Function.prototype.call or .apply.
-                function makeSafeToCall(fun) {
-                    if (fun) {
-                        defProp(fun, "call", fun.call);
-                        defProp(fun, "apply", fun.apply);
-                    }
-                    return fun;
-                }
-                makeSafeToCall(originalDefProp);
-                makeSafeToCall(originalCreate);
-                var hasOwn = makeSafeToCall(Object.prototype.hasOwnProperty);
-                var numToStr = makeSafeToCall(Number.prototype.toString);
-                var strSlice = makeSafeToCall(String.prototype.slice);
-                var cloner = function () {
-                };
-                function create(prototype) {
-                    if (originalCreate) {
-                        return originalCreate.call(originalObject, prototype);
-                    }
-                    cloner.prototype = prototype || null;
-                    return new cloner;
-                }
-                var rand = Math.random;
-                var uniqueKeys = create(null);
-                function makeUniqueKey() {
-                    do
-                        var uniqueKey = internString(strSlice.call(numToStr.call(rand(), 36), 2));
-                    while (hasOwn.call(uniqueKeys, uniqueKey));
-                    return uniqueKeys[uniqueKey] = uniqueKey;
-                }
-                priv.makeUniqueKey = makeUniqueKey;
-                function internString(str) {
-                    var obj = {};
-                    obj[str] = true;
-                    return Object.keys(obj)[0];
-                }
-                // Object.getOwnPropertyNames is the only way to enumerate non-enumerable
-                // properties, so if we wrap it to ignore our secret keys, there should be
-                // no way (except guessing) to access those properties.
-                var originalGetOPNs = Object.getOwnPropertyNames;
-                Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
-                    for (var names = originalGetOPNs(object), src = 0, dst = 0, len = names.length; src < len; ++src) {
-                        if (!hasOwn.call(uniqueKeys, names[src])) {
-                            if (src > dst) {
-                                names[dst] = names[src];
-                            }
-                            ++dst;
-                        }
-                    }
-                    names.length = dst;
-                    return names;
-                };
-                function defaultCreatorFn(object) {
-                    return create(null);
-                }
-                function makeAccessor(secretCreatorFn) {
-                    var brand = makeUniqueKey();
-                    var passkey = create(null);
-                    secretCreatorFn = secretCreatorFn || defaultCreatorFn;
-                    function register(object) {
-                        var secret; // Created lazily.
-                        function vault(key, forget) {
-                            // Only code that has access to the passkey can retrieve (or forget)
-                            // the secret object.
-                            if (key === passkey) {
-                                return forget ? secret = null : secret || (secret = secretCreatorFn(object));
-                            }
-                        }
-                        defProp(object, brand, vault);
-                    }
-                    function accessor(object) {
-                        if (!hasOwn.call(object, brand))
-                            register(object);
-                        return object[brand](passkey);
-                    }
-                    return accessor;
-                }
-                priv.makeAccessor = makeAccessor;
-            })(priv = recast.priv || (recast.priv = {}));
-        })(recast = ast.recast || (ast.recast = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
 var lib;
@@ -4440,7 +4308,8 @@ var lib;
                 }
             }
             function skipSingleLineComment(offset) {
-                var start, loc, ch, comment;
+                var start, ch, comment;
+                var loc;
                 start = index - offset;
                 loc = {
                     start: {
@@ -7441,3609 +7310,6 @@ var lib;
         })(esprima = ast.esprima || (ast.esprima = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-/// <reference path="recast.ts" />
-/// <reference path="../esprima.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var defaults = {
-                // If you want to use a different branch of esprima, or any other
-                // module that supports a .parse function, pass that module object to
-                // recast.parse as options.esprima.
-                esprima: ast.esprima,
-                // Number of spaces the pretty-printer should use per tab for
-                // indentation. If you do not pass this option explicitly, it will be
-                // (quite reliably!) inferred from the original code.
-                tabWidth: 4,
-                // If you really want the pretty-printer to use tabs instead of
-                // spaces, make this option true.
-                useTabs: false,
-                // The reprinting code leaves leading whitespace untouched unless it
-                // has to reindent a line, or you pass false for this option.
-                reuseWhitespace: true,
-                // Some of the pretty-printer code (such as that for printing function
-                // parameter lists) makes a valiant attempt to prevent really long
-                // lines. You can adjust the limit by changing this option; however,
-                // there is no guarantee that line length will fit inside this limit.
-                wrapColumn: 74,
-                // Pass a string as options.sourceFileName to recast.parse to tell the
-                // reprinter to keep track of reused code so that it can construct a
-                // source map automatically.
-                sourceFileName: null,
-                // Pass a string as options.sourceMapName to recast.print, and
-                // (provided you passed options.sourceFileName earlier) the
-                // PrintResult of recast.print will have a .map property for the
-                // generated source map.
-                sourceMapName: null,
-                // If provided, this option will be passed along to the source map
-                // generator as a root directory for relative source file paths.
-                sourceRoot: null,
-                // If you provide a source map that was generated from a previous call
-                // to recast.print as options.inputSourceMap, the old source map will
-                // be composed with the new source map.
-                inputSourceMap: null,
-                // If you want esprima to generate .range information (recast only
-                // uses .loc internally), pass true for this option.
-                range: false,
-                // If you want esprima not to throw exceptions when it encounters
-                // non-fatal errors, keep this option true.
-                tolerant: true
-            }, hasOwn = defaults.hasOwnProperty;
-            // Copy options and fill in default values.
-            function normalize(options) {
-                options = options || defaults;
-                function get(key) {
-                    return hasOwn.call(options, key) ? options[key] : defaults[key];
-                }
-                return {
-                    tabWidth: +get("tabWidth"),
-                    useTabs: !!get("useTabs"),
-                    reuseWhitespace: !!get("reuseWhitespace"),
-                    wrapColumn: Math.max(get("wrapColumn"), 0),
-                    sourceFileName: get("sourceFileName"),
-                    sourceMapName: get("sourceMapName"),
-                    sourceRoot: get("sourceRoot"),
-                    inputSourceMap: get("inputSourceMap"),
-                    esprima: get("esprima"),
-                    range: get("range"),
-                    tolerant: get("tolerant")
-                };
-            }
-            recast.normalize = normalize;
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="recast.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var types = lib.ast.types;
-            var assert = lib.utils.assert;
-            var n = types.namedTypes;
-            var isArray = types.builtInTypes["array"];
-            var isObject = types.builtInTypes["object"];
-            var isString = types.builtInTypes["string"];
-            var isNumber = types.builtInTypes["number"];
-            var SourceLocation = types.namedTypes["SourceLocation"];
-            var Position = types.namedTypes["Position"];
-            var Mapping = (function () {
-                function Mapping(sourceLines, sourceLoc, targetLoc) {
-                    assert.ok(this instanceof Mapping);
-                    assert.ok(sourceLines instanceof recast.Lines);
-                    SourceLocation.assert(sourceLoc);
-                    if (targetLoc) {
-                        // In certain cases it's possible for targetLoc.{start,end}.column
-                        // values to be negative, which technically makes them no longer
-                        // valid SourceLocation nodes, so we need to be more forgiving.
-                        assert.ok(isNumber.check(targetLoc.start.line) && isNumber.check(targetLoc.start.column) && isNumber.check(targetLoc.end.line) && isNumber.check(targetLoc.end.column));
-                    }
-                    else {
-                        // Assume identity mapping if no targetLoc specified.
-                        targetLoc = sourceLoc;
-                    }
-                    Object.defineProperties(this, {
-                        sourceLines: { value: sourceLines },
-                        sourceLoc: { value: sourceLoc },
-                        targetLoc: { value: targetLoc }
-                    });
-                }
-                Mapping.prototype.slice = function (lines, start, end) {
-                    assert.ok(lines instanceof recast.Lines);
-                    Position.assert(start);
-                    if (end) {
-                        Position.assert(end);
-                    }
-                    else {
-                        end = lines.lastPos();
-                    }
-                    var sourceLines = this.sourceLines;
-                    var sourceLoc = this.sourceLoc;
-                    var targetLoc = this.targetLoc;
-                    function skip(name) {
-                        var sourceFromPos = sourceLoc[name];
-                        var targetFromPos = targetLoc[name];
-                        var targetToPos = start;
-                        if (name === "end") {
-                            targetToPos = end;
-                        }
-                        else {
-                            assert.strictEqual(name, "start");
-                        }
-                        return skipChars(sourceLines, sourceFromPos, lines, targetFromPos, targetToPos);
-                    }
-                    if (recast.comparePos(start, targetLoc.start) <= 0) {
-                        if (recast.comparePos(targetLoc.end, end) <= 0) {
-                            targetLoc = {
-                                start: subtractPos(targetLoc.start, start.line, start.column),
-                                end: subtractPos(targetLoc.end, start.line, start.column)
-                            };
-                        }
-                        else if (recast.comparePos(end, targetLoc.start) <= 0) {
-                            return null;
-                        }
-                        else {
-                            sourceLoc = {
-                                start: sourceLoc.start,
-                                end: skip("end")
-                            };
-                            targetLoc = {
-                                start: subtractPos(targetLoc.start, start.line, start.column),
-                                end: subtractPos(end, start.line, start.column)
-                            };
-                        }
-                    }
-                    else {
-                        if (recast.comparePos(targetLoc.end, start) <= 0) {
-                            return null;
-                        }
-                        if (recast.comparePos(targetLoc.end, end) <= 0) {
-                            sourceLoc = {
-                                start: skip("start"),
-                                end: sourceLoc.end
-                            };
-                            targetLoc = {
-                                // Same as subtractPos(start, start.line, start.column):
-                                start: { line: 1, column: 0 },
-                                end: subtractPos(targetLoc.end, start.line, start.column)
-                            };
-                        }
-                        else {
-                            sourceLoc = {
-                                start: skip("start"),
-                                end: skip("end")
-                            };
-                            targetLoc = {
-                                // Same as subtractPos(start, start.line, start.column):
-                                start: { line: 1, column: 0 },
-                                end: subtractPos(end, start.line, start.column)
-                            };
-                        }
-                    }
-                    return new Mapping(this.sourceLines, sourceLoc, targetLoc);
-                };
-                Mapping.prototype.add = function (line, column) {
-                    return new Mapping(this.sourceLines, this.sourceLoc, {
-                        start: addPos(this.targetLoc.start, line, column),
-                        end: addPos(this.targetLoc.end, line, column)
-                    });
-                };
-                Mapping.prototype.subtract = function (line, column) {
-                    return new Mapping(this.sourceLines, this.sourceLoc, {
-                        start: subtractPos(this.targetLoc.start, line, column),
-                        end: subtractPos(this.targetLoc.end, line, column)
-                    });
-                };
-                Mapping.prototype.indent = function (by, skipFirstLine, noNegativeColumns) {
-                    if (by === 0) {
-                        return this;
-                    }
-                    var targetLoc = this.targetLoc;
-                    var startLine = targetLoc.start.line;
-                    var endLine = targetLoc.end.line;
-                    if (skipFirstLine && startLine === 1 && endLine === 1) {
-                        return this;
-                    }
-                    targetLoc = {
-                        start: targetLoc.start,
-                        end: targetLoc.end
-                    };
-                    if (!skipFirstLine || startLine > 1) {
-                        var startColumn = targetLoc.start.column + by;
-                        targetLoc.start = {
-                            line: startLine,
-                            column: noNegativeColumns ? Math.max(0, startColumn) : startColumn
-                        };
-                    }
-                    if (!skipFirstLine || endLine > 1) {
-                        var endColumn = targetLoc.end.column + by;
-                        targetLoc.end = {
-                            line: endLine,
-                            column: noNegativeColumns ? Math.max(0, endColumn) : endColumn
-                        };
-                    }
-                    return new Mapping(this.sourceLines, this.sourceLoc, targetLoc);
-                };
-                return Mapping;
-            })();
-            recast.Mapping = Mapping;
-            function addPos(toPos, line, column) {
-                return {
-                    line: toPos.line + line - 1,
-                    column: (toPos.line === 1) ? toPos.column + column : toPos.column
-                };
-            }
-            function subtractPos(fromPos, line, column) {
-                return {
-                    line: fromPos.line - line + 1,
-                    column: (fromPos.line === line) ? fromPos.column - column : fromPos.column
-                };
-            }
-            function skipChars(sourceLines, sourceFromPos, targetLines, targetFromPos, targetToPos) {
-                assert.ok(sourceLines instanceof recast.Lines);
-                assert.ok(targetLines instanceof recast.Lines);
-                Position.assert(sourceFromPos);
-                Position.assert(targetFromPos);
-                Position.assert(targetToPos);
-                var targetComparison = recast.comparePos(targetFromPos, targetToPos);
-                if (targetComparison === 0) {
-                    // Trivial case: no characters to skip.
-                    return sourceFromPos;
-                }
-                if (targetComparison < 0) {
-                    // Skipping forward.
-                    var sourceCursor = sourceLines.skipSpaces(sourceFromPos);
-                    var targetCursor = targetLines.skipSpaces(targetFromPos);
-                    var lineDiff = targetToPos.line - targetCursor.line;
-                    sourceCursor.line += lineDiff;
-                    targetCursor.line += lineDiff;
-                    if (lineDiff > 0) {
-                        // If jumping to later lines, reset columns to the beginnings
-                        // of those lines.
-                        sourceCursor.column = 0;
-                        targetCursor.column = 0;
-                    }
-                    else {
-                        assert.strictEqual(lineDiff, 0);
-                    }
-                    while (recast.comparePos(targetCursor, targetToPos) < 0 && targetLines.nextPos(targetCursor, true)) {
-                        assert.ok(sourceLines.nextPos(sourceCursor, true));
-                        assert.strictEqual(sourceLines.charAt(sourceCursor), targetLines.charAt(targetCursor));
-                    }
-                }
-                else {
-                    // Skipping backward.
-                    var sourceCursor = sourceLines.skipSpaces(sourceFromPos, true);
-                    var targetCursor = targetLines.skipSpaces(targetFromPos, true);
-                    var lineDiff = targetToPos.line - targetCursor.line;
-                    sourceCursor.line += lineDiff;
-                    targetCursor.line += lineDiff;
-                    if (lineDiff < 0) {
-                        // If jumping to earlier lines, reset columns to the ends of
-                        // those lines.
-                        sourceCursor.column = sourceLines.getLineLength(sourceCursor.line);
-                        targetCursor.column = targetLines.getLineLength(targetCursor.line);
-                    }
-                    else {
-                        assert.strictEqual(lineDiff, 0);
-                    }
-                    while (recast.comparePos(targetToPos, targetCursor) < 0 && targetLines.prevPos(targetCursor, true)) {
-                        assert.ok(sourceLines.prevPos(sourceCursor, true));
-                        assert.strictEqual(sourceLines.charAt(sourceCursor), targetLines.charAt(targetCursor));
-                    }
-                }
-                return sourceCursor;
-            }
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="recast.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var sourceMap = lib.ast.sourcemap;
-            var SourceMapConsumer = sourceMap.SourceMapConsumer;
-            var SourceMapGenerator = sourceMap.SourceMapGenerator;
-            var hasOwn = Object.prototype.hasOwnProperty;
-            function getUnionOfKeys() {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
-                }
-                var result = {};
-                var argc = args.length;
-                for (var i = 0; i < argc; ++i) {
-                    var keys = Object.keys(args[i]);
-                    var keyCount = keys.length;
-                    for (var j = 0; j < keyCount; ++j) {
-                        result[keys[j]] = true;
-                    }
-                }
-                return result;
-            }
-            recast.getUnionOfKeys = getUnionOfKeys;
-            function comparePos(pos1, pos2) {
-                return (pos1.line - pos2.line) || (pos1.column - pos2.column);
-            }
-            recast.comparePos = comparePos;
-            function composeSourceMaps(formerMap, latterMap) {
-                if (formerMap) {
-                    if (!latterMap) {
-                        return formerMap;
-                    }
-                }
-                else {
-                    return latterMap || null;
-                }
-                var smcFormer = new SourceMapConsumer(formerMap);
-                var smcLatter = new SourceMapConsumer(latterMap);
-                var smg = new SourceMapGenerator({
-                    file: latterMap.file,
-                    sourceRoot: latterMap.sourceRoot
-                });
-                var sourcesToContents = {};
-                smcLatter.eachMapping(function (mapping) {
-                    var origPos = smcFormer.originalPositionFor({
-                        line: mapping.originalLine,
-                        column: mapping.originalColumn
-                    });
-                    var sourceName = origPos.source;
-                    smg.addMapping({
-                        source: sourceName,
-                        original: {
-                            line: origPos.line,
-                            column: origPos.column
-                        },
-                        generated: {
-                            line: mapping.generatedLine,
-                            column: mapping.generatedColumn
-                        },
-                        name: mapping.name
-                    });
-                    var sourceContent = smcFormer.sourceContentFor(sourceName);
-                    if (sourceContent && !hasOwn.call(sourcesToContents, sourceName)) {
-                        sourcesToContents[sourceName] = sourceContent;
-                        smg.setSourceContent(sourceName, sourceContent);
-                    }
-                });
-                return smg.toJSON();
-            }
-            recast.composeSourceMaps = composeSourceMaps;
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="recast.ts" />
-/// <reference path="mappings.ts" />
-/// <reference path="utils.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var types = lib.ast.types;
-            var assert = lib.utils.assert;
-            var n = types.namedTypes;
-            var isArray = types.builtInTypes["array"];
-            var isObject = types.builtInTypes["object"];
-            var isString = types.builtInTypes["string"];
-            var sourceMap = lib.ast.sourcemap;
-            var secretKey = recast.priv.makeUniqueKey();
-            // Goals:
-            // 1. Minimize new string creation.
-            // 2. Keep (de)identation O(lines) time.
-            // 3. Permit negative indentations.
-            // 4. Enforce immutability.
-            // 5. No newline characters.
-            function getSecret(lines) {
-                return lines[secretKey];
-            }
-            var Lines = (function () {
-                function Lines(infos, sourceFileName) {
-                    assert.ok(this instanceof Lines);
-                    assert.ok(infos.length > 0);
-                    if (sourceFileName) {
-                        isString.assert(sourceFileName);
-                    }
-                    else {
-                        sourceFileName = null;
-                    }
-                    Object.defineProperty(this, secretKey, {
-                        value: {
-                            infos: infos,
-                            mappings: [],
-                            name: sourceFileName,
-                            cachedSourceMap: null
-                        }
-                    });
-                    if (sourceFileName) {
-                        getSecret(this).mappings.push(new recast.Mapping(this, {
-                            start: this.firstPos(),
-                            end: this.lastPos()
-                        }));
-                    }
-                }
-                Object.defineProperty(Lines.prototype, "length", {
-                    // These properties used to be assigned to each new object in the Lines
-                    // constructor, but we can more efficiently stuff them into the secret and
-                    // let these lazy accessors compute their values on-the-fly.
-                    get: function () {
-                        return getSecret(this).infos.length;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Object.defineProperty(Lines.prototype, "name", {
-                    get: function () {
-                        return getSecret(this).name;
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-                Lines.prototype.toString = function (options) {
-                    return this.sliceString(this.firstPos(), this.lastPos(), options);
-                };
-                Lines.prototype.getSourceMap = function (sourceMapName, sourceRoot) {
-                    if (!sourceMapName) {
-                        // Although we could make up a name or generate an anonymous
-                        // source map, instead we assume that any consumer who does not
-                        // provide a name does not actually want a source map.
-                        return null;
-                    }
-                    var targetLines = this;
-                    function updateJSON(json) {
-                        json = json || {};
-                        isString.assert(sourceMapName);
-                        json.file = sourceMapName;
-                        if (sourceRoot) {
-                            isString.assert(sourceRoot);
-                            json.sourceRoot = sourceRoot;
-                        }
-                        return json;
-                    }
-                    var secret = getSecret(targetLines);
-                    if (secret.cachedSourceMap) {
-                        // Since Lines objects are immutable, we can reuse any source map
-                        // that was previously generated. Nevertheless, we return a new
-                        // JSON object here to protect the cached source map from outside
-                        // modification.
-                        return updateJSON(secret.cachedSourceMap.toJSON());
-                    }
-                    var smg = new sourceMap.SourceMapGenerator(updateJSON());
-                    var sourcesToContents = {};
-                    secret.mappings.forEach(function (mapping) {
-                        var sourceCursor = mapping.sourceLines.skipSpaces(mapping.sourceLoc.start) || mapping.sourceLines.lastPos();
-                        var targetCursor = targetLines.skipSpaces(mapping.targetLoc.start) || targetLines.lastPos();
-                        while (recast.comparePos(sourceCursor, mapping.sourceLoc.end) < 0 && recast.comparePos(targetCursor, mapping.targetLoc.end) < 0) {
-                            var sourceChar = mapping.sourceLines.charAt(sourceCursor);
-                            var targetChar = targetLines.charAt(targetCursor);
-                            assert.strictEqual(sourceChar, targetChar);
-                            var sourceName = mapping.sourceLines.name;
-                            // Add mappings one character at a time for maximum resolution.
-                            smg.addMapping({
-                                source: sourceName,
-                                original: {
-                                    line: sourceCursor.line,
-                                    column: sourceCursor.column
-                                },
-                                generated: {
-                                    line: targetCursor.line,
-                                    column: targetCursor.column
-                                }
-                            });
-                            if (!hasOwn.call(sourcesToContents, sourceName)) {
-                                var sourceContent = mapping.sourceLines.toString();
-                                smg.setSourceContent(sourceName, sourceContent);
-                                sourcesToContents[sourceName] = sourceContent;
-                            }
-                            targetLines.nextPos(targetCursor, true);
-                            mapping.sourceLines.nextPos(sourceCursor, true);
-                        }
-                    });
-                    secret.cachedSourceMap = smg;
-                    return smg.toJSON();
-                };
-                Lines.prototype.bootstrapCharAt = function (pos) {
-                    assert.strictEqual(typeof pos, "object");
-                    assert.strictEqual(typeof pos.line, "number");
-                    assert.strictEqual(typeof pos.column, "number");
-                    var line = pos.line, column = pos.column, strings = this.toString().split("\n"), string = strings[line - 1];
-                    if (typeof string === "undefined")
-                        return "";
-                    if (column === string.length && line < strings.length)
-                        return "\n";
-                    if (column >= string.length)
-                        return "";
-                    return string.charAt(column);
-                };
-                Lines.prototype.charAt = function (pos) {
-                    assert.strictEqual(typeof pos, "object");
-                    assert.strictEqual(typeof pos.line, "number");
-                    assert.strictEqual(typeof pos.column, "number");
-                    var line = pos.line, column = pos.column, secret = getSecret(this), infos = secret.infos, info = infos[line - 1], c = column;
-                    if (typeof info === "undefined" || c < 0)
-                        return "";
-                    var indent = this.getIndentAt(line);
-                    if (c < indent)
-                        return " ";
-                    c += info.sliceStart - indent;
-                    if (c === info.sliceEnd && line < this.length)
-                        return "\n";
-                    if (c >= info.sliceEnd)
-                        return "";
-                    return info.line.charAt(c);
-                };
-                Lines.prototype.stripMargin = function (width, skipFirstLine) {
-                    if (width === 0)
-                        return this;
-                    assert.ok(width > 0, "negative margin: " + width);
-                    if (skipFirstLine && this.length === 1)
-                        return this;
-                    var secret = getSecret(this);
-                    var lines = new Lines(secret.infos.map(function (info, i) {
-                        if (info.line && (i > 0 || !skipFirstLine)) {
-                            info = copyLineInfo(info);
-                            info.indent = Math.max(0, info.indent - width);
-                        }
-                        return info;
-                    }));
-                    if (secret.mappings.length > 0) {
-                        var newMappings = getSecret(lines).mappings;
-                        assert.strictEqual(newMappings.length, 0);
-                        secret.mappings.forEach(function (mapping) {
-                            newMappings.push(mapping.indent(width, skipFirstLine, true));
-                        });
-                    }
-                    return lines;
-                };
-                Lines.prototype.indent = function (by) {
-                    if (by === 0)
-                        return this;
-                    var secret = getSecret(this);
-                    var lines = new Lines(secret.infos.map(function (info) {
-                        if (info.line) {
-                            info = copyLineInfo(info);
-                            info.indent += by;
-                        }
-                        return info;
-                    }));
-                    if (secret.mappings.length > 0) {
-                        var newMappings = getSecret(lines).mappings;
-                        assert.strictEqual(newMappings.length, 0);
-                        secret.mappings.forEach(function (mapping) {
-                            newMappings.push(mapping.indent(by));
-                        });
-                    }
-                    return lines;
-                };
-                Lines.prototype.indentTail = function (by) {
-                    if (by === 0)
-                        return this;
-                    if (this.length < 2)
-                        return this;
-                    var secret = getSecret(this);
-                    var lines = new Lines(secret.infos.map(function (info, i) {
-                        if (i > 0 && info.line) {
-                            info = copyLineInfo(info);
-                            info.indent += by;
-                        }
-                        return info;
-                    }));
-                    if (secret.mappings.length > 0) {
-                        var newMappings = getSecret(lines).mappings;
-                        assert.strictEqual(newMappings.length, 0);
-                        secret.mappings.forEach(function (mapping) {
-                            newMappings.push(mapping.indent(by, true));
-                        });
-                    }
-                    return lines;
-                };
-                Lines.prototype.getIndentAt = function (line) {
-                    assert.ok(line >= 1, "no line " + line + " (line numbers start from 1)");
-                    var secret = getSecret(this), info = secret.infos[line - 1];
-                    return Math.max(info.indent, 0);
-                };
-                Lines.prototype.guessTabWidth = function () {
-                    var secret = getSecret(this);
-                    if (hasOwn.call(secret, "cachedTabWidth")) {
-                        return secret.cachedTabWidth;
-                    }
-                    var counts = []; // Sparse array.
-                    var lastIndent = 0;
-                    for (var line = 1, last = this.length; line <= last; ++line) {
-                        var info = secret.infos[line - 1];
-                        var sliced = info.line.slice(info.sliceStart, info.sliceEnd);
-                        // Whitespace-only lines don't tell us much about the likely tab
-                        // width of this code.
-                        if (isOnlyWhitespace(sliced)) {
-                            continue;
-                        }
-                        var diff = Math.abs(info.indent - lastIndent);
-                        counts[diff] = ~~counts[diff] + 1;
-                        lastIndent = info.indent;
-                    }
-                    var maxCount = -1;
-                    var result = 2;
-                    for (var tabWidth = 1; tabWidth < counts.length; tabWidth += 1) {
-                        if (hasOwn.call(counts, tabWidth) && counts[tabWidth] > maxCount) {
-                            maxCount = counts[tabWidth];
-                            result = tabWidth;
-                        }
-                    }
-                    return secret.cachedTabWidth = result;
-                };
-                Lines.prototype.isOnlyWhitespace = function () {
-                    return isOnlyWhitespace(this.toString());
-                };
-                Lines.prototype.isPrecededOnlyByWhitespace = function (pos) {
-                    var secret = getSecret(this);
-                    var info = secret.infos[pos.line - 1];
-                    var indent = Math.max(info.indent, 0);
-                    var diff = pos.column - indent;
-                    if (diff <= 0) {
-                        // If pos.column does not exceed the indentation amount, then
-                        // there must be only whitespace before it.
-                        return true;
-                    }
-                    var start = info.sliceStart;
-                    var end = Math.min(start + diff, info.sliceEnd);
-                    var prefix = info.line.slice(start, end);
-                    return isOnlyWhitespace(prefix);
-                };
-                Lines.prototype.getLineLength = function (line) {
-                    var secret = getSecret(this), info = secret.infos[line - 1];
-                    return this.getIndentAt(line) + info.sliceEnd - info.sliceStart;
-                };
-                Lines.prototype.nextPos = function (pos, skipSpaces) {
-                    var l = Math.max(pos.line, 0), c = Math.max(pos.column, 0);
-                    if (c < this.getLineLength(l)) {
-                        pos.column += 1;
-                        return skipSpaces ? !!this.skipSpaces(pos, false, true) : true;
-                    }
-                    if (l < this.length) {
-                        pos.line += 1;
-                        pos.column = 0;
-                        return skipSpaces ? !!this.skipSpaces(pos, false, true) : true;
-                    }
-                    return false;
-                };
-                Lines.prototype.prevPos = function (pos, skipSpaces) {
-                    var l = pos.line, c = pos.column;
-                    if (c < 1) {
-                        l -= 1;
-                        if (l < 1)
-                            return false;
-                        c = this.getLineLength(l);
-                    }
-                    else {
-                        c = Math.min(c - 1, this.getLineLength(l));
-                    }
-                    pos.line = l;
-                    pos.column = c;
-                    return skipSpaces ? !!this.skipSpaces(pos, true, true) : true;
-                };
-                Lines.prototype.firstPos = function () {
-                    // Trivial, but provided for completeness.
-                    return { line: 1, column: 0 };
-                };
-                Lines.prototype.lastPos = function () {
-                    return {
-                        line: this.length,
-                        column: this.getLineLength(this.length)
-                    };
-                };
-                Lines.prototype.skipSpaces = function (pos, backward, modifyInPlace) {
-                    if (pos) {
-                        pos = modifyInPlace ? pos : {
-                            line: pos.line,
-                            column: pos.column
-                        };
-                    }
-                    else if (backward) {
-                        pos = this.lastPos();
-                    }
-                    else {
-                        pos = this.firstPos();
-                    }
-                    if (backward) {
-                        while (this.prevPos(pos)) {
-                            if (!isOnlyWhitespace(this.charAt(pos)) && this.nextPos(pos)) {
-                                return pos;
-                            }
-                        }
-                        return null;
-                    }
-                    else {
-                        while (isOnlyWhitespace(this.charAt(pos))) {
-                            if (!this.nextPos(pos)) {
-                                return null;
-                            }
-                        }
-                        return pos;
-                    }
-                };
-                Lines.prototype.trimLeft = function () {
-                    var pos = this.skipSpaces(this.firstPos(), false, true);
-                    return pos ? this.slice(pos) : emptyLines;
-                };
-                Lines.prototype.trimRight = function () {
-                    var pos = this.skipSpaces(this.lastPos(), true, true);
-                    return pos ? this.slice(this.firstPos(), pos) : emptyLines;
-                };
-                Lines.prototype.trim = function () {
-                    var start = this.skipSpaces(this.firstPos(), false, true);
-                    if (start === null)
-                        return emptyLines;
-                    var end = this.skipSpaces(this.lastPos(), true, true);
-                    assert.notStrictEqual(end, null);
-                    return this.slice(start, end);
-                };
-                Lines.prototype.eachPos = function (callback, startPos, skipSpaces) {
-                    var pos = this.firstPos();
-                    if (startPos) {
-                        pos.line = startPos.line, pos.column = startPos.column;
-                    }
-                    if (skipSpaces && !this.skipSpaces(pos, false, true)) {
-                        return; // Encountered nothing but spaces.
-                    }
-                    do
-                        callback.call(this, pos);
-                    while (this.nextPos(pos, skipSpaces));
-                };
-                Lines.prototype.bootstrapSlice = function (start, end) {
-                    var strings = this.toString().split("\n").slice(start.line - 1, end.line);
-                    strings.push(strings.pop().slice(0, end.column));
-                    strings[0] = strings[0].slice(start.column);
-                    return fromString(strings.join("\n"));
-                };
-                Lines.prototype.slice = function (start, end) {
-                    if (!end) {
-                        if (!start) {
-                            // The client seems to want a copy of this Lines object, but
-                            // Lines objects are immutable, so it's perfectly adequate to
-                            // return the same object.
-                            return this;
-                        }
-                        // Slice to the end if no end position was provided.
-                        end = this.lastPos();
-                    }
-                    var secret = getSecret(this);
-                    var sliced = secret.infos.slice(start.line - 1, end.line);
-                    if (start.line === end.line) {
-                        sliced[0] = sliceInfo(sliced[0], start.column, end.column);
-                    }
-                    else {
-                        assert.ok(start.line < end.line);
-                        sliced[0] = sliceInfo(sliced[0], start.column);
-                        sliced.push(sliceInfo(sliced.pop(), 0, end.column));
-                    }
-                    var lines = new Lines(sliced);
-                    if (secret.mappings.length > 0) {
-                        var newMappings = getSecret(lines).mappings;
-                        assert.strictEqual(newMappings.length, 0);
-                        secret.mappings.forEach(function (mapping) {
-                            var sliced = mapping.slice(this, start, end);
-                            if (sliced) {
-                                newMappings.push(sliced);
-                            }
-                        }, this);
-                    }
-                    return lines;
-                };
-                Lines.prototype.bootstrapSliceString = function (start, end, options) {
-                    return this.slice(start, end).toString(options);
-                };
-                Lines.prototype.sliceString = function (start, end, options) {
-                    if (!end) {
-                        if (!start) {
-                            // The client seems to want a copy of this Lines object, but
-                            // Lines objects are immutable, so it's perfectly adequate to
-                            // return the same object.
-                            return this;
-                        }
-                        // Slice to the end if no end position was provided.
-                        end = this.lastPos();
-                    }
-                    options = recast.normalize(options);
-                    var infos = getSecret(this).infos;
-                    var parts = [];
-                    var tabWidth = options.tabWidth;
-                    for (var line = start.line; line <= end.line; ++line) {
-                        var info = infos[line - 1];
-                        if (line === start.line) {
-                            if (line === end.line) {
-                                info = sliceInfo(info, start.column, end.column);
-                            }
-                            else {
-                                info = sliceInfo(info, start.column);
-                            }
-                        }
-                        else if (line === end.line) {
-                            info = sliceInfo(info, 0, end.column);
-                        }
-                        var indent = Math.max(info.indent, 0);
-                        var before = info.line.slice(0, info.sliceStart);
-                        if (options.reuseWhitespace && isOnlyWhitespace(before) && countSpaces(before, options.tabWidth) === indent) {
-                            // Reuse original spaces if the indentation is correct.
-                            parts.push(info.line.slice(0, info.sliceEnd));
-                            continue;
-                        }
-                        var tabs = 0;
-                        var spaces = indent;
-                        if (options.useTabs) {
-                            tabs = Math.floor(indent / tabWidth);
-                            spaces -= tabs * tabWidth;
-                        }
-                        var result = "";
-                        if (tabs > 0) {
-                            result += new Array(tabs + 1).join("\t");
-                        }
-                        if (spaces > 0) {
-                            result += new Array(spaces + 1).join(" ");
-                        }
-                        result += info.line.slice(info.sliceStart, info.sliceEnd);
-                        parts.push(result);
-                    }
-                    return parts.join("\n");
-                };
-                Lines.prototype.isEmpty = function () {
-                    return this.length < 2 && this.getLineLength(1) < 1;
-                };
-                Lines.prototype.join = function (elements) {
-                    var separator = this;
-                    var separatorSecret = getSecret(separator);
-                    var infos = [];
-                    var mappings = [];
-                    var prevInfo;
-                    function appendSecret(secret) {
-                        if (secret === null)
-                            return;
-                        if (prevInfo) {
-                            var info = secret.infos[0];
-                            var indent = new Array(info.indent + 1).join(" ");
-                            var prevLine = infos.length;
-                            var prevColumn = Math.max(prevInfo.indent, 0) + prevInfo.sliceEnd - prevInfo.sliceStart;
-                            prevInfo.line = prevInfo.line.slice(0, prevInfo.sliceEnd) + indent + info.line.slice(info.sliceStart, info.sliceEnd);
-                            prevInfo.sliceEnd = prevInfo.line.length;
-                            if (secret.mappings.length > 0) {
-                                secret.mappings.forEach(function (mapping) {
-                                    mappings.push(mapping.add(prevLine, prevColumn));
-                                });
-                            }
-                        }
-                        else if (secret.mappings.length > 0) {
-                            mappings.push.apply(mappings, secret.mappings);
-                        }
-                        secret.infos.forEach(function (info, i) {
-                            if (!prevInfo || i > 0) {
-                                prevInfo = copyLineInfo(info);
-                                infos.push(prevInfo);
-                            }
-                        });
-                    }
-                    function appendWithSeparator(secret, i) {
-                        if (i > 0)
-                            appendSecret(separatorSecret);
-                        appendSecret(secret);
-                    }
-                    elements.map(function (elem) {
-                        var lines = fromString(elem);
-                        if (lines.isEmpty())
-                            return null;
-                        return getSecret(lines);
-                    }).forEach(separator.isEmpty() ? appendSecret : appendWithSeparator);
-                    if (infos.length < 1)
-                        return emptyLines;
-                    var lines = new Lines(infos);
-                    getSecret(lines).mappings = mappings;
-                    return lines;
-                };
-                Lines.prototype.concat = function (other) {
-                    var args = arguments, list = [this];
-                    list.push.apply(list, args);
-                    assert.strictEqual(list.length, args.length + 1);
-                    return emptyLines.join(list);
-                };
-                return Lines;
-            })();
-            recast.Lines = Lines;
-            function sliceInfo(info, startCol, endCol) {
-                var sliceStart = info.sliceStart;
-                var sliceEnd = info.sliceEnd;
-                var indent = Math.max(info.indent, 0);
-                var lineLength = indent + sliceEnd - sliceStart;
-                if (typeof endCol === "undefined") {
-                    endCol = lineLength;
-                }
-                startCol = Math.max(startCol, 0);
-                endCol = Math.min(endCol, lineLength);
-                endCol = Math.max(endCol, startCol);
-                if (endCol < indent) {
-                    indent = endCol;
-                    sliceEnd = sliceStart;
-                }
-                else {
-                    sliceEnd -= lineLength - endCol;
-                }
-                lineLength = endCol;
-                lineLength -= startCol;
-                if (startCol < indent) {
-                    indent -= startCol;
-                }
-                else {
-                    startCol -= indent;
-                    indent = 0;
-                    sliceStart += startCol;
-                }
-                assert.ok(indent >= 0);
-                assert.ok(sliceStart <= sliceEnd);
-                assert.strictEqual(lineLength, indent + sliceEnd - sliceStart);
-                if (info.indent === indent && info.sliceStart === sliceStart && info.sliceEnd === sliceEnd) {
-                    return info;
-                }
-                return {
-                    line: info.line,
-                    indent: indent,
-                    sliceStart: sliceStart,
-                    sliceEnd: sliceEnd
-                };
-            }
-            function concat(elements) {
-                return emptyLines.join(elements);
-            }
-            recast.concat = concat;
-            function copyLineInfo(info) {
-                return {
-                    line: info.line,
-                    indent: info.indent,
-                    sliceStart: info.sliceStart,
-                    sliceEnd: info.sliceEnd
-                };
-            }
-            var fromStringCache = {};
-            var hasOwn = fromStringCache.hasOwnProperty;
-            var maxCacheKeyLen = 10;
-            function countSpaces(spaces, tabWidth) {
-                var count = 0;
-                var len = spaces.length;
-                for (var i = 0; i < len; ++i) {
-                    var ch = spaces.charAt(i);
-                    if (ch === " ") {
-                        count += 1;
-                    }
-                    else if (ch === "\t") {
-                        assert.strictEqual(typeof tabWidth, "number");
-                        assert.ok(tabWidth > 0);
-                        var next = Math.ceil(count / tabWidth) * tabWidth;
-                        if (next === count) {
-                            count += tabWidth;
-                        }
-                        else {
-                            count = next;
-                        }
-                    }
-                    else if (ch === "\r") {
-                    }
-                    else {
-                        assert.fail("unexpected whitespace character", ch);
-                    }
-                }
-                return count;
-            }
-            recast.countSpaces = countSpaces;
-            var leadingSpaceExp = /^\s*/;
-            /**
-             * @param {Object} options - Options object that configures printing.
-             */
-            function fromString(str, options) {
-                if (str instanceof Lines)
-                    return str;
-                str += "";
-                var tabWidth = options && options.tabWidth;
-                var tabless = str.indexOf("\t") < 0;
-                var cacheable = !options && tabless && (str.length <= maxCacheKeyLen);
-                assert.ok(tabWidth || tabless, "No tab width specified but encountered tabs in str\n" + str);
-                if (cacheable && hasOwn.call(fromStringCache, str))
-                    return fromStringCache[str];
-                var lines = new Lines(str.split("\n").map(function (line) {
-                    var spaces = leadingSpaceExp.exec(line)[0];
-                    return {
-                        line: line,
-                        indent: countSpaces(spaces, tabWidth),
-                        sliceStart: spaces.length,
-                        sliceEnd: line.length
-                    };
-                }), recast.normalize(options).sourceFileName);
-                if (cacheable)
-                    fromStringCache[str] = lines;
-                return lines;
-            }
-            recast.fromString = fromString;
-            function isOnlyWhitespace(string) {
-                return !/\S/.test(string);
-            }
-            // The emptyLines object needs to be created all the way down here so that
-            // Lines.prototype will be fully populated.
-            var emptyLines = fromString("");
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="recast.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (_ast) {
-        var recast;
-        (function (recast) {
-            var types = lib.ast.types;
-            var assert = lib.utils.assert;
-            var n = types.namedTypes;
-            var isArray = types.builtInTypes["array"];
-            var isObject = types.builtInTypes["object"];
-            var childNodesCacheKey = lib.ast.recast.priv.makeUniqueKey();
-            // TODO Move a non-caching implementation of this function into ast-types,
-            // and implement a caching wrapper function here.
-            function getSortedChildNodes(node, resultArray) {
-                if (!node) {
-                    return;
-                }
-                if (resultArray) {
-                    if (n["Node"].check(node)) {
-                        for (var i = resultArray.length - 1; i >= 0; --i) {
-                            if (recast.comparePos(resultArray[i].loc.end, node.loc.start) <= 0) {
-                                break;
-                            }
-                        }
-                        resultArray.splice(i + 1, 0, node);
-                        return;
-                    }
-                }
-                else if (node[childNodesCacheKey]) {
-                    return node[childNodesCacheKey];
-                }
-                var names;
-                if (isArray.check(node)) {
-                    names = Object.keys(node);
-                }
-                else if (isObject.check(node)) {
-                    names = types.getFieldNames(node);
-                }
-                else {
-                    return;
-                }
-                if (!resultArray) {
-                    Object.defineProperty(node, childNodesCacheKey, {
-                        value: resultArray = [],
-                        enumerable: false
-                    });
-                }
-                for (var i = 0, nameCount = names.length; i < nameCount; ++i) {
-                    getSortedChildNodes(node[names[i]], resultArray);
-                }
-                return resultArray;
-            }
-            // As efficiently as possible, decorate the comment object with
-            // .precedingNode, .enclosingNode, and/or .followingNode properties, at
-            // least one of which is guaranteed to be defined.
-            function decorateComment(node, comment) {
-                var childNodes = getSortedChildNodes(node);
-                // Time to dust off the old binary search robes and wizard hat.
-                var left = 0, right = childNodes.length;
-                while (left < right) {
-                    var middle = (left + right) >> 1;
-                    var child = childNodes[middle];
-                    if (recast.comparePos(child.loc.start, comment.loc.start) <= 0 && recast.comparePos(comment.loc.end, child.loc.end) <= 0) {
-                        // The comment is completely contained by this child node.
-                        decorateComment(comment.enclosingNode = child, comment);
-                        return; // Abandon the binary search at this level.
-                    }
-                    if (recast.comparePos(child.loc.end, comment.loc.start) <= 0) {
-                        // This child node falls completely before the comment.
-                        // Because we will never consider this node or any nodes
-                        // before it again, this node must be the closest preceding
-                        // node we have encountered so far.
-                        var precedingNode = child;
-                        left = middle + 1;
-                        continue;
-                    }
-                    if (recast.comparePos(comment.loc.end, child.loc.start) <= 0) {
-                        // This child node falls completely after the comment.
-                        // Because we will never consider this node or any nodes after
-                        // it again, this node must be the closest following node we
-                        // have encountered so far.
-                        var followingNode = child;
-                        right = middle;
-                        continue;
-                    }
-                    throw new Error("Comment location overlaps with node location");
-                }
-                if (precedingNode) {
-                    comment.precedingNode = precedingNode;
-                }
-                if (followingNode) {
-                    comment.followingNode = followingNode;
-                }
-            }
-            function add(ast, lines) {
-                var comments = ast.comments;
-                if (!isArray.check(comments)) {
-                    return;
-                }
-                delete ast.comments;
-                var tiesToBreak = [];
-                comments.forEach(function (comment) {
-                    comment.loc.lines = lines;
-                    decorateComment(ast, comment);
-                    var pn = comment.precedingNode;
-                    var en = comment.enclosingNode;
-                    var fn = comment.followingNode;
-                    if (pn && fn) {
-                        var tieCount = tiesToBreak.length;
-                        if (tieCount > 0) {
-                            var lastTie = tiesToBreak[tieCount - 1];
-                            assert.strictEqual(lastTie.precedingNode === comment.precedingNode, lastTie.followingNode === comment.followingNode);
-                            if (lastTie.followingNode !== comment.followingNode) {
-                                breakTies(tiesToBreak, lines);
-                            }
-                        }
-                        tiesToBreak.push(comment);
-                    }
-                    else if (pn) {
-                        // No contest: we have a trailing comment.
-                        breakTies(tiesToBreak, lines);
-                        Comments.forNode(pn).addTrailing(comment);
-                    }
-                    else if (fn) {
-                        // No contest: we have a leading comment.
-                        breakTies(tiesToBreak, lines);
-                        Comments.forNode(fn).addLeading(comment);
-                    }
-                    else if (en) {
-                        // The enclosing node has no child nodes at all, so what we
-                        // have here is a dangling comment, e.g. [/* crickets */].
-                        breakTies(tiesToBreak, lines);
-                        Comments.forNode(en).addDangling(comment);
-                    }
-                    else {
-                        throw new Error("AST contains no nodes at all?");
-                    }
-                });
-                breakTies(tiesToBreak, lines);
-            }
-            recast.add = add;
-            ;
-            function breakTies(tiesToBreak, lines) {
-                var tieCount = tiesToBreak.length;
-                if (tieCount === 0) {
-                    return;
-                }
-                var pn = tiesToBreak[0].precedingNode;
-                var fn = tiesToBreak[0].followingNode;
-                var gapEndPos = fn.loc.start;
-                for (var indexOfFirstLeadingComment = tieCount; indexOfFirstLeadingComment > 0; --indexOfFirstLeadingComment) {
-                    var comment = tiesToBreak[indexOfFirstLeadingComment - 1];
-                    assert.strictEqual(comment.precedingNode, pn);
-                    assert.strictEqual(comment.followingNode, fn);
-                    var gap = lines.sliceString(comment.loc.end, gapEndPos);
-                    if (/\S/.test(gap)) {
-                        break;
-                    }
-                    gapEndPos = comment.loc.start;
-                }
-                while (indexOfFirstLeadingComment <= tieCount && (comment = tiesToBreak[indexOfFirstLeadingComment]) && comment.type === "Line" && comment.loc.start.column > fn.loc.start.column) {
-                    ++indexOfFirstLeadingComment;
-                }
-                tiesToBreak.forEach(function (comment, i) {
-                    if (i < indexOfFirstLeadingComment) {
-                        Comments.forNode(pn).addTrailing(comment);
-                    }
-                    else {
-                        Comments.forNode(fn).addLeading(comment);
-                    }
-                });
-                tiesToBreak.length = 0;
-            }
-            var Comments = (function () {
-                function Comments() {
-                    assert.ok(this instanceof Comments);
-                    this.leading = [];
-                    this.dangling = [];
-                    this.trailing = [];
-                }
-                Comments.forNode = function (node) {
-                    var comments = node.comments;
-                    if (!comments) {
-                        Object.defineProperty(node, "comments", {
-                            value: comments = new Comments,
-                            enumerable: false
-                        });
-                    }
-                    return comments;
-                };
-                Comments.prototype.forEach = function (callback, context) {
-                    this.leading.forEach(callback, context);
-                    // this.dangling.forEach(callback, context);
-                    this.trailing.forEach(callback, context);
-                };
-                Comments.prototype.addLeading = function (comment) {
-                    this.leading.push(comment);
-                };
-                Comments.prototype.addDangling = function (comment) {
-                    this.dangling.push(comment);
-                };
-                Comments.prototype.addTrailing = function (comment) {
-                    comment.trailing = true;
-                    if (comment.type === "Block") {
-                        this.trailing.push(comment);
-                    }
-                    else {
-                        this.leading.push(comment);
-                    }
-                };
-                return Comments;
-            })();
-            recast.Comments = Comments;
-            /**
-             * @param {Object} options - Options object that configures printing.
-             */
-            function printLeadingComment(comment, options) {
-                var loc = comment.loc;
-                var lines = loc && loc.lines;
-                var parts = [];
-                if (comment.type === "Block") {
-                    parts.push("/*", recast.fromString(comment.value, options), "*/");
-                }
-                else if (comment.type === "Line") {
-                    parts.push("//", recast.fromString(comment.value, options));
-                }
-                else
-                    assert.fail(comment.type);
-                if (comment.trailing) {
-                    // When we print trailing comments as leading comments, we don't
-                    // want to bring any trailing spaces along.
-                    parts.push("\n");
-                }
-                else if (lines instanceof recast.Lines) {
-                    var trailingSpace = lines.slice(loc.end, lines.skipSpaces(loc.end));
-                    if (trailingSpace.length === 1) {
-                        // If the trailing space contains no newlines, then we want to
-                        // preserve it exactly as we found it.
-                        parts.push(trailingSpace);
-                    }
-                    else {
-                        // If the trailing space contains newlines, then replace it
-                        // with just that many newlines, with all other spaces removed.
-                        parts.push(new Array(trailingSpace.length).join("\n"));
-                    }
-                }
-                else {
-                    parts.push("\n");
-                }
-                var marg = loc ? loc.start.column : 0;
-                return recast.concat(parts).stripMargin(marg);
-            }
-            /**
-             * @param {Object} options - Options object that configures printing.
-             */
-            function printTrailingComment(comment, options) {
-                var loc = comment.loc;
-                var lines = loc && loc.lines;
-                var parts = [];
-                if (lines instanceof recast.Lines) {
-                    var fromPos = lines.skipSpaces(loc.start, true) || lines.firstPos();
-                    var leadingSpace = lines.slice(fromPos, loc.start);
-                    if (leadingSpace.length === 1) {
-                        // If the leading space contains no newlines, then we want to
-                        // preserve it exactly as we found it.
-                        parts.push(leadingSpace);
-                    }
-                    else {
-                        // If the leading space contains newlines, then replace it
-                        // with just that many newlines, sans all other spaces.
-                        parts.push(new Array(leadingSpace.length).join("\n"));
-                    }
-                }
-                if (comment.type === "Block") {
-                    parts.push("/*", recast.fromString(comment.value, options), "*/");
-                }
-                else if (comment.type === "Line") {
-                    parts.push("//", recast.fromString(comment.value, options), "\n");
-                }
-                else
-                    assert.fail(comment.type);
-                return recast.concat(parts).stripMargin(loc ? loc.start.column : 0, true);
-            }
-            /**
-             * @param {Object} options - Options object that configures printing.
-             */
-            function printComments(comments, innerLines, options) {
-                if (innerLines) {
-                    assert.ok(innerLines instanceof recast.Lines);
-                }
-                else {
-                    innerLines = recast.fromString("");
-                }
-                if (!comments || !(comments.leading.length + comments.trailing.length)) {
-                    return innerLines;
-                }
-                var parts = [];
-                comments.leading.forEach(function (comment) {
-                    parts.push(printLeadingComment(comment, options));
-                });
-                parts.push(innerLines);
-                comments.trailing.forEach(function (comment) {
-                    assert.strictEqual(comment.type, "Block");
-                    parts.push(printTrailingComment(comment, options));
-                });
-                return recast.concat(parts);
-            }
-            recast.printComments = printComments;
-        })(recast = _ast.recast || (_ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="comments.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var types = lib.ast.types;
-            var assert = lib.utils.assert;
-            var n = types.namedTypes;
-            var isArray = types.builtInTypes["array"];
-            var isObject = types.builtInTypes["object"];
-            var isString = types.builtInTypes["string"];
-            var isFunction = types.builtInTypes["function"];
-            var b = types.builders;
-            function parse(source, options) {
-                options = recast.normalize(options);
-                var lines = recast.fromString(source, options);
-                var sourceWithoutTabs = lines.toString({
-                    tabWidth: options.tabWidth,
-                    reuseWhitespace: false,
-                    useTabs: false
-                });
-                var pure = options.esprima.parse(sourceWithoutTabs, {
-                    loc: true,
-                    range: options.range,
-                    comment: true,
-                    tolerant: options.tolerant
-                });
-                recast.add(pure, lines);
-                // In order to ensure we reprint leading and trailing program
-                // comments, wrap the original Program node with a File node.
-                pure = b["file"](pure);
-                pure.loc = {
-                    lines: lines,
-                    indent: 0,
-                    start: lines.firstPos(),
-                    end: lines.lastPos()
-                };
-                // Return a copy of the original AST so that any changes made may be
-                // compared to the original.
-                return new TreeCopier(lines).copy(pure);
-            }
-            recast.parse = parse;
-            ;
-            var TreeCopier = (function () {
-                function TreeCopier(lines) {
-                    assert.ok(this instanceof TreeCopier);
-                    this.lines = lines;
-                    this.indent = 0;
-                }
-                TreeCopier.prototype.copy = function (node) {
-                    if (isArray.check(node)) {
-                        return node.map(this.copy, this);
-                    }
-                    if (!isObject.check(node)) {
-                        return node;
-                    }
-                    if ((n["MethodDefinition"] && n["MethodDefinition"].check(node)) || (n["Property"].check(node) && (node["method"] || node["shorthand"]))) {
-                        // If the node is a MethodDefinition or a .method or .shorthand
-                        // Property, then the location information stored in
-                        // node.value.loc is very likely untrustworthy (just the {body}
-                        // part of a method, or nothing in the case of shorthand
-                        // properties), so we null out that information to prevent
-                        // accidental reuse of bogus source code during reprinting.
-                        node.value.loc = null;
-                    }
-                    var copy = Object.create(Object.getPrototypeOf(node), {
-                        original: {
-                            value: node,
-                            configurable: false,
-                            enumerable: false,
-                            writable: true
-                        }
-                    });
-                    var loc = node.loc;
-                    var oldIndent = this.indent;
-                    var newIndent = oldIndent;
-                    if (loc) {
-                        if (loc.start.line < 1) {
-                            loc.start.line = 1;
-                        }
-                        if (loc.end.line < 1) {
-                            loc.end.line = 1;
-                        }
-                        if (this.lines.isPrecededOnlyByWhitespace(loc.start)) {
-                            newIndent = this.indent = loc.start.column;
-                        }
-                        loc.lines = this.lines;
-                        loc.indent = newIndent;
-                    }
-                    var keys = Object.keys(node);
-                    var keyCount = keys.length;
-                    for (var i = 0; i < keyCount; ++i) {
-                        var key = keys[i];
-                        if (key === "loc") {
-                            copy[key] = node[key];
-                        }
-                        else if (key === "comments") {
-                        }
-                        else {
-                            copy[key] = this.copy(node[key]);
-                        }
-                    }
-                    this.indent = oldIndent;
-                    if (node.comments) {
-                        Object.defineProperty(copy, "comments", {
-                            value: node.comments,
-                            enumerable: false
-                        });
-                    }
-                    return copy;
-                };
-                return TreeCopier;
-            })();
-            recast.TreeCopier = TreeCopier;
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="recast.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            var types = lib.ast.types;
-            var assert = lib.utils.assert;
-            var NodePath = types.NodePath;
-            var n = types.namedTypes;
-            var isArray = types.builtInTypes["array"];
-            var isObject = types.builtInTypes["object"];
-            var isString = types.builtInTypes["string"];
-            var isFunction = types.builtInTypes["function"];
-            var b = types.builders;
-            var Node = types.namedTypes["Node"];
-            var Expression = types.namedTypes["Expression"];
-            var SourceLocation = types.namedTypes["SourceLocation"];
-            function Patcher(lines) {
-                assert.ok(this instanceof Patcher);
-                assert.ok(lines instanceof recast.Lines);
-                var self = this, replacements = [];
-                self.replace = function (loc, lines) {
-                    if (isString.check(lines))
-                        lines = recast.fromString(lines);
-                    replacements.push({
-                        lines: lines,
-                        start: loc.start,
-                        end: loc.end
-                    });
-                };
-                self.get = function (loc) {
-                    // If no location is provided, return the complete Lines object.
-                    loc = loc || {
-                        start: { line: 1, column: 0 },
-                        end: {
-                            line: lines.length,
-                            column: lines.getLineLength(lines.length)
-                        }
-                    };
-                    var sliceFrom = loc.start, toConcat = [];
-                    function pushSlice(from, to) {
-                        assert.ok(recast.comparePos(from, to) <= 0);
-                        toConcat.push(lines.slice(from, to));
-                    }
-                    replacements.sort(function (a, b) {
-                        return recast.comparePos(a.start, b.start);
-                    }).forEach(function (rep) {
-                        if (recast.comparePos(sliceFrom, rep.start) > 0) {
-                        }
-                        else {
-                            pushSlice(sliceFrom, rep.start);
-                            toConcat.push(rep.lines);
-                            sliceFrom = rep.end;
-                        }
-                    });
-                    pushSlice(sliceFrom, loc.end);
-                    return recast.concat(toConcat);
-                };
-            }
-            recast.Patcher = Patcher;
-            function getReprinter(path) {
-                assert.ok(path instanceof NodePath);
-                // Make sure that this path refers specifically to a Node, rather than
-                // some non-Node subproperty of a Node.
-                var node = path.value;
-                if (!Node.check(node))
-                    return;
-                var orig = node.original;
-                var origLoc = orig && orig.loc;
-                var lines = origLoc && origLoc.lines;
-                var reprints = [];
-                if (!lines || !findReprints(path, reprints))
-                    return;
-                return function (print) {
-                    var patcher = new Patcher(lines);
-                    reprints.forEach(function (reprint) {
-                        var old = reprint.oldPath.value;
-                        SourceLocation.assert(old.loc, true);
-                        patcher.replace(old.loc, print(reprint.newPath).indentTail(old.loc.indent));
-                    });
-                    return patcher.get(origLoc).indentTail(-orig.loc.indent);
-                };
-            }
-            recast.getReprinter = getReprinter;
-            ;
-            function findReprints(newPath, reprints) {
-                var newNode = newPath.value;
-                Node.assert(newNode);
-                var oldNode = newNode.original;
-                Node.assert(oldNode);
-                assert.deepEqual(reprints, []);
-                if (newNode.type !== oldNode.type) {
-                    return false;
-                }
-                var oldPath = new NodePath(oldNode);
-                var canReprint = findChildReprints(newPath, oldPath, reprints);
-                if (!canReprint) {
-                    // Make absolutely sure the calling code does not attempt to reprint
-                    // any nodes.
-                    reprints.length = 0;
-                }
-                return canReprint;
-            }
-            function findAnyReprints(newPath, oldPath, reprints) {
-                var newNode = newPath.value;
-                var oldNode = oldPath.value;
-                if (newNode === oldNode)
-                    return true;
-                if (isArray.check(newNode))
-                    return findArrayReprints(newPath, oldPath, reprints);
-                if (isObject.check(newNode))
-                    return findObjectReprints(newPath, oldPath, reprints);
-                return false;
-            }
-            function findArrayReprints(newPath, oldPath, reprints) {
-                var newNode = newPath.value;
-                var oldNode = oldPath.value;
-                isArray.assert(newNode);
-                var len = newNode.length;
-                if (!(isArray.check(oldNode) && oldNode.length === len))
-                    return false;
-                for (var i = 0; i < len; ++i)
-                    if (!findAnyReprints(newPath.get(i), oldPath.get(i), reprints))
-                        return false;
-                return true;
-            }
-            function findObjectReprints(newPath, oldPath, reprints) {
-                var newNode = newPath.value;
-                isObject.assert(newNode);
-                if (newNode.original === null) {
-                    // If newNode.original node was set to null, reprint the node.
-                    return false;
-                }
-                var oldNode = oldPath.value;
-                if (!isObject.check(oldNode))
-                    return false;
-                if (Node.check(newNode)) {
-                    if (!Node.check(oldNode)) {
-                        return false;
-                    }
-                    if (!oldNode.loc) {
-                        // If we have no .loc information for oldNode, then we won't
-                        // be able to reprint it.
-                        return false;
-                    }
-                    // Here we need to decide whether the reprinted code for newNode
-                    // is appropriate for patching into the location of oldNode.
-                    if (newNode.type === oldNode.type) {
-                        var childReprints = [];
-                        if (findChildReprints(newPath, oldPath, childReprints)) {
-                            reprints.push.apply(reprints, childReprints);
-                        }
-                        else {
-                            reprints.push({
-                                newPath: newPath,
-                                oldPath: oldPath
-                            });
-                        }
-                        return true;
-                    }
-                    if (Expression.check(newNode) && Expression.check(oldNode)) {
-                        // If both nodes are subtypes of Expression, then we should be
-                        // able to fill the location occupied by the old node with
-                        // code printed for the new node with no ill consequences.
-                        reprints.push({
-                            newPath: newPath,
-                            oldPath: oldPath
-                        });
-                        return true;
-                    }
-                    // The nodes have different types, and at least one of the types
-                    // is not a subtype of the Expression type, so we cannot safely
-                    // assume the nodes are syntactically interchangeable.
-                    return false;
-                }
-                return findChildReprints(newPath, oldPath, reprints);
-            }
-            // This object is reused in hasOpeningParen and hasClosingParen to avoid
-            // having to allocate a temporary object.
-            var reusablePos = { line: 1, column: 0 };
-            function hasOpeningParen(oldPath) {
-                var oldNode = oldPath.value;
-                var loc = oldNode.loc;
-                var lines = loc && loc.lines;
-                if (lines) {
-                    var pos = reusablePos;
-                    pos.line = loc.start.line;
-                    pos.column = loc.start.column;
-                    while (lines.prevPos(pos)) {
-                        var ch = lines.charAt(pos);
-                        if (ch === "(") {
-                            var rootPath = oldPath;
-                            while (rootPath.parentPath)
-                                rootPath = rootPath.parentPath;
-                            // If we found an opening parenthesis but it occurred before
-                            // the start of the original subtree for this reprinting, then
-                            // we must not return true for hasOpeningParen(oldPath).
-                            return recast.comparePos(rootPath.value.loc.start, pos) <= 0;
-                        }
-                        if (ch !== " ") {
-                            return false;
-                        }
-                    }
-                }
-                return false;
-            }
-            function hasClosingParen(oldPath) {
-                var oldNode = oldPath.value;
-                var loc = oldNode.loc;
-                var lines = loc && loc.lines;
-                if (lines) {
-                    var pos = reusablePos;
-                    pos.line = loc.end.line;
-                    pos.column = loc.end.column;
-                    do {
-                        var ch = lines.charAt(pos);
-                        if (ch === ")") {
-                            var rootPath = oldPath;
-                            while (rootPath.parentPath)
-                                rootPath = rootPath.parentPath;
-                            // If we found a closing parenthesis but it occurred after the
-                            // end of the original subtree for this reprinting, then we
-                            // must not return true for hasClosingParen(oldPath).
-                            return recast.comparePos(pos, rootPath.value.loc.end) <= 0;
-                        }
-                        if (ch !== " ") {
-                            return false;
-                        }
-                    } while (lines.nextPos(pos));
-                }
-                return false;
-            }
-            function hasParens(oldPath) {
-                // This logic can technically be fooled if the node has parentheses
-                // but there are comments intervening between the parentheses and the
-                // node. In such cases the node will be harmlessly wrapped in an
-                // additional layer of parentheses.
-                return hasOpeningParen(oldPath) && hasClosingParen(oldPath);
-            }
-            function findChildReprints(newPath, oldPath, reprints) {
-                var newNode = newPath.value;
-                var oldNode = oldPath.value;
-                isObject.assert(newNode);
-                isObject.assert(oldNode);
-                if (newNode.original === null) {
-                    // If newNode.original node was set to null, reprint the node.
-                    return false;
-                }
-                // If this type of node cannot come lexically first in its enclosing
-                // statement (e.g. a function expression or object literal), and it
-                // seems to be doing so, then the only way we can ignore this problem
-                // and save ourselves from falling back to the pretty printer is if an
-                // opening parenthesis happens to precede the node.  For example,
-                // (function(){ ... }()); does not need to be reprinted, even though
-                // the FunctionExpression comes lexically first in the enclosing
-                // ExpressionStatement and fails the hasParens test, because the
-                // parent CallExpression passes the hasParens test. If we relied on
-                // the path.needsParens() && !hasParens(oldNode) check below, the
-                // absence of a closing parenthesis after the FunctionExpression would
-                // trigger pretty-printing unnecessarily.
-                if (!newPath.canBeFirstInStatement() && newPath.firstInStatement() && !hasOpeningParen(oldPath))
-                    return false;
-                // If this node needs parentheses and will not be wrapped with
-                // parentheses when reprinted, then return false to skip reprinting
-                // and let it be printed generically.
-                if (newPath.needsParens(true) && !hasParens(oldPath)) {
-                    return false;
-                }
-                for (var k in recast.getUnionOfKeys(newNode, oldNode)) {
-                    if (k === "loc")
-                        continue;
-                    if (!findAnyReprints(newPath.get(k), oldPath.get(k), reprints))
-                        return false;
-                }
-                return true;
-            }
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="types.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var assert = lib.utils.assert;
-            var Op = Object.prototype;
-            var hasOwn = Op.hasOwnProperty;
-            var isArray = types.builtInTypes["array"];
-            var isNumber = types.builtInTypes["number"];
-            var Ap = Array.prototype;
-            var slice = Array.prototype.slice;
-            var map = Array.prototype.map;
-            var Path = (function () {
-                function Path(value, parentPath, name) {
-                    assert.ok(this instanceof Path);
-                    if (parentPath) {
-                        assert.ok(parentPath instanceof Path);
-                    }
-                    else {
-                        parentPath = null;
-                        name = null;
-                    }
-                    // The value encapsulated by this Path, generally equal to
-                    // parentPath.value[name] if we have a parentPath.
-                    this.value = value;
-                    // The immediate parent Path of this Path.
-                    this.parentPath = parentPath;
-                    // The name of the property of parentPath.value through which this
-                    // Path's value was reached.
-                    this.name = name;
-                    // Calling path.get("child") multiple times always returns the same
-                    // child Path object, for both performance and consistency reasons.
-                    this.__childCache = null;
-                }
-                // This method is designed to be overridden by subclasses that need to
-                // handle missing properties, etc.
-                Path.prototype.getValueProperty = function (name) {
-                    return this.value[name];
-                };
-                Path.prototype.get = function (name) {
-                    var path = this;
-                    var names = arguments;
-                    var count = names.length;
-                    for (var i = 0; i < count; ++i) {
-                        path = getChildPath(path, names[i]);
-                    }
-                    return path;
-                };
-                Path.prototype.each = function (callback, context) {
-                    var childPaths = [];
-                    var len = this.value.length;
-                    var i = 0;
-                    for (var i = 0; i < len; ++i) {
-                        if (hasOwn.call(this.value, i)) {
-                            childPaths[i] = this.get(i);
-                        }
-                    }
-                    // Invoke the callback on just the original child paths, regardless of
-                    // any modifications made to the array by the callback. I chose these
-                    // semantics over cleverly invoking the callback on new elements because
-                    // this way is much easier to reason about.
-                    context = context || this;
-                    for (i = 0; i < len; ++i) {
-                        if (hasOwn.call(childPaths, i)) {
-                            callback.call(context, childPaths[i]);
-                        }
-                    }
-                };
-                Path.prototype.map = function (callback, context) {
-                    var result = [];
-                    this.each(function (childPath) {
-                        result.push(callback.call(this, childPath));
-                    }, context);
-                    return result;
-                };
-                Path.prototype.filter = function (callback, context) {
-                    var result = [];
-                    this.each(function (childPath) {
-                        if (callback.call(this, childPath)) {
-                            result.push(childPath);
-                        }
-                    }, context);
-                    return result;
-                };
-                Path.prototype.shift = function () {
-                    var move = getMoves(this, -1);
-                    var result = this.value.shift();
-                    move();
-                    return result;
-                };
-                Path.prototype.unshift = function (node) {
-                    var move = getMoves(this, arguments.length);
-                    var result = this.value.unshift.apply(this.value, arguments);
-                    move();
-                    return result;
-                };
-                Path.prototype.push = function (node) {
-                    isArray.assert(this.value);
-                    delete getChildCache(this).length;
-                    return this.value.push.apply(this.value, arguments);
-                };
-                Path.prototype.pop = function () {
-                    isArray.assert(this.value);
-                    var cache = getChildCache(this);
-                    delete cache[this.value.length - 1];
-                    delete cache.length;
-                    return this.value.pop();
-                };
-                Path.prototype.insertAt = function (index, node) {
-                    var argc = arguments.length;
-                    var move = getMoves(this, argc - 1, index);
-                    if (move === emptyMoves) {
-                        return this;
-                    }
-                    index = Math.max(index, 0);
-                    for (var i = 1; i < argc; ++i) {
-                        this.value[index + i - 1] = arguments[i];
-                    }
-                    move();
-                    return this;
-                };
-                Path.prototype.insertBefore = function (node) {
-                    var pp = this.parentPath;
-                    var argc = arguments.length;
-                    var insertAtArgs = [this.name];
-                    for (var i = 0; i < argc; ++i) {
-                        insertAtArgs.push(arguments[i]);
-                    }
-                    return pp.insertAt.apply(pp, insertAtArgs);
-                };
-                Path.prototype.insertAfter = function (node) {
-                    var pp = this.parentPath;
-                    var argc = arguments.length;
-                    var insertAtArgs = [this.name + 1];
-                    for (var i = 0; i < argc; ++i) {
-                        insertAtArgs.push(arguments[i]);
-                    }
-                    return pp.insertAt.apply(pp, insertAtArgs);
-                };
-                Path.prototype.replace = function (replacement) {
-                    var results = [];
-                    var parentValue = this.parentPath.value;
-                    var parentCache = getChildCache(this.parentPath);
-                    var count = arguments.length;
-                    repairRelationshipWithParent(this);
-                    if (isArray.check(parentValue)) {
-                        var originalLength = parentValue.length;
-                        var move = getMoves(this.parentPath, count - 1, this.name + 1);
-                        var spliceArgs = [this.name, 1];
-                        for (var i = 0; i < count; ++i) {
-                            spliceArgs.push(arguments[i]);
-                        }
-                        var splicedOut = parentValue.splice.apply(parentValue, spliceArgs);
-                        assert.strictEqual(splicedOut[0], this.value);
-                        assert.strictEqual(parentValue.length, originalLength - 1 + count);
-                        move();
-                        if (count === 0) {
-                            delete this.value;
-                            delete parentCache[this.name];
-                            this.__childCache = null;
-                        }
-                        else {
-                            assert.strictEqual(parentValue[this.name], replacement);
-                            if (this.value !== replacement) {
-                                this.value = replacement;
-                                this.__childCache = null;
-                            }
-                            for (i = 0; i < count; ++i) {
-                                results.push(this.parentPath.get(this.name + i));
-                            }
-                            assert.strictEqual(results[0], this);
-                        }
-                    }
-                    else if (count === 1) {
-                        if (this.value !== replacement) {
-                            this.__childCache = null;
-                        }
-                        this.value = parentValue[this.name] = replacement;
-                        results.push(this);
-                    }
-                    else if (count === 0) {
-                        delete parentValue[this.name];
-                        delete this.value;
-                        this.__childCache = null;
-                    }
-                    else {
-                        assert.ok(false, "Could not replace path");
-                    }
-                    return results;
-                };
-                return Path;
-            })();
-            types.Path = Path;
-            function getChildCache(path) {
-                // Lazily create the child cache. This also cheapens cache
-                // invalidation, since you can just reset path.__childCache to null.
-                return path.__childCache || (path.__childCache = Object.create(null));
-            }
-            function getChildPath(path, name) {
-                var cache = getChildCache(path);
-                var actualChildValue = path.getValueProperty(name);
-                var childPath = cache[name];
-                if (!hasOwn.call(cache, name) || childPath.value !== actualChildValue) {
-                    childPath = cache[name] = new path.constructor(actualChildValue, path, name);
-                }
-                return childPath;
-            }
-            function emptyMoves() {
-            }
-            function getMoves(path, offset, start, end) {
-                isArray.assert(path.value);
-                if (offset === 0) {
-                    return emptyMoves;
-                }
-                var length = path.value.length;
-                if (length < 1) {
-                    return emptyMoves;
-                }
-                var argc = arguments.length;
-                if (argc === 2) {
-                    start = 0;
-                    end = length;
-                }
-                else if (argc === 3) {
-                    start = Math.max(start, 0);
-                    end = length;
-                }
-                else {
-                    start = Math.max(start, 0);
-                    end = Math.min(end, length);
-                }
-                isNumber.assert(start);
-                isNumber.assert(end);
-                var moves = Object.create(null);
-                var cache = getChildCache(path);
-                for (var i = start; i < end; ++i) {
-                    if (hasOwn.call(path.value, i)) {
-                        var childPath = path.get(i);
-                        assert.strictEqual(childPath.name, i);
-                        var newIndex = i + offset;
-                        childPath.name = newIndex;
-                        moves[newIndex] = childPath;
-                        delete cache[i];
-                    }
-                }
-                delete cache.length;
-                return function () {
-                    for (var newIndex in moves) {
-                        var childPath = moves[newIndex];
-                        assert.strictEqual(childPath.name, +newIndex);
-                        cache[newIndex] = childPath;
-                        path.value[newIndex] = childPath.value;
-                    }
-                };
-            }
-            function repairRelationshipWithParent(path) {
-                assert.ok(path instanceof Path);
-                var pp = path.parentPath;
-                if (!pp) {
-                    // Orphan paths have no relationship to repair.
-                    return path;
-                }
-                var parentValue = pp.value;
-                var parentCache = getChildCache(pp);
-                // Make sure parentCache[path.name] is populated.
-                if (parentValue[path.name] === path.value) {
-                    parentCache[path.name] = path;
-                }
-                else if (isArray.check(parentValue)) {
-                    // Something caused path.name to become out of date, so attempt to
-                    // recover by searching for path.value in parentValue.
-                    var i = parentValue.indexOf(path.value);
-                    if (i >= 0) {
-                        parentCache[path.name = i] = path;
-                    }
-                }
-                else {
-                    // If path.value disagrees with parentValue[path.name], and
-                    // path.name is not an array index, let path.value become the new
-                    // parentValue[path.name] and update parentCache accordingly.
-                    parentValue[path.name] = path.value;
-                    parentCache[path.name] = path;
-                }
-                assert.strictEqual(parentValue[path.name], path.value);
-                assert.strictEqual(path.parentPath.get(path.name), path);
-                return path;
-            }
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="types.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var assert = lib.utils.assert;
-            var namedTypes = types.namedTypes;
-            var Node = namedTypes["Node"];
-            var Expression = namedTypes["Expression"];
-            var isArray = types.builtInTypes["array"];
-            var hasOwn = Object.prototype.hasOwnProperty;
-            var b = types.builders;
-            var Scope = (function () {
-                function Scope(path, parentScope) {
-                    // Will be overridden after an instance lazily calls scanScope.
-                    this.didScan = false;
-                    assert.ok(this instanceof Scope);
-                    ScopeType.assert(path.value);
-                    var depth;
-                    if (parentScope) {
-                        assert.ok(parentScope instanceof Scope);
-                        depth = parentScope.depth + 1;
-                    }
-                    else {
-                        parentScope = null;
-                        depth = 0;
-                    }
-                    Object.defineProperties(this, {
-                        path: { value: path },
-                        node: { value: path.value },
-                        isGlobal: { value: !parentScope, enumerable: true },
-                        depth: { value: depth },
-                        parent: { value: parentScope },
-                        bindings: { value: {} }
-                    });
-                }
-                Scope.isEstablishedBy = function (node) {
-                    return ScopeType.check(node);
-                };
-                Scope.prototype.declares = function (name) {
-                    this.scan();
-                    return hasOwn.call(this.bindings, name);
-                };
-                Scope.prototype.declareTemporary = function (prefix) {
-                    if (prefix) {
-                        assert.ok(/^[a-z$_]/i.test(prefix), prefix);
-                    }
-                    else {
-                        prefix = "t$";
-                    }
-                    // Include this.depth in the name to make sure the name does not
-                    // collide with any variables in nested/enclosing scopes.
-                    prefix += this.depth.toString(36) + "$";
-                    this.scan();
-                    var index = 0;
-                    while (this.declares(prefix + index)) {
-                        ++index;
-                    }
-                    var name = prefix + index;
-                    return this.bindings[name] = types.builders["identifier"](name);
-                };
-                Scope.prototype.injectTemporary = function (identifier, init) {
-                    identifier || (identifier = this.declareTemporary());
-                    var bodyPath = this.path.get("body");
-                    if (namedTypes["BlockStatement"].check(bodyPath.value)) {
-                        bodyPath = bodyPath.get("body");
-                    }
-                    bodyPath.unshift(b["variableDeclaration"]("var", [b["variableDeclarator"](identifier, init || null)]));
-                    return identifier;
-                };
-                Scope.prototype.scan = function (force) {
-                    if (force || !this.didScan) {
-                        for (var name in this.bindings) {
-                            // Empty out this.bindings, just in cases.
-                            delete this.bindings[name];
-                        }
-                        scanScope(this.path, this.bindings);
-                        this.didScan = true;
-                    }
-                };
-                Scope.prototype.getBindings = function () {
-                    this.scan();
-                    return this.bindings;
-                };
-                Scope.prototype.lookup = function (name) {
-                    for (var scope = this; scope; scope = scope.parent)
-                        if (scope.declares(name))
-                            break;
-                    return scope;
-                };
-                Scope.prototype.getGlobalScope = function () {
-                    var scope = this;
-                    while (!scope.isGlobal)
-                        scope = scope.parent;
-                    return scope;
-                };
-                return Scope;
-            })();
-            types.Scope = Scope;
-            var scopeTypes = [
-                namedTypes["Program"],
-                namedTypes["Function"],
-                namedTypes["CatchClause"]
-            ];
-            var ScopeType = types.Type.or.apply(types.Type, scopeTypes);
-            function scanScope(path, bindings) {
-                var node = path.value;
-                ScopeType.assert(node);
-                if (namedTypes["CatchClause"].check(node)) {
-                    // A catch clause establishes a new scope but the only variable
-                    // bound in that scope is the catch parameter. Any other
-                    // declarations create bindings in the outer scope.
-                    addPattern(path.get("param"), bindings);
-                }
-                else {
-                    recursiveScanScope(path, bindings);
-                }
-            }
-            function recursiveScanScope(path, bindings) {
-                var node = path.value;
-                if (path.parent && namedTypes["FunctionExpression"].check(path.parent.node) && path.parent.node.id) {
-                    addPattern(path.parent.get("id"), bindings);
-                }
-                if (!node) {
-                }
-                else if (isArray.check(node)) {
-                    path.each(function (childPath) {
-                        recursiveScanChild(childPath, bindings);
-                    });
-                }
-                else if (namedTypes["Function"].check(node)) {
-                    path.get("params").each(function (paramPath) {
-                        addPattern(paramPath, bindings);
-                    });
-                    recursiveScanChild(path.get("body"), bindings);
-                }
-                else if (namedTypes["VariableDeclarator"].check(node)) {
-                    addPattern(path.get("id"), bindings);
-                    recursiveScanChild(path.get("init"), bindings);
-                }
-                else if (node.type === "ImportSpecifier" || node.type === "ImportNamespaceSpecifier" || node.type === "ImportDefaultSpecifier") {
-                    addPattern(node.name ? path.get("name") : path.get("id"), bindings);
-                }
-                else if (Node.check(node) && !Expression.check(node)) {
-                    types.eachField(node, function (name, child) {
-                        var childPath = path.get(name);
-                        assert.strictEqual(childPath.value, child);
-                        recursiveScanChild(childPath, bindings);
-                    });
-                }
-            }
-            function recursiveScanChild(path, bindings) {
-                var node = path.value;
-                if (!node || Expression.check(node)) {
-                }
-                else if (namedTypes["FunctionDeclaration"].check(node)) {
-                    addPattern(path.get("id"), bindings);
-                }
-                else if (namedTypes["ClassDeclaration"] && namedTypes["ClassDeclaration"].check(node)) {
-                    addPattern(path.get("id"), bindings);
-                }
-                else if (ScopeType.check(node)) {
-                    if (namedTypes["CatchClause"].check(node)) {
-                        var catchParamName = node.param.name;
-                        var hadBinding = hasOwn.call(bindings, catchParamName);
-                        // Any declarations that occur inside the catch body that do
-                        // not have the same name as the catch parameter should count
-                        // as bindings in the outer scope.
-                        recursiveScanScope(path.get("body"), bindings);
-                        // If a new binding matching the catch parameter name was
-                        // created while scanning the catch body, ignore it because it
-                        // actually refers to the catch parameter and not the outer
-                        // scope that we're currently scanning.
-                        if (!hadBinding) {
-                            delete bindings[catchParamName];
-                        }
-                    }
-                }
-                else {
-                    recursiveScanScope(path, bindings);
-                }
-            }
-            function addPattern(patternPath, bindings) {
-                var pattern = patternPath.value;
-                namedTypes["Pattern"].assert(pattern);
-                if (namedTypes["Identifier"].check(pattern)) {
-                    if (hasOwn.call(bindings, pattern.name)) {
-                        bindings[pattern.name].push(patternPath);
-                    }
-                    else {
-                        bindings[pattern.name] = [patternPath];
-                    }
-                }
-                else if (namedTypes["SpreadElement"] && namedTypes["SpreadElement"].check(pattern)) {
-                    addPattern(patternPath.get("argument"), bindings);
-                }
-            }
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-/// <reference path="path.ts" />
-/// <reference path="scope.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var assert = lib.utils.assert;
-            var n = types.namedTypes;
-            var b = types.builders;
-            var isNumber = types.builtInTypes["number"];
-            var isArray = types.builtInTypes["array"];
-            var NodePath = (function (_super) {
-                __extends(NodePath, _super);
-                function NodePath(value, parentPath, name) {
-                    assert.ok(this instanceof NodePath);
-                    _super.call(this, value, parentPath, name);
-                }
-                NodePath.prototype.replace = function () {
-                    delete this.node;
-                    delete this.parent;
-                    delete this.scope;
-                    return types.Path.prototype.replace.apply(this, arguments);
-                };
-                NodePath.prototype.prune = function () {
-                    var remainingNodePath = this.parent;
-                    this.replace();
-                    return cleanUpNodesAfterPrune(remainingNodePath);
-                };
-                // The value of the first ancestor Path whose value is a Node.
-                NodePath.prototype._computeNode = function () {
-                    var value = this.value;
-                    if (n["Node"].check(value)) {
-                        return value;
-                    }
-                    var pp = this.parentPath;
-                    return pp && pp.node || null;
-                };
-                // The first ancestor Path whose value is a Node distinct from this.node.
-                NodePath.prototype._computeParent = function () {
-                    var value = this.value;
-                    var pp = this.parentPath;
-                    if (!n["Node"].check(value)) {
-                        while (pp && !n["Node"].check(pp.value)) {
-                            pp = pp.parentPath;
-                        }
-                        if (pp) {
-                            pp = pp.parentPath;
-                        }
-                    }
-                    while (pp && !n["Node"].check(pp.value)) {
-                        pp = pp.parentPath;
-                    }
-                    return pp || null;
-                };
-                // The closest enclosing scope that governs this node.
-                NodePath.prototype._computeScope = function () {
-                    var value = this.value;
-                    var pp = this.parentPath;
-                    var scope = pp && pp.scope;
-                    if (n["Node"].check(value) && types.Scope.isEstablishedBy(value)) {
-                        scope = new types.Scope(this, scope);
-                    }
-                    return scope || null;
-                };
-                NodePath.prototype.getValueProperty = function (name) {
-                    return types.getFieldValue(this.value, name);
-                };
-                NodePath.prototype.canBeFirstInStatement = function () {
-                    var node = this.node;
-                    return !n["FunctionExpression"].check(node) && !n["ObjectExpression"].check(node);
-                };
-                NodePath.prototype.firstInStatement = function () {
-                    return firstInStatement(this);
-                };
-                /**
-                 * Determine whether this.node needs to be wrapped in parentheses in order
-                 * for a parser to reproduce the same local AST structure.
-                 *
-                 * For instance, in the expression `(1 + 2) * 3`, the BinaryExpression
-                 * whose operator is "+" needs parentheses, because `1 + 2 * 3` would
-                 * parse differently.
-                 *
-                 * If assumeExpressionContext === true, we don't worry about edge cases
-                 * like an anonymous FunctionExpression appearing lexically first in its
-                 * enclosing statement and thus needing parentheses to avoid being parsed
-                 * as a FunctionDeclaration with a missing name.
-                 */
-                NodePath.prototype.needsParens = function (assumeExpressionContext) {
-                    var pp = this.parentPath;
-                    if (!pp) {
-                        return false;
-                    }
-                    var node = this.value;
-                    // Only expressions need parentheses.
-                    if (!n["Expression"].check(node)) {
-                        return false;
-                    }
-                    // Identifiers never need parentheses.
-                    if (node.type === "Identifier") {
-                        return false;
-                    }
-                    while (!n["Node"].check(pp.value)) {
-                        pp = pp.parentPath;
-                        if (!pp) {
-                            return false;
-                        }
-                    }
-                    var parent = pp.value;
-                    switch (node.type) {
-                        case "UnaryExpression":
-                        case "SpreadElement":
-                        case "SpreadProperty":
-                            return parent.type === "MemberExpression" && this.name === "object" && parent.object === node;
-                        case "BinaryExpression":
-                        case "LogicalExpression":
-                            switch (parent.type) {
-                                case "CallExpression":
-                                    return this.name === "callee" && parent.callee === node;
-                                case "UnaryExpression":
-                                case "SpreadElement":
-                                case "SpreadProperty":
-                                    return true;
-                                case "MemberExpression":
-                                    return this.name === "object" && parent.object === node;
-                                case "BinaryExpression":
-                                case "LogicalExpression":
-                                    var po = parent.operator;
-                                    var pp = PRECEDENCE[po];
-                                    var no = node.operator;
-                                    var np = PRECEDENCE[no];
-                                    if (pp > np) {
-                                        return true;
-                                    }
-                                    if (pp === np && this.name === "right") {
-                                        assert.strictEqual(parent.right, node);
-                                        return true;
-                                    }
-                                default:
-                                    return false;
-                            }
-                        case "SequenceExpression":
-                            switch (parent.type) {
-                                case "ForStatement":
-                                    // Although parentheses wouldn't hurt around sequence
-                                    // expressions in the head of for loops, traditional style
-                                    // dictates that e.g. i++, j++ should not be wrapped with
-                                    // parentheses.
-                                    return false;
-                                case "ExpressionStatement":
-                                    return this.name !== "expression";
-                                default:
-                                    // Otherwise err on the side of overparenthesization, adding
-                                    // explicit exceptions above if this proves overzealous.
-                                    return true;
-                            }
-                        case "YieldExpression":
-                            switch (parent.type) {
-                                case "BinaryExpression":
-                                case "LogicalExpression":
-                                case "UnaryExpression":
-                                case "SpreadElement":
-                                case "SpreadProperty":
-                                case "CallExpression":
-                                case "MemberExpression":
-                                case "NewExpression":
-                                case "ConditionalExpression":
-                                case "YieldExpression":
-                                    return true;
-                                default:
-                                    return false;
-                            }
-                        case "Literal":
-                            return parent.type === "MemberExpression" && isNumber.check(node.value) && this.name === "object" && parent.object === node;
-                        case "AssignmentExpression":
-                        case "ConditionalExpression":
-                            switch (parent.type) {
-                                case "UnaryExpression":
-                                case "SpreadElement":
-                                case "SpreadProperty":
-                                case "BinaryExpression":
-                                case "LogicalExpression":
-                                    return true;
-                                case "CallExpression":
-                                    return this.name === "callee" && parent.callee === node;
-                                case "ConditionalExpression":
-                                    return this.name === "test" && parent.test === node;
-                                case "MemberExpression":
-                                    return this.name === "object" && parent.object === node;
-                                default:
-                                    return false;
-                            }
-                        default:
-                            if (parent.type === "NewExpression" && this.name === "callee" && parent.callee === node) {
-                                return containsCallExpression(node);
-                            }
-                    }
-                    if (assumeExpressionContext !== true && !this.canBeFirstInStatement() && this.firstInStatement())
-                        return true;
-                    return false;
-                };
-                return NodePath;
-            })(types.Path);
-            types.NodePath = NodePath;
-            Object.defineProperties(NodePath.prototype, {
-                node: {
-                    get: function () {
-                        Object.defineProperty(this, "node", {
-                            configurable: true,
-                            value: this._computeNode()
-                        });
-                        return this.node;
-                    }
-                },
-                parent: {
-                    get: function () {
-                        Object.defineProperty(this, "parent", {
-                            configurable: true,
-                            value: this._computeParent()
-                        });
-                        return this.parent;
-                    }
-                },
-                scope: {
-                    get: function () {
-                        Object.defineProperty(this, "scope", {
-                            configurable: true,
-                            value: this._computeScope()
-                        });
-                        return this.scope;
-                    }
-                }
-            });
-            function isBinary(node) {
-                return n["BinaryExpression"].check(node) || n["LogicalExpression"].check(node);
-            }
-            function isUnaryLike(node) {
-                return n["UnaryExpression"].check(node) || (n["SpreadElement"] && n["SpreadElement"].check(node));
-            }
-            var PRECEDENCE = {};
-            [["||"], ["&&"], ["|"], ["^"], ["&"], ["==", "===", "!=", "!=="], ["<", ">", "<=", ">=", "in", "instanceof"], [">>", "<<", ">>>"], ["+", "-"], ["*", "/", "%"]].forEach(function (tier, i) {
-                tier.forEach(function (op) {
-                    PRECEDENCE[op] = i;
-                });
-            });
-            function containsCallExpression(node) {
-                if (n["CallExpression"].check(node)) {
-                    return true;
-                }
-                if (isArray.check(node)) {
-                    return node.some(containsCallExpression);
-                }
-                if (n["Node"].check(node)) {
-                    return types.someField(node, function (name, child) {
-                        return containsCallExpression(child);
-                    });
-                }
-                return false;
-            }
-            function firstInStatement(path) {
-                for (var node, parent; path.parent; path = path.parent) {
-                    node = path.node;
-                    parent = path.parent.node;
-                    if (n["BlockStatement"].check(parent) && path.parent.name === "body" && path.name === 0) {
-                        assert.strictEqual(parent.body[0], node);
-                        return true;
-                    }
-                    if (n["ExpressionStatement"].check(parent) && path.name === "expression") {
-                        assert.strictEqual(parent.expression, node);
-                        return true;
-                    }
-                    if (n["SequenceExpression"].check(parent) && path.parent.name === "expressions" && path.name === 0) {
-                        assert.strictEqual(parent.expressions[0], node);
-                        continue;
-                    }
-                    if (n["CallExpression"].check(parent) && path.name === "callee") {
-                        assert.strictEqual(parent.callee, node);
-                        continue;
-                    }
-                    if (n["MemberExpression"].check(parent) && path.name === "object") {
-                        assert.strictEqual(parent.object, node);
-                        continue;
-                    }
-                    if (n["ConditionalExpression"].check(parent) && path.name === "test") {
-                        assert.strictEqual(parent.test, node);
-                        continue;
-                    }
-                    if (isBinary(parent) && path.name === "left") {
-                        assert.strictEqual(parent.left, node);
-                        continue;
-                    }
-                    if (n["UnaryExpression"].check(parent) && !parent.prefix && path.name === "argument") {
-                        assert.strictEqual(parent.argument, node);
-                        continue;
-                    }
-                    return false;
-                }
-                return true;
-            }
-            /**
-             * Pruning certain nodes will result in empty or incomplete nodes, here we clean those nodes up.
-             */
-            function cleanUpNodesAfterPrune(remainingNodePath) {
-                if (n["VariableDeclaration"].check(remainingNodePath.node)) {
-                    var declarations = remainingNodePath.get('declarations').value;
-                    if (!declarations || declarations.length === 0) {
-                        return remainingNodePath.prune();
-                    }
-                }
-                else if (n["ExpressionStatement"].check(remainingNodePath.node)) {
-                    if (!remainingNodePath.get('expression').value) {
-                        return remainingNodePath.prune();
-                    }
-                }
-                else if (n["IfStatement"].check(remainingNodePath.node)) {
-                    cleanUpIfStatementAfterPrune(remainingNodePath);
-                }
-                return remainingNodePath;
-            }
-            function cleanUpIfStatementAfterPrune(ifStatement) {
-                var testExpression = ifStatement.get('test').value;
-                var alternate = ifStatement.get('alternate').value;
-                var consequent = ifStatement.get('consequent').value;
-                if (!consequent && !alternate) {
-                    var testExpressionStatement = b["expressionStatement"](testExpression);
-                    ifStatement.replace(testExpressionStatement);
-                }
-                else if (!consequent && alternate) {
-                    var negatedTestExpression = b["unaryExpression"]('!', testExpression, true);
-                    if (n["UnaryExpression"].check(testExpression) && testExpression.operator === '!') {
-                        negatedTestExpression = testExpression.argument;
-                    }
-                    ifStatement.get("test").replace(negatedTestExpression);
-                    ifStatement.get("consequent").replace(alternate);
-                    ifStatement.get("alternate").replace();
-                }
-            }
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="recast.ts" />
-/// <reference path="lines.ts" />
-/// <reference path="utils.ts" />
-/// <reference path="parser.ts" />
-/// <reference path="patcher.ts" />
-/// <reference path="../types/node-path.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (_ast) {
-        var recast;
-        (function (recast) {
-            var types = lib.ast.types;
-            var assert = lib.utils.assert;
-            var namedTypes = types.namedTypes;
-            var isString = types.builtInTypes["string"];
-            var isObject = types.builtInTypes["object"];
-            var NodePath = types.NodePath;
-            var PrintResult = (function () {
-                function PrintResult(code, sourceMap) {
-                    assert.ok(this instanceof PrintResult);
-                    isString.assert(code);
-                    this.code = code;
-                    if (sourceMap) {
-                        isObject.assert(sourceMap);
-                        this.map = sourceMap;
-                    }
-                }
-                return PrintResult;
-            })();
-            recast.PrintResult = PrintResult;
-            var PRp = PrintResult.prototype;
-            var warnedAboutToString = false;
-            PRp.toString = function () {
-                if (!warnedAboutToString) {
-                    console.warn("Deprecation warning: recast.print now returns an object with " + "a .code property. You appear to be treating the object as a " + "string, which might still work but is strongly discouraged.");
-                    warnedAboutToString = true;
-                }
-                return this.code;
-            };
-            var emptyPrintResult = new PrintResult("");
-            function Printer(originalOptions) {
-                assert.ok(this instanceof Printer);
-                var explicitTabWidth = originalOptions && originalOptions.tabWidth;
-                var options = recast.normalize(originalOptions);
-                assert.notStrictEqual(options, originalOptions);
-                // It's common for client code to pass the same options into both
-                // recast.parse and recast.print, but the Printer doesn't need (and
-                // can be confused by) options.sourceFileName, so we null it out.
-                options.sourceFileName = null;
-                function printWithComments(path) {
-                    assert.ok(path instanceof NodePath);
-                    return recast.printComments(path.node.comments, print(path), options);
-                }
-                function print(path, includeComments) {
-                    if (includeComments)
-                        return printWithComments(path);
-                    assert.ok(path instanceof NodePath);
-                    if (!explicitTabWidth) {
-                        var oldTabWidth = options.tabWidth;
-                        var orig = path.node.original;
-                        var origLoc = orig && orig.loc;
-                        var origLines = origLoc && origLoc.lines;
-                        if (origLines) {
-                            options.tabWidth = origLines.guessTabWidth();
-                            var lines = maybeReprint(path);
-                            options.tabWidth = oldTabWidth;
-                            return lines;
-                        }
-                    }
-                    return maybeReprint(path);
-                }
-                function maybeReprint(path) {
-                    var reprinter = recast.getReprinter(path);
-                    if (reprinter)
-                        return maybeAddParens(path, reprinter(maybeReprint));
-                    return printRootGenerically(path);
-                }
-                // Print the root node generically, but then resume reprinting its
-                // children non-generically.
-                function printRootGenerically(path) {
-                    return genericPrint(path, options, printWithComments);
-                }
-                // Print the entire AST generically.
-                function printGenerically(path) {
-                    return genericPrint(path, options, printGenerically);
-                }
-                this.print = function (ast) {
-                    if (!ast) {
-                        return emptyPrintResult;
-                    }
-                    var path = ast instanceof NodePath ? ast : new NodePath(ast);
-                    var lines = print(path, true);
-                    return new PrintResult(lines.toString(options), recast.composeSourceMaps(options.inputSourceMap, lines.getSourceMap(options.sourceMapName, options.sourceRoot)));
-                };
-                this.printGenerically = function (ast) {
-                    if (!ast) {
-                        return emptyPrintResult;
-                    }
-                    var path = ast instanceof NodePath ? ast : new NodePath(ast);
-                    var oldReuseWhitespace = options.reuseWhitespace;
-                    // Do not reuse whitespace (or anything else, for that matter)
-                    // when printing generically.
-                    options.reuseWhitespace = false;
-                    var pr = new PrintResult(printGenerically(path).toString(options));
-                    options.reuseWhitespace = oldReuseWhitespace;
-                    return pr;
-                };
-            }
-            recast.Printer = Printer;
-            function maybeAddParens(path, lines) {
-                return path.needsParens() ? recast.concat(["(", lines, ")"]) : lines;
-            }
-            function genericPrint(path, options, printPath) {
-                assert.ok(path instanceof NodePath);
-                return maybeAddParens(path, genericPrintNoParens(path, options, printPath));
-            }
-            function genericPrintNoParens(path, options, print) {
-                var n = path.value;
-                if (!n) {
-                    return recast.fromString("");
-                }
-                if (typeof n === "string") {
-                    return recast.fromString(n, options);
-                }
-                namedTypes["Node"].assert(n);
-                switch (n.type) {
-                    case "File":
-                        path = path.get("program");
-                        n = path.node;
-                        namedTypes["Program"].assert(n);
-                    case "Program":
-                        return maybeAddSemicolon(printStatementSequence(path.get("body"), options, print));
-                    case "EmptyStatement":
-                        return recast.fromString("");
-                    case "ExpressionStatement":
-                        return recast.concat([print(path.get("expression")), ";"]);
-                    case "BinaryExpression":
-                    case "LogicalExpression":
-                    case "AssignmentExpression":
-                        return recast.fromString(" ").join([
-                            print(path.get("left")),
-                            n.operator,
-                            print(path.get("right"))
-                        ]);
-                    case "MemberExpression":
-                        {
-                            var parts = [print(path.get("object"))];
-                            if (n.computed)
-                                parts.push("[", print(path.get("property")), "]");
-                            else
-                                parts.push(".", print(path.get("property")));
-                            return recast.concat(parts);
-                        }
-                    case "Path":
-                        return recast.fromString(".").join(n.body);
-                    case "Identifier":
-                        return recast.fromString(n.name, options);
-                    case "SpreadElement":
-                    case "SpreadElementPattern":
-                    case "SpreadProperty":
-                    case "SpreadPropertyPattern":
-                        return recast.concat(["...", print(path.get("argument"))]);
-                    case "FunctionDeclaration":
-                    case "FunctionExpression":
-                        {
-                            var parts = [];
-                            if (n.async)
-                                parts.push("async ");
-                            parts.push("function");
-                            if (n.generator)
-                                parts.push("*");
-                            if (n.id)
-                                parts.push(" ", print(path.get("id")));
-                            parts.push("(", printFunctionParams(path, options, print), ") ", print(path.get("body")));
-                            return recast.concat(parts);
-                        }
-                    case "ArrowFunctionExpression":
-                        {
-                            var parts = [];
-                            if (n.async)
-                                parts.push("async ");
-                            if (n.params.length === 1) {
-                                parts.push(print(path.get("params", 0)));
-                            }
-                            else {
-                                parts.push("(", printFunctionParams(path, options, print), ")");
-                            }
-                            parts.push(" => ", print(path.get("body")));
-                            return recast.concat(parts);
-                        }
-                    case "MethodDefinition":
-                        {
-                            var parts = [];
-                            if (n.static) {
-                                parts.push("static ");
-                            }
-                            parts.push(printMethod(n.kind, path.get("key"), path.get("value"), options, print));
-                            return recast.concat(parts);
-                        }
-                    case "YieldExpression":
-                        {
-                            var parts = ["yield"];
-                            if (n.delegate)
-                                parts.push("*");
-                            if (n.argument)
-                                parts.push(" ", print(path.get("argument")));
-                            return recast.concat(parts);
-                        }
-                    case "AwaitExpression":
-                        {
-                            var parts = ["await"];
-                            if (n.all)
-                                parts.push("*");
-                            if (n.argument)
-                                parts.push(" ", print(path.get("argument")));
-                            return recast.concat(parts);
-                        }
-                    case "ModuleDeclaration":
-                        var parts = ["module", print(path.get("id"))];
-                        if (n.source) {
-                            assert.ok(!n.body);
-                            parts.push("from", print(path.get("source")));
-                        }
-                        else {
-                            parts.push(print(path.get("body")));
-                        }
-                        return recast.fromString(" ").join(parts);
-                    case "ImportSpecifier":
-                    case "ExportSpecifier":
-                        var parts = [print(path.get("id"))];
-                        if (n.name)
-                            parts.push(" as ", print(path.get("name")));
-                        return recast.concat(parts);
-                    case "ExportBatchSpecifier":
-                        return recast.fromString("*");
-                    case "ImportNamespaceSpecifier":
-                        return recast.concat(["* as ", print(path.get("id"))]);
-                    case "ImportDefaultSpecifier":
-                        return print(path.get("id"));
-                    case "ExportDeclaration":
-                        var parts = ["export"];
-                        if (n["default"]) {
-                            parts.push(" default");
-                        }
-                        else if (n.specifiers && n.specifiers.length > 0) {
-                            if (n.specifiers.length === 1 && n.specifiers[0].type === "ExportBatchSpecifier") {
-                                parts.push(" *");
-                            }
-                            else {
-                                parts.push(" { ", recast.fromString(", ").join(path.get("specifiers").map(print)), " }");
-                            }
-                            if (n.source)
-                                parts.push(" from ", print(path.get("source")));
-                            parts.push(";");
-                            return recast.concat(parts);
-                        }
-                        if (n.declaration) {
-                            if (!namedTypes["Node"].check(n.declaration)) {
-                                console.log(JSON.stringify(n, null, 2));
-                            }
-                            var decLines = print(path.get("declaration"));
-                            parts.push(" ", decLines);
-                            if (lastNonSpaceCharacter(decLines) !== ";") {
-                                parts.push(";");
-                            }
-                        }
-                        return recast.concat(parts);
-                    case "ImportDeclaration":
-                        var parts = ["import "];
-                        if (n.specifiers && n.specifiers.length > 0) {
-                            var foundImportSpecifier = false;
-                            path.get("specifiers").each(function (sp) {
-                                if (sp.name > 0) {
-                                    parts.push(", ");
-                                }
-                                if (namedTypes["ImportDefaultSpecifier"].check(sp.value) || namedTypes["ImportNamespaceSpecifier"].check(sp.value)) {
-                                    assert.strictEqual(foundImportSpecifier, false);
-                                }
-                                else {
-                                    namedTypes["ImportSpecifier"].assert(sp.value);
-                                    if (!foundImportSpecifier) {
-                                        foundImportSpecifier = true;
-                                        parts.push("{");
-                                    }
-                                }
-                                parts.push(print(sp));
-                            });
-                            if (foundImportSpecifier) {
-                                parts.push("}");
-                            }
-                            parts.push(" from ");
-                        }
-                        parts.push(print(path.get("source")), ";");
-                        return recast.concat(parts);
-                    case "BlockStatement":
-                        var naked = printStatementSequence(path.get("body"), options, print);
-                        if (naked.isEmpty())
-                            return recast.fromString("{}");
-                        return recast.concat([
-                            "{\n",
-                            naked.indent(options.tabWidth),
-                            "\n}"
-                        ]);
-                    case "ReturnStatement":
-                        var parts = ["return"];
-                        if (n.argument) {
-                            var argLines = print(path.get("argument"));
-                            if (argLines.length > 1 && namedTypes["XJSElement"] && namedTypes["XJSElement"].check(n.argument)) {
-                                parts.push(" (\n", argLines.indent(options.tabWidth), "\n)");
-                            }
-                            else {
-                                parts.push(" ", argLines);
-                            }
-                        }
-                        parts.push(";");
-                        return recast.concat(parts);
-                    case "CallExpression":
-                        return recast.concat([
-                            print(path.get("callee")),
-                            printArgumentsList(path, options, print)
-                        ]);
-                    case "ObjectExpression":
-                    case "ObjectPattern":
-                        {
-                            var allowBreak = false, len = n.properties.length, parts = [len > 0 ? "{\n" : "{"];
-                            path.get("properties").map(function (childPath) {
-                                var prop = childPath.value;
-                                var i = childPath.name;
-                                var lines = print(childPath).indent(options.tabWidth);
-                                var multiLine = lines.length > 1;
-                                if (multiLine && allowBreak) {
-                                    // Similar to the logic for BlockStatement.
-                                    parts.push("\n");
-                                }
-                                parts.push(lines);
-                                if (i < len - 1) {
-                                    // Add an extra line break if the previous object property
-                                    // had a multi-line value.
-                                    parts.push(multiLine ? ",\n\n" : ",\n");
-                                    allowBreak = !multiLine;
-                                }
-                            });
-                            parts.push(len > 0 ? "\n}" : "}");
-                            return recast.concat(parts);
-                        }
-                    case "PropertyPattern":
-                        return recast.concat([
-                            print(path.get("key")),
-                            ": ",
-                            print(path.get("pattern"))
-                        ]);
-                    case "Property":
-                        if (n.method || n.kind === "get" || n.kind === "set") {
-                            return printMethod(n.kind, path.get("key"), path.get("value"), options, print);
-                        }
-                        if (path.node.shorthand) {
-                            return print(path.get("key"));
-                        }
-                        else {
-                            return recast.concat([
-                                print(path.get("key")),
-                                ": ",
-                                print(path.get("value"))
-                            ]);
-                        }
-                    case "ArrayExpression":
-                    case "ArrayPattern":
-                        var elems = n.elements, len = elems.length, parts = ["["];
-                        path.get("elements").each(function (elemPath) {
-                            var elem = elemPath.value;
-                            if (!elem) {
-                                // If the array expression ends with a hole, that hole
-                                // will be ignored by the interpreter, but if it ends with
-                                // two (or more) holes, we need to write out two (or more)
-                                // commas so that the resulting code is interpreted with
-                                // both (all) of the holes.
-                                parts.push(",");
-                            }
-                            else {
-                                var i = elemPath.name;
-                                if (i > 0)
-                                    parts.push(" ");
-                                parts.push(print(elemPath));
-                                if (i < len - 1)
-                                    parts.push(",");
-                            }
-                        });
-                        parts.push("]");
-                        return recast.concat(parts);
-                    case "SequenceExpression":
-                        return recast.fromString(", ").join(path.get("expressions").map(print));
-                    case "ThisExpression":
-                        return recast.fromString("this");
-                    case "Literal":
-                        if (typeof n.value !== "string")
-                            return recast.fromString(n.value, options);
-                    case "ModuleSpecifier":
-                        // A ModuleSpecifier is a string-valued Literal.
-                        return recast.fromString(nodeStr(n), options);
-                    case "UnaryExpression":
-                        var parts = [n.operator];
-                        if (/[a-z]$/.test(n.operator))
-                            parts.push(" ");
-                        parts.push(print(path.get("argument")));
-                        return recast.concat(parts);
-                    case "UpdateExpression":
-                        var parts = [
-                            print(path.get("argument")),
-                            n.operator
-                        ];
-                        if (n.prefix)
-                            parts.reverse();
-                        return recast.concat(parts);
-                    case "ConditionalExpression":
-                        return recast.concat([
-                            "(",
-                            print(path.get("test")),
-                            " ? ",
-                            print(path.get("consequent")),
-                            " : ",
-                            print(path.get("alternate")),
-                            ")"
-                        ]);
-                    case "NewExpression":
-                        var parts = ["new ", print(path.get("callee"))];
-                        var args = n.arguments;
-                        if (args) {
-                            parts.push(printArgumentsList(path, options, print));
-                        }
-                        return recast.concat(parts);
-                    case "VariableDeclaration":
-                        var parts = [n.kind, " "];
-                        var maxLen = 0;
-                        var printed = path.get("declarations").map(function (childPath) {
-                            var lines = print(childPath);
-                            maxLen = Math.max(lines.length, maxLen);
-                            return lines;
-                        });
-                        if (maxLen === 1) {
-                            parts.push(recast.fromString(", ").join(printed));
-                        }
-                        else if (printed.length > 1) {
-                            parts.push(recast.fromString(",\n").join(printed).indentTail(n.kind.length + 1));
-                        }
-                        else {
-                            parts.push(printed[0]);
-                        }
-                        // We generally want to terminate all variable declarations with a
-                        // semicolon, except when they are children of for loops.
-                        var parentNode = path.parent && path.parent.node;
-                        if (!namedTypes["ForStatement"].check(parentNode) && !namedTypes["ForStatement"].check(parentNode) && !(namedTypes["ForStatement"] && namedTypes["ForOfStatement"].check(parentNode))) {
-                            parts.push(";");
-                        }
-                        return recast.concat(parts);
-                    case "VariableDeclarator":
-                        return n.init ? recast.fromString(" = ").join([
-                            print(path.get("id")),
-                            print(path.get("init"))
-                        ]) : print(path.get("id"));
-                    case "WithStatement":
-                        return recast.concat([
-                            "with (",
-                            print(path.get("object")),
-                            ") ",
-                            print(path.get("body"))
-                        ]);
-                    case "IfStatement":
-                        var con = adjustClause(print(path.get("consequent")), options), parts = ["if (", print(path.get("test")), ")", con];
-                        if (n.alternate)
-                            parts.push(endsWithBrace(con) ? " else" : "\nelse", adjustClause(print(path.get("alternate")), options));
-                        return recast.concat(parts);
-                    case "ForStatement":
-                        // TODO Get the for (;;) case right.
-                        var init = print(path.get("init")), sep = init.length > 1 ? ";\n" : "; ", forParen = "for (", indented = recast.fromString(sep).join([
-                            init,
-                            print(path.get("test")),
-                            print(path.get("update"))
-                        ]).indentTail(forParen.length), head = recast.concat([forParen, indented, ")"]), clause = adjustClause(print(path.get("body")), options), parts = [head];
-                        if (head.length > 1) {
-                            parts.push("\n");
-                            clause = clause.trimLeft();
-                        }
-                        parts.push(clause);
-                        return recast.concat(parts);
-                    case "WhileStatement":
-                        return recast.concat([
-                            "while (",
-                            print(path.get("test")),
-                            ")",
-                            adjustClause(print(path.get("body")), options)
-                        ]);
-                    case "ForInStatement":
-                        // Note: esprima can't actually parse "for each (".
-                        return recast.concat([
-                            n.each ? "for each (" : "for (",
-                            print(path.get("left")),
-                            " in ",
-                            print(path.get("right")),
-                            ")",
-                            adjustClause(print(path.get("body")), options)
-                        ]);
-                    case "ForOfStatement":
-                        return recast.concat([
-                            "for (",
-                            print(path.get("left")),
-                            " of ",
-                            print(path.get("right")),
-                            ")",
-                            adjustClause(print(path.get("body")), options)
-                        ]);
-                    case "DoWhileStatement":
-                        {
-                            var doBody = recast.concat([
-                                "do",
-                                adjustClause(print(path.get("body")), options)
-                            ]), parts = [doBody];
-                            if (endsWithBrace(doBody))
-                                parts.push(" while");
-                            else
-                                parts.push("\nwhile");
-                            parts.push(" (", print(path.get("test")), ");");
-                            return recast.concat(parts);
-                        }
-                    case "BreakStatement":
-                        {
-                            var parts = ["break"];
-                            if (n.label)
-                                parts.push(" ", print(path.get("label")));
-                            parts.push(";");
-                            return recast.concat(parts);
-                        }
-                    case "ContinueStatement":
-                        var parts = ["continue"];
-                        if (n.label)
-                            parts.push(" ", print(path.get("label")));
-                        parts.push(";");
-                        return recast.concat(parts);
-                    case "LabeledStatement":
-                        return recast.concat([
-                            print(path.get("label")),
-                            ":\n",
-                            print(path.get("body"))
-                        ]);
-                    case "TryStatement":
-                        var parts = [
-                            "try ",
-                            print(path.get("block"))
-                        ];
-                        path.get("handlers").each(function (handler) {
-                            parts.push(" ", print(handler));
-                        });
-                        if (n.finalizer)
-                            parts.push(" finally ", print(path.get("finalizer")));
-                        return recast.concat(parts);
-                    case "CatchClause":
-                        var parts = ["catch (", print(path.get("param"))];
-                        if (n.guard)
-                            // Note: esprima does not recognize conditional catch clauses.
-                            parts.push(" if ", print(path.get("guard")));
-                        parts.push(") ", print(path.get("body")));
-                        return recast.concat(parts);
-                    case "ThrowStatement":
-                        return recast.concat([
-                            "throw ",
-                            print(path.get("argument")),
-                            ";"
-                        ]);
-                    case "SwitchStatement":
-                        return recast.concat([
-                            "switch (",
-                            print(path.get("discriminant")),
-                            ") {\n",
-                            recast.fromString("\n").join(path.get("cases").map(print)),
-                            "\n}"
-                        ]);
-                    case "SwitchCase":
-                        var parts = [];
-                        if (n.test)
-                            parts.push("case ", print(path.get("test")), ":");
-                        else
-                            parts.push("default:");
-                        if (n.consequent.length > 0) {
-                            parts.push("\n", printStatementSequence(path.get("consequent"), options, print).indent(options.tabWidth));
-                        }
-                        return recast.concat(parts);
-                    case "DebuggerStatement":
-                        return recast.fromString("debugger;");
-                    case "XJSAttribute":
-                        var parts = [print(path.get("name"))];
-                        if (n.value)
-                            parts.push("=", print(path.get("value")));
-                        return recast.concat(parts);
-                    case "XJSIdentifier":
-                        return recast.fromString(n.name, options);
-                    case "XJSNamespacedName":
-                        return recast.fromString(":").join([
-                            print(path.get("namespace")),
-                            print(path.get("name"))
-                        ]);
-                    case "XJSMemberExpression":
-                        return recast.fromString(".").join([
-                            print(path.get("object")),
-                            print(path.get("property"))
-                        ]);
-                    case "XJSSpreadAttribute":
-                        return recast.concat(["{...", print(path.get("argument")), "}"]);
-                    case "XJSExpressionContainer":
-                        return recast.concat(["{", print(path.get("expression")), "}"]);
-                    case "XJSElement":
-                        var openingLines = print(path.get("openingElement"));
-                        if (n.openingElement.selfClosing) {
-                            assert.ok(!n.closingElement);
-                            return openingLines;
-                        }
-                        var childLines = recast.concat(path.get("children").map(function (childPath) {
-                            var child = childPath.value;
-                            if (namedTypes["Literal"].check(child) && typeof child.value === "string") {
-                                if (/\S/.test(child.value)) {
-                                    return child.value.replace(/^\s+|\s+$/g, "");
-                                }
-                                else if (/\n/.test(child.value)) {
-                                    return "\n";
-                                }
-                            }
-                            return print(childPath);
-                        })).indentTail(options.tabWidth);
-                        var closingLines = print(path.get("closingElement"));
-                        return recast.concat([
-                            openingLines,
-                            childLines,
-                            closingLines
-                        ]);
-                    case "XJSOpeningElement":
-                        var parts = ["<", print(path.get("name"))];
-                        var attrParts = [];
-                        path.get("attributes").each(function (attrPath) {
-                            attrParts.push(" ", print(attrPath));
-                        });
-                        var attrLines = recast.concat(attrParts);
-                        var needLineWrap = (attrLines.length > 1 || attrLines.getLineLength(1) > options.wrapColumn);
-                        if (needLineWrap) {
-                            attrParts.forEach(function (part, i) {
-                                if (part === " ") {
-                                    assert.strictEqual(i % 2, 0);
-                                    attrParts[i] = "\n";
-                                }
-                            });
-                            attrLines = recast.concat(attrParts).indentTail(options.tabWidth);
-                        }
-                        parts.push(attrLines, n.selfClosing ? " />" : ">");
-                        return recast.concat(parts);
-                    case "XJSClosingElement":
-                        return recast.concat(["</", print(path.get("name")), ">"]);
-                    case "XJSText":
-                        return recast.fromString(n.value, options);
-                    case "XJSEmptyExpression":
-                        return recast.fromString("");
-                    case "TypeAnnotatedIdentifier":
-                        var parts = [
-                            print(path.get("annotation")),
-                            " ",
-                            print(path.get("identifier"))
-                        ];
-                        return recast.concat(parts);
-                    case "ClassBody":
-                        if (n.body.length === 0) {
-                            return recast.fromString("{}");
-                        }
-                        return recast.concat([
-                            "{\n",
-                            printStatementSequence(path.get("body"), options, print).indent(options.tabWidth),
-                            "\n}"
-                        ]);
-                    case "ClassPropertyDefinition":
-                        {
-                            var parts = ["static ", print(path.get("definition"))];
-                            if (!namedTypes["MethodDefinition"].check(n.definition))
-                                parts.push(";");
-                            return recast.concat(parts);
-                        }
-                    case "ClassProperty":
-                        return recast.concat([print(path.get("id")), ";"]);
-                    case "ClassDeclaration":
-                    case "ClassExpression":
-                        {
-                            var parts = ["class"];
-                            if (n.id)
-                                parts.push(" ", print(path.get("id")));
-                            if (n.superClass)
-                                parts.push(" extends ", print(path.get("superClass")));
-                            parts.push(" ", print(path.get("body")));
-                            return recast.concat(parts);
-                        }
-                    case "Node":
-                    case "Printable":
-                    case "SourceLocation":
-                    case "Position":
-                    case "Statement":
-                    case "Function":
-                    case "Pattern":
-                    case "Expression":
-                    case "Declaration":
-                    case "Specifier":
-                    case "NamedSpecifier":
-                    case "Block":
-                    case "Line":
-                        throw new Error("unprintable type: " + JSON.stringify(n.type));
-                    case "ClassHeritage":
-                    case "ComprehensionBlock":
-                    case "ComprehensionExpression":
-                    case "Glob":
-                    case "TaggedTemplateExpression":
-                    case "TemplateElement":
-                    case "TemplateLiteral":
-                    case "GeneratorExpression":
-                    case "LetStatement":
-                    case "LetExpression":
-                    case "GraphExpression":
-                    case "GraphIndexExpression":
-                    case "AnyTypeAnnotation":
-                    case "BooleanTypeAnnotation":
-                    case "ClassImplements":
-                    case "DeclareClass":
-                    case "DeclareFunction":
-                    case "DeclareModule":
-                    case "DeclareVariable":
-                    case "FunctionTypeAnnotation":
-                    case "FunctionTypeParam":
-                    case "GenericTypeAnnotation":
-                    case "InterfaceDeclaration":
-                    case "InterfaceExtends":
-                    case "IntersectionTypeAnnotation":
-                    case "MemberTypeAnnotation":
-                    case "NullableTypeAnnotation":
-                    case "NumberTypeAnnotation":
-                    case "ObjectTypeAnnotation":
-                    case "ObjectTypeCallProperty":
-                    case "ObjectTypeIndexer":
-                    case "ObjectTypeProperty":
-                    case "QualifiedTypeIdentifier":
-                    case "StringLiteralTypeAnnotation":
-                    case "StringTypeAnnotation":
-                    case "TupleTypeAnnotation":
-                    case "Type":
-                    case "TypeAlias":
-                    case "TypeAnnotation":
-                    case "TypeParameterDeclaration":
-                    case "TypeParameterInstantiation":
-                    case "TypeofTypeAnnotation":
-                    case "UnionTypeAnnotation":
-                    case "VoidTypeAnnotation":
-                    case "XMLDefaultDeclaration":
-                    case "XMLAnyName":
-                    case "XMLQualifiedIdentifier":
-                    case "XMLFunctionQualifiedIdentifier":
-                    case "XMLAttributeSelector":
-                    case "XMLFilterExpression":
-                    case "XML":
-                    case "XMLElement":
-                    case "XMLList":
-                    case "XMLEscape":
-                    case "XMLText":
-                    case "XMLStartTag":
-                    case "XMLEndTag":
-                    case "XMLPointTag":
-                    case "XMLName":
-                    case "XMLAttribute":
-                    case "XMLCdata":
-                    case "XMLComment":
-                    case "XMLProcessingInstruction":
-                    default:
-                        debugger;
-                        throw new Error("unknown type: " + JSON.stringify(n.type));
-                }
-                return undefined;
-            }
-            function printStatementSequence(path, options, print) {
-                var inClassBody = path.parent && namedTypes["ClassBody"] && namedTypes["ClassBody"].check(path.parent.node);
-                var filtered = path.filter(function (stmtPath) {
-                    var stmt = stmtPath.value;
-                    // Just in case the AST has been modified to contain falsy
-                    // "statements," it's safer simply to skip them.
-                    if (!stmt)
-                        return false;
-                    // Skip printing EmptyStatement nodes to avoid leaving stray
-                    // semicolons lying around.
-                    if (stmt.type === "EmptyStatement")
-                        return false;
-                    if (!inClassBody) {
-                        namedTypes["Statement"].assert(stmt);
-                    }
-                    return true;
-                });
-                var prevTrailingSpace = null;
-                var len = filtered.length;
-                var parts = [];
-                filtered.forEach(function (stmtPath, i) {
-                    var printed = print(stmtPath);
-                    var stmt = stmtPath.value;
-                    var needSemicolon = true;
-                    var multiLine = printed.length > 1;
-                    var notFirst = i > 0;
-                    var notLast = i < len - 1;
-                    var leadingSpace;
-                    var trailingSpace;
-                    if (inClassBody) {
-                        var stmt = stmtPath.value;
-                        if (namedTypes["MethodDefinition"].check(stmt) || (namedTypes["ClassPropertyDefinition"].check(stmt) && namedTypes["MethodDefinition"].check(stmt.definition))) {
-                            needSemicolon = false;
-                        }
-                    }
-                    if (needSemicolon) {
-                        // Try to add a semicolon to anything that isn't a method in a
-                        // class body.
-                        printed = maybeAddSemicolon(printed);
-                    }
-                    var orig = options.reuseWhitespace && stmt.original;
-                    var trueLoc = orig && getTrueLoc(orig);
-                    var lines = trueLoc && trueLoc.lines;
-                    if (notFirst) {
-                        if (lines) {
-                            var beforeStart = lines.skipSpaces(trueLoc.start, true);
-                            var beforeStartLine = beforeStart ? beforeStart.line : 1;
-                            var leadingGap = trueLoc.start.line - beforeStartLine;
-                            leadingSpace = Array(leadingGap + 1).join("\n");
-                        }
-                        else {
-                            leadingSpace = multiLine ? "\n\n" : "\n";
-                        }
-                    }
-                    else {
-                        leadingSpace = "";
-                    }
-                    if (notLast) {
-                        if (lines) {
-                            var afterEnd = lines.skipSpaces(trueLoc.end);
-                            var afterEndLine = afterEnd ? afterEnd.line : lines.length;
-                            var trailingGap = afterEndLine - trueLoc.end.line;
-                            trailingSpace = Array(trailingGap + 1).join("\n");
-                        }
-                        else {
-                            trailingSpace = multiLine ? "\n\n" : "\n";
-                        }
-                    }
-                    else {
-                        trailingSpace = "";
-                    }
-                    parts.push(maxSpace(prevTrailingSpace, leadingSpace), printed);
-                    if (notLast) {
-                        prevTrailingSpace = trailingSpace;
-                    }
-                    else if (trailingSpace) {
-                        parts.push(trailingSpace);
-                    }
-                });
-                return recast.concat(parts);
-            }
-            function getTrueLoc(node) {
-                if (!node.comments) {
-                    // If the node has no comments, regard node.loc as true.
-                    return node.loc;
-                }
-                var start = node.loc.start;
-                var end = node.loc.end;
-                // If the node has any comments, their locations might contribute to
-                // the true start/end positions of the node.
-                node.comments.forEach(function (comment) {
-                    if (comment.loc) {
-                        if (recast.comparePos(comment.loc.start, start) < 0) {
-                            start = comment.loc.start;
-                        }
-                        if (recast.comparePos(end, comment.loc.end) < 0) {
-                            end = comment.loc.end;
-                        }
-                    }
-                });
-                return {
-                    lines: node.loc.lines,
-                    start: start,
-                    end: end
-                };
-            }
-            function maxSpace(s1, s2) {
-                if (!s1 && !s2) {
-                    return recast.fromString("");
-                }
-                if (!s1) {
-                    return recast.fromString(s2);
-                }
-                if (!s2) {
-                    return recast.fromString(s1);
-                }
-                var spaceLines1 = recast.fromString(s1);
-                var spaceLines2 = recast.fromString(s2);
-                if (spaceLines2.length > spaceLines1.length) {
-                    return spaceLines2;
-                }
-                return spaceLines1;
-            }
-            function printMethod(kind, keyPath, valuePath, options, print) {
-                var parts = [];
-                var key = keyPath.value;
-                var value = valuePath.value;
-                namedTypes["FunctionExpression"].assert(value);
-                if (value.async) {
-                    parts.push("async ");
-                }
-                if (!kind || kind === "init") {
-                    if (value.generator) {
-                        parts.push("*");
-                    }
-                }
-                else {
-                    assert.ok(kind === "get" || kind === "set");
-                    parts.push(kind, " ");
-                }
-                parts.push(print(keyPath), "(", printFunctionParams(valuePath, options, print), ") ", print(valuePath.get("body")));
-                return recast.concat(parts);
-            }
-            function printArgumentsList(path, options, print) {
-                var printed = path.get("arguments").map(print);
-                var joined = recast.fromString(", ").join(printed);
-                if (joined.getLineLength(1) > options.wrapColumn) {
-                    joined = recast.fromString(",\n").join(printed);
-                    return recast.concat(["(\n", joined.indent(options.tabWidth), "\n)"]);
-                }
-                return recast.concat(["(", joined, ")"]);
-            }
-            function printFunctionParams(path, options, print) {
-                var fun = path.node;
-                namedTypes["Function"].assert(fun);
-                var params = path.get("params");
-                var defaults = path.get("defaults");
-                var printed = params.map(defaults.value ? function (param) {
-                    var p = print(param);
-                    var d = defaults.get(param.name);
-                    return d.value ? recast.concat([p, "=", print(d)]) : p;
-                } : print);
-                if (fun.rest) {
-                    printed.push(recast.concat(["...", print(path.get("rest"))]));
-                }
-                var joined = recast.fromString(", ").join(printed);
-                if (joined.length > 1 || joined.getLineLength(1) > options.wrapColumn) {
-                    joined = recast.fromString(",\n").join(printed);
-                    return recast.concat(["\n", joined.indent(options.tabWidth)]);
-                }
-                return joined;
-            }
-            function adjustClause(clause, options) {
-                if (clause.length > 1)
-                    return recast.concat([" ", clause]);
-                return recast.concat([
-                    "\n",
-                    maybeAddSemicolon(clause).indent(options.tabWidth)
-                ]);
-            }
-            function lastNonSpaceCharacter(lines) {
-                var pos = lines.lastPos();
-                do {
-                    var ch = lines.charAt(pos);
-                    if (/\S/.test(ch))
-                        return ch;
-                } while (lines.prevPos(pos));
-            }
-            function endsWithBrace(lines) {
-                return lastNonSpaceCharacter(lines) === "}";
-            }
-            function nodeStr(n) {
-                namedTypes["Literal"].assert(n);
-                isString.assert(n.value);
-                return JSON.stringify(n.value);
-            }
-            function maybeAddSemicolon(lines) {
-                var eoc = lastNonSpaceCharacter(lines);
-                if (!eoc || "\n};".indexOf(eoc) < 0)
-                    return recast.concat([lines, ";"]);
-                return lines;
-            }
-        })(recast = _ast.recast || (_ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-/// <reference path="../types/types.ts" />
-/// <reference path="private.ts" />
-/// <reference path="options.ts" />
-/// <reference path="printer.ts" />
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var recast;
-        (function (recast) {
-            function print(node, options) {
-                return new recast.Printer(options).print(node);
-            }
-            recast.print = print;
-            function prettyPrint(node, options) {
-                return new recast.Printer(options).printGenerically(node);
-            }
-            recast.prettyPrint = prettyPrint;
-            function defaultWriteback(output) {
-                console.log(output);
-            }
-            function run(code, transformer, options) {
-                var writeback = options && options.writeback || defaultWriteback;
-                transformer(recast.parse(code, options), function (node) {
-                    writeback(print(node, options).code);
-                });
-            }
-            recast.run = run;
-        })(recast = ast.recast || (ast.recast = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
 /*
  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
  Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -13202,7 +9468,7 @@ var lib;
                         bodyFlags = (flags & F_ALLOW_IN) ? S_TFFF : S_FFFF;
                         function block() {
                             node = stmt.declarations[0];
-                            if (extra.comment && node.leadingComments) {
+                            if (extra.comment && node !== null && node.leadingComments) {
                                 result.push('\n');
                                 result.push(addIndent(that.generateStatement(node, bodyFlags)));
                             }
@@ -14148,6 +10414,12 @@ var lib;
 })(lib || (lib = {}));
 /// <reference path="count.ts" />
 /// <reference path="event.ts" />
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 // see http://groups.csail.mit.edu/uid/other-pubs/tl-ms-thesis.pdf
 var lib;
 (function (lib) {
@@ -14554,7 +10826,7 @@ var lib;
                             loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
-                                value: "CharLiteral",
+                                name: "CharLiteral",
                                 raw: this.raw,
                                 cform: this.cform,
                                 loc: this.loc
@@ -14607,7 +10879,7 @@ var lib;
                             loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
-                                value: "Int8",
+                                name: "Int8",
                                 raw: this.raw,
                                 cform: this.cform,
                                 loc: this.loc
@@ -14663,7 +10935,7 @@ var lib;
                             loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
-                                value: "Int32",
+                                name: "Int32",
                                 raw: this.raw,
                                 cform: this.cform,
                                 loc: this.loc
@@ -14719,7 +10991,7 @@ var lib;
                             loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
-                                value: "Int64",
+                                name: "Int64",
                                 loc: this.loc
                             }),
                             arguments: [
@@ -14773,7 +11045,7 @@ var lib;
                             loc: this.loc,
                             callee: castTo({
                                 type: "Identifier",
-                                value: "Float32",
+                                name: "Float32",
                                 loc: this.loc
                             }),
                             arguments: [
@@ -14854,12 +11126,13 @@ var lib;
                         return new ReferenceType(o.loc, o.raw, o.cform, o.value);
                     };
                     ReferenceType.prototype.toEsprima_ = function () {
-                        return null; /* {
-                            type: "Comment",
-                            value: this.value.toCString(),
-                            raw: this.raw,
-                            loc: this.loc
-                        } */
+                        return null;
+                        /* {
+                         type: "Comment",
+                         value: this.value.toCString(),
+                         raw: this.raw,
+                         loc: this.loc
+                         } */
                     };
                     ReferenceType.prototype.toCString_ = function () {
                         return this.value.toCString() + "*";
@@ -14903,16 +11176,17 @@ var lib;
                         return new TypeExpression(o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
                     };
                     TypeExpression.prototype.toEsprima_ = function () {
-                        return null; /* {
-                            type: "Comment",
-                            value: [this.addressSpace, this.qualifiers, this.bases].join(" "),
-                            raw: JSON.stringify({
-                                addressSpace: this.addressSpace,
-                                qualifiers: this.qualifiers,
-                                bases: this.bases
-                            }),
-                            loc: this.loc
-                        } */
+                        return null;
+                        /* {
+                         type: "Comment",
+                         value: [this.addressSpace, this.qualifiers, this.bases].join(" "),
+                         raw: JSON.stringify({
+                         addressSpace: this.addressSpace,
+                         qualifiers: this.qualifiers,
+                         bases: this.bases
+                         }),
+                         loc: this.loc
+                         } */
                     };
                     TypeExpression.prototype.toCString_ = function () {
                         return _.flatten([this.addressSpace, this.qualifiers, this.bases]).join(" ");
@@ -14955,14 +11229,27 @@ var lib;
                         return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
                     };
                     Identifier.prototype.toEsprima_ = function () {
-                        return {
-                            type: "Identifier",
-                            name: this.name,
-                            kind: this.kind.toEsprima(),
-                            raw: this.raw,
-                            cform: this.cform,
-                            loc: this.loc
-                        };
+                        if (this.kind.type === "ReferenceType") {
+                            return castTo({
+                                type: "CallExpression",
+                                callee: castTo({ type: "Identifier", name: "reference" }),
+                                arguments: [castTo({ type: "Identifier", name: "functionStack$" }), castTo({ type: "Identifier", name: this.name })],
+                                kind: this.kind.toEsprima(),
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            });
+                        }
+                        else {
+                            return {
+                                type: "Identifier",
+                                name: this.name,
+                                kind: this.kind.toEsprima(),
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            };
+                        }
                     };
                     Identifier.prototype.toCString_ = function () {
                         if (false && this.kind.type != "EmptyExpression") {
@@ -15093,9 +11380,26 @@ var lib;
                         return new BlockStatement(o.loc, o.raw, o.cform, o.body);
                     };
                     BlockStatement.prototype.toEsprima_ = function () {
+                        var stmts = _.map(this.body.elements, function (elem) {
+                            if (elem.type === "EmptyExpression") {
+                                return null;
+                            }
+                            else if (lib.ast.utils.isStatement(elem.type)) {
+                                return elem.toEsprima();
+                            }
+                            else {
+                                return {
+                                    "type": "ExpressionStatement",
+                                    expression: elem.toEsprima(),
+                                    loc: elem.loc,
+                                    raw: elem.raw,
+                                    cform: elem.cform
+                                };
+                            }
+                        });
                         return {
                             type: "BlockStatement",
-                            body: castTo(this.body.toEsprima()),
+                            body: castTo(stmts),
                             loc: this.loc,
                             raw: this.raw,
                             cform: this.cform
@@ -15148,18 +11452,24 @@ var lib;
                             this.body = new EmptyExpression();
                         }
                         else if (body.type === "BlockStatement") {
-                            this.body = fromCena(body);
+                            var blk = castTo(fromCena(body));
+                            this.addArgumentsToStack_(blk);
+                            this.body = blk;
                         }
                         else {
-                            this.body = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
+                            var blk = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
+                            this.addArgumentsToStack_(blk);
+                            this.body = blk;
                         }
                         this.setChildParents();
                     }
+                    FunctionExpression.prototype.addArgumentsToStack_ = function (blk) {
+                    };
                     FunctionExpression.fromCena = function (o) {
                         return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                     };
                     FunctionExpression.prototype.toEsprima_ = function () {
-                        return {
+                        return castTo({
                             type: "FunctionExpression",
                             id: castTo(this.id.toEsprima()),
                             params: this.params.toEsprima(),
@@ -15172,7 +11482,7 @@ var lib;
                             raw: this.raw,
                             cform: this.cform,
                             loc: this.loc
-                        };
+                        });
                     };
                     FunctionExpression.prototype.toCString_ = function () {
                         return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, function (p) { return p.toCString(); }).join(", ") + ") " + this.body.toCString();
@@ -15236,7 +11546,7 @@ var lib;
                         return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo(o.arguments), o.config);
                     };
                     CallExpression.prototype.toEsprima_ = function () {
-                        return {
+                        return castTo({
                             type: "CallExpression",
                             config: this.config.toEsprima(),
                             isCUDA: this.isCUDA,
@@ -15245,7 +11555,7 @@ var lib;
                             raw: this.raw,
                             cform: this.cform,
                             loc: this.loc
-                        };
+                        });
                     };
                     CallExpression.prototype.toCString_ = function () {
                         var ret = this.callee.toCString();
@@ -15513,7 +11823,7 @@ var lib;
                 })(Node);
                 cena.UnaryExpression = UnaryExpression;
                 function makeOp(op, symbol) {
-                    return new Identifier(unknownLocation, op, op, symbol);
+                    return new Identifier(unknownLocation, symbol, symbol, op);
                 }
                 var BinaryExpression = (function (_super) {
                     __extends(BinaryExpression, _super);
@@ -15537,17 +11847,17 @@ var lib;
                     BinaryExpression.prototype.toEsprima_ = function () {
                         var method = {
                             type: "MemberExpression",
-                            object: castTo(this.right.toEsprima()),
-                            property: castTo(this.property.toEsprima()),
+                            object: castTo(this.left.toEsprima()),
+                            property: castTo(this.property),
                             computed: false,
-                            loc: this.right.loc,
-                            raw: this.right.raw,
-                            cform: this.right.cform
+                            loc: this.left.loc,
+                            raw: this.left.raw,
+                            cform: this.left.cform
                         };
                         return {
                             type: "CallExpression",
                             callee: castTo(method),
-                            arguments: castTo([this.left.toEsprima()]),
+                            arguments: castTo([this.right.toEsprima()]),
                             raw: this.raw,
                             cform: this.cform,
                             loc: this.loc
@@ -15610,11 +11920,22 @@ var lib;
                     return BinaryExpression;
                 })(Node);
                 cena.BinaryExpression = BinaryExpression;
+                var UndefinedExpression = (function (_super) {
+                    __extends(UndefinedExpression, _super);
+                    function UndefinedExpression() {
+                        _super.call(this, "VariableDeclarator", unknownLocation, "", "");
+                    }
+                    UndefinedExpression.prototype.toEsprima_ = function () {
+                        return ({ type: "Identifier", name: "undefined" });
+                    };
+                    return UndefinedExpression;
+                })(Node);
+                cena.UndefinedExpression = UndefinedExpression;
                 var VariableDeclarator = (function (_super) {
                     __extends(VariableDeclarator, _super);
                     function VariableDeclarator(loc, raw, cform, init, id) {
                         _super.call(this, "VariableDeclarator", loc, raw, cform);
-                        this.init = isUndefined(init) ? new EmptyExpression() : fromCena(init);
+                        this.init = isUndefined(init) ? new UndefinedExpression() : fromCena(init);
                         this.id = castTo(fromCena(id));
                         this.kind = this.id.kind;
                         this.setChildParents();
@@ -15623,14 +11944,57 @@ var lib;
                         return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id);
                     };
                     VariableDeclarator.prototype.toEsprima_ = function () {
-                        return {
-                            type: "VariableDeclarator",
-                            init: castTo(this.init.toEsprima()),
-                            id: castTo(this.id.toEsprima()),
-                            raw: this.raw,
-                            cform: this.cform,
-                            loc: this.loc
-                        };
+                        if (this.kind.type === "ReferenceType") {
+                            var call = castTo({
+                                type: "CallExpression",
+                                callee: castTo({ type: "Identifier", name: "reference" }),
+                                arguments: [this.id.toEsprima()],
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            });
+                            return {
+                                type: "VariableDeclarator",
+                                init: castTo(this.init.toEsprima()),
+                                id: castTo(call),
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            };
+                        }
+                        else {
+                            var id = {
+                                type: "MemberExpression",
+                                computed: true,
+                                object: castTo({
+                                    type: "Identifier",
+                                    name: "functionStack$",
+                                    raw: this.raw,
+                                    cform: this.cform,
+                                    loc: this.loc
+                                }),
+                                property: castTo(this.id.toEsprima()),
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            };
+                            return {
+                                type: "VariableDeclarator",
+                                init: castTo(this.init.toEsprima()),
+                                id: id,
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            };
+                        } /* else {
+                            return {
+                                type: "VariableDeclarator",
+                                init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                                id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
+                                raw: this.raw, cform: this.cform,
+                                loc: this.loc
+                            }
+                        } */
                     };
                     VariableDeclarator.prototype.toCString_ = function () {
                         if (this.init.type != "EmptyExpression") {
@@ -15686,9 +12050,8 @@ var lib;
                     };
                     VariableDeclaration.prototype.toEsprima_ = function () {
                         return {
-                            type: "VariableDeclaration",
-                            declarations: castTo(this.declarations.map(function (decl) { return decl.toEsprima(); })),
-                            kind: "var",
+                            type: "SequenceExpression",
+                            expressions: castTo(this.declarations.map(function (decl) { return decl.toEsprima(); })),
                             raw: this.raw,
                             cform: this.cform,
                             loc: this.loc
@@ -17336,7 +13699,6 @@ var lib;
 })(lib || (lib = {}));
 /// <reference path="sourcemap/sourcemap.ts" />
 /// <reference path="types/types.ts" />
-/// <reference path="recast/recast.ts" />
 /// <reference path="esprima.ts" />
 /// <reference path="traverse.ts" />
 /// <reference path="gen.ts" />
@@ -18236,8 +14598,7 @@ var lib;
                                                     "left": {
                                                         "cform": "blockIdx",
                                                         "kind": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "uint3",
@@ -18317,8 +14678,7 @@ var lib;
                                                     "right": {
                                                         "cform": "x",
                                                         "kind": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "unsigned int",
@@ -18348,8 +14708,7 @@ var lib;
                                                                     "line": 12
                                                                 }
                                                             },
-                                                            "qualifiers": [
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "unsigned int x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -18386,8 +14745,7 @@ var lib;
                                                     "left": {
                                                         "cform": "blockDim",
                                                         "kind": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "struct dim3",
@@ -18467,8 +14825,7 @@ var lib;
                                                     "right": {
                                                         "cform": "x",
                                                         "kind": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "unsigned int",
@@ -18498,8 +14855,7 @@ var lib;
                                                                     "line": 16
                                                                 }
                                                             },
-                                                            "qualifiers": [
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "unsigned int x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -18538,8 +14894,7 @@ var lib;
                                                 "left": {
                                                     "cform": "threadIdx",
                                                     "kind": {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "uint3",
@@ -18619,8 +14974,7 @@ var lib;
                                                 "right": {
                                                     "cform": "x",
                                                     "kind": {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "unsigned int",
@@ -18650,8 +15004,7 @@ var lib;
                                                                 "line": 12
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "unsigned int x",
                                                         "type": "TypeSpecification"
                                                     },
@@ -18736,8 +15089,7 @@ var lib;
                                                         "raw": "float * out",
                                                         "type": "ReferenceType",
                                                         "value": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "float",
@@ -18767,8 +15119,7 @@ var lib;
                                                                     "line": 5
                                                                 }
                                                             },
-                                                            "qualifiers": [
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "float * out",
                                                             "type": "TypeSpecification"
                                                         }
@@ -18790,8 +15141,7 @@ var lib;
                                                 "property": {
                                                     "cform": "idx",
                                                     "kind": {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "int",
@@ -18821,8 +15171,7 @@ var lib;
                                                                 "line": 7
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                                         "type": "TypeSpecification"
                                                     },
@@ -18887,8 +15236,7 @@ var lib;
                                                             "raw": "float * in1",
                                                             "type": "ReferenceType",
                                                             "value": {
-                                                                "address_spaces": [
-                                                                ],
+                                                                "address_spaces": [],
                                                                 "bases": [
                                                                     {
                                                                         "cform": "float",
@@ -18918,8 +15266,7 @@ var lib;
                                                                         "line": 5
                                                                     }
                                                                 },
-                                                                "qualifiers": [
-                                                                ],
+                                                                "qualifiers": [],
                                                                 "raw": "float * in1",
                                                                 "type": "TypeSpecification"
                                                             }
@@ -18941,8 +15288,7 @@ var lib;
                                                     "property": {
                                                         "cform": "idx",
                                                         "kind": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "int",
@@ -18972,8 +15318,7 @@ var lib;
                                                                     "line": 7
                                                                 }
                                                             },
-                                                            "qualifiers": [
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -19036,8 +15381,7 @@ var lib;
                                                             "raw": "float * in2",
                                                             "type": "ReferenceType",
                                                             "value": {
-                                                                "address_spaces": [
-                                                                ],
+                                                                "address_spaces": [],
                                                                 "bases": [
                                                                     {
                                                                         "cform": "float",
@@ -19067,8 +15411,7 @@ var lib;
                                                                         "line": 5
                                                                     }
                                                                 },
-                                                                "qualifiers": [
-                                                                ],
+                                                                "qualifiers": [],
                                                                 "raw": "float * in2",
                                                                 "type": "TypeSpecification"
                                                             }
@@ -19090,8 +15433,7 @@ var lib;
                                                     "property": {
                                                         "cform": "idx",
                                                         "kind": {
-                                                            "address_spaces": [
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "int",
@@ -19121,8 +15463,7 @@ var lib;
                                                                     "line": 7
                                                                 }
                                                             },
-                                                            "qualifiers": [
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -19178,8 +15519,7 @@ var lib;
                                     "left": {
                                         "cform": "idx",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -19209,8 +15549,7 @@ var lib;
                                                     "line": 7
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                             "type": "TypeSpecification"
                                         },
@@ -19243,8 +15582,7 @@ var lib;
                                     "right": {
                                         "cform": "len",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -19274,8 +15612,7 @@ var lib;
                                                     "line": 5
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int len",
                                             "type": "TypeSpecification"
                                         },
@@ -19406,8 +15743,7 @@ var lib;
                     "type": "Function"
                 },
                 {
-                    "attributes": [
-                    ],
+                    "attributes": [],
                     "body": {
                         "body": [
                             {
@@ -19799,8 +16135,7 @@ var lib;
                                 "left": {
                                     "cform": "args",
                                     "kind": {
-                                        "address_spaces": [
-                                        ],
+                                        "address_spaces": [],
                                         "bases": [
                                             {
                                                 "cform": "int",
@@ -19830,8 +16165,7 @@ var lib;
                                                 "line": 12
                                             }
                                         },
-                                        "qualifiers": [
-                                        ],
+                                        "qualifiers": [],
                                         "raw": "wbArg_t args",
                                         "type": "TypeSpecification"
                                     },
@@ -19866,8 +16200,7 @@ var lib;
                                         {
                                             "cform": "argc",
                                             "kind": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "int",
@@ -19897,8 +16230,7 @@ var lib;
                                                         "line": 11
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "int argc",
                                                 "type": "TypeSpecification"
                                             },
@@ -19947,8 +16279,7 @@ var lib;
                                                     "raw": "char ** argv",
                                                     "type": "ReferenceType",
                                                     "value": {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "char",
@@ -19978,8 +16309,7 @@ var lib;
                                                                 "line": 11
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "char ** argv",
                                                         "type": "TypeSpecification"
                                                     }
@@ -20117,8 +16447,7 @@ var lib;
                                         "raw": "float * hostInput1",
                                         "type": "ReferenceType",
                                         "value": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "float",
@@ -20148,8 +16477,7 @@ var lib;
                                                     "line": 14
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "float * hostInput1",
                                             "type": "TypeSpecification"
                                         }
@@ -20202,8 +16530,7 @@ var lib;
                                             "argument": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -20233,8 +16560,7 @@ var lib;
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -20320,8 +16646,7 @@ var lib;
                                         "raw": "float * hostInput2",
                                         "type": "ReferenceType",
                                         "value": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "float",
@@ -20351,8 +16676,7 @@ var lib;
                                                     "line": 15
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "float * hostInput2",
                                             "type": "TypeSpecification"
                                         }
@@ -20405,8 +16729,7 @@ var lib;
                                             "argument": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -20436,8 +16759,7 @@ var lib;
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -20523,8 +16845,7 @@ var lib;
                                         "raw": "float * hostOutput",
                                         "type": "ReferenceType",
                                         "value": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "float",
@@ -20554,8 +16875,7 @@ var lib;
                                                     "line": 16
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "float * hostOutput",
                                             "type": "TypeSpecification"
                                         }
@@ -20593,8 +16913,7 @@ var lib;
                                             "left": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -20624,8 +16943,7 @@ var lib;
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -20658,8 +16976,7 @@ var lib;
                                             "right": {
                                                 "arguments": [
                                                     {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "float",
@@ -20689,8 +17006,7 @@ var lib;
                                                                 "line": 26
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "sizeof(float)",
                                                         "type": "TypeSpecification"
                                                     }
@@ -20863,8 +17179,7 @@ var lib;
                                     {
                                         "cform": "inputLength",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -20894,8 +17209,7 @@ var lib;
                                                     "line": 13
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -21052,8 +17366,7 @@ var lib;
                                             "left": {
                                                 "arguments": [
                                                     {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "float",
@@ -21083,8 +17396,7 @@ var lib;
                                                                 "line": 34
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "sizeof(float)",
                                                         "type": "TypeSpecification"
                                                     }
@@ -21134,8 +17446,7 @@ var lib;
                                             "right": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -21165,8 +17476,7 @@ var lib;
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -21365,8 +17675,7 @@ var lib;
                                                 "raw": "float * deviceInput1",
                                                 "type": "ReferenceType",
                                                 "value": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "float",
@@ -21396,8 +17705,7 @@ var lib;
                                                             "line": 17
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "float * deviceInput1",
                                                     "type": "TypeSpecification"
                                                 }
@@ -21435,8 +17743,7 @@ var lib;
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -21466,8 +17773,7 @@ var lib;
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -21536,8 +17842,7 @@ var lib;
                                                 "raw": "float * deviceInput2",
                                                 "type": "ReferenceType",
                                                 "value": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "float",
@@ -21567,8 +17872,7 @@ var lib;
                                                             "line": 18
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "float * deviceInput2",
                                                     "type": "TypeSpecification"
                                                 }
@@ -21606,8 +17910,7 @@ var lib;
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -21637,8 +17940,7 @@ var lib;
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -21707,8 +18009,7 @@ var lib;
                                                 "raw": "float * deviceOutput",
                                                 "type": "ReferenceType",
                                                 "value": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "float",
@@ -21738,8 +18039,7 @@ var lib;
                                                             "line": 19
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "float * deviceOutput",
                                                     "type": "TypeSpecification"
                                                 }
@@ -21777,8 +18077,7 @@ var lib;
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -21808,8 +18107,7 @@ var lib;
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -21943,8 +18241,7 @@ var lib;
                                             "raw": "float * deviceInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -21974,8 +18271,7 @@ var lib;
                                                         "line": 17
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -22011,8 +18307,7 @@ var lib;
                                             "raw": "float * hostInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -22042,8 +18337,7 @@ var lib;
                                                         "line": 14
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -22065,8 +18359,7 @@ var lib;
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -22096,8 +18389,7 @@ var lib;
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -22118,8 +18410,7 @@ var lib;
                                     {
                                         "cform": "cudaMemcpyHostToDevice",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -22234,8 +18525,7 @@ var lib;
                                             "raw": "float * deviceInput2",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -22265,8 +18555,7 @@ var lib;
                                                         "line": 18
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput2",
                                                 "type": "TypeSpecification"
                                             }
@@ -22302,8 +18591,7 @@ var lib;
                                             "raw": "float * hostInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -22333,8 +18621,7 @@ var lib;
                                                         "line": 14
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -22356,8 +18643,7 @@ var lib;
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -22387,8 +18673,7 @@ var lib;
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -22409,8 +18694,7 @@ var lib;
                                     {
                                         "cform": "cudaMemcpyHostToDevice",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -22664,8 +18948,7 @@ var lib;
                                                 "left": {
                                                     "cform": "inputLength",
                                                     "kind": {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "int",
@@ -22695,8 +18978,7 @@ var lib;
                                                                 "line": 13
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "int inputLength",
                                                         "type": "TypeSpecification"
                                                     },
@@ -22729,8 +19011,7 @@ var lib;
                                                 "right": {
                                                     "cform": "block_size",
                                                     "kind": {
-                                                        "address_spaces": [
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "int",
@@ -22760,8 +19041,7 @@ var lib;
                                                                 "line": 56
                                                             }
                                                         },
-                                                        "qualifiers": [
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "int block_size = 16",
                                                         "type": "TypeSpecification"
                                                     },
@@ -22847,8 +19127,7 @@ var lib;
                                                             "left": {
                                                                 "cform": "inputLength",
                                                                 "kind": {
-                                                                    "address_spaces": [
-                                                                    ],
+                                                                    "address_spaces": [],
                                                                     "bases": [
                                                                         {
                                                                             "cform": "int",
@@ -22878,8 +19157,7 @@ var lib;
                                                                             "line": 13
                                                                         }
                                                                     },
-                                                                    "qualifiers": [
-                                                                    ],
+                                                                    "qualifiers": [],
                                                                     "raw": "int inputLength",
                                                                     "type": "TypeSpecification"
                                                                 },
@@ -22912,8 +19190,7 @@ var lib;
                                                             "right": {
                                                                 "cform": "block_size",
                                                                 "kind": {
-                                                                    "address_spaces": [
-                                                                    ],
+                                                                    "address_spaces": [],
                                                                     "bases": [
                                                                         {
                                                                             "cform": "int",
@@ -22943,8 +19220,7 @@ var lib;
                                                                             "line": 56
                                                                         }
                                                                     },
-                                                                    "qualifiers": [
-                                                                    ],
+                                                                    "qualifiers": [],
                                                                     "raw": "int block_size = 16",
                                                                     "type": "TypeSpecification"
                                                                 },
@@ -23057,8 +19333,7 @@ var lib;
                                             "raw": "float * deviceInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -23088,8 +19363,7 @@ var lib;
                                                         "line": 17
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -23125,8 +19399,7 @@ var lib;
                                             "raw": "float * deviceInput2",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -23156,8 +19429,7 @@ var lib;
                                                         "line": 18
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput2",
                                                 "type": "TypeSpecification"
                                             }
@@ -23193,8 +19465,7 @@ var lib;
                                             "raw": "float * deviceOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -23224,8 +19495,7 @@ var lib;
                                                         "line": 19
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -23247,8 +19517,7 @@ var lib;
                                     {
                                         "cform": "inputLength",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -23278,8 +19547,7 @@ var lib;
                                                     "line": 13
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -23307,8 +19575,7 @@ var lib;
                                             {
                                                 "cform": "n_blocks",
                                                 "kind": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -23338,8 +19605,7 @@ var lib;
                                                             "line": 57
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)",
                                                     "type": "TypeSpecification"
                                                 },
@@ -23377,8 +19643,7 @@ var lib;
                                             {
                                                 "cform": "block_size",
                                                 "kind": {
-                                                    "address_spaces": [
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -23408,8 +19673,7 @@ var lib;
                                                             "line": 56
                                                         }
                                                     },
-                                                    "qualifiers": [
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int block_size = 16",
                                                     "type": "TypeSpecification"
                                                 },
@@ -23456,8 +19720,7 @@ var lib;
                                 "type": "CallExpression"
                             },
                             {
-                                "arguments": [
-                                ],
+                                "arguments": [],
                                 "callee": {
                                     "cform": "cudaThreadSynchronize",
                                     "loc": {
@@ -23639,8 +19902,7 @@ var lib;
                                             "raw": "float * hostOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -23670,8 +19932,7 @@ var lib;
                                                         "line": 16
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -23707,8 +19968,7 @@ var lib;
                                             "raw": "float * deviceOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -23738,8 +19998,7 @@ var lib;
                                                         "line": 19
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -23761,8 +20020,7 @@ var lib;
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -23792,8 +20050,7 @@ var lib;
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -23814,8 +20071,7 @@ var lib;
                                     {
                                         "cform": "cudaMemcpyDeviceToHost",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -24114,8 +20370,7 @@ var lib;
                                     {
                                         "cform": "args",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -24145,8 +20400,7 @@ var lib;
                                                     "line": 12
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "wbArg_t args",
                                             "type": "TypeSpecification"
                                         },
@@ -24181,8 +20435,7 @@ var lib;
                                             "raw": "float * hostOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -24212,8 +20465,7 @@ var lib;
                                                         "line": 16
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -24235,8 +20487,7 @@ var lib;
                                     {
                                         "cform": "inputLength",
                                         "kind": {
-                                            "address_spaces": [
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -24266,8 +20517,7 @@ var lib;
                                                     "line": 13
                                                 }
                                             },
-                                            "qualifiers": [
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -24335,8 +20585,7 @@ var lib;
                                             "raw": "float * hostInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -24366,8 +20615,7 @@ var lib;
                                                         "line": 14
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -24436,8 +20684,7 @@ var lib;
                                             "raw": "float * hostInput2",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -24467,8 +20714,7 @@ var lib;
                                                         "line": 15
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput2",
                                                 "type": "TypeSpecification"
                                             }
@@ -24537,8 +20783,7 @@ var lib;
                                             "raw": "float * hostOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -24568,8 +20813,7 @@ var lib;
                                                         "line": 16
                                                     }
                                                 },
-                                                "qualifiers": [
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -24737,7 +20981,10 @@ var lib;
         };
     })(example = lib.example || (lib.example = {}));
 })(lib || (lib = {}));
-/// <reference path="./typings/tsd.d.ts" />
+/// <reference path="./typings/assert/assert.d.ts" />
+/// <reference path="./typings/lodash/lodash.d.ts" />
+/// <reference path="./typings/parallel/parallel.d.ts" />
+/// <reference path="./typings/q/Q.d.ts" />
 /// <reference path="./lib/ref.ts" />
 var app;
 (function (app) {
@@ -24758,5 +21005,7 @@ window.onload = function () {
 };
 var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
 lib.ast.importer.memory.mark(ast);
-lib.ast.importer.stack.mark(ast);
+//lib.ast.importer.stack.mark(ast);
+var res = lib.ast.gen.generate(ast.toEsprima(), { sourceMap: true, sourceMapWithCode: true, comment: true });
+console.log(res.code);
 //# sourceMappingURL=app.js.map

@@ -1,14 +1,12 @@
 ﻿module lib.ast {
 
     export declare module esprima {
-        export var version:string;
 
-        export interface Token {
+        interface Token {
             type: string
             value: string
         }
-
-        export interface Options {
+        interface Options {
             loc?: boolean
             range?: boolean
             raw?: boolean
@@ -18,247 +16,231 @@
             tolerant?: boolean
             source?: boolean
         }
-
-        export module Syntax {
-            // Node
-            export interface Node {
+        module Syntax {
+// Node
+            interface Node {
                 type: string
                 loc?: LineLocation
                 range?: number[]
                 leadingComments?: Comment[]
                 trailingComments?: Comment[]
             }
-            export interface LineLocation {
+            interface LineLocation {
                 start: Position
                 end: Position
             }
-            export interface Position {
+            interface Position {
                 line: number
                 column: number
             }
-
-            // Comment
-            export interface Comment extends Node {
+// Comment
+            interface Comment extends Node {
                 value: string
             }
-
-            // Program
-            export interface Program extends Node {
-                body: SomeStatement[]
+// Program
+            interface Program extends Node {
+                body: Statement[]
                 comments?: Comment[]
             }
-
-            // Function
-            export interface Function extends Node {
+// Function
+            interface Function extends Node {
                 id: Identifier // | null
-                params: Node[]
-                defaults: SomeExpression[]
-                rest?: Identifier // | null
+                params: Identifier[]
+                defaults: Expression[]
+                rest: Identifier // | null
                 body: BlockStatementOrExpression
                 generator: boolean
                 expression: boolean
             }
-            export interface BlockStatementOrExpression extends Array<SomeStatement>, BlockStatement, SomeExpression {
-                body: BlockStatementOrExpression
+            interface BlockStatementOrExpression extends BlockStatement, Expression {
             }
-
-            // Statement
-            export interface Statement extends Node {
+// Statement
+            interface Statement extends Node {
             }
-            export interface EmptyStatement extends Statement {
+            interface EmptyStatement extends Statement {
             }
-            export interface BlockStatement extends Statement {
-                body: SomeStatement[]
+            interface BlockStatement extends Statement {
+                body: Statement[]
             }
-            export interface ExpressionStatement extends Statement {
-                expression: SomeExpression
+            interface ExpressionStatement extends Statement {
+                expression: Expression
             }
-            export interface IfStatement extends Statement {
-                test: SomeExpression
-                consequent: SomeStatement
-                alternate: SomeStatement
+            interface IfStatement extends Statement {
+                test: Expression
+                consequent: Statement
+                alternate: Statement
             }
-            export interface LabeledStatement extends Statement {
+            interface LabeledStatement extends Statement {
                 label: Identifier
-                body: SomeStatement
+                body: Statement
             }
-            export interface BreakStatement extends Statement {
+            interface BreakStatement extends Statement {
                 label: Identifier // | null
             }
-            export interface ContinueStatement extends Statement {
+            interface ContinueStatement extends Statement {
                 label: Identifier // | null
             }
-            export interface WithStatement extends Statement {
-                object: SomeExpression
-                body: SomeStatement
+            interface WithStatement extends Statement {
+                object: Expression
+                body: Statement
             }
-            export interface SwitchStatement extends Statement {
-                discriminant: SomeExpression
+            interface SwitchStatement extends Statement {
+                discriminant: Expression
                 cases: SwitchCase[]
                 lexical: boolean
             }
-            export interface ReturnStatement extends Statement {
-                argument: SomeExpression // | null
+            interface ReturnStatement extends Statement {
+                argument: Expression // | null
             }
-            export interface ThrowStatement extends Statement {
-                argument: SomeExpression
+            interface ThrowStatement extends Statement {
+                argument: Expression
             }
-            export interface TryStatement extends Statement {
+            interface TryStatement extends Statement {
                 block: BlockStatement
                 handler: CatchClause // | null
                 guardedHandlers: CatchClause[]
                 finalizer: BlockStatement // | null
             }
-            export interface WhileStatement extends Statement {
-                test: SomeExpression
-                body: SomeStatement
+            interface WhileStatement extends Statement {
+                test: Expression
+                body: Statement
             }
-            export interface DoWhileStatement extends Statement {
-                body: SomeStatement
-                test: SomeExpression
+            interface DoWhileStatement extends Statement {
+                body: Statement
+                test: Expression
             }
-            export interface ForStatement extends Statement {
+            interface ForStatement extends Statement {
                 init: VariableDeclaratorOrExpression // | null
-                test: SomeExpression // | null
-                update: SomeExpression // | null
-                body: SomeStatement
+                test: Expression // | null
+                update: Expression // | null
+                body: Statement
             }
-            export interface ForInStatement extends Statement {
+            interface ForInStatement extends Statement {
                 left: VariableDeclaratorOrExpression
-                right: SomeExpression
-                body: SomeStatement
+                right: Expression
+                body: Statement
                 each: boolean
             }
-            export interface VariableDeclaratorOrExpression extends VariableDeclarator, SomeExpression {
+            interface VariableDeclaratorOrExpression extends VariableDeclarator, Expression {
             }
-            export interface DebuggerStatement extends Statement {
+            interface DebuggerStatement extends Statement {
             }
-            export interface SomeStatement extends EmptyStatement, ExpressionStatement, BlockStatement, IfStatement,
-                LabeledStatement, BreakStatement, ContinueStatement, WithStatement,
-                SwitchStatement, ReturnStatement, ThrowStatement, TryStatement,
-                WhileStatement, DoWhileStatement, ForStatement, ForInStatement, DebuggerStatement {
-                body: SomeStatementOrList
+            interface StatementOrList extends Array<Statement>, Statement {
             }
-            export interface SomeStatementOrList extends Array<SomeStatement>, SomeStatement {
+// Declaration
+            interface Declaration extends Statement {
             }
-
-            // Declration
-            export interface Declration extends Statement {
-            }
-            export interface FunctionDeclration extends Declration {
+            interface FunctionDeclaration extends Declaration {
                 id: Identifier
                 params: Identifier[] // Pattern
-                defaults: SomeExpression[]
+                defaults: Expression[]
                 rest: Identifier
                 body: BlockStatementOrExpression
                 generator: boolean
                 expression: boolean
             }
-            export interface VariableDeclaration extends Declration {
+            interface VariableDeclaration extends Declaration {
                 declarations: VariableDeclarator[]
                 kind: string // "var" | "let" | "const"
             }
-            export interface VariableDeclarator extends Node {
+            interface VariableDeclarator extends Node {
                 id: Identifier // Pattern
-                init: SomeExpression
+                init: Expression
             }
-
-            // Expression
-            export interface Expression extends Node { // | Pattern
+// Expression
+            interface Expression extends Node { // | Pattern
             }
-            export interface SomeExpression extends ThisExpression, ArrayExpression, ObjectExpression, FunctionExpression,
-                ArrowFunctionExpression, SequenceExpression, UnaryExpression, BinaryExpression,
-                AssignmentExpression, UpdateExpression, LogicalExpression, ConditionalExpression,
-                NewExpression, CallExpression, MemberExpression {
+//interface Expression extends
+// ThisExpression, ArrayExpression, ObjectExpression, FunctionExpression,
+// ArrowFunctionExpression, SequenceExpression, UnaryExpression, BinaryExpression,
+// AssignmentExpression, UpdateExpression, LogicalExpression, ConditionalExpression,
+// NewExpression, CallExpression, MemberExpression {
+//}
+            interface ThisExpression extends Expression {
             }
-            export interface ThisExpression extends Expression {
+            interface ArrayExpression extends Expression {
+                elements: Expression[] // [ Expression | null ]
             }
-            export interface ArrayExpression extends Expression {
-                elements: SomeExpression[] // [ Expression | null ]
-            }
-            export interface ObjectExpression extends Expression {
+            interface ObjectExpression extends Expression {
                 properties: Property[]
             }
-            export interface Property extends Node {
+            interface Property extends Node {
                 key: LiteralOrIdentifier // Literal | Identifier
-                value: SomeExpression
+                value: Expression
                 kind: string // "init" | "get" | "set"
             }
-            export interface LiteralOrIdentifier extends Literal, Identifier {
+            interface LiteralOrIdentifier extends Literal, Identifier {
             }
-            export interface FunctionExpression extends Function, Expression {
+            interface FunctionExpression extends Function, Expression {
             }
-            export interface ArrowFunctionExpression extends Function, Expression {
+            interface ArrowFunctionExpression extends Function, Expression {
             }
-            export interface SequenceExpression extends Expression {
-                expressions: SomeExpression[]
+            interface SequenceExpression extends Expression {
+                expressions: Expression[]
             }
-            export interface UnaryExpression extends Expression {
+            interface UnaryExpression extends Expression {
                 operator: string // UnaryOperator
                 prefix: boolean
-                argument: SomeExpression
+                argument: Expression
             }
-            export interface BinaryExpression extends Expression {
+            interface BinaryExpression extends Expression {
                 operator: string // BinaryOperator
-                left: SomeExpression
-                right: SomeExpression
+                left: Expression
+                right: Expression
             }
-            export interface AssignmentExpression extends Expression {
+            interface AssignmentExpression extends Expression {
                 operator: string // AssignmentOperator
-                left: SomeExpression
-                right: SomeExpression
+                left: Expression
+                right: Expression
             }
-            export interface UpdateExpression extends Expression {
+            interface UpdateExpression extends Expression {
                 operator: string // UpdateOperator
-                argument: SomeExpression
+                argument: Expression
                 prefix: boolean
             }
-            export interface LogicalExpression extends Expression {
+            interface LogicalExpression extends Expression {
                 operator: string // LogicalOperator
-                left: SomeExpression
-                right: SomeExpression
+                left: Expression
+                right: Expression
             }
-            export interface ConditionalExpression extends Expression {
-                test: SomeExpression
-                alternate: SomeExpression
-                consequent: SomeExpression
+            interface ConditionalExpression extends Expression {
+                test: Expression
+                alternate: Expression
+                consequent: Expression
             }
-            export interface NewExpression extends Expression {
-                callee: SomeExpression
-                arguments: Node[]
+            interface NewExpression extends Expression {
+                callee: Expression
+                arguments: Expression[]
             }
-            export interface CallExpression extends Expression {
-                callee: SomeExpression
-                arguments: Node[]
+            interface CallExpression extends Expression {
+                callee: Expression
+                arguments: Expression[]
             }
-            export interface MemberExpression extends Expression {
-                object: SomeExpression
+            interface MemberExpression extends Expression {
+                object: Expression
                 property: IdentifierOrExpression // Identifier | Expression
                 computed: boolean
             }
-            export interface IdentifierOrExpression extends Identifier, SomeExpression {
+            interface IdentifierOrExpression extends Identifier, Expression {
             }
-
-            // Pattern
-            // export interface Pattern extends Node { 
-            // }                                
-
-            // Clauses
-            export interface SwitchCase extends Node {
-                test: SomeExpression
-                consequent: SomeStatement[]
+// Pattern
+// interface Pattern extends Node {
+// }
+// Clauses
+            interface SwitchCase extends Node {
+                test: Expression
+                consequent: Statement[]
             }
-            export interface CatchClause extends Node {
+            interface CatchClause extends Node {
                 param: Identifier // Pattern
-                guard: SomeExpression
+                guard: Expression
                 body: BlockStatement
             }
-
-            // Misc
-            export interface Identifier extends Node, Expression { // | Pattern
+// Misc
+            interface Identifier extends Node, Expression { // | Pattern
                 name: string
             }
-            export interface Literal extends Node, Expression {
+            interface Literal extends Node, Expression {
                 value: any // string | boolean | null | number | RegExp
             }
         }
@@ -629,7 +611,8 @@
         }
 
         function skipSingleLineComment(offset) {
-            var start, loc, ch, comment;
+            var start, ch, comment;
+            var loc:any;
 
             start = index - offset;
             loc = {

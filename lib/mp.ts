@@ -1,7 +1,6 @@
-﻿
-module lib {
+﻿module lib {
     export module example {
-        export var mp1: any = {
+        export var mp1:any = {
             "body": [
                 {
                     "attributes": [
@@ -39,9 +38,7 @@ module lib {
                                                     "left": {
                                                         "cform": "blockIdx",
                                                         "kind": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "uint3",
@@ -121,9 +118,7 @@ module lib {
                                                     "right": {
                                                         "cform": "x",
                                                         "kind": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "unsigned int",
@@ -153,9 +148,7 @@ module lib {
                                                                     "line": 12
                                                                 }
                                                             },
-                                                            "qualifiers": [
-
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "unsigned int x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -192,9 +185,7 @@ module lib {
                                                     "left": {
                                                         "cform": "blockDim",
                                                         "kind": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "struct dim3",
@@ -274,9 +265,7 @@ module lib {
                                                     "right": {
                                                         "cform": "x",
                                                         "kind": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "unsigned int",
@@ -306,9 +295,7 @@ module lib {
                                                                     "line": 16
                                                                 }
                                                             },
-                                                            "qualifiers": [
-
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "unsigned int x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -347,9 +334,7 @@ module lib {
                                                 "left": {
                                                     "cform": "threadIdx",
                                                     "kind": {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "uint3",
@@ -429,9 +414,7 @@ module lib {
                                                 "right": {
                                                     "cform": "x",
                                                     "kind": {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "unsigned int",
@@ -461,9 +444,7 @@ module lib {
                                                                 "line": 12
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "unsigned int x",
                                                         "type": "TypeSpecification"
                                                     },
@@ -548,9 +529,7 @@ module lib {
                                                         "raw": "float * out",
                                                         "type": "ReferenceType",
                                                         "value": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "float",
@@ -580,9 +559,7 @@ module lib {
                                                                     "line": 5
                                                                 }
                                                             },
-                                                            "qualifiers": [
-
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "float * out",
                                                             "type": "TypeSpecification"
                                                         }
@@ -604,9 +581,7 @@ module lib {
                                                 "property": {
                                                     "cform": "idx",
                                                     "kind": {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "int",
@@ -636,9 +611,7 @@ module lib {
                                                                 "line": 7
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                                         "type": "TypeSpecification"
                                                     },
@@ -703,9 +676,7 @@ module lib {
                                                             "raw": "float * in1",
                                                             "type": "ReferenceType",
                                                             "value": {
-                                                                "address_spaces": [
-
-                                                                ],
+                                                                "address_spaces": [],
                                                                 "bases": [
                                                                     {
                                                                         "cform": "float",
@@ -735,9 +706,7 @@ module lib {
                                                                         "line": 5
                                                                     }
                                                                 },
-                                                                "qualifiers": [
-
-                                                                ],
+                                                                "qualifiers": [],
                                                                 "raw": "float * in1",
                                                                 "type": "TypeSpecification"
                                                             }
@@ -759,9 +728,7 @@ module lib {
                                                     "property": {
                                                         "cform": "idx",
                                                         "kind": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "int",
@@ -791,9 +758,7 @@ module lib {
                                                                     "line": 7
                                                                 }
                                                             },
-                                                            "qualifiers": [
-
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -856,9 +821,7 @@ module lib {
                                                             "raw": "float * in2",
                                                             "type": "ReferenceType",
                                                             "value": {
-                                                                "address_spaces": [
-
-                                                                ],
+                                                                "address_spaces": [],
                                                                 "bases": [
                                                                     {
                                                                         "cform": "float",
@@ -888,9 +851,7 @@ module lib {
                                                                         "line": 5
                                                                     }
                                                                 },
-                                                                "qualifiers": [
-
-                                                                ],
+                                                                "qualifiers": [],
                                                                 "raw": "float * in2",
                                                                 "type": "TypeSpecification"
                                                             }
@@ -912,9 +873,7 @@ module lib {
                                                     "property": {
                                                         "cform": "idx",
                                                         "kind": {
-                                                            "address_spaces": [
-
-                                                            ],
+                                                            "address_spaces": [],
                                                             "bases": [
                                                                 {
                                                                     "cform": "int",
@@ -944,9 +903,7 @@ module lib {
                                                                     "line": 7
                                                                 }
                                                             },
-                                                            "qualifiers": [
-
-                                                            ],
+                                                            "qualifiers": [],
                                                             "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                                             "type": "TypeSpecification"
                                                         },
@@ -1002,9 +959,7 @@ module lib {
                                     "left": {
                                         "cform": "idx",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -1034,9 +989,7 @@ module lib {
                                                     "line": 7
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int idx = blockIdx.x * blockDim.x + threadIdx.x",
                                             "type": "TypeSpecification"
                                         },
@@ -1069,9 +1022,7 @@ module lib {
                                     "right": {
                                         "cform": "len",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -1101,9 +1052,7 @@ module lib {
                                                     "line": 5
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int len",
                                             "type": "TypeSpecification"
                                         },
@@ -1234,9 +1183,7 @@ module lib {
                     "type": "Function"
                 },
                 {
-                    "attributes": [
-
-                    ],
+                    "attributes": [],
                     "body": {
                         "body": [
                             {
@@ -1628,9 +1575,7 @@ module lib {
                                 "left": {
                                     "cform": "args",
                                     "kind": {
-                                        "address_spaces": [
-
-                                        ],
+                                        "address_spaces": [],
                                         "bases": [
                                             {
                                                 "cform": "int",
@@ -1660,9 +1605,7 @@ module lib {
                                                 "line": 12
                                             }
                                         },
-                                        "qualifiers": [
-
-                                        ],
+                                        "qualifiers": [],
                                         "raw": "wbArg_t args",
                                         "type": "TypeSpecification"
                                     },
@@ -1697,9 +1640,7 @@ module lib {
                                         {
                                             "cform": "argc",
                                             "kind": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "int",
@@ -1729,9 +1670,7 @@ module lib {
                                                         "line": 11
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "int argc",
                                                 "type": "TypeSpecification"
                                             },
@@ -1780,9 +1719,7 @@ module lib {
                                                     "raw": "char ** argv",
                                                     "type": "ReferenceType",
                                                     "value": {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "char",
@@ -1812,9 +1749,7 @@ module lib {
                                                                 "line": 11
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "char ** argv",
                                                         "type": "TypeSpecification"
                                                     }
@@ -1932,9 +1867,7 @@ module lib {
                                 "raw": "wbTime_start(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "cform": "hostInput1 = wbImport(\"input0\" /* String*/, & inputLength)",
                                 "left": {
@@ -1954,9 +1887,7 @@ module lib {
                                         "raw": "float * hostInput1",
                                         "type": "ReferenceType",
                                         "value": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "float",
@@ -1986,9 +1917,7 @@ module lib {
                                                     "line": 14
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "float * hostInput1",
                                             "type": "TypeSpecification"
                                         }
@@ -2041,9 +1970,7 @@ module lib {
                                             "argument": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -2073,9 +2000,7 @@ module lib {
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -2161,9 +2086,7 @@ module lib {
                                         "raw": "float * hostInput2",
                                         "type": "ReferenceType",
                                         "value": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "float",
@@ -2193,9 +2116,7 @@ module lib {
                                                     "line": 15
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "float * hostInput2",
                                             "type": "TypeSpecification"
                                         }
@@ -2248,9 +2169,7 @@ module lib {
                                             "argument": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -2280,9 +2199,7 @@ module lib {
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -2368,9 +2285,7 @@ module lib {
                                         "raw": "float * hostOutput",
                                         "type": "ReferenceType",
                                         "value": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "float",
@@ -2400,9 +2315,7 @@ module lib {
                                                     "line": 16
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "float * hostOutput",
                                             "type": "TypeSpecification"
                                         }
@@ -2440,9 +2353,7 @@ module lib {
                                             "left": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -2472,9 +2383,7 @@ module lib {
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -2507,9 +2416,7 @@ module lib {
                                             "right": {
                                                 "arguments": [
                                                     {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "float",
@@ -2539,9 +2446,7 @@ module lib {
                                                                 "line": 26
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "sizeof(float)",
                                                         "type": "TypeSpecification"
                                                     }
@@ -2676,9 +2581,7 @@ module lib {
                                 "raw": "wbTime_stop(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -2716,9 +2619,7 @@ module lib {
                                     {
                                         "cform": "inputLength",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -2748,9 +2649,7 @@ module lib {
                                                     "line": 13
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -2880,9 +2779,7 @@ module lib {
                                 "raw": "wbTime_start(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "cform": "int  byteSize = sizeof(float ) * inputLength",
                                 "declarations": [
@@ -2909,9 +2806,7 @@ module lib {
                                             "left": {
                                                 "arguments": [
                                                     {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "float",
@@ -2941,9 +2836,7 @@ module lib {
                                                                 "line": 34
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "sizeof(float)",
                                                         "type": "TypeSpecification"
                                                     }
@@ -2993,9 +2886,7 @@ module lib {
                                             "right": {
                                                 "cform": "inputLength",
                                                 "kind": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -3025,9 +2916,7 @@ module lib {
                                                             "line": 13
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int inputLength",
                                                     "type": "TypeSpecification"
                                                 },
@@ -3139,9 +3028,7 @@ module lib {
                                 "raw": "wbTime_stop(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -3207,9 +3094,7 @@ module lib {
                                 "raw": "wbTime_start(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -3230,9 +3115,7 @@ module lib {
                                                 "raw": "float * deviceInput1",
                                                 "type": "ReferenceType",
                                                 "value": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "float",
@@ -3262,9 +3145,7 @@ module lib {
                                                             "line": 17
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "float * deviceInput1",
                                                     "type": "TypeSpecification"
                                                 }
@@ -3302,9 +3183,7 @@ module lib {
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -3334,9 +3213,7 @@ module lib {
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -3405,9 +3282,7 @@ module lib {
                                                 "raw": "float * deviceInput2",
                                                 "type": "ReferenceType",
                                                 "value": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "float",
@@ -3437,9 +3312,7 @@ module lib {
                                                             "line": 18
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "float * deviceInput2",
                                                     "type": "TypeSpecification"
                                                 }
@@ -3477,9 +3350,7 @@ module lib {
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -3509,9 +3380,7 @@ module lib {
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -3580,9 +3449,7 @@ module lib {
                                                 "raw": "float * deviceOutput",
                                                 "type": "ReferenceType",
                                                 "value": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "float",
@@ -3612,9 +3479,7 @@ module lib {
                                                             "line": 19
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "float * deviceOutput",
                                                     "type": "TypeSpecification"
                                                 }
@@ -3652,9 +3517,7 @@ module lib {
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -3684,9 +3547,7 @@ module lib {
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -3800,9 +3661,7 @@ module lib {
                                 "raw": "wbTime_stop(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -3822,9 +3681,7 @@ module lib {
                                             "raw": "float * deviceInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -3854,9 +3711,7 @@ module lib {
                                                         "line": 17
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -3892,9 +3747,7 @@ module lib {
                                             "raw": "float * hostInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -3924,9 +3777,7 @@ module lib {
                                                         "line": 14
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -3948,9 +3799,7 @@ module lib {
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -3980,9 +3829,7 @@ module lib {
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -4003,9 +3850,7 @@ module lib {
                                     {
                                         "cform": "cudaMemcpyHostToDevice",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -4120,9 +3965,7 @@ module lib {
                                             "raw": "float * deviceInput2",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -4152,9 +3995,7 @@ module lib {
                                                         "line": 18
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput2",
                                                 "type": "TypeSpecification"
                                             }
@@ -4190,9 +4031,7 @@ module lib {
                                             "raw": "float * hostInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -4222,9 +4061,7 @@ module lib {
                                                         "line": 14
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -4246,9 +4083,7 @@ module lib {
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -4278,9 +4113,7 @@ module lib {
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -4301,9 +4134,7 @@ module lib {
                                     {
                                         "cform": "cudaMemcpyHostToDevice",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -4464,9 +4295,7 @@ module lib {
                                 "raw": "wbTime_start(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "cform": "int  block_size = 16",
                                 "declarations": [
@@ -4559,9 +4388,7 @@ module lib {
                                                 "left": {
                                                     "cform": "inputLength",
                                                     "kind": {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "int",
@@ -4591,9 +4418,7 @@ module lib {
                                                                 "line": 13
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "int inputLength",
                                                         "type": "TypeSpecification"
                                                     },
@@ -4626,9 +4451,7 @@ module lib {
                                                 "right": {
                                                     "cform": "block_size",
                                                     "kind": {
-                                                        "address_spaces": [
-
-                                                        ],
+                                                        "address_spaces": [],
                                                         "bases": [
                                                             {
                                                                 "cform": "int",
@@ -4658,9 +4481,7 @@ module lib {
                                                                 "line": 56
                                                             }
                                                         },
-                                                        "qualifiers": [
-
-                                                        ],
+                                                        "qualifiers": [],
                                                         "raw": "int block_size = 16",
                                                         "type": "TypeSpecification"
                                                     },
@@ -4746,9 +4567,7 @@ module lib {
                                                             "left": {
                                                                 "cform": "inputLength",
                                                                 "kind": {
-                                                                    "address_spaces": [
-
-                                                                    ],
+                                                                    "address_spaces": [],
                                                                     "bases": [
                                                                         {
                                                                             "cform": "int",
@@ -4778,9 +4597,7 @@ module lib {
                                                                             "line": 13
                                                                         }
                                                                     },
-                                                                    "qualifiers": [
-
-                                                                    ],
+                                                                    "qualifiers": [],
                                                                     "raw": "int inputLength",
                                                                     "type": "TypeSpecification"
                                                                 },
@@ -4813,9 +4630,7 @@ module lib {
                                                             "right": {
                                                                 "cform": "block_size",
                                                                 "kind": {
-                                                                    "address_spaces": [
-
-                                                                    ],
+                                                                    "address_spaces": [],
                                                                     "bases": [
                                                                         {
                                                                             "cform": "int",
@@ -4845,9 +4660,7 @@ module lib {
                                                                             "line": 56
                                                                         }
                                                                     },
-                                                                    "qualifiers": [
-
-                                                                    ],
+                                                                    "qualifiers": [],
                                                                     "raw": "int block_size = 16",
                                                                     "type": "TypeSpecification"
                                                                 },
@@ -4960,9 +4773,7 @@ module lib {
                                             "raw": "float * deviceInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -4992,9 +4803,7 @@ module lib {
                                                         "line": 17
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -5030,9 +4839,7 @@ module lib {
                                             "raw": "float * deviceInput2",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -5062,9 +4869,7 @@ module lib {
                                                         "line": 18
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceInput2",
                                                 "type": "TypeSpecification"
                                             }
@@ -5100,9 +4905,7 @@ module lib {
                                             "raw": "float * deviceOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -5132,9 +4935,7 @@ module lib {
                                                         "line": 19
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -5156,9 +4957,7 @@ module lib {
                                     {
                                         "cform": "inputLength",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -5188,9 +4987,7 @@ module lib {
                                                     "line": 13
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -5218,9 +5015,7 @@ module lib {
                                             {
                                                 "cform": "n_blocks",
                                                 "kind": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -5250,9 +5045,7 @@ module lib {
                                                             "line": 57
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1)",
                                                     "type": "TypeSpecification"
                                                 },
@@ -5290,9 +5083,7 @@ module lib {
                                             {
                                                 "cform": "block_size",
                                                 "kind": {
-                                                    "address_spaces": [
-
-                                                    ],
+                                                    "address_spaces": [],
                                                     "bases": [
                                                         {
                                                             "cform": "int",
@@ -5322,9 +5113,7 @@ module lib {
                                                             "line": 56
                                                         }
                                                     },
-                                                    "qualifiers": [
-
-                                                    ],
+                                                    "qualifiers": [],
                                                     "raw": "int block_size = 16",
                                                     "type": "TypeSpecification"
                                                 },
@@ -5371,9 +5160,7 @@ module lib {
                                 "type": "CallExpression"
                             },
                             {
-                                "arguments": [
-
-                                ],
+                                "arguments": [],
                                 "callee": {
                                     "cform": "cudaThreadSynchronize",
                                     "loc": {
@@ -5469,9 +5256,7 @@ module lib {
                                 "raw": "wbTime_stop(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -5537,9 +5322,7 @@ module lib {
                                 "raw": "wbTime_start(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -5559,9 +5342,7 @@ module lib {
                                             "raw": "float * hostOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -5591,9 +5372,7 @@ module lib {
                                                         "line": 16
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -5629,9 +5408,7 @@ module lib {
                                             "raw": "float * deviceOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -5661,9 +5438,7 @@ module lib {
                                                         "line": 19
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * deviceOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -5685,9 +5460,7 @@ module lib {
                                     {
                                         "cform": "byteSize",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -5717,9 +5490,7 @@ module lib {
                                                     "line": 34
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int byteSize =sizeof(float) * inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -5740,9 +5511,7 @@ module lib {
                                     {
                                         "cform": "cudaMemcpyDeviceToHost",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -5903,9 +5672,7 @@ module lib {
                                 "raw": "wbTime_stop(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -5971,9 +5738,7 @@ module lib {
                                 "raw": "wbTime_start(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
@@ -6039,17 +5804,13 @@ module lib {
                                 "raw": "wbTime_stop(#kind, __VA_ARGS__)",
                                 "type": "CallExpression"
                             },
-                            {
-
-                            },
+                            {},
                             {
                                 "arguments": [
                                     {
                                         "cform": "args",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -6079,9 +5840,7 @@ module lib {
                                                     "line": 12
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "wbArg_t args",
                                             "type": "TypeSpecification"
                                         },
@@ -6116,9 +5875,7 @@ module lib {
                                             "raw": "float * hostOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -6148,9 +5905,7 @@ module lib {
                                                         "line": 16
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostOutput",
                                                 "type": "TypeSpecification"
                                             }
@@ -6172,9 +5927,7 @@ module lib {
                                     {
                                         "cform": "inputLength",
                                         "kind": {
-                                            "address_spaces": [
-
-                                            ],
+                                            "address_spaces": [],
                                             "bases": [
                                                 {
                                                     "cform": "int",
@@ -6204,9 +5957,7 @@ module lib {
                                                     "line": 13
                                                 }
                                             },
-                                            "qualifiers": [
-
-                                            ],
+                                            "qualifiers": [],
                                             "raw": "int inputLength",
                                             "type": "TypeSpecification"
                                         },
@@ -6274,9 +6025,7 @@ module lib {
                                             "raw": "float * hostInput1",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -6306,9 +6055,7 @@ module lib {
                                                         "line": 14
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput1",
                                                 "type": "TypeSpecification"
                                             }
@@ -6377,9 +6124,7 @@ module lib {
                                             "raw": "float * hostInput2",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -6409,9 +6154,7 @@ module lib {
                                                         "line": 15
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostInput2",
                                                 "type": "TypeSpecification"
                                             }
@@ -6480,9 +6223,7 @@ module lib {
                                             "raw": "float * hostOutput",
                                             "type": "ReferenceType",
                                             "value": {
-                                                "address_spaces": [
-
-                                                ],
+                                                "address_spaces": [],
                                                 "bases": [
                                                     {
                                                         "cform": "float",
@@ -6512,9 +6253,7 @@ module lib {
                                                         "line": 16
                                                     }
                                                 },
-                                                "qualifiers": [
-
-                                                ],
+                                                "qualifiers": [],
                                                 "raw": "float * hostOutput",
                                                 "type": "TypeSpecification"
                                             }

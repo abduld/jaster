@@ -761,7 +761,7 @@ module lib.ast {
         };
 
         export module shared {
-            var builtin = types.builtInTypes;
+            var builtin = lib.ast.types.builtInTypes;
             var isNumber:Type = builtin["number"];
 
             // An example of constructing a new type with arbitrary constraints from
