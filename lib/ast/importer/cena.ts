@@ -1112,7 +1112,7 @@ module lib.ast {
                     if (isUndefined(body)) {
                         this.body = new EmptyExpression();
                     } else if (body.type === "BlockStatement") {
-                        var blk : BlockStatement = castTo<BlockStatement>(fromCena(body));
+                        var blk:BlockStatement = castTo<BlockStatement>(fromCena(body));
                         this.addArgumentsToStack_(blk);
                         this.body = blk;
                     } else {
@@ -1123,19 +1123,127 @@ module lib.ast {
                     this.setChildParents();
                 }
 
-                private addArgumentsToStack_(blk: BlockStatement) {
+                private addArgumentsToStack_(blk:BlockStatement) {
 
                 }
+
                 static fromCena(o:any):Node {
                     return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                 }
 
                 toEsprima_():esprima.Syntax.Function {
+                    var body = this.body.toEsprima();
+                    if (body.type === "BlockStatement") {
+                        var blk:esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
+                        var idx = this.params.elements.length;
+                        _.eachRight(this.params.elements,
+                            function (param) {
+                                idx--;
+                                blk.body.unshift(
+                                    castTo<esprima.Syntax.Node>({
+                                        type: "ExpressionStatement",
+                                        expression: {
+                                            type: "AssignmentExpression",
+                                            operator: "=",
+                                            left: {
+                                                type: "MemberExpression",
+                                                computed: true,
+                                                object: {
+                                                    type: "Identifier",
+                                                    name: "functionStack$",
+                                                    loc: this.loc,
+                                                    raw: this.raw,
+                                                    cform: this.cform
+                                                },
+                                                property: param.toEsprima(),
+
+                                                loc: this.loc,
+                                                raw: this.raw,
+                                                cform: this.cform
+                                            },
+                                            right: {
+
+                                                type: "MemberExpression",
+                                                computed: true,
+                                                object: {
+                                                    type: "Identifier",
+                                                    name: "arguments",
+                                                    loc: this.loc,
+                                                    raw: this.raw,
+                                                    cform: this.cform
+
+                                                },
+                                                property: {
+                                                    type: "Literal",
+                                                    value: idx,
+                                                    raw: idx.toString(),
+                                                    loc: this.loc,
+                                                    cform: this.cform
+                                                }
+                                            },
+                                            loc: this.loc,
+                                            raw: this.raw,
+                                            cform: this.cform
+                                        }
+                                    })
+                                )
+                            }
+                        );
+                        blk.body.unshift({
+                            type: "VariableDeclaration",
+                            loc: this.loc,
+                            raw: this.raw,
+                            cform: this.cform,
+                            declarations: [
+                                {
+                                    type: "VariableDeclarator",
+                                    id: {
+                                        type: "Identifier",
+                                        name: "functionStack$",
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    },
+                                    init: {
+                                        type: "ObjectExpression",
+                                        properties: [],
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    },
+                                    loc: this.loc,
+                                    raw: this.raw,
+                                    cform: this.cform
+                                },
+                                {
+                                    type: "VariableDeclarator",
+                                    id: {
+                                        type: "Identifier",
+                                        name: "functionName$",
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    },
+                                    init: {
+                                        type: "Literal",
+                                        value: this.id.name,
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    },
+                                    loc: this.loc,
+                                    raw: this.raw,
+                                    cform: this.cform
+                                }
+                            ],
+                            kind: "var"
+                        });
+                    }
                     return castTo<esprima.Syntax.Function >({
                         type: "FunctionExpression",
                         id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
                         params: this.params.toEsprima(),
-                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(this.body.toEsprima()),
+                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
                         ret: this.ret.toEsprima(),
                         attributes: this.attributes,
                         defaults: [],
@@ -1206,10 +1314,17 @@ module lib.ast {
 
                 constructor(loc:any, raw:string, cform:string, callee:any, arguments:any[], config?:any) {
                     super("CallExpression", loc, raw, cform);
-                    this.callee = Identifier.fromCena(callee);
+                    if (lib.utils.isString(callee)) {
+                        this.callee = new Identifier(this.loc, callee, callee, callee);
+                    } else {
+                        this.callee = Identifier.fromCena(callee);
+                    }
                     this.arguments = new CompoundNode(arguments);
-                    this.config = isUndefined(config) ? new EmptyExpression() : fromCena(config);
+                    this.config = isUndefined(config) ? new EmptyExpression() : castTo<Node>(new CompoundNode(config));
                     this.isCUDA = !isUndefined(config);
+                    if(this.isCUDA) {
+                        debugger;
+                    }
                     this.setChildParents();
                 }
 
@@ -1709,15 +1824,16 @@ module lib.ast {
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
                         }
-                    } /* else {
-                        return {
-                            type: "VariableDeclarator",
-                            init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
-                            id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
-                        }
-                    } */
+                    }
+                    /* else {
+                     return {
+                     type: "VariableDeclarator",
+                     init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                     id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
+                     raw: this.raw, cform: this.cform,
+                     loc: this.loc
+                     }
+                     } */
                 }
 
                 toCString_():string {
@@ -2470,12 +2586,90 @@ module lib.ast {
                 }
             }
 
+            export class ArrayExpression extends Node {
+                right:Node
+                left:Node
+                operator:string
+                computed:boolean
+
+                constructor(loc:any, raw:string, cform:string, left:any, operator:string, right:any, computed?:boolean) {
+                    super("MemberExpression", loc, raw, cform);
+                    this.left = fromCena(left);
+                    this.right = fromCena(right);
+                    this.operator = operator;
+                    this.computed = computed;
+                    this.setChildParents();
+                }
+
+                static fromCena(o:any):Node {
+                    return new MemberExpression(o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
+                }
+
+                toEsprima_():esprima.Syntax.MemberExpression {
+                    return {
+                        type: "MemberExpression",
+                        object: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
+                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.right.toEsprima()),
+                        computed: this.computed,
+                        raw: this.raw, cform: this.cform,
+                        loc: this.loc
+                    }
+                }
+
+                toCString():string {
+                    if (this.computed === true || isUndefined(this.computed)) {
+                        return this.left.toCString() + this.operator + this.right.toCString();
+                    } else {
+                        return this.left.toCString() + "[" + this.right.toCString() + "]";
+                    }
+                }
+
+                children_():Node[] {
+                    return [this.left, this.right];
+                }
+
+                hasChildren_():boolean {
+                    return true;
+                }
+
+                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    this.left.postOrderTraverse(visit, data);
+                    this.right.postOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+
+                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    visit(this, data);
+                    this.left.postOrderTraverse(visit, data);
+                    return this.right.postOrderTraverse(visit, data);
+                }
+
+                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    this.left.inOrderTraverse(visit, data);
+                    visit(this, data);
+                    return this.right.inOrderTraverse(visit, data);
+                }
+
+                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    this.right.reversePostOrderTraverse(visit, data);
+                    this.left.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
+
+                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                    visit(this, data);
+                    this.right.reversePreOrderTraverse(visit, data);
+                    return this.left.reversePreOrderTraverse(visit, data);
+                }
+            }
 
             var dispatch:Map<string, (o:any) => Node> = new Map<string, (o:any) => Node>();
 
             export function fromCena(o:any):Node {
                 if (isUndefined(o) || isUndefined(o.type)) {
                     return new EmptyExpression();
+                } else if (lib.utils.isArray(o)) {
+                    return _.map(o, fromCena);
                 } else if (!dispatch.has(o.type)) {
                     lib.utils.logger.trace("Invalid input type toEsprima " + o.type);
                     return new ErrorNode(JSON.stringify(o));
@@ -2537,6 +2731,7 @@ module lib.ast {
                 dispatch.set("SymbolLiteral", SymbolLiteral.fromCena);
                 dispatch.set("Literal", SymbolLiteral.fromCena);
                 dispatch.set("ReferenceType", ReferenceType.fromCena);
+                dispatch.set("ArrayExpression", ArrayExpression.fromCena);
             }
 
             init();

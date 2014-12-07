@@ -11469,11 +11469,111 @@ var lib;
                         return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                     };
                     FunctionExpression.prototype.toEsprima_ = function () {
+                        var body = this.body.toEsprima();
+                        if (body.type === "BlockStatement") {
+                            var blk = castTo(body);
+                            var idx = this.params.elements.length;
+                            _.eachRight(this.params.elements, function (param) {
+                                idx--;
+                                blk.body.unshift(castTo({
+                                    type: "ExpressionStatement",
+                                    expression: {
+                                        type: "AssignmentExpression",
+                                        operator: "=",
+                                        left: {
+                                            type: "MemberExpression",
+                                            computed: true,
+                                            object: {
+                                                type: "Identifier",
+                                                name: "functionStack$",
+                                                loc: this.loc,
+                                                raw: this.raw,
+                                                cform: this.cform
+                                            },
+                                            property: param.toEsprima(),
+                                            loc: this.loc,
+                                            raw: this.raw,
+                                            cform: this.cform
+                                        },
+                                        right: {
+                                            type: "MemberExpression",
+                                            computed: true,
+                                            object: {
+                                                type: "Identifier",
+                                                name: "arguments",
+                                                loc: this.loc,
+                                                raw: this.raw,
+                                                cform: this.cform
+                                            },
+                                            property: {
+                                                type: "Literal",
+                                                value: idx,
+                                                raw: idx.toString(),
+                                                loc: this.loc,
+                                                cform: this.cform
+                                            }
+                                        },
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    }
+                                }));
+                            });
+                            blk.body.unshift({
+                                type: "VariableDeclaration",
+                                loc: this.loc,
+                                raw: this.raw,
+                                cform: this.cform,
+                                declarations: [
+                                    {
+                                        type: "VariableDeclarator",
+                                        id: {
+                                            type: "Identifier",
+                                            name: "functionStack$",
+                                            loc: this.loc,
+                                            raw: this.raw,
+                                            cform: this.cform
+                                        },
+                                        init: {
+                                            type: "ObjectExpression",
+                                            properties: [],
+                                            loc: this.loc,
+                                            raw: this.raw,
+                                            cform: this.cform
+                                        },
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    },
+                                    {
+                                        type: "VariableDeclarator",
+                                        id: {
+                                            type: "Identifier",
+                                            name: "functionName$",
+                                            loc: this.loc,
+                                            raw: this.raw,
+                                            cform: this.cform
+                                        },
+                                        init: {
+                                            type: "Literal",
+                                            value: this.id.name,
+                                            loc: this.loc,
+                                            raw: this.raw,
+                                            cform: this.cform
+                                        },
+                                        loc: this.loc,
+                                        raw: this.raw,
+                                        cform: this.cform
+                                    }
+                                ],
+                                kind: "var"
+                            });
+                        }
                         return castTo({
                             type: "FunctionExpression",
                             id: castTo(this.id.toEsprima()),
                             params: this.params.toEsprima(),
-                            body: castTo(this.body.toEsprima()),
+                            body: castTo(body),
                             ret: this.ret.toEsprima(),
                             attributes: this.attributes,
                             defaults: [],
@@ -11536,10 +11636,18 @@ var lib;
                     function CallExpression(loc, raw, cform, callee, arguments, config) {
                         _super.call(this, "CallExpression", loc, raw, cform);
                         this.isCUDA = false;
-                        this.callee = Identifier.fromCena(callee);
+                        if (lib.utils.isString(callee)) {
+                            this.callee = new Identifier(this.loc, callee, callee, callee);
+                        }
+                        else {
+                            this.callee = Identifier.fromCena(callee);
+                        }
                         this.arguments = new CompoundNode(arguments);
-                        this.config = isUndefined(config) ? new EmptyExpression() : fromCena(config);
+                        this.config = isUndefined(config) ? new EmptyExpression() : castTo(new CompoundNode(config));
                         this.isCUDA = !isUndefined(config);
+                        if (this.isCUDA) {
+                            debugger;
+                        }
                         this.setChildParents();
                     }
                     CallExpression.fromCena = function (o) {
@@ -11986,15 +12094,16 @@ var lib;
                                 cform: this.cform,
                                 loc: this.loc
                             };
-                        } /* else {
-                            return {
-                                type: "VariableDeclarator",
-                                init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
-                                id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
-                                raw: this.raw, cform: this.cform,
-                                loc: this.loc
-                            }
-                        } */
+                        }
+                        /* else {
+                         return {
+                         type: "VariableDeclarator",
+                         init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                         id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
+                         raw: this.raw, cform: this.cform,
+                         loc: this.loc
+                         }
+                         } */
                     };
                     VariableDeclarator.prototype.toCString_ = function () {
                         if (this.init.type != "EmptyExpression") {
@@ -12645,10 +12754,79 @@ var lib;
                     return MemberExpression;
                 })(Node);
                 cena.MemberExpression = MemberExpression;
+                var ArrayExpression = (function (_super) {
+                    __extends(ArrayExpression, _super);
+                    function ArrayExpression(loc, raw, cform, left, operator, right, computed) {
+                        _super.call(this, "MemberExpression", loc, raw, cform);
+                        this.left = fromCena(left);
+                        this.right = fromCena(right);
+                        this.operator = operator;
+                        this.computed = computed;
+                        this.setChildParents();
+                    }
+                    ArrayExpression.fromCena = function (o) {
+                        return new MemberExpression(o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
+                    };
+                    ArrayExpression.prototype.toEsprima_ = function () {
+                        return {
+                            type: "MemberExpression",
+                            object: castTo(this.left.toEsprima()),
+                            property: castTo(this.right.toEsprima()),
+                            computed: this.computed,
+                            raw: this.raw,
+                            cform: this.cform,
+                            loc: this.loc
+                        };
+                    };
+                    ArrayExpression.prototype.toCString = function () {
+                        if (this.computed === true || isUndefined(this.computed)) {
+                            return this.left.toCString() + this.operator + this.right.toCString();
+                        }
+                        else {
+                            return this.left.toCString() + "[" + this.right.toCString() + "]";
+                        }
+                    };
+                    ArrayExpression.prototype.children_ = function () {
+                        return [this.left, this.right];
+                    };
+                    ArrayExpression.prototype.hasChildren_ = function () {
+                        return true;
+                    };
+                    ArrayExpression.prototype.postOrderTraverse_ = function (visit, data) {
+                        this.left.postOrderTraverse(visit, data);
+                        this.right.postOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ArrayExpression.prototype.preOrderTraverse_ = function (visit, data) {
+                        visit(this, data);
+                        this.left.postOrderTraverse(visit, data);
+                        return this.right.postOrderTraverse(visit, data);
+                    };
+                    ArrayExpression.prototype.inOrderTraverse_ = function (visit, data) {
+                        this.left.inOrderTraverse(visit, data);
+                        visit(this, data);
+                        return this.right.inOrderTraverse(visit, data);
+                    };
+                    ArrayExpression.prototype.reversePostOrderTraverse_ = function (visit, data) {
+                        this.right.reversePostOrderTraverse(visit, data);
+                        this.left.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                    };
+                    ArrayExpression.prototype.reversePreOrderTraverse_ = function (visit, data) {
+                        visit(this, data);
+                        this.right.reversePreOrderTraverse(visit, data);
+                        return this.left.reversePreOrderTraverse(visit, data);
+                    };
+                    return ArrayExpression;
+                })(Node);
+                cena.ArrayExpression = ArrayExpression;
                 var dispatch = new Map();
                 function fromCena(o) {
                     if (isUndefined(o) || isUndefined(o.type)) {
                         return new EmptyExpression();
+                    }
+                    else if (lib.utils.isArray(o)) {
+                        return _.map(o, fromCena);
                     }
                     else if (!dispatch.has(o.type)) {
                         lib.utils.logger.trace("Invalid input type toEsprima " + o.type);
@@ -12706,6 +12884,7 @@ var lib;
                     dispatch.set("SymbolLiteral", SymbolLiteral.fromCena);
                     dispatch.set("Literal", SymbolLiteral.fromCena);
                     dispatch.set("ReferenceType", ReferenceType.fromCena);
+                    dispatch.set("ArrayExpression", ArrayExpression.fromCena);
                 }
                 cena.init = init;
                 init();
