@@ -22,14 +22,14 @@ module app {
     }
 }
 
-var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
+var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
 lib.ast.importer.memory.mark(ast);
 //lib.ast.importer.stack.mark(ast);
 
 var res = lib.ast.gen.generate(
     ast.toEsprima(),
     // we might have to do some extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
-    { sourceMap: true, sourceMapWithCode: true, comment: true }
+    { sourceMap: true, sourceMapWithCode: true, comment: true, indent: true , sourceContent: ast.cform }
 );
 
 var temp1;

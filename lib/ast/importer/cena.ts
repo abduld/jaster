@@ -8,24 +8,22 @@ module lib.ast {
             import builder_ = lib.ast.types.builders;
             import isUndefined = lib.utils.isUndefined;
 
-            var builder :any = castTo<any>(builder_);
-            function startsWith(s : string, str : string) : boolean{
+            var builder:any = castTo<any>(builder_);
+
+            function startsWith(s:string, str:string):boolean {
                 return s.indexOf(str) === 0;
             };
-            var unknownLocation:esprima.Syntax.LineLocation = {
-                start: {
-                    line: 1,
-                    column: 1
-                },
-                end: {
-                    line: 1,
-                    column: 1
-                }
+            function unknownLocation(): esprima.Syntax.LineLocation {
+                return builder.sourceLocation(
+                    builder.position(1, 1),
+                    builder.position(1, 1),
+                    "cuda.js"
+                )
             };
 
             export class Node {
                 type:string
-                rloc : any
+                rloc:any
                 loc:esprima.Syntax.LineLocation
                 raw:string
                 cform:string
@@ -37,18 +35,13 @@ module lib.ast {
                     this.type = type;
                     this.rloc = loc;
                     if (isUndefined(loc)) {
-                        this.loc = unknownLocation;
+                        this.loc = unknownLocation();
                     } else {
-                        this.loc = castTo<esprima.Syntax.LineLocation>({
-                            start: {
-                                line: loc.start.line + 1,
-                                column: loc.start.column + 1
-                            },
-                            end: {
-                                line: loc.end.line + 1,
-                                column: loc.end.column + 1
-                            }
-                        });
+                        this.loc = builder.sourceLocation(
+                            builder.position(loc.start.line + 1, loc.start.column + 1),
+                            builder.position(loc.end.line + 1, loc.end.column + 1),
+                            "cuda.js"
+                        );;
                     }
                     this.raw = raw;
                     this.cform = cform;
@@ -58,7 +51,7 @@ module lib.ast {
                 }
 
                 static fromCena(o:any):Node {
-                    return new Node("Unknown", unknownLocation, "", "");
+                    return new Node("Unknown", unknownLocation(), "", "");
                 }
 
                 toEsprima():esprima.Syntax.Node {
@@ -172,7 +165,7 @@ module lib.ast {
             }
             export class EmptyExpression extends Node {
                 constructor() {
-                    super("EmptyExpression", unknownLocation, "", "");
+                    super("EmptyExpression", unknownLocation(), "", "");
                 }
 
                 toEsprima() {
@@ -205,7 +198,7 @@ module lib.ast {
             }
             export class NullNode extends Node {
                 constructor() {
-                    super("NullNode", unknownLocation, "", "");
+                    super("NullNode", unknownLocation(), "", "");
                 }
 
                 toEsprima_():esprima.Syntax.Node {
@@ -290,14 +283,14 @@ module lib.ast {
                 }
 
                 /*
-                toEsprima_():esprima.Syntax.Literal {
-                    return castTo<esprima.Syntax.Literal>({
-                        type: "Identifier",
-                        name: this.value,
-                        loc: this.loc,
-                        raw: this.raw, cform: this.cform
-                    })
-                }*/
+                 toEsprima_():esprima.Syntax.Literal {
+                 return castTo<esprima.Syntax.Literal>({
+                 type: "Identifier",
+                 name: this.value,
+                 loc: this.loc,
+                 raw: this.raw, cform: this.cform
+                 })
+                 }*/
                 static fromCena(o:any):SymbolLiteral {
                     return new SymbolLiteral(o.loc, o.raw, o.cform, o.value);
                 }
@@ -906,6 +899,7 @@ module lib.ast {
                         castTo<ReferenceType>(this.kind).makeCUDAReference();
                     }
                 }
+
                 toEsprima_():esprima.Syntax.Identifier {
                     if (this.kind.type === "ReferenceType") {
 
@@ -914,7 +908,7 @@ module lib.ast {
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
                         );
-                        var libc  = builder.memberExpression(
+                        var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
@@ -931,8 +925,16 @@ module lib.ast {
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
                             callee: castTo<esprima.Syntax.Identifier>(ref),
-                            arguments: [castTo<esprima.Syntax.Identifier>({type: "Identifier", name: "functionStack$", loc: this.loc}),
-                                castTo<esprima.Syntax.Identifier>({type: "Identifier", name: this.name, loc: this.loc})],
+                            arguments: [castTo<esprima.Syntax.Identifier>({
+                                type: "Identifier",
+                                name: "functionStack$",
+                                loc: this.loc
+                            }),
+                                castTo<esprima.Syntax.Identifier>({
+                                    type: "Identifier",
+                                    name: this.name,
+                                    loc: this.loc
+                                })],
                             kind: this.kind.toEsprima(),
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
@@ -1185,29 +1187,30 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.FunctionDeclaration {
-                    var body = this.body.toEsprima();
+                    var self = this;
+                    var body = self.body.toEsprima();
                     if (body.type === "BlockStatement") {
                         var blk:esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
-                        var threadParams : Node[] = [];
-                        if (!_.isEmpty(this.attributes)) {
+                        var threadParams:Node[] = [];
+                        if (!_.isEmpty(self.attributes)) {
                             threadParams = [
-                                new StringLiteral(this.rloc, "threadIdx", "threadIdx", "threadIdx"),
-                                new StringLiteral(this.rloc, "blockIdx", "blockIdx", "blockIdx"),
-                                new StringLiteral(this.rloc, "gridIdx", "gridIdx", "gridIdx"),
-                                new StringLiteral(this.rloc, "blockDim", "blockDim", "blockDim"),
-                                new StringLiteral(this.rloc, "gridDim", "gridDim", "gridDim")
+                                new StringLiteral(self.rloc, "threadIdx", "threadIdx", "threadIdx"),
+                                new StringLiteral(self.rloc, "blockIdx", "blockIdx", "blockIdx"),
+                                new StringLiteral(self.rloc, "gridIdx", "gridIdx", "gridIdx"),
+                                new StringLiteral(self.rloc, "blockDim", "blockDim", "blockDim"),
+                                new StringLiteral(self.rloc, "gridDim", "gridDim", "gridDim")
                             ];
                         }
-                        var params = threadParams.concat(this.params.elements);
+                        var params = threadParams.concat(self.params.elements);
                         var idx = params.length;
-                        var self = this;
+                        var self = self;
                         _.eachRight(params,
                             function (param) {
                                 var sparam;
                                 if (param.type === "StringLiteral") {
                                     sparam = param;
                                 } else {
-                                    var id : Identifier = castTo<Identifier>(param);
+                                    var id:Identifier = castTo<Identifier>(param);
                                     sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
                                 }
                                 idx--;
@@ -1312,19 +1315,81 @@ module lib.ast {
                             kind: "var"
                         });
                     }
-                    return castTo<esprima.Syntax.FunctionDeclaration >({
-                        type: "FunctionDeclaration",
-                        id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
-                        params: this.params.toEsprima(),
-                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
-                        ret: this.ret.toEsprima(),
-                        attributes: this.attributes,
-                        defaults: [],
-                        generator: false,
-                        expression: false,
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
-                    })
+                    if (!_.isEmpty(self.attributes)) {
+                        return castTo<esprima.Syntax.FunctionDeclaration >({
+                            type: "FunctionDeclaration",
+                            id: castTo<esprima.Syntax.Identifier>(self.id.toEsprima()),
+                            params: self.params.toEsprima(),
+                            body: builder.blockStatement([
+                                    {
+                                        type: "FunctionDeclaration",
+                                        id: builder.identifier(self.id.name + "_", self.id.loc),
+                                        params: [],
+                                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
+                                        ret: self.ret.toEsprima(),
+                                        attributes: self.attributes,
+                                        defaults: [],
+                                        generator: false,
+                                        expression: false,
+                                        raw: self.raw, cform: self.cform,
+                                        loc: self.loc
+                                    },
+                                    builder.variableDeclaration("var", [
+                                            builder.variableDeclarator(
+                                                builder.identifier("threadIdx", self.loc),
+                                                builder.objectExpression(
+                                                    _.map(["x", "y", "z"], (dim) =>
+                                                        builder.property("init", builder.identifier(dim, self.loc), builder.literal(0, self.loc), self.loc))
+                                                ),
+                                                self.loc
+                                            ),
+                                            builder.variableDeclarator(
+                                                builder.identifier("blockIdx", self.loc),
+                                                builder.objectExpression(
+                                                    _.map(["x", "y", "z"], (dim) =>
+                                                        builder.property("init", builder.identifier(dim, self.loc), builder.literal(0, self.loc), self.loc))
+                                                ),
+                                                self.loc
+                                            )
+                                        ],
+                                        self.loc
+                                    )
+                                    /*
+
+                                     builder.forStatement(
+                                     builder.variableDeclaration("var",
+                                     builder.variableDeclarator(),
+                                     self.loc
+                                     ),
+                                     builder.binaryExpression()
+                                     )
+                                     */
+                                ],
+                                self.loc
+                            ),
+                            ret: self.ret.toEsprima(),
+                            attributes: self.attributes,
+                            defaults: [],
+                            generator: false,
+                            expression: false,
+                            raw: self.raw, cform: self.cform,
+                            loc: self.loc
+                        })
+                    } else {
+                        return castTo<esprima.Syntax.FunctionDeclaration >({
+                            type: "FunctionDeclaration",
+                            id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
+                            params: this.params.toEsprima(),
+                            body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
+                            ret: this.ret.toEsprima(),
+                            attributes: this.attributes,
+                            defaults: [],
+                            generator: false,
+                            expression: false,
+                            raw: this.raw, cform: this.cform,
+                            loc: this.loc
+                        })
+                    }
                 }
 
                 toCString_():string {
@@ -1393,10 +1458,10 @@ module lib.ast {
                         this.callee = Identifier.fromCena(callee);
                     }
                     this.arguments = new CompoundNode(arguments);
-                    this.config = isUndefined(config) ? [] : _.map(config, (c : any) => fromCena(c));
+                    this.config = isUndefined(config) ? [] : _.map(config, (c:any) => fromCena(c));
                     this.isCUDA = !isUndefined(config);
-                    if(this.callee.name === "sizeof") {
-                        var c : TypeExpression = castTo<TypeExpression>(fromCena(arguments[0]));
+                    if (this.callee.name === "sizeof") {
+                        var c:TypeExpression = castTo<TypeExpression>(fromCena(arguments[0]));
                         this.arguments = new CompoundNode([c.ebases[0]])
                     }
                     this.setChildParents();
@@ -1409,14 +1474,14 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.CallExpression {
                     var callee = this.callee.toEsprima();
-                    var args : any = this.arguments.elements;
+                    var args:any = this.arguments.elements;
                     var loc = this.callee.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
                     );
                     if (startsWith(this.callee.name, "wb")) {
-                        var libwb  = builder.memberExpression(
+                        var libwb = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
@@ -1435,7 +1500,7 @@ module lib.ast {
                             sloc
                         );
                     } else if (startsWith(this.callee.name, "cuda")) {
-                        var libcuda  = builder.memberExpression(
+                        var libcuda = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
@@ -1453,21 +1518,21 @@ module lib.ast {
                             false,
                             sloc
                         );
-                         if(_.any(args, (arg:Node) => arg.type === "ReferenceExpression" || (arg.type === "Identifier" && castTo<Identifier>(arg).kind.type === "ReferenceType"))) {
+                        if (_.any(args, (arg:Node) => arg.type === "ReferenceExpression" || (arg.type === "Identifier" && castTo<Identifier>(arg).kind.type === "ReferenceType"))) {
                             if (this.callee.name === "cudaMalloc") {
                                 castTo<ReferenceExpression>(args[0]).makeCUDAReference();
                             } else if (this.callee.name === "cudaMemcpy") {
-                                    if (castTo<Identifier>(_.last(args)).name === "cudaMemcpyHostToDevice") {
-                                        castTo<ReferenceExpression>(args[0]).makeCUDAReference();
-                                    } else {
-                                        castTo<ReferenceExpression>(args[1]).makeCUDAReference();
-                                    }
-                                } else if (this.callee.name === "cudaFree") {
+                                if (castTo<Identifier>(_.last(args)).name === "cudaMemcpyHostToDevice") {
                                     castTo<ReferenceExpression>(args[0]).makeCUDAReference();
+                                } else {
+                                    castTo<ReferenceExpression>(args[1]).makeCUDAReference();
                                 }
-                         }
+                            } else if (this.callee.name === "cudaFree") {
+                                castTo<ReferenceExpression>(args[0]).makeCUDAReference();
+                            }
+                        }
                     } else if (_.contains(["malloc", "free", "sizeof"], this.callee.name)) {
-                        var libc  = builder.memberExpression(
+                        var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
@@ -1485,11 +1550,30 @@ module lib.ast {
                             false,
                             sloc
                         );
+                    } else if (_.contains(["ceil", "floor"], this.callee.name)) {
+                        var libm = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "m",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        callee = builder.memberExpression(
+                            libm,
+                            callee,
+                            false,
+                            sloc
+                        );
                     }
-                    args = _.map(this.config.concat(args), (a: Node) => a.toEsprima());
+                    args = _.map(this.config.concat(args), (a:Node) => a.toEsprima());
                     return castTo<esprima.Syntax.CallExpression >({
                         type: "CallExpression",
-                        config: _.map(this.config, (c : Node) => c.toEsprima()),
+                        config: _.map(this.config, (c:Node) => c.toEsprima()),
                         isCUDA: this.isCUDA,
                         callee: castTo<esprima.Syntax.Expression>(callee),
                         arguments: args,
@@ -1501,7 +1585,7 @@ module lib.ast {
                 toCString_():string {
                     var ret:string = this.callee.toCString();
                     if (this.isCUDA) {
-                        ret += "<<<" + _.map(this.config, (c : Node) => c.toCString()).join(", ") + ">>>";
+                        ret += "<<<" + _.map(this.config, (c:Node) => c.toCString()).join(", ") + ">>>";
                     }
                     ret += " (" + _.map(this.arguments.elements, (p:Node) => p.toCString()).join(", ") + ") ";
                     return ret;
@@ -1518,13 +1602,13 @@ module lib.ast {
                 postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     visit(this, data);
                     this.callee.postOrderTraverse(visit, data);
-                    _.each(this.config, (c: Node) => c.postOrderTraverse(visit, data));
+                    _.each(this.config, (c:Node) => c.postOrderTraverse(visit, data));
                     return this.arguments.postOrderTraverse(visit, data);
                 }
 
                 preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     this.callee.preOrderTraverse(visit, data);
-                    _.each(this.config, (c: Node) => c.postOrderTraverse(visit, data));
+                    _.each(this.config, (c:Node) => c.postOrderTraverse(visit, data));
                     this.arguments.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1532,20 +1616,20 @@ module lib.ast {
                 inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     visit(this, data);
                     this.callee.inOrderTraverse(visit, data);
-                    _.each(this.config, (c: Node) => c.inOrderTraverse(visit, data));
+                    _.each(this.config, (c:Node) => c.inOrderTraverse(visit, data));
                     return this.arguments.inOrderTraverse(visit, data);
                 }
 
                 reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     this.arguments.reversePostOrderTraverse(visit, data);
-                    _.each(this.config, (c: Node) => c.reversePostOrderTraverse(visit, data));
+                    _.each(this.config, (c:Node) => c.reversePostOrderTraverse(visit, data));
                     this.callee.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
                 reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     this.arguments.reversePreOrderTraverse(visit, data);
-                    _.each(this.config, (c: Node) => c.reversePreOrderTraverse(visit, data));
+                    _.each(this.config, (c:Node) => c.reversePreOrderTraverse(visit, data));
                     this.callee.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1664,7 +1748,7 @@ module lib.ast {
             export class ReferenceExpression extends Node {
                 argument:Node
                 rawArgument:any
-                isCUDA: boolean
+                isCUDA:boolean
 
                 constructor(loc:any, raw:string, cform:string, argument:any) {
                     super("ReferenceExpression", loc, raw, cform);
@@ -1694,7 +1778,7 @@ module lib.ast {
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
                     );
-                    var libc  = builder.memberExpression(
+                    var libc = builder.memberExpression(
                         builder.identifier(
                             "lib",
                             sloc
@@ -1828,7 +1912,7 @@ module lib.ast {
                 }
             }
             function makeOp(op:string, symbol:string):Identifier {
-                return new Identifier(unknownLocation, symbol, symbol, op);
+                return new Identifier(unknownLocation(), symbol, symbol, op);
             }
 
             export class BinaryExpression extends Node {
@@ -1837,32 +1921,35 @@ module lib.ast {
                 left:Node
                 static PropertyTable:{
                     [key: string]: Identifier;
-                } = {
-                    "+": makeOp("plus", "+"),
-                    "-": makeOp("minus", "-"),
-                    "*": makeOp("times", "*"),
-                    "/": makeOp("divide", "/"),
-                    "%": makeOp("mod", "%"),
-                    "&&": makeOp("and", "&&"),
-                    "||": makeOp("or", "||"),
-                    "==": makeOp("equals", "=="),
-                    "!=": makeOp("notequals", "!="),
-                    ">": makeOp("greaterthan", ">"),
-                    ">=": makeOp("greaterthanequals", ">="),
-                    "<": makeOp("lessthan", "<"),
-                    "<=": makeOp("lessthanequals", "<="),
-                    "|": makeOp("bitor", "|"),
-                    "&": makeOp("bitand", "&"),
-                    "^": makeOp("bitxor", "^"),
-                    ">>": makeOp("shiftright", ">>"),
-                    "<<": makeOp("shiftleft", "<<")
-                };
+                } = undefined ;
 
                 constructor(loc:any, raw:string, cform:string, operator:string, right:any, left:any) {
                     super("BinaryExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
                     this.left = fromCena(left);
+                    if (BinaryExpression.PropertyTable === undefined) {
+                        BinaryExpression.PropertyTable = {
+                            "+": makeOp("plus", "+"),
+                            "-": makeOp("minus", "-"),
+                            "*": makeOp("times", "*"),
+                            "/": makeOp("divide", "/"),
+                            "%": makeOp("mod", "%"),
+                            "&&": makeOp("and", "&&"),
+                            "||": makeOp("or", "||"),
+                            "==": makeOp("equals", "=="),
+                            "!=": makeOp("notequals", "!="),
+                            ">": makeOp("greaterthan", ">"),
+                            ">=": makeOp("greaterthanequals", ">="),
+                            "<": makeOp("lessthan", "<"),
+                            "<=": makeOp("lessthanequals", "<="),
+                            "|": makeOp("bitor", "|"),
+                            "&": makeOp("bitand", "&"),
+                            "^": makeOp("bitxor", "^"),
+                            ">>": makeOp("shiftright", ">>"),
+                            "<<": makeOp("shiftleft", "<<")
+                        };
+                    }
                     if (this.left.toEsprima().type === "ExpressionStatement") {
                         debugger;
                     }
@@ -1944,7 +2031,7 @@ module lib.ast {
             export class UndefinedExpression extends Node {
 
                 constructor() {
-                    super("VariableDeclarator", unknownLocation, "", "");
+                    super("VariableDeclarator", unknownLocation(), "", "");
                 }
 
                 toEsprima_():esprima.Syntax.Node {
@@ -1976,7 +2063,7 @@ module lib.ast {
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
                         );
-                        var libc  = builder.memberExpression(
+                        var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
@@ -1990,11 +2077,11 @@ module lib.ast {
                         );
                         return builder.expressionStatement(
                             builder.assignmentExpression("=", builder.identifier(this.id.name, sloc),
-                          builder.callExpression(
-                              builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
-                              [builder.literal(this.id.name, sloc)].concat(this.init.toEsprima()),
-                              sloc
-                          ), sloc),
+                                builder.callExpression(
+                                    builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
+                                    [builder.literal(this.id.name, sloc)].concat(this.init.toEsprima()),
+                                    sloc
+                                ), sloc),
                             sloc
                         );
                     } else {
@@ -2170,14 +2257,14 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.AssignmentExpression {
                     if (this.left.type === "Identifier" && castTo<Identifier>(this.left).kind.type === "ReferenceType") {
-                        var left : Identifier = castTo<Identifier>(this.left);
+                        var left:Identifier = castTo<Identifier>(this.left);
 
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
                         );
-                        var libc  = builder.memberExpression(
+                        var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
@@ -2193,7 +2280,7 @@ module lib.ast {
                             builder.identifier("functionStack$", left.loc),
                             builder.literal(left.name, left.loc),
                             true,
-                          left.loc
+                            left.loc
                         );
                         return builder.expressionStatement(
                             builder.assignmentExpression("=", lefte,
@@ -2356,12 +2443,13 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.ConditionalExpression {
                     // debugger;
-                    return {type: "ConditionalExpression",
-                            test: castTo<esprima.Syntax.Expression>(this.test.toEsprima()),
-                            alternate: castTo<esprima.Syntax.Expression>(this.alternate.toEsprima()),
-                            consequent: castTo<esprima.Syntax.Expression>(this.consequent.toEsprima()),
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
+                    return {
+                        type: "ConditionalExpression",
+                        test: castTo<esprima.Syntax.Expression>(this.test.toEsprima()),
+                        alternate: castTo<esprima.Syntax.Expression>(this.alternate.toEsprima()),
+                        consequent: castTo<esprima.Syntax.Expression>(this.consequent.toEsprima()),
+                        raw: this.raw, cform: this.cform,
+                        loc: this.loc
                     }
                 }
 
@@ -2677,7 +2765,7 @@ module lib.ast {
             }
             export class ErrorNode extends Node {
                 constructor(raw?:string) {
-                    super("ErrorNode", unknownLocation, raw, raw);
+                    super("ErrorNode", unknownLocation(), raw, raw);
                 }
             }
 
@@ -2829,7 +2917,7 @@ module lib.ast {
             }
 
             export class ArrayExpression extends Node {
-                elements: Node[]
+                elements:Node[]
 
                 constructor(loc:any, raw:string, cform:string, elements:any[]) {
                     super("ArrayExpression", loc, raw, cform);
@@ -2851,7 +2939,7 @@ module lib.ast {
                 }
 
                 toCString():string {
-                    return "[" + _.map(this.elements, (elem : Node) => elem.toCString()).join(", ") + "]";
+                    return "[" + _.map(this.elements, (elem:Node) => elem.toCString()).join(", ") + "]";
                 }
 
                 children_():Node[] {
@@ -2868,7 +2956,7 @@ module lib.ast {
                 }
 
                 preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    var res : Node;
+                    var res:Node;
                     visit(this, data);
                     _.each(this.elements, (elem) => res = elem.preOrderTraverse(visit, data));
                     return res;
@@ -2885,7 +2973,7 @@ module lib.ast {
                 }
 
                 reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    var res : Node;
+                    var res:Node;
                     visit(this, data);
                     _.each(this.elements, (elem) => res = elem.reversePreOrderTraverse(visit, data));
                     return res;
@@ -2908,7 +2996,7 @@ module lib.ast {
             }
 
             export function toJS(o:any):{ code: string; map: lib.ast.sourcemap.SourceNode; } { // from Cena
-                var nd : esprima.Syntax.Node = fromCena(o).toEsprima();
+                var nd:esprima.Syntax.Node = fromCena(o).toEsprima();
                 return lib.ast.gen.generate(
                     nd,
                     // we might have to do  extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )

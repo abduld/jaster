@@ -519,8 +519,6 @@ module lib.ast {
                                 // Expose the partially-built object to the default
                                 // function as its `this` object.
                                 value = field.defaultFn.call(built, args);
-                                if (self.typeName === "Identifier" && field.name === "loc") {
-                                }
                             } else {
                                 var message = "no value or default function given for field " +
                                     JSON.stringify(param) + " of " + self.typeName + "(" +

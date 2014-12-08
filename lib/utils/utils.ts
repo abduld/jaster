@@ -53,7 +53,13 @@ module lib {
         export var global_isFinite = globals.isFinite;
         var _slice = Array.prototype.slice;
         var _indexOf = String.prototype.indexOf;
-        export var _toString = Object.prototype.toString;
+        export function _toString(s?:any) :string {
+            if (s) {
+                return s.toString();
+            } else {
+                return "";
+            }
+        }
         var _hasOwnProperty = Object.prototype.hasOwnProperty;
 
         var Symbol = globals.Symbol || {};

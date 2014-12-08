@@ -2410,7 +2410,7 @@
         }
 
         function parseObjectInitialiser() {
-            var properties = [], token, property, name, key, kind, map = {}, toString = String, node = new Node();
+            var properties = [], token, property, name, key, kind, map = {}, node = new Node();
 
             expect('{');
 
@@ -2420,7 +2420,7 @@
                 if (property.key.type === Syntax.Identifier) {
                     name = property.key.name;
                 } else {
-                    name = toString(property.key.value);
+                    name = lib.utils._toString(property.key.value);
                 }
                 kind = (property.kind === 'init') ? PropertyKind.Data : (property.kind === 'get') ? PropertyKind.Get : PropertyKind.Set;
 
@@ -4012,8 +4012,7 @@
         }
 
         export function tokenize(code:string, options?:Options):Array<Token> {
-            var toString,
-                tokens;
+            var tokens;
 
 
             source = code;
@@ -4093,7 +4092,7 @@
         }
 
         export function parse(code:string, options?:lib.ast.esprima.Options):lib.ast.esprima.Syntax.Program {
-            var program, toString;
+            var program;
 
             source = code;
             index = 0;
@@ -4118,7 +4117,7 @@
                 extra.attachComment = (typeof options.attachComment === 'boolean') && options.attachComment;
 
                 if (extra.loc && options.source !== null && options.source !== undefined) {
-                    extra.source = toString(options.source);
+                    extra.source = lib.utils._toString(options.source);
                 }
 
                 if (typeof options.tokens === 'boolean' && options.tokens) {
