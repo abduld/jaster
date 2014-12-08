@@ -32,4 +32,9 @@ var res = lib.ast.gen.generate(
     { sourceMap: true, sourceMapWithCode: true, comment: true }
 );
 
-console.log(res.code);
+var temp1;
+console.log(temp1 = lib.ast.validate.errors(ast.toEsprima()));
+var b : any = lib.utils.castTo<any>(lib.ast.types.builders);
+//console.log(
+//    b.identifier("foo", b.sourceLocation(b.position(1,1),b.position(2,1)))
+//);

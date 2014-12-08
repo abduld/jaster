@@ -9,7 +9,9 @@ module lib.ast {
             import isUndefined = lib.utils.isUndefined;
 
             var builder = castTo<any>(builder_);
-
+            function startsWith(s : string, str : string) : boolean{
+                return s.indexOf(str) === 0;
+            };
             var unknownLocation:esprima.Syntax.LineLocation = {
                 start: {
                     line: 1,
@@ -1057,19 +1059,23 @@ module lib.ast {
                         function (elem) {
                             if (elem.type === "EmptyExpression") {
                                 return null;
-                            } else if (lib.ast.utils.isStatement(elem.type)) {
+                            } else if (lib.ast.utils.isStatement(elem)) {
                                 return elem.toEsprima();
-                            } else {
+                            } else if (lib.ast.utils.isExpression(elem)) {
                                 return {
-                                    "type": "ExpressionStatement",
+                                    type: "ExpressionStatement",
                                     expression: elem.toEsprima(),
                                     loc: elem.loc,
                                     raw: elem.raw,
                                     cform: elem.cform
                                 }
+                            } else {
+                                lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
+                                return null;
                             }
                         }
                     );
+                    stmts = _.reject(stmts, _.isNull);
                     return {
                         type: "BlockStatement",
                         body: castTo<esprima.Syntax.Statement[]>(stmts),
@@ -1153,7 +1159,7 @@ module lib.ast {
                     return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                 }
 
-                toEsprima_():esprima.Syntax.Function {
+                toEsprima_():esprima.Syntax.FunctionDeclaration {
                     var body = this.body.toEsprima();
                     if (body.type === "BlockStatement") {
                         var blk:esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
@@ -1280,8 +1286,8 @@ module lib.ast {
                             kind: "var"
                         });
                     }
-                    return castTo<esprima.Syntax.Function >({
-                        type: "FunctionExpression",
+                    return castTo<esprima.Syntax.FunctionDeclaration >({
+                        type: "FunctionDeclaration",
                         id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
                         params: this.params.toEsprima(),
                         body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
@@ -1374,16 +1380,78 @@ module lib.ast {
                     return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.arguments), o.config);
                 }
 
-                static libwb : MemberExpression = null;
-                static wbFunctions : {[key:string] : MemberExpression;} = {
-                };
+
                 toEsprima_():esprima.Syntax.CallExpression {
+                    var callee = this.callee.toEsprima();
                     var args = this.arguments.toEsprima();
+                    var loc = this.callee.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
+                    )
+                    if (startsWith(this.callee.name, "wb")) {
+                        var libwb  = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "wb",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        callee = builder.memberExpression(
+                            libwb,
+                            callee,
+                            false,
+                            sloc
+                        );
+                    } else if (startsWith(this.callee.name, "cuda")) {
+                        var libcuda  = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "cuda",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        callee = builder.memberExpression(
+                            libcuda,
+                            callee,
+                            false,
+                            sloc
+                        );
+                    } else if (_.contains(["malloc", "free"], this.callee.name)) {
+                        var libc  = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        callee = builder.memberExpression(
+                            libc,
+                            callee,
+                            false,
+                            sloc
+                        );
+                    }
                     return castTo<esprima.Syntax.CallExpression >({
                         type: "CallExpression",
                         config: this.config.toEsprima(),
                         isCUDA: this.isCUDA,
-                        callee: castTo<esprima.Syntax.Expression>(this.callee.toEsprima()),
+                        callee: castTo<esprima.Syntax.Expression>(callee),
                         arguments: args,
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
@@ -1455,13 +1523,8 @@ module lib.ast {
                     return new ParenExpression(o.loc, o.raw, o.cform, o.expression);
                 }
 
-                toEsprima_():esprima.Syntax.ExpressionStatement {
-                    return {
-                        type: "ExpressionStatement",
-                        expression: castTo<esprima.Syntax.Expression>(this.expression.toEsprima()),
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
-                    }
+                toEsprima_():esprima.Syntax.Node {
+                    return castTo<esprima.Syntax.Expression>(this.expression.toEsprima());
                 }
 
                 toCString_():string {
@@ -1730,6 +1793,9 @@ module lib.ast {
                     this.operator = operator
                     this.right = fromCena(right);
                     this.left = fromCena(left);
+                    if (this.left.toEsprima().type === "ExpressionStatement") {
+                        debugger;
+                    }
                     this.setChildParents();
                 }
 
@@ -1943,11 +2009,15 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.Node {
-                    return {
-                        type: "SequenceExpression",
-                        expressions: castTo<esprima.Syntax.Node[]>(this.declarations.map((decl) => decl.toEsprima())),
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
+                    if (this.declarations.length === 1) {
+                        return this.declarations[0].toEsprima();
+                    } else {
+                        return {
+                            type: "SequenceExpression",
+                            expressions: castTo<esprima.Syntax.Node[]>(this.declarations.map((decl) => decl.toEsprima())),
+                            raw: this.raw, cform: this.cform,
+                            loc: this.loc
+                        }
                     }
                 }
 
@@ -2160,13 +2230,13 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.ConditionalExpression {
-                    return {
-                        type: "ConditionalExpression",
-                        test: castTo<esprima.Syntax.Expression>(this.test.toEsprima()),
-                        alternate: castTo<esprima.Syntax.Expression>(this.alternate.toEsprima()),
-                        consequent: castTo<esprima.Syntax.Expression>(this.consequent.toEsprima()),
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
+                    // debugger;
+                    return {type: "ConditionalExpression",
+                            test: castTo<esprima.Syntax.Expression>(this.test.toEsprima()),
+                            alternate: castTo<esprima.Syntax.Expression>(this.alternate.toEsprima()),
+                            consequent: castTo<esprima.Syntax.Expression>(this.consequent.toEsprima()),
+                            raw: this.raw, cform: this.cform,
+                            loc: this.loc
                     }
                 }
 
@@ -2423,12 +2493,12 @@ module lib.ast {
 
                 constructor(loc:any, raw:string, cform:string, expression:Node) {
                     super("ExpressionStatement", loc, raw, cform);
-                    this.expression = expression;
+                    this.expression = fromCena(expression);
                     this.setChildParents();
                 }
 
                 static fromCena(o:any):Node {
-                    return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
+                    return new ExpressionStatement(o.loc, o.raw, o.cform, o.expression);
                 }
 
                 toEsprima_():esprima.Syntax.ExpressionStatement {

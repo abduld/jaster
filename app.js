@@ -7048,7 +7048,6 @@ var lib;
                             }
                             var argc = args.length;
                             var built = Object.create(nodePrototype);
-                            console.log(arguments);
                             assert.ok(self.finalized, "attempting to instantiate unfinalized type " + self.typeName);
                             function add(param, i) {
                                 if (hasOwn.call(built, param))
@@ -7064,14 +7063,11 @@ var lib;
                                 else if (!lib.utils.isUndefined(field.defaultFn)) {
                                     // Expose the partially-built object to the default
                                     // function as its `this` object.
-                                    var opts = args[argc - 1];
-                                    value = field.defaultFn.call(built, opts);
-                                    if (field.name === "loc" && self.typeName === "Identifier") {
-                                        debugger;
+                                    value = field.defaultFn.call(built, args);
+                                    if (self.typeName === "Identifier" && field.name === "loc") {
                                     }
                                 }
                                 else {
-                                    debugger;
                                     var message = "no value or default function given for field " + JSON.stringify(param) + " of " + self.typeName + "(" + self.buildParams.map(function (name) {
                                         return all[name];
                                     }).join(", ") + ")";
@@ -7307,8 +7303,8 @@ var lib;
                     "identity": function (id) {
                         return id;
                     },
-                    "location": function (b, opts) {
-                        return opts["loc"];
+                    "location": function (args) {
+                        return _.isUndefined(args) ? null : _.findWhere(args, function (arg) { return _.isObject(arg) && arg.type === "SourceLocation"; }) || null;
                     }
                 };
                 var naiveIsPrimitive = Type.or(builtin["string"], builtin["number"], builtin["boolean"], builtin["null"], builtin["undefined"]);
@@ -10849,6 +10845,10 @@ var lib;
                 var builder_ = lib.ast.types.builders;
                 var isUndefined = lib.utils.isUndefined;
                 var builder = castTo(builder_);
+                function startsWith(s, str) {
+                    return s.indexOf(str) === 0;
+                }
+                ;
                 var unknownLocation = {
                     start: {
                         line: 1,
@@ -11773,19 +11773,24 @@ var lib;
                             if (elem.type === "EmptyExpression") {
                                 return null;
                             }
-                            else if (lib.ast.utils.isStatement(elem.type)) {
+                            else if (lib.ast.utils.isStatement(elem)) {
                                 return elem.toEsprima();
                             }
-                            else {
+                            else if (lib.ast.utils.isExpression(elem)) {
                                 return {
-                                    "type": "ExpressionStatement",
+                                    type: "ExpressionStatement",
                                     expression: elem.toEsprima(),
                                     loc: elem.loc,
                                     raw: elem.raw,
                                     cform: elem.cform
                                 };
                             }
+                            else {
+                                lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
+                                return null;
+                            }
                         });
+                        stmts = _.reject(stmts, _.isNull);
                         return {
                             type: "BlockStatement",
                             body: castTo(stmts),
@@ -11979,7 +11984,7 @@ var lib;
                             });
                         }
                         return castTo({
-                            type: "FunctionExpression",
+                            type: "FunctionDeclaration",
                             id: castTo(this.id.toEsprima()),
                             params: this.params.toEsprima(),
                             body: castTo(body),
@@ -12064,12 +12069,27 @@ var lib;
                         return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo(o.arguments), o.config);
                     };
                     CallExpression.prototype.toEsprima_ = function () {
+                        var callee = this.callee.toEsprima();
                         var args = this.arguments.toEsprima();
+                        var loc = this.callee.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        if (startsWith(this.callee.name, "wb")) {
+                            var libwb = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("wb", sloc), false, sloc);
+                            callee = builder.memberExpression(libwb, callee, false, sloc);
+                        }
+                        else if (startsWith(this.callee.name, "cuda")) {
+                            var libcuda = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("cuda", sloc), false, sloc);
+                            callee = builder.memberExpression(libcuda, callee, false, sloc);
+                        }
+                        else if (_.contains(["malloc", "free"], this.callee.name)) {
+                            var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
+                            callee = builder.memberExpression(libc, callee, false, sloc);
+                        }
                         return castTo({
                             type: "CallExpression",
                             config: this.config.toEsprima(),
                             isCUDA: this.isCUDA,
-                            callee: castTo(this.callee.toEsprima()),
+                            callee: castTo(callee),
                             arguments: args,
                             raw: this.raw,
                             cform: this.cform,
@@ -12120,8 +12140,6 @@ var lib;
                         this.callee.reversePreOrderTraverse(visit, data);
                         return visit(this, data);
                     };
-                    CallExpression.libwb = null;
-                    CallExpression.wbFunctions = {};
                     return CallExpression;
                 })(Node);
                 cena.CallExpression = CallExpression;
@@ -12136,13 +12154,7 @@ var lib;
                         return new ParenExpression(o.loc, o.raw, o.cform, o.expression);
                     };
                     ParenExpression.prototype.toEsprima_ = function () {
-                        return {
-                            type: "ExpressionStatement",
-                            expression: castTo(this.expression.toEsprima()),
-                            raw: this.raw,
-                            cform: this.cform,
-                            loc: this.loc
-                        };
+                        return castTo(this.expression.toEsprima());
                     };
                     ParenExpression.prototype.toCString_ = function () {
                         return "(" + this.expression.toCString() + ")";
@@ -12353,6 +12365,9 @@ var lib;
                         this.operator = operator;
                         this.right = fromCena(right);
                         this.left = fromCena(left);
+                        if (this.left.toEsprima().type === "ExpressionStatement") {
+                            debugger;
+                        }
                         this.setChildParents();
                     }
                     BinaryExpression.fromCena = function (o) {
@@ -12571,13 +12586,18 @@ var lib;
                         return new VariableDeclaration(o.loc, o.raw, o.cform, o.declarations);
                     };
                     VariableDeclaration.prototype.toEsprima_ = function () {
-                        return {
-                            type: "SequenceExpression",
-                            expressions: castTo(this.declarations.map(function (decl) { return decl.toEsprima(); })),
-                            raw: this.raw,
-                            cform: this.cform,
-                            loc: this.loc
-                        };
+                        if (this.declarations.length === 1) {
+                            return this.declarations[0].toEsprima();
+                        }
+                        else {
+                            return {
+                                type: "SequenceExpression",
+                                expressions: castTo(this.declarations.map(function (decl) { return decl.toEsprima(); })),
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            };
+                        }
                     };
                     VariableDeclaration.prototype.toCString_ = function () {
                         return _.map(this.declarations, function (decl) { return decl.toCString(); }).join(", ");
@@ -12758,15 +12778,8 @@ var lib;
                         return new ConditionalExpression(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                     };
                     ConditionalExpression.prototype.toEsprima_ = function () {
-                        return {
-                            type: "ConditionalExpression",
-                            test: castTo(this.test.toEsprima()),
-                            alternate: castTo(this.alternate.toEsprima()),
-                            consequent: castTo(this.consequent.toEsprima()),
-                            raw: this.raw,
-                            cform: this.cform,
-                            loc: this.loc
-                        };
+                        // debugger;
+                        return { type: "ConditionalExpression", test: castTo(this.test.toEsprima()), alternate: castTo(this.alternate.toEsprima()), consequent: castTo(this.consequent.toEsprima()), raw: this.raw, cform: this.cform, loc: this.loc };
                     };
                     ConditionalExpression.prototype.toCString_ = function () {
                         return this.test.toCString() + " ? " + this.consequent.toCString() + " : " + this.alternate.toCString();
@@ -12987,11 +13000,11 @@ var lib;
                     __extends(ExpressionStatement, _super);
                     function ExpressionStatement(loc, raw, cform, expression) {
                         _super.call(this, "ExpressionStatement", loc, raw, cform);
-                        this.expression = expression;
+                        this.expression = fromCena(expression);
                         this.setChildParents();
                     }
                     ExpressionStatement.fromCena = function (o) {
-                        return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
+                        return new ExpressionStatement(o.loc, o.raw, o.cform, o.expression);
                     };
                     ExpressionStatement.prototype.toEsprima_ = function () {
                         return {
@@ -23612,95 +23625,78 @@ var lib;
                                             "operator": "+",
                                             "raw": "inputLength /block_size + (inputLength%block_size == 0 ? 0:1)",
                                             "right": {
-                                                "cform": "(inputLength % block_size == 0 ? 0 : 1)",
-                                                "expression": {
-                                                    "alternate": {
-                                                        "cform": "1",
-                                                        "loc": {
-                                                            "end": {
-                                                                "column": 80,
-                                                                "line": 57
-                                                            },
-                                                            "start": {
-                                                                "column": 80,
-                                                                "line": 57
-                                                            }
-                                                        },
-                                                        "raw": "1",
-                                                        "type": "Integer32Literal",
-                                                        "value": 1
-                                                    },
-                                                    "cform": "inputLength % block_size == 0 ? 0 : 1",
-                                                    "consequent": {
-                                                        "cform": "0",
-                                                        "loc": {
-                                                            "end": {
-                                                                "column": 78,
-                                                                "line": 57
-                                                            },
-                                                            "start": {
-                                                                "column": 78,
-                                                                "line": 57
-                                                            }
-                                                        },
-                                                        "raw": "0",
-                                                        "type": "Integer32Literal",
-                                                        "value": 0
-                                                    },
+                                                "alternate": {
+                                                    "cform": "1",
                                                     "loc": {
                                                         "end": {
                                                             "column": 80,
                                                             "line": 57
                                                         },
                                                         "start": {
-                                                            "column": 48,
+                                                            "column": 80,
                                                             "line": 57
                                                         }
                                                     },
-                                                    "raw": "inputLength%block_size == 0 ? 0:1",
-                                                    "test": {
-                                                        "cform": "inputLength % block_size == 0",
+                                                    "raw": "1",
+                                                    "type": "Integer32Literal",
+                                                    "value": 1
+                                                },
+                                                "cform": "inputLength % block_size == 0 ? 0 : 1",
+                                                "consequent": {
+                                                    "cform": "0",
+                                                    "loc": {
+                                                        "end": {
+                                                            "column": 78,
+                                                            "line": 57
+                                                        },
+                                                        "start": {
+                                                            "column": 78,
+                                                            "line": 57
+                                                        }
+                                                    },
+                                                    "raw": "0",
+                                                    "type": "Integer32Literal",
+                                                    "value": 0
+                                                },
+                                                "loc": {
+                                                    "end": {
+                                                        "column": 80,
+                                                        "line": 57
+                                                    },
+                                                    "start": {
+                                                        "column": 48,
+                                                        "line": 57
+                                                    }
+                                                },
+                                                "raw": "inputLength%block_size == 0 ? 0:1",
+                                                "test": {
+                                                    "cform": "inputLength % block_size == 0",
+                                                    "left": {
+                                                        "cform": "inputLength % block_size",
                                                         "left": {
-                                                            "cform": "inputLength % block_size",
-                                                            "left": {
-                                                                "cform": "inputLength",
-                                                                "kind": {
-                                                                    "address_spaces": [
-                                                                    ],
-                                                                    "bases": [
-                                                                        {
-                                                                            "cform": "int",
-                                                                            "loc": {
-                                                                                "end": {
-                                                                                    "column": 9,
-                                                                                    "line": 13
-                                                                                },
-                                                                                "start": {
-                                                                                    "column": 5,
-                                                                                    "line": 13
-                                                                                }
+                                                            "cform": "inputLength",
+                                                            "kind": {
+                                                                "address_spaces": [
+                                                                ],
+                                                                "bases": [
+                                                                    {
+                                                                        "cform": "int",
+                                                                        "loc": {
+                                                                            "end": {
+                                                                                "column": 9,
+                                                                                "line": 13
                                                                             },
-                                                                            "raw": "int",
-                                                                            "type": "Literal",
-                                                                            "value": "int"
-                                                                        }
-                                                                    ],
-                                                                    "cform": "int ",
-                                                                    "loc": {
-                                                                        "end": {
-                                                                            "column": 9,
-                                                                            "line": 13
+                                                                            "start": {
+                                                                                "column": 5,
+                                                                                "line": 13
+                                                                            }
                                                                         },
-                                                                        "start": {
-                                                                            "column": 5,
-                                                                            "line": 13
-                                                                        }
-                                                                    },
-                                                                    "qualifiers": [
-                                                                    ],
-                                                                    "raw": "int inputLength",
-                                                                    "type": "TypeSpecification"
-                                                                },
+                                                                        "raw": "int",
+                                                                        "type": "Literal",
+                                                                        "value": "int"
+                                                                    }
+                                                                ],
+                                                                "cform": "int ",
                                                                 "loc": {
                                                                     "end": {
                                                                         "column": 9,
@@ -23711,61 +23707,61 @@ var lib;
                                                                         "line": 13
                                                                     }
                                                                 },
-                                                                "name": "inputLength",
+                                                                "qualifiers": [
+                                                                ],
                                                                 "raw": "int inputLength",
-                                                                "type": "Identifier"
+                                                                "type": "TypeSpecification"
                                                             },
                                                             "loc": {
                                                                 "end": {
-                                                                    "column": 60,
-                                                                    "line": 57
+                                                                    "column": 9,
+                                                                    "line": 13
                                                                 },
                                                                 "start": {
-                                                                    "column": 48,
-                                                                    "line": 57
+                                                                    "column": 5,
+                                                                    "line": 13
                                                                 }
                                                             },
-                                                            "operator": "%",
-                                                            "raw": "inputLength%block_size",
-                                                            "right": {
-                                                                "cform": "block_size",
-                                                                "kind": {
-                                                                    "address_spaces": [
-                                                                    ],
-                                                                    "bases": [
-                                                                        {
-                                                                            "cform": "int",
-                                                                            "loc": {
-                                                                                "end": {
-                                                                                    "column": 23,
-                                                                                    "line": 56
-                                                                                },
-                                                                                "start": {
-                                                                                    "column": 6,
-                                                                                    "line": 56
-                                                                                }
+                                                            "name": "inputLength",
+                                                            "raw": "int inputLength",
+                                                            "type": "Identifier"
+                                                        },
+                                                        "loc": {
+                                                            "end": {
+                                                                "column": 60,
+                                                                "line": 57
+                                                            },
+                                                            "start": {
+                                                                "column": 48,
+                                                                "line": 57
+                                                            }
+                                                        },
+                                                        "operator": "%",
+                                                        "raw": "inputLength%block_size",
+                                                        "right": {
+                                                            "cform": "block_size",
+                                                            "kind": {
+                                                                "address_spaces": [
+                                                                ],
+                                                                "bases": [
+                                                                    {
+                                                                        "cform": "int",
+                                                                        "loc": {
+                                                                            "end": {
+                                                                                "column": 23,
+                                                                                "line": 56
                                                                             },
-                                                                            "raw": "int",
-                                                                            "type": "Literal",
-                                                                            "value": "int"
-                                                                        }
-                                                                    ],
-                                                                    "cform": "int ",
-                                                                    "loc": {
-                                                                        "end": {
-                                                                            "column": 23,
-                                                                            "line": 56
+                                                                            "start": {
+                                                                                "column": 6,
+                                                                                "line": 56
+                                                                            }
                                                                         },
-                                                                        "start": {
-                                                                            "column": 6,
-                                                                            "line": 56
-                                                                        }
-                                                                    },
-                                                                    "qualifiers": [
-                                                                    ],
-                                                                    "raw": "int block_size = 16",
-                                                                    "type": "TypeSpecification"
-                                                                },
+                                                                        "raw": "int",
+                                                                        "type": "Literal",
+                                                                        "value": "int"
+                                                                    }
+                                                                ],
+                                                                "cform": "int ",
                                                                 "loc": {
                                                                     "end": {
                                                                         "column": 23,
@@ -23776,56 +23772,58 @@ var lib;
                                                                         "line": 56
                                                                     }
                                                                 },
-                                                                "name": "block_size",
+                                                                "qualifiers": [
+                                                                ],
                                                                 "raw": "int block_size = 16",
-                                                                "type": "Identifier"
+                                                                "type": "TypeSpecification"
                                                             },
-                                                            "type": "BinaryExpression"
+                                                            "loc": {
+                                                                "end": {
+                                                                    "column": 23,
+                                                                    "line": 56
+                                                                },
+                                                                "start": {
+                                                                    "column": 6,
+                                                                    "line": 56
+                                                                }
+                                                            },
+                                                            "name": "block_size",
+                                                            "raw": "int block_size = 16",
+                                                            "type": "Identifier"
                                                         },
+                                                        "type": "BinaryExpression"
+                                                    },
+                                                    "loc": {
+                                                        "end": {
+                                                            "column": 74,
+                                                            "line": 57
+                                                        },
+                                                        "start": {
+                                                            "column": 48,
+                                                            "line": 57
+                                                        }
+                                                    },
+                                                    "operator": "==",
+                                                    "raw": "inputLength%block_size == 0",
+                                                    "right": {
+                                                        "cform": "0",
                                                         "loc": {
                                                             "end": {
                                                                 "column": 74,
                                                                 "line": 57
                                                             },
                                                             "start": {
-                                                                "column": 48,
+                                                                "column": 74,
                                                                 "line": 57
                                                             }
                                                         },
-                                                        "operator": "==",
-                                                        "raw": "inputLength%block_size == 0",
-                                                        "right": {
-                                                            "cform": "0",
-                                                            "loc": {
-                                                                "end": {
-                                                                    "column": 74,
-                                                                    "line": 57
-                                                                },
-                                                                "start": {
-                                                                    "column": 74,
-                                                                    "line": 57
-                                                                }
-                                                            },
-                                                            "raw": "0",
-                                                            "type": "Integer32Literal",
-                                                            "value": 0
-                                                        },
-                                                        "type": "BinaryExpression"
+                                                        "raw": "0",
+                                                        "type": "Integer32Literal",
+                                                        "value": 0
                                                     },
-                                                    "type": "ConditionalExpression"
+                                                    "type": "BinaryExpression"
                                                 },
-                                                "loc": {
-                                                    "end": {
-                                                        "column": 81,
-                                                        "line": 57
-                                                    },
-                                                    "start": {
-                                                        "column": 47,
-                                                        "line": 57
-                                                    }
-                                                },
-                                                "raw": "(inputLength%block_size == 0 ? 0:1)",
-                                                "type": "ExpressionStatement"
+                                                "type": "ConditionalExpression"
                                             },
                                             "type": "BinaryExpression"
                                         },
@@ -25579,5 +25577,7 @@ var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
 lib.ast.importer.memory.mark(ast);
 //lib.ast.importer.stack.mark(ast);
 var res = lib.ast.gen.generate(ast.toEsprima(), { sourceMap: true, sourceMapWithCode: true, comment: true });
-console.log(res.code);
+var temp1;
+console.log(temp1 = lib.ast.validate.errors(ast.toEsprima()));
+var b = lib.utils.castTo(lib.ast.types.builders);
 //# sourceMappingURL=app.js.map

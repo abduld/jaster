@@ -498,7 +498,7 @@ module lib.ast {
                     value: function (...args:any[]) {
                         var argc = args.length;
                         var built = Object.create(nodePrototype);
-console.log(arguments);
+
                         assert.ok(
                             self.finalized,
                             "attempting to instantiate unfinalized type " + self.typeName);
@@ -518,13 +518,10 @@ console.log(arguments);
                             } else if (!lib.utils.isUndefined(field.defaultFn)) {
                                 // Expose the partially-built object to the default
                                 // function as its `this` object.
-                                var opts = args[argc - 1];
-                                value = field.defaultFn.call(built, opts);
-                                if (field.name === "loc" && self.typeName === "Identifier") {
-                                    debugger;
+                                value = field.defaultFn.call(built, args);
+                                if (self.typeName === "Identifier" && field.name === "loc") {
                                 }
                             } else {
-                                debugger;
                                 var message = "no value or default function given for field " +
                                     JSON.stringify(param) + " of " + self.typeName + "(" +
                                     self.buildParams.map(function (name) {
@@ -801,8 +798,9 @@ console.log(arguments);
                 "identity": function (id) {
                     return id;
                 },
-                "location": function (b, opts) {
-                    return opts["loc"];
+                "location": function (args) {
+                    return _.isUndefined(args) ? null :
+                    _.findWhere(args, (arg : any) => _.isObject(arg) && arg.type === "SourceLocation") || null;
                 }
             };
 
