@@ -11927,12 +11927,17 @@ var lib;
                                     var id = builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(castTo(self.config[cn]).name, self.loc), true, self.loc);
                                     return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(builder.binaryExpression("<", builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc), builder.literal(idx, self.loc), self.loc), builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc), builder.literal(1, self.loc), self.loc));
                                 }), self.loc), self.loc); }), self.loc),
-                                builder.expressionStatement(builder.literal("insert nexted loops here...", self.loc), self.loc),
-                                builder.expressionStatement(builder.callExpression(builder.memberExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("parallel", self.loc), false, self.loc), builder.identifier("scheduleThread", self.loc), false, self.loc), [
-                                    builder.callExpression(builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
-                                        builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
-                                    ]), self.loc), self.loc), ["grid", "block"].map(function (gb) { return builder.objectExpression(["x", "y", "z"].map(function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc); }), self.loc); }))
-                                ], self.loc), self.loc)
+                                builder.blockStatement([
+                                    _.reduceRight(["gridIdxZ", "gridIdxY", "gridIdxX", "blockIdxZ", "blockIdxY", "blockIdxX"], function (res, id) {
+                                        return builder.forStatement(builder.variableDeclaration("var", [
+                                            builder.variableDeclarator(builder.identifier(id, self.loc), builder.literal(0, self.loc))
+                                        ], self.loc), builder.binaryExpression("<", builder.identifier(id, self.loc), builder.memberExpression(builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc), builder.identifier(id[id.length - 1].toLowerCase(), self.loc), false, self.loc), self.loc), builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc), builder.blockStatement(res ? [res] : [], self.loc), self.loc);
+                                    }, builder.expressionStatement(builder.callExpression(builder.memberExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("parallel", self.loc), false, self.loc), builder.identifier("scheduleThread", self.loc), false, self.loc), [
+                                        builder.callExpression(builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
+                                            builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
+                                        ]), self.loc), self.loc), ["gridDim", "blockDim"].map(function (gb) { return builder.objectExpression(["x", "y", "z"].map(function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc); }), self.loc); }))
+                                    ], self.loc), self.loc))
+                                ], self.loc)
                             ], self.loc);
                         }
                         else {
