@@ -6,6 +6,7 @@
 /// < reference path="node-path.ts" />
 /// < reference path="path-visitor.ts" />
 /// < reference path="scope.ts" />
+
 module lib.ast {
     export module types {
         import Node = lib.ast.esprima.Syntax.Node;
@@ -497,11 +498,10 @@ module lib.ast {
                     value: function (...args:any[]) {
                         var argc = args.length;
                         var built = Object.create(nodePrototype);
-
+console.log(arguments);
                         assert.ok(
                             self.finalized,
                             "attempting to instantiate unfinalized type " + self.typeName);
-
                         function add(param, i?) {
                             if (hasOwn.call(built, param))
                                 return;
@@ -510,6 +510,7 @@ module lib.ast {
                             assert.ok(hasOwn.call(all, param), param);
 
                             var field:Field = all[param];
+
                             var type = field.type;
                             var value;
                             if (isNumber.check(i) && i < argc) {
@@ -517,8 +518,13 @@ module lib.ast {
                             } else if (!lib.utils.isUndefined(field.defaultFn)) {
                                 // Expose the partially-built object to the default
                                 // function as its `this` object.
-                                value = field.defaultFn.call(built);
+                                var opts = args[argc - 1];
+                                value = field.defaultFn.call(built, opts);
+                                if (field.name === "loc" && self.typeName === "Identifier") {
+                                    debugger;
+                                }
                             } else {
+                                debugger;
                                 var message = "no value or default function given for field " +
                                     JSON.stringify(param) + " of " + self.typeName + "(" +
                                     self.buildParams.map(function (name) {
@@ -791,6 +797,12 @@ module lib.ast {
                     return true
                 },
                 "undefined": function () {
+                },
+                "identity": function (id) {
+                    return id;
+                },
+                "location": function (b, opts) {
+                    return opts["loc"];
                 }
             };
 
@@ -810,15 +822,9 @@ module lib.ast {
                 type === "function");
             }, naiveIsPrimitive.toString());
         }
+
         export import geq = shared.geq;
         export import isPrimitive = shared.isPrimitive;
         export import defaults = shared.defaults;
     }
 }
-/// <referench path="def/def.ts" />
-/// <referench path="def/core.ts" />
-/// <referench path="def/e4x.ts" />
-/// <referench path="def/es6.ts" />
-/// <referench path="def/es7.ts" />
-/// <referench path="def/fb-harmony.ts" />
-/// <referench path="def/mozilla.ts" />

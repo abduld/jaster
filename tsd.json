@@ -19,6 +19,9 @@
     },
     "assert/assert.d.ts": {
       "commit": "7c94fa739cdb7ef9c5fb794116e787cb13955d35"
+    },
+    "requirejs/require.d.ts": {
+      "commit": "72f8dbc007a261561514c2e3f6ba89c232b12dc8"
     }
   }
 }

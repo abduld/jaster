@@ -18,7 +18,7 @@ module lib.ast.types {
                 .field("loc", or(
                     def("SourceLocation"),
                     null
-                ), defaults["null"], true);
+                ), defaults["location"], true);
 
             def("Node")
                 .bases("Printable")

@@ -3,6 +3,7 @@
 /// <reference path="./typings/lodash/lodash.d.ts" />
 /// <reference path="./typings/parallel/parallel.d.ts" />
 /// <reference path="./typings/q/Q.d.ts" />
+/// <reference path="./typings/requirejs/require.d.ts" />
 /// <reference path="./lib/ref.ts" />
 
 module app {
@@ -20,10 +21,6 @@ module app {
 
     }
 }
-
-window.onload = () => {
-    lib.ast.importer.cena.fromCena(lib.example.mp1)
-};
 
 var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
 lib.ast.importer.memory.mark(ast);

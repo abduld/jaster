@@ -81,7 +81,10 @@ module lib {
         }
 
         export function isArray(value):boolean {
-            return value instanceof Array;
+            var f = Array.isArray || function (xs) {
+                return Object.prototype.toString.call(xs) === '[object Array]';
+            };
+            return f(value);
         }
 
         export function isNumberOrString(value):boolean {
