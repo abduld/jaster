@@ -8,7 +8,7 @@ module lib.ast {
             import builder_ = lib.ast.types.builders;
             import isUndefined = lib.utils.isUndefined;
 
-            var builder = castTo<any>(builder_);
+            var builder :any = castTo<any>(builder_);
             function startsWith(s : string, str : string) : boolean{
                 return s.indexOf(str) === 0;
             };
@@ -897,11 +897,30 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.Identifier {
                     if (this.kind.type === "ReferenceType") {
+
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(
+                            builder.position(loc.start.line, loc.start.column),
+                            builder.position(loc.end.line, loc.end.column)
+                        );
+                        var libc  = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        var ref = builder.memberExpression(libc, builder.identifier("reference", sloc), false, sloc);
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
-                            callee: castTo<esprima.Syntax.Identifier>({type: "Identifier", name: "reference"}),
-                            arguments: [castTo<esprima.Syntax.Identifier>({type: "Identifier", name: "functionStack$"}),
-                                castTo<esprima.Syntax.Identifier>({type: "Identifier", name: this.name})],
+                            callee: castTo<esprima.Syntax.Identifier>(ref),
+                            arguments: [castTo<esprima.Syntax.Identifier>({type: "Identifier", name: "functionStack$", loc: this.loc}),
+                                castTo<esprima.Syntax.Identifier>({type: "Identifier", name: this.name, loc: this.loc})],
                             kind: this.kind.toEsprima(),
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
@@ -1059,9 +1078,9 @@ module lib.ast {
                         function (elem) {
                             if (elem.type === "EmptyExpression") {
                                 return null;
-                            } else if (lib.ast.utils.isStatement(elem)) {
+                            } else if (lib.ast.utils.isStatement(elem.toEsprima())) {
                                 return elem.toEsprima();
-                            } else if (lib.ast.utils.isExpression(elem)) {
+                            } else if (lib.ast.utils.isExpression(elem.toEsprima())) {
                                 return {
                                     type: "ExpressionStatement",
                                     expression: elem.toEsprima(),
@@ -1141,18 +1160,12 @@ module lib.ast {
                         this.body = new EmptyExpression();
                     } else if (body.type === "BlockStatement") {
                         var blk:BlockStatement = castTo<BlockStatement>(fromCena(body));
-                        this.addArgumentsToStack_(blk);
                         this.body = blk;
                     } else {
                         var blk = BlockStatement.fromCena({loc: loc, raw: raw, cform: cform, body: body});
-                        this.addArgumentsToStack_(blk);
                         this.body = blk;
                     }
                     this.setChildParents();
-                }
-
-                private addArgumentsToStack_(blk:BlockStatement) {
-
                 }
 
                 static fromCena(o:any):Node {
@@ -1164,7 +1177,6 @@ module lib.ast {
                     if (body.type === "BlockStatement") {
                         var blk:esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
                         var threadParams : Node[] = [];
-                        console.log(this.attributes);
                         if (!_.isEmpty(this.attributes)) {
                             threadParams = [
                                 new StringLiteral(this.rloc, "threadIdx", "threadIdx", "threadIdx"),
@@ -1176,6 +1188,7 @@ module lib.ast {
                         }
                         var params = threadParams.concat(this.params.elements);
                         var idx = params.length;
+                        var self = this;
                         _.eachRight(params,
                             function (param) {
                                 var sparam;
@@ -1186,101 +1199,102 @@ module lib.ast {
                                     sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
                                 }
                                 idx--;
-                                blk.body.unshift(
-                                    castTo<esprima.Syntax.Node>({
-                                        type: "ExpressionStatement",
-                                        expression: {
-                                            type: "AssignmentExpression",
-                                            operator: "=",
-                                            left: {
-                                                type: "MemberExpression",
-                                                computed: true,
-                                                object: {
-                                                    type: "Identifier",
-                                                    name: "functionStack$",
-                                                    loc: this.loc,
-                                                    raw: this.raw,
-                                                    cform: this.cform
-                                                },
-                                                property: sparam.toEsprima(),
-
-                                                loc: this.loc,
-                                                raw: this.raw,
-                                                cform: this.cform
+                                var k = castTo<esprima.Syntax.ExpressionStatement>({
+                                    type: "ExpressionStatement",
+                                    expression: {
+                                        type: "AssignmentExpression",
+                                        operator: "=",
+                                        left: {
+                                            type: "MemberExpression",
+                                            computed: true,
+                                            object: {
+                                                type: "Identifier",
+                                                name: "functionStack$",
+                                                loc: self.loc,
+                                                raw: self.raw,
+                                                cform: self.cform
                                             },
-                                            right: {
+                                            property: sparam.toEsprima(),
 
-                                                type: "MemberExpression",
-                                                computed: true,
-                                                object: {
-                                                    type: "Identifier",
-                                                    name: "arguments",
-                                                    loc: this.loc,
-                                                    raw: this.raw,
-                                                    cform: this.cform
+                                            loc: self.loc,
+                                            raw: self.raw,
+                                            cform: self.cform
+                                        },
+                                        right: {
+                                            type: "MemberExpression",
+                                            computed: true,
+                                            object: {
+                                                type: "Identifier",
+                                                name: "arguments",
+                                                loc: self.loc,
+                                                raw: self.raw,
+                                                cform: self.cform
 
-                                                },
-                                                property: {
-                                                    type: "Literal",
-                                                    value: idx,
-                                                    raw: idx.toString(),
-                                                    loc: this.loc,
-                                                    cform: this.cform
-                                                }
                                             },
-                                            loc: this.loc,
-                                            raw: this.raw,
-                                            cform: this.cform
-                                        }
-                                    })
-                                )
+                                            property: {
+                                                type: "Literal",
+                                                value: idx,
+                                                raw: idx.toString(),
+                                                loc: self.loc,
+                                                cform: self.cform
+                                            }
+                                        },
+                                        loc: self.loc,
+                                        raw: self.raw,
+                                        cform: self.cform
+                                    },
+                                    loc: self.loc,
+                                    raw: self.raw,
+                                    cform: self.cform
+                                });
+                                blk.body.unshift(k);
                             }
                         );
                         blk.body.unshift({
                             type: "VariableDeclaration",
-                            loc: this.loc,
-                            raw: this.raw,
-                            cform: this.cform,
+                            loc: self.loc,
+                            raw: self.raw,
+                            cform: self.cform,
                             declarations: [
                                 {
                                     type: "VariableDeclarator",
                                     id: {
                                         type: "Identifier",
                                         name: "functionStack$",
-                                        loc: this.loc,
-                                        raw: this.raw,
-                                        cform: this.cform
+                                        loc: self.loc,
+                                        raw: self.raw,
+                                        cform: self.cform
                                     },
                                     init: {
                                         type: "ObjectExpression",
                                         properties: [],
-                                        loc: this.loc,
-                                        raw: this.raw,
-                                        cform: this.cform
+                                        loc: self.loc,
+                                        raw: self.raw,
+                                        cform: self.cform
                                     },
-                                    loc: this.loc,
-                                    raw: this.raw,
-                                    cform: this.cform
+                                    loc: self.loc,
+                                    raw: self.raw,
+                                    cform: self.cform
                                 },
                                 {
                                     type: "VariableDeclarator",
                                     id: {
                                         type: "Identifier",
                                         name: "functionName$",
-                                        loc: this.loc,
-                                        raw: this.raw,
-                                        cform: this.cform
+                                        loc: self.loc,
+                                        raw: self.raw,
+                                        cform: self.cform
                                     },
                                     init: {
                                         type: "Literal",
-                                        value: this.id.name,
-                                        loc: this.loc,
-                                        raw: this.raw,
-                                        cform: this.cform
+                                        value: self.id.name,
+                                        loc: self.loc,
+                                        raw: self.raw,
+                                        cform: self.cform
                                     },
-                                    loc: this.loc,
-                                    raw: this.raw,
-                                    cform: this.cform
+                                    loc: self.loc,
+                                    raw: self.raw,
+                                    cform: self.cform
                                 }
                             ],
                             kind: "var"
@@ -1388,7 +1402,7 @@ module lib.ast {
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    )
+                    );
                     if (startsWith(this.callee.name, "wb")) {
                         var libwb  = builder.memberExpression(
                             builder.identifier(
@@ -1637,8 +1651,25 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.CallExpression {
-                    var call:CallExpression = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "reference"), [this.rawArgument]);
-                    return castTo<esprima.Syntax.CallExpression>(call.toEsprima());
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
+                    );
+                    var libc  = builder.memberExpression(
+                        builder.identifier(
+                            "lib",
+                            sloc
+                        ),
+                        builder.identifier(
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
+                    var ref = builder.memberExpression(libc, builder.identifier("reference", sloc), false, sloc);
+                    return builder.callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.toEsprima()], sloc);
                 }
 
                 toCString_():string {
@@ -1901,20 +1932,32 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.Node {
                     if (this.kind.type === "ReferenceType") {
-                        var call = castTo<esprima.Syntax.CallExpression >({
-                            type: "CallExpression",
-                            callee: castTo<esprima.Syntax.Identifier>({type: "Identifier", name: "reference"}),
-                            arguments: [this.id.toEsprima()],
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
-                        });
-                        return {
-                            type: "VariableDeclarator",
-                            init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
-                            id: castTo<esprima.Syntax.Identifier>(call),
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
-                        }
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(
+                            builder.position(loc.start.line, loc.start.column),
+                            builder.position(loc.end.line, loc.end.column)
+                        );
+                        var libc  = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        return builder.expressionStatement(
+                            builder.assignmentExpression("=", builder.identifier(this.id.name, sloc),
+                          builder.callExpression(
+                              builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
+                              [builder.literal(this.id.name, sloc)].concat(this.init.toEsprima()),
+                              sloc
+                          ), sloc),
+                            sloc
+                        );
                     } else {
                         var id = {
                             type: "MemberExpression",
@@ -1925,14 +1968,20 @@ module lib.ast {
                                 raw: this.raw, cform: this.cform,
                                 loc: this.loc
                             }),
-                            property: castTo<esprima.Syntax.IdentifierOrExpression>(this.id.toEsprima()),
+                            property: builder.literal(this.id.name, this.id.loc),
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
                         };
                         return {
-                            type: "VariableDeclarator",
-                            init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
-                            id: id,
+                            type: "ExpressionStatement",
+                            expression: {
+                                type: "AssignmentExpression",
+                                operator: "=",
+                                right: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                                left: id,
+                                raw: this.raw, cform: this.cform,
+                                loc: this.loc
+                            },
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
                         }
@@ -2081,13 +2130,50 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.AssignmentExpression {
-                    return {
-                        type: "AssignmentExpression",
-                        operator: this.operator,
-                        left: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
-                        right: castTo<esprima.Syntax.Expression>(this.right.toEsprima()),
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
+                    if (this.left.type === "Identifier" && castTo<Identifier>(this.left).kind.type === "ReferenceType") {
+                        var left : Identifier = castTo<Identifier>(this.left);
+
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(
+                            builder.position(loc.start.line, loc.start.column),
+                            builder.position(loc.end.line, loc.end.column)
+                        );
+                        var libc  = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        var lefte = builder.memberExpression(
+                            builder.identifier("functionStack$", left.loc),
+                            builder.literal(left.name, left.loc),
+                            true,
+                          left.loc
+                        );
+                        return builder.expressionStatement(
+                            builder.assignmentExpression("=", lefte,
+                                builder.callExpression(
+                                    builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
+                                    [builder.literal(left.name, sloc)].concat(this.right.toEsprima()),
+                                    sloc
+                                ), sloc),
+                            sloc
+                        );
+                    } else {
+                        return {
+                            type: "AssignmentExpression",
+                            operator: this.operator,
+                            left: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
+                            right: castTo<esprima.Syntax.Expression>(this.right.toEsprima()),
+                            raw: this.raw, cform: this.cform,
+                            loc: this.loc
+                        }
                     }
                 }
 
@@ -2445,6 +2531,7 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.ReturnStatement {
+
                     return {
                         type: "ReturnStatement",
                         loc: this.loc,
