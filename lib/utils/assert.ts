@@ -9,7 +9,7 @@ module lib {
 
             export function assert(res, msg?) {
                 if (!res) {
-                    debugger;
+                    //debugger;
                     if (msg) {
                         logger.error('FAIL: ' + msg);
                     } else {

@@ -16,7 +16,7 @@ $(() => {
     });
     var cudaDoc = cudaEditor.getDoc();
     cudaDoc.setValue(lib.example.mp2Source);
-    cudaEditor.setSize("100%", 800);
+    cudaEditor.setSize("100%", 1000);
 
     var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
     var res = lib.ast.gen.generate(

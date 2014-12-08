@@ -41,7 +41,7 @@ var lib;
                             case 3 /* Error */:
                             case 4 /* Fatal */:
                             default:
-                                debugger;
+                                //debugger;
                                 console.error(msg);
                                 break;
                         }
@@ -80,7 +80,7 @@ var lib;
             var logger = new Logger();
             function assert(res, msg) {
                 if (!res) {
-                    debugger;
+                    //debugger;
                     if (msg) {
                         logger.error('FAIL: ' + msg);
                     }
@@ -10944,16 +10944,13 @@ var lib;
                         return "'" + this.value + "'";
                     };
                     CharLiteral.prototype.toEsprima_ = function () {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                         return {
                             type: "NewExpression",
                             loc: this.loc,
-                            callee: castTo({
-                                type: "Identifier",
-                                name: "CharLiteral",
-                                raw: this.raw,
-                                cform: this.cform,
-                                loc: this.loc
-                            }),
+                            callee: builder.memberExpression(libc, builder.identifier("Char", sloc), false),
                             arguments: [
                                 castTo({
                                     type: "Literal",
@@ -10997,16 +10994,13 @@ var lib;
                         return new Integer8Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Integer8Literal.prototype.toEsprima_ = function () {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                         return {
                             type: "NewExpression",
                             loc: this.loc,
-                            callee: castTo({
-                                type: "Identifier",
-                                name: "Int8",
-                                raw: this.raw,
-                                cform: this.cform,
-                                loc: this.loc
-                            }),
+                            callee: builder.memberExpression(libc, builder.identifier("Int8", sloc), false),
                             arguments: [
                                 castTo({
                                     type: "Literal",
@@ -11053,16 +11047,13 @@ var lib;
                         return new Integer32Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Integer32Literal.prototype.toEsprima_ = function () {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                         return {
                             type: "NewExpression",
                             loc: this.loc,
-                            callee: castTo({
-                                type: "Identifier",
-                                name: "Int32",
-                                raw: this.raw,
-                                cform: this.cform,
-                                loc: this.loc
-                            }),
+                            callee: builder.memberExpression(libc, builder.identifier("Int32", sloc), false),
                             arguments: [
                                 castTo({
                                     type: "Literal",
@@ -11109,14 +11100,13 @@ var lib;
                         return new Integer64Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Integer64Literal.prototype.toEsprima_ = function () {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                         return {
                             type: "NewExpression",
                             loc: this.loc,
-                            callee: castTo({
-                                type: "Identifier",
-                                name: "Int64",
-                                loc: this.loc
-                            }),
+                            callee: builder.memberExpression(libc, builder.identifier("Int64"), false, sloc),
                             arguments: [
                                 castTo({
                                     type: "Literal",
@@ -11163,14 +11153,13 @@ var lib;
                         return new Float32Literal(o.loc, o.raw, o.cform, o.value);
                     };
                     Float32Literal.prototype.toEsprima_ = function () {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                         return {
                             type: "NewExpression",
                             loc: this.loc,
-                            callee: castTo({
-                                type: "Identifier",
-                                name: "Float32",
-                                loc: this.loc
-                            }),
+                            callee: builder.memberExpression(libc, builder.identifier("Float32", sloc), false),
                             arguments: [
                                 castTo({
                                     type: "Literal",
@@ -11922,23 +11911,21 @@ var lib;
                             callee = builder.memberExpression(libm, callee, false, sloc);
                         }
                         if (this.config.length > 0) {
-                            return builder.blockStatement([
+                            return builder.blockStatement(_.flatten([
                                 builder.variableDeclaration("var", _.map(["gridDim$", "blockDim$"], function (d, cn) { return builder.variableDeclarator(builder.identifier(d, self.loc), builder.objectExpression(_.map(["x", "y", "z"], function (dim, idx) {
                                     var id = builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(castTo(self.config[cn]).name, self.loc), true, self.loc);
                                     return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(builder.binaryExpression("<", builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc), builder.literal(idx, self.loc), self.loc), builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc), builder.literal(1, self.loc), self.loc));
                                 }), self.loc), self.loc); }), self.loc),
-                                builder.blockStatement([
-                                    _.reduceRight(["gridIdxZ", "gridIdxY", "gridIdxX", "blockIdxZ", "blockIdxY", "blockIdxX"], function (res, id) {
-                                        return builder.forStatement(builder.variableDeclaration("var", [
-                                            builder.variableDeclarator(builder.identifier(id, self.loc), builder.literal(0, self.loc))
-                                        ], self.loc), builder.binaryExpression("<", builder.identifier(id, self.loc), builder.memberExpression(builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc), builder.identifier(id[id.length - 1].toLowerCase(), self.loc), false, self.loc), self.loc), builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc), builder.blockStatement(res ? [res] : [], self.loc), self.loc);
-                                    }, builder.expressionStatement(builder.callExpression(builder.memberExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("parallel", self.loc), false, self.loc), builder.identifier("scheduleThread", self.loc), false, self.loc), [
-                                        builder.callExpression(builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
-                                            builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
-                                        ]), self.loc), self.loc), ["gridDim", "blockDim"].map(function (gb) { return builder.objectExpression(["x", "y", "z"].map(function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc); }), self.loc); }))
-                                    ], self.loc), self.loc))
-                                ], self.loc)
-                            ], self.loc);
+                                _.reduceRight(["gridIdxZ", "gridIdxY", "gridIdxX", "blockIdxZ", "blockIdxY", "blockIdxX"], function (res, id) {
+                                    return builder.forStatement(builder.variableDeclaration("var", [
+                                        builder.variableDeclarator(builder.identifier(id, self.loc), builder.literal(0, self.loc))
+                                    ], self.loc), builder.binaryExpression("<", builder.identifier(id, self.loc), builder.memberExpression(builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc), builder.identifier(id[id.length - 1].toLowerCase(), self.loc), false, self.loc), self.loc), builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc), builder.blockStatement(res ? [res] : [], self.loc), self.loc);
+                                }, builder.expressionStatement(builder.callExpression(builder.memberExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("parallel", self.loc), false, self.loc), builder.identifier("scheduleThread", self.loc), false, self.loc), [
+                                    builder.callExpression(builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
+                                        builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
+                                    ]), self.loc), self.loc), ["gridDim", "blockDim"].map(function (gb) { return builder.objectExpression(["x", "y", "z"].map(function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc); }), self.loc); }))
+                                ], self.loc), self.loc))
+                            ]), self.loc);
                         }
                         else {
                             args = _.map(this.config.concat(args), function (a) { return a.toEsprima(); });
@@ -12963,15 +12950,23 @@ var lib;
                         return this.object.toCString() + "[" + this.property.toCString() + "]";
                     };
                     SubscriptExpression.prototype.toEsprima_ = function () {
+                        var self = this;
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
+                        return builder.callExpression(builder.memberExpression(libc, builder.identifier("getElement", sloc), false, sloc), [
+                            self.object.toEsprima(),
+                            self.property.toEsprima()
+                        ], sloc);
+                        /*
                         return {
                             type: "MemberExpression",
-                            object: castTo(this.object.toEsprima()),
-                            property: castTo(this.property.toEsprima()),
+                            object: castTo<esprima.Syntax.Expression>(this.object.toEsprima()),
+                            property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property.toEsprima()),
                             computed: true,
-                            raw: this.raw,
-                            cform: this.cform,
+                            raw: this.raw, cform: this.cform,
                             loc: this.loc
-                        };
+                        }*/
                     };
                     SubscriptExpression.prototype.children_ = function () {
                         return [this.object, this.property];
@@ -13194,6 +13189,7 @@ var lib;
                     dispatch.set("Literal", SymbolLiteral.fromCena);
                     dispatch.set("ReferenceType", ReferenceType.fromCena);
                     dispatch.set("ArrayExpression", ArrayExpression.fromCena);
+                    //dispatch.set("WhileExpression", WhileExpression.fromCena);
                 }
                 cena.init = init;
                 init();
@@ -29520,7 +29516,7 @@ $(function () {
     });
     var cudaDoc = cudaEditor.getDoc();
     cudaDoc.setValue(lib.example.mp2Source);
-    cudaEditor.setSize("100%", 800);
+    cudaEditor.setSize("100%", 1000);
     var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
     var res = lib.ast.gen.generate(ast.toEsprima(), { sourceMap: true, sourceMapWithCode: true, comment: true, indent: true, sourceContent: ast.cform });
     var jsEditor = CodeMirror.fromTextArea(lib.utils.castTo($("#js-code")[0]), {
