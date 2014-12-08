@@ -757,15 +757,21 @@ module lib.ast {
 
             export class ReferenceType extends Node {
                 value:Node
+                isCUDA:boolean
 
                 constructor(loc:any, raw:string, cform:string, value:any) {
                     super("ReferenceType", loc, raw, cform);
                     this.value = fromCena(value);
+                    this.isCUDA = false;
                     this.setChildParents();
                 }
 
                 static fromCena(o:any):ReferenceType {
                     return new ReferenceType(o.loc, o.raw, o.cform, o.value);
+                }
+
+                makeCUDAReference() {
+                    this.isCUDA = true;
                 }
 
                 toEsprima_():esprima.Syntax.Comment {
@@ -895,6 +901,11 @@ module lib.ast {
                     return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
                 }
 
+                makeCUDAReference() {
+                    if (this.kind.type === "ReferenceType") {
+                        castTo<ReferenceType>(this.kind).makeCUDAReference();
+                    }
+                }
                 toEsprima_():esprima.Syntax.Identifier {
                     if (this.kind.type === "ReferenceType") {
 
@@ -915,7 +926,8 @@ module lib.ast {
                             false,
                             sloc
                         );
-                        var ref = builder.memberExpression(libc, builder.identifier("reference", sloc), false, sloc);
+                        var refname = this.kind.type === "ReferenceType" && castTo<ReferenceType>(this.kind).isCUDA === true ? "cudaReference" : "reference";
+                        var ref = builder.memberExpression(libc, builder.identifier(refname, sloc), false, sloc);
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
                             callee: castTo<esprima.Syntax.Identifier>(ref),
@@ -1370,7 +1382,7 @@ module lib.ast {
             export class CallExpression extends Node {
                 callee:Identifier
                 arguments:CompoundNode
-                config:Node
+                config:Node[]
                 isCUDA:boolean = false
 
                 constructor(loc:any, raw:string, cform:string, callee:any, arguments:any[], config?:any) {
@@ -1381,7 +1393,7 @@ module lib.ast {
                         this.callee = Identifier.fromCena(callee);
                     }
                     this.arguments = new CompoundNode(arguments);
-                    this.config = isUndefined(config) ? new EmptyExpression() : castTo<Node>(new CompoundNode(config));
+                    this.config = isUndefined(config) ? [] : _.map(config, (c : any) => fromCena(c));
                     this.isCUDA = !isUndefined(config);
                     if(this.callee.name === "sizeof") {
                         var c : TypeExpression = castTo<TypeExpression>(fromCena(arguments[0]));
@@ -1397,7 +1409,7 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.CallExpression {
                     var callee = this.callee.toEsprima();
-                    var args = this.arguments.toEsprima();
+                    var args : any = this.arguments.elements;
                     var loc = this.callee.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
@@ -1441,7 +1453,20 @@ module lib.ast {
                             false,
                             sloc
                         );
-                    } else if (_.contains(["malloc", "free"], this.callee.name)) {
+                         if(_.any(args, (arg:Node) => arg.type === "ReferenceExpression" || (arg.type === "Identifier" && castTo<Identifier>(arg).kind.type === "ReferenceType"))) {
+                            if (this.callee.name === "cudaMalloc") {
+                                castTo<ReferenceExpression>(args[0]).makeCUDAReference();
+                            } else if (this.callee.name === "cudaMemcpy") {
+                                    if (castTo<Identifier>(_.last(args)).name === "cudaMemcpyHostToDevice") {
+                                        castTo<ReferenceExpression>(args[0]).makeCUDAReference();
+                                    } else {
+                                        castTo<ReferenceExpression>(args[1]).makeCUDAReference();
+                                    }
+                                } else if (this.callee.name === "cudaFree") {
+                                    castTo<ReferenceExpression>(args[0]).makeCUDAReference();
+                                }
+                         }
+                    } else if (_.contains(["malloc", "free", "sizeof"], this.callee.name)) {
                         var libc  = builder.memberExpression(
                             builder.identifier(
                                 "lib",
@@ -1461,9 +1486,10 @@ module lib.ast {
                             sloc
                         );
                     }
+                    args = _.map(this.config.concat(args), (a: Node) => a.toEsprima());
                     return castTo<esprima.Syntax.CallExpression >({
                         type: "CallExpression",
-                        config: this.config.toEsprima(),
+                        config: _.map(this.config, (c : Node) => c.toEsprima()),
                         isCUDA: this.isCUDA,
                         callee: castTo<esprima.Syntax.Expression>(callee),
                         arguments: args,
@@ -1475,7 +1501,7 @@ module lib.ast {
                 toCString_():string {
                     var ret:string = this.callee.toCString();
                     if (this.isCUDA) {
-                        ret += "<<<" + this.config.toCString() + ">>>";
+                        ret += "<<<" + _.map(this.config, (c : Node) => c.toCString()).join(", ") + ">>>";
                     }
                     ret += " (" + _.map(this.arguments.elements, (p:Node) => p.toCString()).join(", ") + ") ";
                     return ret;
@@ -1492,13 +1518,13 @@ module lib.ast {
                 postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     visit(this, data);
                     this.callee.postOrderTraverse(visit, data);
-                    this.config.postOrderTraverse(visit, data);
+                    _.each(this.config, (c: Node) => c.postOrderTraverse(visit, data));
                     return this.arguments.postOrderTraverse(visit, data);
                 }
 
                 preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     this.callee.preOrderTraverse(visit, data);
-                    this.config.postOrderTraverse(visit, data);
+                    _.each(this.config, (c: Node) => c.postOrderTraverse(visit, data));
                     this.arguments.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1506,20 +1532,20 @@ module lib.ast {
                 inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     visit(this, data);
                     this.callee.inOrderTraverse(visit, data);
-                    this.config.postOrderTraverse(visit, data);
+                    _.each(this.config, (c: Node) => c.inOrderTraverse(visit, data));
                     return this.arguments.inOrderTraverse(visit, data);
                 }
 
                 reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     this.arguments.reversePostOrderTraverse(visit, data);
-                    this.config.postOrderTraverse(visit, data);
+                    _.each(this.config, (c: Node) => c.reversePostOrderTraverse(visit, data));
                     this.callee.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
                 reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
                     this.arguments.reversePreOrderTraverse(visit, data);
-                    this.config.postOrderTraverse(visit, data);
+                    _.each(this.config, (c: Node) => c.reversePreOrderTraverse(visit, data));
                     this.callee.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
@@ -1638,16 +1664,28 @@ module lib.ast {
             export class ReferenceExpression extends Node {
                 argument:Node
                 rawArgument:any
+                isCUDA: boolean
 
                 constructor(loc:any, raw:string, cform:string, argument:any) {
                     super("ReferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
+                    this.isCUDA = false;
                     this.setChildParents();
                 }
 
                 static fromCena(o:any):Node {
                     return new ReferenceExpression(o.loc, o.raw, o.cform, o.argument);
+                }
+
+                makeCUDAReference() {
+                    if (this.argument.type === "ReferenceExpression") {
+                        castTo<ReferenceExpression>(this.argument).makeCUDAReference();
+                    } else if (this.argument.type === "Identifier" && castTo<Identifier>(this.argument).kind.type === "ReferenceType") {
+                        castTo<Identifier>(this.argument).makeCUDAReference();
+                    } else {
+                        this.isCUDA = true;
+                    }
                 }
 
                 toEsprima_():esprima.Syntax.CallExpression {
@@ -1668,7 +1706,8 @@ module lib.ast {
                         false,
                         sloc
                     );
-                    var ref = builder.memberExpression(libc, builder.identifier("reference", sloc), false, sloc);
+                    var refname = this.isCUDA ? "cudaReference" : "reference";
+                    var ref = builder.memberExpression(libc, builder.identifier(refname, sloc), false, sloc);
                     return builder.callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.toEsprima()], sloc);
                 }
 
@@ -1736,11 +1775,11 @@ module lib.ast {
 
                 toEsprima_():any {
                     if (this.operator === "*") {
-                        var nd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
-                        return nd.toEsprima();
+                        var dnd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
+                        return dnd.toEsprima();
                     } else if (this.operator === "&") {
-                        var nd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
-                        return nd.toEsprima();
+                        var rnd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
+                        return rnd.toEsprima();
                     }
                     return {
                         type: "UnaryExpression",

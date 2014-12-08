@@ -11506,10 +11506,14 @@ var lib;
                     function ReferenceType(loc, raw, cform, value) {
                         _super.call(this, "ReferenceType", loc, raw, cform);
                         this.value = fromCena(value);
+                        this.isCUDA = false;
                         this.setChildParents();
                     }
                     ReferenceType.fromCena = function (o) {
                         return new ReferenceType(o.loc, o.raw, o.cform, o.value);
+                    };
+                    ReferenceType.prototype.makeCUDAReference = function () {
+                        this.isCUDA = true;
                     };
                     ReferenceType.prototype.toEsprima_ = function () {
                         return null;
@@ -11617,12 +11621,18 @@ var lib;
                     Identifier.fromCena = function (o) {
                         return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
                     };
+                    Identifier.prototype.makeCUDAReference = function () {
+                        if (this.kind.type === "ReferenceType") {
+                            castTo(this.kind).makeCUDAReference();
+                        }
+                    };
                     Identifier.prototype.toEsprima_ = function () {
                         if (this.kind.type === "ReferenceType") {
                             var loc = this.loc;
                             var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
                             var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
-                            var ref = builder.memberExpression(libc, builder.identifier("reference", sloc), false, sloc);
+                            var refname = this.kind.type === "ReferenceType" && castTo(this.kind).isCUDA === true ? "cudaReference" : "reference";
+                            var ref = builder.memberExpression(libc, builder.identifier(refname, sloc), false, sloc);
                             return castTo({
                                 type: "CallExpression",
                                 callee: castTo(ref),
@@ -12061,7 +12071,7 @@ var lib;
                             this.callee = Identifier.fromCena(callee);
                         }
                         this.arguments = new CompoundNode(arguments);
-                        this.config = isUndefined(config) ? new EmptyExpression() : castTo(new CompoundNode(config));
+                        this.config = isUndefined(config) ? [] : _.map(config, function (c) { return fromCena(c); });
                         this.isCUDA = !isUndefined(config);
                         if (this.callee.name === "sizeof") {
                             var c = castTo(fromCena(arguments[0]));
@@ -12074,7 +12084,7 @@ var lib;
                     };
                     CallExpression.prototype.toEsprima_ = function () {
                         var callee = this.callee.toEsprima();
-                        var args = this.arguments.toEsprima();
+                        var args = this.arguments.elements;
                         var loc = this.callee.loc;
                         var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
                         if (startsWith(this.callee.name, "wb")) {
@@ -12084,14 +12094,31 @@ var lib;
                         else if (startsWith(this.callee.name, "cuda")) {
                             var libcuda = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("cuda", sloc), false, sloc);
                             callee = builder.memberExpression(libcuda, callee, false, sloc);
+                            if (_.any(args, function (arg) { return arg.type === "ReferenceExpression" || (arg.type === "Identifier" && castTo(arg).kind.type === "ReferenceType"); })) {
+                                if (this.callee.name === "cudaMalloc") {
+                                    castTo(args[0]).makeCUDAReference();
+                                }
+                                else if (this.callee.name === "cudaMemcpy") {
+                                    if (castTo(_.last(args)).name === "cudaMemcpyHostToDevice") {
+                                        castTo(args[0]).makeCUDAReference();
+                                    }
+                                    else {
+                                        castTo(args[1]).makeCUDAReference();
+                                    }
+                                }
+                                else if (this.callee.name === "cudaFree") {
+                                    castTo(args[0]).makeCUDAReference();
+                                }
+                            }
                         }
-                        else if (_.contains(["malloc", "free"], this.callee.name)) {
+                        else if (_.contains(["malloc", "free", "sizeof"], this.callee.name)) {
                             var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                             callee = builder.memberExpression(libc, callee, false, sloc);
                         }
+                        args = _.map(this.config.concat(args), function (a) { return a.toEsprima(); });
                         return castTo({
                             type: "CallExpression",
-                            config: this.config.toEsprima(),
+                            config: _.map(this.config, function (c) { return c.toEsprima(); }),
                             isCUDA: this.isCUDA,
                             callee: castTo(callee),
                             arguments: args,
@@ -12103,7 +12130,7 @@ var lib;
                     CallExpression.prototype.toCString_ = function () {
                         var ret = this.callee.toCString();
                         if (this.isCUDA) {
-                            ret += "<<<" + this.config.toCString() + ">>>";
+                            ret += "<<<" + _.map(this.config, function (c) { return c.toCString(); }).join(", ") + ">>>";
                         }
                         ret += " (" + _.map(this.arguments.elements, function (p) { return p.toCString(); }).join(", ") + ") ";
                         return ret;
@@ -12117,30 +12144,30 @@ var lib;
                     CallExpression.prototype.postOrderTraverse_ = function (visit, data) {
                         visit(this, data);
                         this.callee.postOrderTraverse(visit, data);
-                        this.config.postOrderTraverse(visit, data);
+                        _.each(this.config, function (c) { return c.postOrderTraverse(visit, data); });
                         return this.arguments.postOrderTraverse(visit, data);
                     };
                     CallExpression.prototype.preOrderTraverse_ = function (visit, data) {
                         this.callee.preOrderTraverse(visit, data);
-                        this.config.postOrderTraverse(visit, data);
+                        _.each(this.config, function (c) { return c.postOrderTraverse(visit, data); });
                         this.arguments.preOrderTraverse(visit, data);
                         return visit(this, data);
                     };
                     CallExpression.prototype.inOrderTraverse_ = function (visit, data) {
                         visit(this, data);
                         this.callee.inOrderTraverse(visit, data);
-                        this.config.postOrderTraverse(visit, data);
+                        _.each(this.config, function (c) { return c.inOrderTraverse(visit, data); });
                         return this.arguments.inOrderTraverse(visit, data);
                     };
                     CallExpression.prototype.reversePostOrderTraverse_ = function (visit, data) {
                         this.arguments.reversePostOrderTraverse(visit, data);
-                        this.config.postOrderTraverse(visit, data);
+                        _.each(this.config, function (c) { return c.reversePostOrderTraverse(visit, data); });
                         this.callee.reversePostOrderTraverse(visit, data);
                         return visit(this, data);
                     };
                     CallExpression.prototype.reversePreOrderTraverse_ = function (visit, data) {
                         this.arguments.reversePreOrderTraverse(visit, data);
-                        this.config.postOrderTraverse(visit, data);
+                        _.each(this.config, function (c) { return c.reversePreOrderTraverse(visit, data); });
                         this.callee.reversePreOrderTraverse(visit, data);
                         return visit(this, data);
                     };
@@ -12245,16 +12272,29 @@ var lib;
                         _super.call(this, "ReferenceExpression", loc, raw, cform);
                         this.rawArgument = argument;
                         this.argument = fromCena(argument);
+                        this.isCUDA = false;
                         this.setChildParents();
                     }
                     ReferenceExpression.fromCena = function (o) {
                         return new ReferenceExpression(o.loc, o.raw, o.cform, o.argument);
                     };
+                    ReferenceExpression.prototype.makeCUDAReference = function () {
+                        if (this.argument.type === "ReferenceExpression") {
+                            castTo(this.argument).makeCUDAReference();
+                        }
+                        else if (this.argument.type === "Identifier" && castTo(this.argument).kind.type === "ReferenceType") {
+                            castTo(this.argument).makeCUDAReference();
+                        }
+                        else {
+                            this.isCUDA = true;
+                        }
+                    };
                     ReferenceExpression.prototype.toEsprima_ = function () {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
                         var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
-                        var ref = builder.memberExpression(libc, builder.identifier("reference", sloc), false, sloc);
+                        var refname = this.isCUDA ? "cudaReference" : "reference";
+                        var ref = builder.memberExpression(libc, builder.identifier(refname, sloc), false, sloc);
                         return builder.callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.toEsprima()], sloc);
                     };
                     ReferenceExpression.prototype.toCString_ = function () {
@@ -12314,12 +12354,12 @@ var lib;
                     };
                     UnaryExpression.prototype.toEsprima_ = function () {
                         if (this.operator === "*") {
-                            var nd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
-                            return nd.toEsprima();
+                            var dnd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
+                            return dnd.toEsprima();
                         }
                         else if (this.operator === "&") {
-                            var nd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
-                            return nd.toEsprima();
+                            var rnd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
+                            return rnd.toEsprima();
                         }
                         return {
                             type: "UnaryExpression",
