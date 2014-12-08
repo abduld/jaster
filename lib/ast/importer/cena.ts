@@ -939,6 +939,10 @@ module lib.ast {
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
                         });
+                    } else if (_.isObject(this.parent) && this.parent.type !== "Program" && this.parent.type !== "MemberExpression" && this.parent.type !== "BinaryExpression" &&
+                    this.parent.type !== "CallExpression" && this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
+                        var self = this;
+                        return builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.identifier(self.name, self.loc), true, self.loc);
                     } else {
                         return {
                             type: "Identifier",
@@ -1319,7 +1323,7 @@ module lib.ast {
                         return castTo<esprima.Syntax.FunctionDeclaration >({
                             type: "FunctionDeclaration",
                             id: castTo<esprima.Syntax.Identifier>(self.id.toEsprima()),
-                            params: self.params.toEsprima(),
+                            params: [],
                             body: builder.blockStatement([
                                     {
                                         type: "FunctionDeclaration",
@@ -1469,7 +1473,7 @@ module lib.ast {
                         return castTo<esprima.Syntax.FunctionDeclaration >({
                             type: "FunctionDeclaration",
                             id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
-                            params: this.params.toEsprima(),
+                            params: [],
                             body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
                             ret: this.ret.toEsprima(),
                             attributes: this.attributes,
@@ -1954,6 +1958,8 @@ module lib.ast {
                     } else if (this.operator === "&") {
                         var rnd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
                         return rnd.toEsprima();
+                    } else if (this.operator === "++" || this.operator === "--") {
+                        return builder.updateExpression(this.operator, this.argument.toEsprima(), true, this.loc);
                     }
                     return {
                         type: "UnaryExpression",
