@@ -3,17 +3,65 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>TypeScript HTML App</title>
+    <title>Jaster</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap-theme.css" type="text/css" />
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.css" type="text/css" />
     <script src="http://esprima.org/esprima.js"></script>
     <!-- <script src="http://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.js"></script> -->
     <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
-    <script src="Scripts/lodash.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/codemirror.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/mode/javascript/javascript.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/mode/clike/clike.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/codemirror/4.8.0/mode/clike/clike.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.js"></script>
     <script src="app.js"></script>
 </head>
 <body>
-    <h1>TypeScript HTML App</h1>
-
-    <div id="content"></div>
+<div class="container">
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <div class="jumbotron">
+                <h1>
+                    Jaster
+                </h1>
+                <h2>
+                    A CUDA to JavaScript Transcompiler
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-6 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Input CUDA Code
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <textarea id="cuda-code" rows="40"></textarea>
+                </div>
+                <div class="panel-footer">
+                    <button type="button" class="btn btn-default">Generate</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 column">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        JavaScript Equivalent
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <textarea id="js-code" rows="40"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

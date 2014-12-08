@@ -7427,262 +7427,7 @@ var lib;
         })(types = ast.types || (ast.types = {}));
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var definitions;
-            (function (definitions) {
-                var types = lib.ast.types;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = types.defaults;
-                var geq = types.geq;
-                // Note that none of these types are buildable because the Mozilla Parser
-                // API doesn't specify any builder functions, and nobody uses E4X anymore.
-                def("XMLDefaultDeclaration").bases("Declaration").field("namespace", def("Expression"));
-                def("XMLAnyName").bases("Expression");
-                def("XMLQualifiedIdentifier").bases("Expression").field("left", or(def("Identifier"), def("XMLAnyName"))).field("right", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
-                def("XMLFunctionQualifiedIdentifier").bases("Expression").field("right", or(def("Identifier"), def("Expression"))).field("computed", isBoolean);
-                def("XMLAttributeSelector").bases("Expression").field("attribute", def("Expression"));
-                def("XMLFilterExpression").bases("Expression").field("left", def("Expression")).field("right", def("Expression"));
-                def("XMLElement").bases("XML", "Expression").field("contents", [def("XML")]);
-                def("XMLList").bases("XML", "Expression").field("contents", [def("XML")]);
-                def("XML").bases("Node");
-                def("XMLEscape").bases("XML").field("expression", def("Expression"));
-                def("XMLText").bases("XML").field("text", isString);
-                def("XMLStartTag").bases("XML").field("contents", [def("XML")]);
-                def("XMLEndTag").bases("XML").field("contents", [def("XML")]);
-                def("XMLPointTag").bases("XML").field("contents", [def("XML")]);
-                def("XMLName").bases("XML").field("contents", or(isString, [def("XML")]));
-                def("XMLAttribute").bases("XML").field("value", isString);
-                def("XMLCdata").bases("XML").field("contents", isString);
-                def("XMLComment").bases("XML").field("contents", isString);
-                def("XMLProcessingInstruction").bases("XML").field("target", isString).field("contents", or(isString, null));
-            })(definitions = types.definitions || (types.definitions = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var definitions;
-            (function (definitions) {
-                var types = lib.ast.types;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = types.defaults;
-                var geq = types.geq;
-                def("Function").field("generator", isBoolean, defaults["false"]).field("expression", isBoolean, defaults["false"]).field("defaults", [or(def("Expression"), null)], defaults.emptyArray).field("rest", or(def("Identifier"), null), defaults["null"]);
-                def("FunctionDeclaration").build("id", "params", "body", "generator", "expression");
-                def("FunctionExpression").build("id", "params", "body", "generator", "expression");
-                // TODO The Parser API calls this ArrowExpression, but Esprima uses
-                // ArrowFunctionExpression.
-                def("ArrowFunctionExpression").bases("Function", "Expression").build("params", "body", "expression").field("id", null, defaults["null"]).field("generator", false);
-                def("YieldExpression").bases("Expression").build("argument", "delegate").field("argument", or(def("Expression"), null)).field("delegate", isBoolean, defaults["false"]);
-                def("GeneratorExpression").bases("Expression").build("body", "blocks", "filter").field("body", def("Expression")).field("blocks", [def("ComprehensionBlock")]).field("filter", or(def("Expression"), null));
-                def("ComprehensionExpression").bases("Expression").build("body", "blocks", "filter").field("body", def("Expression")).field("blocks", [def("ComprehensionBlock")]).field("filter", or(def("Expression"), null));
-                def("ComprehensionBlock").bases("Node").build("left", "right", "each").field("left", def("Pattern")).field("right", def("Expression")).field("each", isBoolean);
-                def("ModuleSpecifier").bases("Literal").build("value").field("value", isString);
-                def("Property").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("method", isBoolean, defaults["false"]).field("shorthand", isBoolean, defaults["false"]).field("computed", isBoolean, defaults["false"]);
-                def("PropertyPattern").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("computed", isBoolean, defaults["false"]);
-                def("MethodDefinition").bases("Declaration").build("kind", "key", "value").field("kind", or("init", "get", "set", "")).field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("value", def("Function")).field("computed", isBoolean, defaults["false"]);
-                def("SpreadElement").bases("Node").build("argument").field("argument", def("Expression"));
-                def("ArrayExpression").field("elements", [or(def("Expression"), def("SpreadElement"), null)]);
-                def("NewExpression").field("arguments", [or(def("Expression"), def("SpreadElement"))]);
-                def("CallExpression").field("arguments", [or(def("Expression"), def("SpreadElement"))]);
-                def("SpreadElementPattern").bases("Pattern").build("argument").field("argument", def("Pattern"));
-                var ClassBodyElement = or(def("MethodDefinition"), def("VariableDeclarator"), def("ClassPropertyDefinition"), def("ClassProperty"));
-                def("ClassProperty").bases("Declaration").build("key").field("key", or(def("Literal"), def("Identifier"), def("Expression"))).field("computed", isBoolean, defaults["false"]);
-                def("ClassPropertyDefinition").bases("Declaration").build("definition").field("definition", ClassBodyElement);
-                def("ClassBody").bases("Declaration").build("body").field("body", [ClassBodyElement]);
-                def("ClassDeclaration").bases("Declaration").build("id", "body", "superClass").field("id", def("Identifier")).field("body", def("ClassBody")).field("superClass", or(def("Expression"), null), defaults["null"]);
-                def("ClassExpression").bases("Expression").build("id", "body", "superClass").field("id", or(def("Identifier"), null), defaults["null"]).field("body", def("ClassBody")).field("superClass", or(def("Expression"), null), defaults["null"]).field("implements", [def("ClassImplements")], defaults.emptyArray);
-                def("ClassImplements").bases("Node").build("id").field("id", def("Identifier")).field("superClass", or(def("Expression"), null), defaults["null"]);
-                // Specifier and NamedSpecifier are abstract non-standard types that I
-                // introduced for definitional convenience.
-                def("Specifier").bases("Node");
-                def("NamedSpecifier").bases("Specifier").field("id", def("Identifier")).field("name", or(def("Identifier"), null), defaults["null"]);
-                // Like NamedSpecifier, except type:"ExportSpecifier" and buildable.
-                // export {<id [as name]>} [from ...];
-                def("ExportSpecifier").bases("NamedSpecifier").build("id", "name");
-                // export <*> from ...;
-                def("ExportBatchSpecifier").bases("Specifier").build();
-                // Like NamedSpecifier, except type:"ImportSpecifier" and buildable.
-                // import {<id [as name]>} from ...;
-                def("ImportSpecifier").bases("NamedSpecifier").build("id", "name");
-                // import <* as id> from ...;
-                def("ImportNamespaceSpecifier").bases("Specifier").build("id").field("id", def("Identifier"));
-                // import <id> from ...;
-                def("ImportDefaultSpecifier").bases("Specifier").build("id").field("id", def("Identifier"));
-                def("ExportDeclaration").bases("Declaration").build("default", "declaration", "specifiers", "source").field("default", isBoolean).field("declaration", or(def("Declaration"), def("Expression"), null)).field("specifiers", [or(def("ExportSpecifier"), def("ExportBatchSpecifier"))], defaults.emptyArray).field("source", or(def("ModuleSpecifier"), null), defaults["null"]);
-                def("ImportDeclaration").bases("Declaration").build("specifiers", "source").field("specifiers", [or(def("ImportSpecifier"), def("ImportNamespaceSpecifier"), def("ImportDefaultSpecifier"))], defaults.emptyArray).field("source", def("ModuleSpecifier"));
-                def("TaggedTemplateExpression").bases("Expression").field("tag", def("Expression")).field("quasi", def("TemplateLiteral"));
-                def("TemplateLiteral").bases("Expression").build("quasis", "expressions").field("quasis", [def("TemplateElement")]).field("expressions", [def("Expression")]);
-                def("TemplateElement").bases("Node").build("value", "tail").field("value", { "cooked": isString, "raw": isString }).field("tail", isBoolean);
-            })(definitions = types.definitions || (types.definitions = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var definitions;
-            (function (definitions) {
-                var types = lib.ast.types;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = types.defaults;
-                var geq = types.geq;
-                def("Function").field("async", isBoolean, defaults["false"]);
-                def("SpreadProperty").bases("Node").build("argument").field("argument", def("Expression"));
-                def("ObjectExpression").field("properties", [or(def("Property"), def("SpreadProperty"))]);
-                def("SpreadPropertyPattern").bases("Pattern").build("argument").field("argument", def("Pattern"));
-                def("ObjectPattern").field("properties", [or(def("PropertyPattern"), def("SpreadPropertyPattern"))]);
-                def("AwaitExpression").bases("Expression").build("argument", "all").field("argument", or(def("Expression"), null)).field("all", isBoolean, defaults["false"]);
-            })(definitions = types.definitions || (types.definitions = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var definitions;
-            (function (definitions) {
-                var types = lib.ast.types;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var builtin = types.builtInTypes;
-                var isString = builtin["string"];
-                var isBoolean = builtin["boolean"];
-                var defaults = types.defaults;
-                var geq = types.geq;
-                def("XJSAttribute").bases("Node").build("name", "value").field("name", or(def("XJSIdentifier"), def("XJSNamespacedName"))).field("value", or(def("Literal"), def("XJSExpressionContainer"), null), defaults["null"]);
-                def("XJSIdentifier").bases("Node").build("name").field("name", isString);
-                def("XJSNamespacedName").bases("Node").build("namespace", "name").field("namespace", def("XJSIdentifier")).field("name", def("XJSIdentifier"));
-                def("XJSMemberExpression").bases("MemberExpression").build("object", "property").field("object", or(def("XJSIdentifier"), def("XJSMemberExpression"))).field("property", def("XJSIdentifier")).field("computed", isBoolean, defaults.false);
-                var XJSElementName = or(def("XJSIdentifier"), def("XJSNamespacedName"), def("XJSMemberExpression"));
-                def("XJSSpreadAttribute").bases("Node").build("argument").field("argument", def("Expression"));
-                var XJSAttributes = [or(def("XJSAttribute"), def("XJSSpreadAttribute"))];
-                def("XJSExpressionContainer").bases("Expression").build("expression").field("expression", def("Expression"));
-                /*
-                 def("XJSElement")
-                 .bases("Expression")
-                 .build("openingElement", "closingElement", "children")
-                 .field("openingElement", def("XJSOpeningElement"))
-                 .field("closingElement", or(def("XJSClosingElement"), null), defaults["null"])
-                 .field("children", [or(
-                 def("XJSElement"),
-                 def("XJSExpressionContainer"),
-                 def("XJSText"),
-                 def("Literal") // TODO Esprima should return XJSText instead.
-                 )], defaults.emptyArray)
-                 .field("name", XJSElementName, function() {
-                 // Little-known fact: the `this` object inside a default function
-                 // is none other than the partially-built object itself, and any
-                 // fields initialized directly from builder function arguments
-                 // (like openingElement, closingElement, and children) are
-                 // guaranteed to be available.
-                 return this.openingElement.name;
-                 })
-                 .field("selfClosing", isBoolean, function() {
-                 return this.openingElement.selfClosing;
-                 })
-                 .field("attributes", XJSAttributes, function() {
-                 return this.openingElement.attributes;
-                 });
-                 */
-                def("XJSOpeningElement").bases("Node").build("name", "attributes", "selfClosing").field("name", XJSElementName).field("attributes", XJSAttributes, defaults.emptyArray).field("selfClosing", isBoolean, defaults["false"]);
-                def("XJSClosingElement").bases("Node").build("name").field("name", XJSElementName);
-                def("XJSText").bases("Literal").build("value").field("value", isString);
-                def("XJSEmptyExpression").bases("Expression").build();
-                // Type Annotations
-                def("Type").bases("Node");
-                def("AnyTypeAnnotation").bases("Type");
-                def("VoidTypeAnnotation").bases("Type");
-                def("NumberTypeAnnotation").bases("Type");
-                def("StringTypeAnnotation").bases("Type");
-                def("StringLiteralTypeAnnotation").bases("Type").build("value", "raw").field("value", isString).field("raw", isString);
-                def("BooleanTypeAnnotation").bases("Type");
-                def("TypeAnnotation").bases("Node").build("typeAnnotation").field("typeAnnotation", def("Type"));
-                def("NullableTypeAnnotation").bases("Type").build("typeAnnotation").field("typeAnnotation", def("Type"));
-                def("FunctionTypeAnnotation").bases("Type").build("params", "returnType", "rest", "typeParameters").field("params", [def("FunctionTypeParam")]).field("returnType", def("Type")).field("rest", or(def("FunctionTypeParam"), null)).field("typeParameters", or(def("TypeParameterDeclaration"), null));
-                def("FunctionTypeParam").bases("Node").build("name", "typeAnnotation", "optional").field("name", def("Identifier")).field("typeAnnotation", def("Type")).field("optional", isBoolean);
-                def("ObjectTypeAnnotation").bases("Type").build("properties").field("properties", [def("ObjectTypeProperty")]).field("indexers", [def("ObjectTypeIndexer")], defaults.emptyArray).field("callProperties", [def("ObjectTypeCallProperty")], defaults.emptyArray);
-                def("ObjectTypeProperty").bases("Node").build("key", "value", "optional").field("key", or(def("Literal"), def("Identifier"))).field("value", def("Type")).field("optional", isBoolean);
-                def("ObjectTypeIndexer").bases("Node").build("id", "key", "value").field("id", def("Identifier")).field("key", def("Type")).field("value", def("Type"));
-                def("ObjectTypeCallProperty").bases("Node").build("value").field("value", def("FunctionTypeAnnotation")).field("static", isBoolean, false);
-                def("QualifiedTypeIdentifier").bases("Node").build("qualification", "id").field("qualification", or(def("Identifier"), def("QualifiedTypeIdentifier"))).field("id", def("Identifier"));
-                def("GenericTypeAnnotation").bases("Type").build("id", "typeParameters").field("id", or(def("Identifier"), def("QualifiedTypeIdentifier"))).field("typeParameters", or(def("TypeParameterInstantiation"), null));
-                def("MemberTypeAnnotation").bases("Type").build("object", "property").field("object", def("Identifier")).field("property", or(def("MemberTypeAnnotation"), def("GenericTypeAnnotation")));
-                def("UnionTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
-                def("IntersectionTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
-                def("TypeofTypeAnnotation").bases("Type").build("argument").field("argument", def("Type"));
-                def("Identifier").field("typeAnnotation", or(def("TypeAnnotation"), null), defaults["null"]);
-                def("TypeParameterDeclaration").bases("Node").build("params").field("params", [def("Identifier")]);
-                def("TypeParameterInstantiation").bases("Node").build("params").field("params", [def("Type")]);
-                def("Function").field("returnType", or(def("TypeAnnotation"), null), defaults["null"]).field("typeParameters", or(def("TypeParameterDeclaration"), null), defaults["null"]);
-                def("ClassProperty").build("key", "typeAnnotation").field("typeAnnotation", def("TypeAnnotation")).field("static", isBoolean, false);
-                def("ClassImplements").field("typeParameters", or(def("TypeParameterInstantiation"), null), defaults["null"]);
-                def("InterfaceDeclaration").bases("Statement").build("id", "body", "extends").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterDeclaration"), null), defaults["null"]).field("body", def("ObjectTypeAnnotation")).field("extends", [def("InterfaceExtends")]);
-                def("InterfaceExtends").bases("Node").build("id").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterInstantiation"), null));
-                def("TypeAlias").bases("Statement").build("id", "typeParameters", "right").field("id", def("Identifier")).field("typeParameters", or(def("TypeParameterDeclaration"), null)).field("right", def("Type"));
-                def("TupleTypeAnnotation").bases("Type").build("types").field("types", [def("Type")]);
-                def("DeclareVariable").bases("Statement").build("id").field("id", def("Identifier"));
-                def("DeclareFunction").bases("Statement").build("id").field("id", def("Identifier"));
-                def("DeclareClass").bases("InterfaceDeclaration").build("id");
-                def("DeclareModule").bases("Statement").build("id", "body").field("id", or(def("Identifier"), def("Literal"))).field("body", def("BlockStatement"));
-            })(definitions = types.definitions || (types.definitions = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
-var lib;
-(function (lib) {
-    var ast;
-    (function (ast) {
-        var types;
-        (function (types) {
-            var definitions;
-            (function (definitions) {
-                var types = lib.ast.types;
-                var def = types.Type.def;
-                var or = types.Type.or;
-                var geq = types.geq;
-                def("ForOfStatement").bases("Statement").build("left", "right", "body").field("left", or(def("VariableDeclaration"), def("Expression"))).field("right", def("Expression")).field("body", def("Statement"));
-                def("LetStatement").bases("Statement").build("head", "body").field("head", [def("VariableDeclarator")]).field("body", def("Statement"));
-                def("LetExpression").bases("Expression").build("head", "body").field("head", [def("VariableDeclarator")]).field("body", def("Expression"));
-                def("GraphExpression").bases("Expression").build("index", "expression").field("index", geq(0)).field("expression", def("Literal"));
-                def("GraphIndexExpression").bases("Expression").build("index").field("index", geq(0));
-            })(definitions = types.definitions || (types.definitions = {}));
-        })(types = ast.types || (ast.types = {}));
-    })(ast = lib.ast || (lib.ast = {}));
-})(lib || (lib = {}));
 /// <reference path="core.ts" />
-/// <reference path="e4x.ts" />
-/// <reference path="es6.ts" />
-/// <reference path="es7.ts" />
-/// <reference path="fb-harmony.ts" />
-/// <reference path="mozilla.ts" />
 /*
  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
  Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -12132,10 +11877,18 @@ var lib;
                         return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo(o.arguments), o.config);
                     };
                     CallExpression.prototype.toEsprima_ = function () {
+                        var self = this;
                         var callee = this.callee.toEsprima();
                         var args = this.arguments.elements;
                         var loc = this.callee.loc;
                         var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        if (this.config.length > 0) {
+                            _.each(args, function (arg) {
+                                if (_.isFunction(arg.makeCUDAReference)) {
+                                    arg.makeCUDAReference();
+                                }
+                            });
+                        }
                         if (startsWith(this.callee.name, "wb")) {
                             var libwb = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("wb", sloc), false, sloc);
                             callee = builder.memberExpression(libwb, callee, false, sloc);
@@ -12168,17 +11921,33 @@ var lib;
                             var libm = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("m", sloc), false, sloc);
                             callee = builder.memberExpression(libm, callee, false, sloc);
                         }
-                        args = _.map(this.config.concat(args), function (a) { return a.toEsprima(); });
-                        return castTo({
-                            type: "CallExpression",
-                            config: _.map(this.config, function (c) { return c.toEsprima(); }),
-                            isCUDA: this.isCUDA,
-                            callee: castTo(callee),
-                            arguments: args,
-                            raw: this.raw,
-                            cform: this.cform,
-                            loc: this.loc
-                        });
+                        if (this.config.length > 0) {
+                            return builder.blockStatement([
+                                builder.variableDeclaration("var", _.map(["gridDim$", "blockDim$"], function (d, cn) { return builder.variableDeclarator(builder.identifier(d, self.loc), builder.objectExpression(_.map(["x", "y", "z"], function (dim, idx) {
+                                    var id = builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(castTo(self.config[cn]).name, self.loc), true, self.loc);
+                                    return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(builder.binaryExpression("<", builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc), builder.literal(idx, self.loc), self.loc), builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc), builder.literal(1, self.loc), self.loc));
+                                }), self.loc), self.loc); }), self.loc),
+                                builder.expressionStatement(builder.literal("insert nexted loops here...", self.loc), self.loc),
+                                builder.expressionStatement(builder.callExpression(builder.memberExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("parallel", self.loc), false, self.loc), builder.identifier("scheduleThread", self.loc), false, self.loc), [
+                                    builder.callExpression(builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
+                                        builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
+                                    ]), self.loc), self.loc), ["grid", "block"].map(function (gb) { return builder.objectExpression(["x", "y", "z"].map(function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc); }), self.loc); }))
+                                ], self.loc), self.loc)
+                            ], self.loc);
+                        }
+                        else {
+                            args = _.map(this.config.concat(args), function (a) { return a.toEsprima(); });
+                            return castTo({
+                                type: "CallExpression",
+                                config: _.map(this.config, function (c) { return c.toEsprima(); }),
+                                isCUDA: this.isCUDA,
+                                callee: castTo(callee),
+                                arguments: args,
+                                raw: this.raw,
+                                cform: this.cform,
+                                loc: this.loc
+                            });
+                        }
                     };
                     CallExpression.prototype.toCString_ = function () {
                         var ret = this.callee.toCString();
@@ -17363,11 +17132,6 @@ var lib;
     })(ast = lib.ast || (lib.ast = {}));
 })(lib || (lib = {}));
 /// <reference path="../types/def/core.ts" />
-/// <reference path="../types/def/e4x.ts" />
-/// <reference path="../types/def/es6.ts" />
-/// <reference path="../types/def/es7.ts" />
-/// <reference path="../types/def/fb-harmony.ts" />
-/// <reference path="../types/def/mozilla.ts" />
 var lib;
 (function (lib) {
     var ast;
@@ -19148,6 +18912,200 @@ var lib;
 (function (lib) {
     var example;
     (function (example) {
+        example.mp1Source = "// MP 1\n\
+#include    <wb.h>\n\
+\n\
+__global__ void vecAdd(float * in1, float * in2, float * out, int len) {\n\
+    //@@ Insert code to implement vector addition here\n\
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;\n\
+    if (idx<len) out[idx] = in1[idx] + in2[idx];\n\
+}\n\
+\n\
+int main(int argc, char ** argv) {\n\
+    wbArg_t args;\n\
+    int inputLength;\n\
+    float * hostInput1;\n\
+    float * hostInput2;\n\
+    float * hostOutput;\n\
+    float * deviceInput1;\n\
+    float * deviceInput2;\n\
+    float * deviceOutput;\n\
+\n\
+    args = wbArg_read(argc, argv);\n\
+\n\
+    wbTime_start(Generic, \"Importing data and creating memory on host\");\n\
+    hostInput1 = (float *) wbImport(wbArg_getInputFile(args, 0), &inputLength);\n\
+    hostInput2 = (float *) wbImport(wbArg_getInputFile(args, 1), &inputLength);\n\
+    hostOutput = (float *) malloc(inputLength * sizeof(float));\n\
+    wbTime_stop(Generic, \"Importing data and creating memory on host\");\n\
+\n\
+    wbLog(TRACE, \"The input length is \", inputLength, \" elements\");\n\
+\n\
+\n\
+    wbTime_start(GPU, \"Allocating GPU memory.\");\n\
+    //@@ Allocate GPU memory here\n\
+    int byteSize =sizeof(float) * inputLength;\n\
+\n\
+    wbTime_stop(GPU, \"Allocating GPU memory.\");\n\
+\n\
+    wbTime_start(GPU, \"Copying input memory to the GPU.\");\n\
+    //@@ Copy memory to the GPU here\n\
+\n\
+    cudaMalloc((void **) &deviceInput1, byteSize);\n\
+    cudaMalloc((void **) &deviceInput2, byteSize);\n\
+    cudaMalloc((void **) &deviceOutput, byteSize);\n\
+\n\
+\n\
+    wbTime_stop(GPU, \"Copying input memory to the GPU.\");\n\
+\n\
+    //@@ Initialize the grid and block dimensions here\n\
+    cudaMemcpy(deviceInput1, hostInput1, byteSize,cudaMemcpyHostToDevice);\n\
+\n\
+    cudaMemcpy(deviceInput2, hostInput1, byteSize,cudaMemcpyHostToDevice);\n\
+\n\
+\n\
+    wbTime_start(Compute, \"Performing CUDA computation\");\n\
+    //@@ Launch the GPU Kernel here\n\
+    int block_size = 16;\n\
+    int n_blocks = inputLength /block_size + (inputLength%block_size == 0 ? 0:1);\n\
+\n\
+\n\
+    vecAdd<<< n_blocks, block_size>>>(deviceInput1, deviceInput2, deviceOutput, inputLength);\n\
+\n\
+\n\
+    cudaThreadSynchronize();\n\
+    wbTime_stop(Compute, \"Performing CUDA computation\");\n\
+\n\
+    wbTime_start(Copy, \"Copying output memory to the CPU\");\n\
+    //@@ Copy the GPU memory back to the CPU here\n\
+    cudaMemcpy(hostOutput, deviceOutput, byteSize,cudaMemcpyDeviceToHost);\n\
+\n\
+    wbTime_stop(Copy, \"Copying output memory to the CPU\");\n\
+\n\
+    wbTime_start(GPU, \"Freeing GPU Memory\");\n\
+    //@@ Free the GPU memory here\n\
+\n\
+\n\
+    wbTime_stop(GPU, \"Freeing GPU Memory\");\n\
+\n\
+    wbSolution(args, hostOutput, inputLength);\n\
+\n\
+    free(hostInput1);\n\
+    free(hostInput2);\n\
+    free(hostOutput);\n\
+\n\
+    return 0;\n\
+}";
+        example.mp2Source = '\
+#include <wb.h>\n\
+\n\
+// Compute C = A * B\n\
+// Sgemm stands for single precision general matrix-matrix multiply\n\
+        __global__ void sgemm(float *A, float *B, float *C, int numARows,\n\
+        int numAColumns, int numBRows, int numBColumns) {\n\
+        //@@ Insert code to implement matrix multiplication here\n\
+        int row = blockIdx.y * blockDim.y + threadIdx.y;\n\
+        int col = blockIdx.x * blockDim.x + threadIdx.x;\n\
+        if (row < numARows && col < numBColumns) {\n\
+            float sum = 0;\n\
+            for (int ii = 0; ii < numAColumns; ii++) {\n\
+                sum += A[row * numAColumns + ii] * B[ii * numBColumns + col];\n\
+            }\n\
+            C[row * numBColumns + col] = sum;\n\
+        }\n\
+    }\n\
+\n\
+#define wbCheck(stmt)\n\
+\n\
+        int main(int argc, char **argv) {\n\
+        wbArg_t args;\n\
+        float *hostA; // The A matrix\n\
+        float *hostB; // The B matrix\n\
+        float *hostC; // The output C matrix\n\
+        float *deviceA;\n\
+        float *deviceB;\n\
+        float *deviceC;\n\
+        int numARows;    // number of rows in the matrix A\n\
+        int numAColumns; // number of columns in the matrix A\n\
+        int numBRows;    // number of rows in the matrix B\n\
+        int numBColumns; // number of columns in the matrix B\n\
+        int numCRows;\n\
+        int numCColumns;\n\
+\n\
+        args = wbArg_read(argc, argv);\n\
+\n\
+        wbTime_start(Generic, "Importing data and creating memory on host");\n\
+        hostA =\n\
+            ( float * )wbImport(wbArg_getInputFile(args, 0), &numARows, &numAColumns);\n\
+        hostB =\n\
+            ( float * )wbImport(wbArg_getInputFile(args, 1), &numBRows, &numBColumns);\n\
+        //@@ Allocate the hostC matrix\n\
+        hostC = ( float * )malloc(numARows * numBColumns * sizeof(float));\n\
+        wbTime_stop(Generic, "Importing data and creating memory on host");\n\
+\n\
+        numCRows = numARows;\n\
+        numCColumns = numBColumns;\n\
+\n\
+        wbLog(TRACE, "The dimensions of A are ", numARows, " x ", numAColumns);\n\
+        wbLog(TRACE, "The dimensions of B are ", numBRows, " x ", numBColumns);\n\
+        wbLog(TRACE, "The dimensions of C are ", numCRows, " x ", numCColumns);\n\
+\n\
+        wbTime_start(GPU, "Allocating GPU memory.");\n\
+        //@@ Allocate GPU memory here\n\
+        wbCheck(\n\
+            cudaMalloc(( void ** )&deviceA, numARows * numAColumns * sizeof(float)));\n\
+        wbCheck(\n\
+            cudaMalloc(( void ** )&deviceB, numBRows * numBColumns * sizeof(float)));\n\
+        wbCheck(\n\
+            cudaMalloc(( void ** )&deviceC, numARows * numBColumns * sizeof(float)));\n\
+        wbTime_stop(GPU, "Allocating GPU memory.");\n\
+\n\
+        wbTime_start(GPU, "Copying input memory to the GPU.");\n\
+        //@@ Copy memory to the GPU here\n\
+        wbCheck(cudaMemcpy(deviceA, hostA, numARows * numAColumns * sizeof(float),\n\
+            cudaMemcpyHostToDevice));\n\
+        wbCheck(cudaMemcpy(deviceB, hostB, numBRows * numBColumns * sizeof(float),\n\
+            cudaMemcpyHostToDevice));\n\
+        wbTime_stop(GPU, "Copying input memory to the GPU.");\n\
+\n\
+        //@@ Initialize the grid and block dimensions here\n\
+        dim3 blockDim(16, 16);\n\
+        dim3 gridDim(ceil((( float )numAColumns) / blockDim.x),\n\
+        ceil((( float )numBRows) / blockDim.y));\n\
+\n\
+        wbLog(TRACE, "The block dimensions are ", blockDim.x, " x ", blockDim.y);\n\
+        wbLog(TRACE, "The grid dimensions are ", gridDim.x, " x ", gridDim.y);\n\
+\n\
+        wbTime_start(Compute, "Performing CUDA computation");\n\
+        //@@ Launch the GPU Kernel here\n\
+        wbCheck(cudaMemset(deviceC, 0, numARows * numBColumns * sizeof(float)));\n\
+        sgemm <<< gridDim, blockDim >>>\n\
+        (deviceA, deviceB, deviceC, numARows, numAColumns, numBRows, numBColumns);\n\
+        cudaDeviceSynchronize();\n\
+        wbTime_stop(Compute, "Performing CUDA computation");\n\
+\n\
+        wbTime_start(Copy, "Copying output memory to the CPU");\n\
+        //@@ Copy the GPU memory back to the CPU here\n\
+\n\
+        wbCheck(cudaMemcpy(hostC, deviceC, numARows * numBColumns * sizeof(float),\n\
+            cudaMemcpyDeviceToHost));\n\
+        wbTime_stop(Copy, "Copying output memory to the CPU");\n\
+\n\
+        wbTime_start(GPU, "Freeing GPU Memory");\n\
+        //@@ Free the GPU memory here\n\
+        cudaFree(deviceA);\n\
+        cudaFree(deviceB);\n\
+        cudaFree(deviceC);\n\
+        wbTime_stop(GPU, "Freeing GPU Memory");\n\
+\n\
+        wbSolution(args, hostC, numARows, numBColumns);\n\
+\n\
+        free(hostA);\n\
+        free(hostB);\n\
+        free(hostC);\n\
+\n\
+        return 0;\n\
+    }';
         example.mp1 = {
             "body": [
                 {
@@ -29545,28 +29503,28 @@ var lib;
 /// <reference path="./typings/lodash/lodash.d.ts" />
 /// <reference path="./typings/parallel/parallel.d.ts" />
 /// <reference path="./typings/q/Q.d.ts" />
+/// <reference path="./typings/jquery/jquery.d.ts" />
+/// <reference path="./typings/codemirror/codemirror.d.ts" />
 /// <reference path="./typings/requirejs/require.d.ts" />
 /// <reference path="./lib/ref.ts" />
-var app;
-(function (app) {
-    var Greeter = (function () {
-        function Greeter() {
-        }
-        Greeter.prototype.start = function () {
-            lib.utils.globals.output = lib.ast.importer.cena.fromCena(lib.example.mp1);
-        };
-        Greeter.prototype.stop = function () {
-        };
-        return Greeter;
-    })();
-    app.Greeter = Greeter;
-})(app || (app = {}));
-var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
-lib.ast.importer.memory.mark(ast);
-//lib.ast.importer.stack.mark(ast);
-var res = lib.ast.gen.generate(ast.toEsprima(), { sourceMap: true, sourceMapWithCode: true, comment: true, indent: true, sourceContent: ast.cform });
-var temp1;
-console.log(temp1 = lib.ast.validate.errors(ast.toEsprima()));
-var b = lib.utils.castTo(lib.ast.types.builders);
-console.log(res.code);
+$(function () {
+    var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo($("#cuda-code")[0]), {
+        lineNumbers: true,
+        readOnly: true,
+        mode: "text/x-c++src"
+    });
+    var cudaDoc = cudaEditor.getDoc();
+    cudaDoc.setValue(lib.example.mp2Source);
+    cudaEditor.setSize("100%", 800);
+    var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
+    var res = lib.ast.gen.generate(ast.toEsprima(), { sourceMap: true, sourceMapWithCode: true, comment: true, indent: true, sourceContent: ast.cform });
+    var jsEditor = CodeMirror.fromTextArea(lib.utils.castTo($("#js-code")[0]), {
+        lineNumbers: true,
+        readOnly: true,
+        mode: "javascript"
+    });
+    var jsDoc = jsEditor.getDoc();
+    jsDoc.setValue(res.code);
+    jsEditor.setSize("100%", 800);
+});
 //# sourceMappingURL=app.js.map

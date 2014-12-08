@@ -13,7 +13,7 @@ module lib.ast {
             function startsWith(s:string, str:string):boolean {
                 return s.indexOf(str) === 0;
             };
-            function unknownLocation(): esprima.Syntax.LineLocation {
+            function unknownLocation():esprima.Syntax.LineLocation {
                 return builder.sourceLocation(
                     builder.position(1, 1),
                     builder.position(1, 1),
@@ -41,7 +41,8 @@ module lib.ast {
                             builder.position(loc.start.line + 1, loc.start.column + 1),
                             builder.position(loc.end.line + 1, loc.end.column + 1),
                             "cuda.js"
-                        );;
+                        );
+                        ;
                     }
                     this.raw = raw;
                     this.cform = cform;
@@ -940,7 +941,7 @@ module lib.ast {
                             loc: this.loc
                         });
                     } else if (_.isObject(this.parent) && this.parent.type !== "Program" && this.parent.type !== "MemberExpression" && this.parent.type !== "BinaryExpression" &&
-                    this.parent.type !== "CallExpression" && this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
+                        this.parent.type !== "CallExpression" && this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
                         var self = this;
                         return builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.identifier(self.name, self.loc), true, self.loc);
                     } else {
@@ -1399,54 +1400,54 @@ module lib.ast {
                                         ),
                                         builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                             builder.literal("z", self.loc), true, self.loc), false, self.loc),
-                                                builder.forStatement(
-                                                    builder.assignmentExpression(
-                                                        "=",
-                                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                            builder.literal("y", self.loc), true, self.loc),
-                                                        builder.literal(0, self.loc),
-                                                        self.loc
-                                                    ),
-                                                    builder.binaryExpression("<",
-                                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                            builder.literal("y", self.loc), true, self.loc),
-                                                        builder.logicalExpression("||",
-                                                            builder.memberExpression(builder.identifier("blockDim", self.loc),
-                                                                builder.literal("y", self.loc), true, self.loc),
-                                                            builder.literal(1, self.loc)),
-                                                        self.loc
-                                                    ),
-                                                    builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                        builder.literal("y", self.loc), true, self.loc), false, self.loc),
+                                        builder.forStatement(
+                                            builder.assignmentExpression(
+                                                "=",
+                                                builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                    builder.literal("y", self.loc), true, self.loc),
+                                                builder.literal(0, self.loc),
+                                                self.loc
+                                            ),
+                                            builder.binaryExpression("<",
+                                                builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                    builder.literal("y", self.loc), true, self.loc),
+                                                builder.logicalExpression("||",
+                                                    builder.memberExpression(builder.identifier("blockDim", self.loc),
+                                                        builder.literal("y", self.loc), true, self.loc),
+                                                    builder.literal(1, self.loc)),
+                                                self.loc
+                                            ),
+                                            builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                builder.literal("y", self.loc), true, self.loc), false, self.loc),
 
-                                                            builder.forStatement(
-                                                                builder.assignmentExpression(
-                                                                    "=",
-                                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                                        builder.literal("x", self.loc), true, self.loc),
-                                                                    builder.literal(0, self.loc),
-                                                                    self.loc
-                                                                ),
-                                                                builder.binaryExpression("<",
-                                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                                        builder.literal("x", self.loc), true, self.loc),
-                                                                    builder.logicalExpression("||",
-                                                                        builder.memberExpression(builder.identifier("blockDim", self.loc),
-                                                                            builder.literal("x", self.loc), true, self.loc),
-                                                                        builder.literal(1, self.loc)),
-                                                                    self.loc
-                                                                ),
-                                                                builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                                    builder.literal("x", self.loc), true, self.loc), false, self.loc),
-                                                                builder.blockStatement([
-                                                                        builder.expressionStatement(
-                                                                            builder.callExpression(
-                                                                    builder.identifier(self.id.name + "_", self.id.loc),
-                                                                    _.map(["threadIdx", "blockIdx", "gridIdx", "blockDim", "gridDim" ], (fld) => builder.identifier(fld, self.loc) ).concat(this.params.toEsprima()),
-                                                                    self.loc
-                                                                ), self.loc)], self.loc)
-                                                )
-                                                )
+                                            builder.forStatement(
+                                                builder.assignmentExpression(
+                                                    "=",
+                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                        builder.literal("x", self.loc), true, self.loc),
+                                                    builder.literal(0, self.loc),
+                                                    self.loc
+                                                ),
+                                                builder.binaryExpression("<",
+                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                        builder.literal("x", self.loc), true, self.loc),
+                                                    builder.logicalExpression("||",
+                                                        builder.memberExpression(builder.identifier("blockDim", self.loc),
+                                                            builder.literal("x", self.loc), true, self.loc),
+                                                        builder.literal(1, self.loc)),
+                                                    self.loc
+                                                ),
+                                                builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                    builder.literal("x", self.loc), true, self.loc), false, self.loc),
+                                                builder.blockStatement([
+                                                    builder.expressionStatement(
+                                                        builder.callExpression(
+                                                            builder.identifier(self.id.name + "_", self.id.loc),
+                                                            _.map(["threadIdx", "blockIdx", "gridIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
+                                                            self.loc
+                                                        ), self.loc)], self.loc)
+                                            )
+                                        )
                                     )
                                     /*
 
@@ -1567,6 +1568,7 @@ module lib.ast {
 
 
                 toEsprima_():esprima.Syntax.CallExpression {
+                    var self = this;
                     var callee = this.callee.toEsprima();
                     var args:any = this.arguments.elements;
                     var loc = this.callee.loc;
@@ -1574,6 +1576,11 @@ module lib.ast {
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
                     );
+                    if (this.config.length > 0) {
+                        _.each(args, (arg : any) => {
+                            if (_.isFunction(arg.makeCUDAReference)) { arg.makeCUDAReference(); }
+                        });
+                    }
                     if (startsWith(this.callee.name, "wb")) {
                         var libwb = builder.memberExpression(
                             builder.identifier(
@@ -1664,16 +1671,99 @@ module lib.ast {
                             sloc
                         );
                     }
-                    args = _.map(this.config.concat(args), (a:Node) => a.toEsprima());
-                    return castTo<esprima.Syntax.CallExpression >({
-                        type: "CallExpression",
-                        config: _.map(this.config, (c:Node) => c.toEsprima()),
-                        isCUDA: this.isCUDA,
-                        callee: castTo<esprima.Syntax.Expression>(callee),
-                        arguments: args,
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
-                    })
+                    if (this.config.length > 0) {
+                        return builder.blockStatement([
+                            builder.variableDeclaration("var",
+                                _.map(["gridDim$", "blockDim$"], (d, cn) => builder.variableDeclarator(
+                                    builder.identifier(d, self.loc),
+                                    builder.objectExpression(
+                                        _.map(["x", "y", "z"], (dim, idx) => {
+                                                var id = builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(castTo<Identifier>(self.config[cn]).name, self.loc), true, self.loc);
+                                                return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(
+                                                    builder.binaryExpression(
+                                                        "<",
+                                                        builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc),
+                                                        builder.literal(idx, self.loc),
+                                                        self.loc
+                                                    ),
+                                                    builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc),
+                                                    builder.literal(1, self.loc),
+                                                    self.loc
+                                                ));
+                                            }
+                                        ),
+                                        self.loc
+                                    ),
+                                    self.loc
+                                )),
+                                self.loc
+                            ),
+                            builder.expressionStatement(
+                                builder.literal("insert nexted loops here...", self.loc),
+                                self.loc
+                            ),
+                                builder.expressionStatement(
+                                    builder.callExpression(
+                                        builder.memberExpression(
+                                            builder.memberExpression(
+                                                builder.identifier(
+                                                    "lib",
+                                                    self.loc
+                                                ),
+                                                builder.identifier(
+                                                    "parallel",
+                                                    self.loc
+                                                ),
+                                                false,
+                                                self.loc
+                                            ),
+                                            builder.identifier(
+                                                "scheduleThread",
+                                                self.loc
+                                            ),
+                                            false,
+                                            self.loc
+                                        ),
+                                        [
+                                            builder.callExpression(
+                                                builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)],
+                                                    builder.functionExpression(null, [],
+                                                        builder.blockStatement([
+                                                            builder.expressionStatement(
+                                                                builder.callExpression(
+                                                                    this.callee.toEsprima(),
+                                                                    _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a : Node) => a.toEsprima()))
+                                                                ),
+                                                                self.loc
+                                                            )]),
+                                                        self.loc
+                                                    ),
+                                                    self.loc
+                                                ),
+                                                ["grid", "block"].map((gb) =>
+                                                    builder.objectExpression(["x", "y", "z"].map((dim : string) =>
+                                                        builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc)
+                                                        ), self.loc)
+                                                )
+                                            )
+                                        ],
+                                        self.loc
+                                    ),
+                                    self.loc
+                                )
+                        ], self.loc);
+                    } else {
+                        args = _.map(this.config.concat(args), (a:Node) => a.toEsprima());
+                        return castTo<esprima.Syntax.CallExpression >({
+                            type: "CallExpression",
+                            config: _.map(this.config, (c:Node) => c.toEsprima()),
+                            isCUDA: this.isCUDA,
+                            callee: castTo<esprima.Syntax.Expression>(callee),
+                            arguments: args,
+                            raw: this.raw, cform: this.cform,
+                            loc: this.loc
+                        })
+                    }
                 }
 
                 toCString_():string {
@@ -2017,7 +2107,7 @@ module lib.ast {
                 left:Node
                 static PropertyTable:{
                     [key: string]: Identifier;
-                } = undefined ;
+                } = undefined;
 
                 constructor(loc:any, raw:string, cform:string, operator:string, right:any, left:any) {
                     super("BinaryExpression", loc, raw, cform);
