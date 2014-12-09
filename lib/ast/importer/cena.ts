@@ -335,6 +335,15 @@ module lib.ast {
                     return new StringLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
+                toEsprima_():esprima.Syntax.Literal {
+                    var val = this.value.replace(/^"(.+(?="$))"$/, '$1');
+                    return {
+                        type: "Literal",
+                        value: val,
+                        loc: this.loc,
+                        raw: this.raw, cform: this.cform
+                    }
+                }
                 toCString_():string {
                     return this.value;
                 }
@@ -420,31 +429,31 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.NewExpression {
-                  var loc = this.loc;
-                  var sloc = builder.sourceLocation(
-                    builder.position(loc.start.line, loc.start.column),
-                    builder.position(loc.end.line, loc.end.column)
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
                     );
                     var libc = builder.memberExpression(
-                      builder.identifier(
-                        "lib",
-                        sloc
+                        builder.identifier(
+                            "lib",
+                            sloc
                         ),
                         builder.identifier(
-                          "c",
-                          sloc
-                          ),
-                          false,
-                          sloc
-                          );
-                          return {
-                            type: "NewExpression",
-                            loc: this.loc,
-                            callee: builder.memberExpression(
-                              libc,
-                              builder.identifier("Char", sloc),
-                              false
-                              ),
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
+                    return {
+                        type: "NewExpression",
+                        loc: this.loc,
+                        callee: builder.memberExpression(
+                            libc,
+                            builder.identifier("Char", sloc),
+                            false
+                        ),
                         arguments: [
                             castTo<esprima.Syntax.Expression>({
                                 type: "Literal",
@@ -494,31 +503,31 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.NewExpression {
-                  var loc = this.loc;
-                  var sloc = builder.sourceLocation(
-                    builder.position(loc.start.line, loc.start.column),
-                    builder.position(loc.end.line, loc.end.column)
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
                     );
                     var libc = builder.memberExpression(
-                      builder.identifier(
-                        "lib",
-                        sloc
+                        builder.identifier(
+                            "lib",
+                            sloc
                         ),
                         builder.identifier(
-                          "c",
-                          sloc
-                          ),
-                          false,
-                          sloc
-                          );
-                          return {
-                            type: "NewExpression",
-                            loc: this.loc,
-                            callee: builder.memberExpression(
-                              libc,
-                              builder.identifier("Int8", sloc),
-                              false
-                              ),
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
+                    return {
+                        type: "NewExpression",
+                        loc: this.loc,
+                        callee: builder.memberExpression(
+                            libc,
+                            builder.identifier("Int8", sloc),
+                            false
+                        ),
                         arguments: [
                             castTo<esprima.Syntax.Expression>({
                                 type: "Literal",
@@ -573,31 +582,31 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.NewExpression {
 
-                  var loc = this.loc;
-                  var sloc = builder.sourceLocation(
-                    builder.position(loc.start.line, loc.start.column),
-                    builder.position(loc.end.line, loc.end.column)
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
                     );
                     var libc = builder.memberExpression(
-                      builder.identifier(
-                        "lib",
-                        sloc
+                        builder.identifier(
+                            "lib",
+                            sloc
                         ),
                         builder.identifier(
-                          "c",
-                          sloc
-                          ),
-                          false,
-                          sloc
-                          );
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
                     return {
                         type: "NewExpression",
                         loc: this.loc,
                         callee: builder.memberExpression(
-                          libc,
-                          builder.identifier("Int32", sloc),
-                          false
-                          ),
+                            libc,
+                            builder.identifier("Int32", sloc),
+                            false
+                        ),
                         arguments: [
                             castTo<esprima.Syntax.Expression>({
                                 type: "Literal",
@@ -652,31 +661,31 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.NewExpression {
 
-                  var loc = this.loc;
-                  var sloc = builder.sourceLocation(
-                    builder.position(loc.start.line, loc.start.column),
-                    builder.position(loc.end.line, loc.end.column)
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
                     );
-                  var libc = builder.memberExpression(
-                    builder.identifier(
-                      "lib",
-                      sloc
-                      ),
-                      builder.identifier(
-                        "c",
-                        sloc
+                    var libc = builder.memberExpression(
+                        builder.identifier(
+                            "lib",
+                            sloc
+                        ),
+                        builder.identifier(
+                            "c",
+                            sloc
                         ),
                         false,
                         sloc
-                        );
+                    );
                     return {
                         type: "NewExpression",
                         loc: this.loc,
                         callee: builder.memberExpression(
-                          libc,
-                          builder.identifier("Int64"),
-                          false,
-                          sloc
+                            libc,
+                            builder.identifier("Int64"),
+                            false,
+                            sloc
                         ),
                         arguments: [
                             castTo<esprima.Syntax.Expression>({
@@ -731,31 +740,31 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.NewExpression {
-                  var loc = this.loc;
-                  var sloc = builder.sourceLocation(
-                    builder.position(loc.start.line, loc.start.column),
-                    builder.position(loc.end.line, loc.end.column)
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
                     );
                     var libc = builder.memberExpression(
-                      builder.identifier(
-                        "lib",
-                        sloc
+                        builder.identifier(
+                            "lib",
+                            sloc
                         ),
                         builder.identifier(
-                          "c",
-                          sloc
-                          ),
-                          false,
-                          sloc
-                          );
-                          return {
-                            type: "NewExpression",
-                            loc: this.loc,
-                            callee: builder.memberExpression(
-                              libc,
-                              builder.identifier("Float32", sloc),
-                              false
-                              ),
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
+                    return {
+                        type: "NewExpression",
+                        loc: this.loc,
+                        callee: builder.memberExpression(
+                            libc,
+                            builder.identifier("Float32", sloc),
+                            false
+                        ),
                         arguments: [
                             castTo<esprima.Syntax.Expression>({
                                 type: "Literal",
@@ -987,6 +996,17 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.Identifier {
+                    var parentFunction : Node = this.parent;
+                    while (_.isObject(parentFunction) && parentFunction.type !== "FunctionExpression") {
+                        if (_.isObject(parentFunction.parent)) {
+                            parentFunction = parentFunction.parent;
+                        } else {
+                            break ;
+                        }
+                    }
+                    if (_.isObject(parentFunction) && parentFunction.type === "FunctionExpression" && !_.isEmpty(castTo<FunctionExpression>(parentFunction).attributes)) {
+                        this.makeCUDAReference();
+                    }
                     if (this.kind.type === "ReferenceType") {
 
                         var loc = this.loc;
@@ -994,6 +1014,7 @@ module lib.ast {
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
                         );
+
                         var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
@@ -1028,7 +1049,7 @@ module lib.ast {
                     } else if (_.isObject(this.parent) && this.parent.type !== "Program" && this.parent.type !== "MemberExpression" && this.parent.type !== "BinaryExpression" &&
                         this.parent.type !== "CallExpression" && this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
                         var self = this;
-                        return builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.identifier(self.name, self.loc), true, self.loc);
+                        return builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(self.name, self.loc), true, self.loc);
                     } else {
                         return {
                             type: "Identifier",
@@ -1179,9 +1200,11 @@ module lib.ast {
 
                 toEsprima_():esprima.Syntax.BlockStatement {
                     var stmts = _.map(this.body.elements,
-                        function (elem) {
+                        function (elem) : any {
                             if (elem.type === "EmptyExpression") {
                                 return null;
+                            } else if (elem.toEsprima().type === "BlockStatement") {
+                                return castTo<esprima.Syntax.BlockStatement>(elem.toEsprima()).body;
                             } else if (lib.ast.utils.isStatement(elem.toEsprima())) {
                                 return elem.toEsprima();
                             } else if (lib.ast.utils.isExpression(elem.toEsprima())) {
@@ -1198,7 +1221,7 @@ module lib.ast {
                             }
                         }
                     );
-                    stmts = _.reject(stmts, _.isNull);
+                    stmts = _.reject(_.flatten(stmts), _.isNull);
                     return {
                         type: "BlockStatement",
                         body: castTo<esprima.Syntax.Statement[]>(stmts),
@@ -1662,8 +1685,10 @@ module lib.ast {
                         builder.position(loc.end.line, loc.end.column)
                     );
                     if (this.config.length > 0) {
-                        _.each(args, (arg : any) => {
-                            if (_.isFunction(arg.makeCUDAReference)) { arg.makeCUDAReference(); }
+                        _.each(args, (arg:any) => {
+                            if (_.isFunction(arg.makeCUDAReference)) {
+                                arg.makeCUDAReference();
+                            }
                         });
                     }
                     if (startsWith(this.callee.name, "wb")) {
@@ -1766,7 +1791,7 @@ module lib.ast {
                                                 var id = builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(castTo<Identifier>(self.config[cn]).name, self.loc), true, self.loc);
                                                 return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(
                                                     builder.binaryExpression(
-                                                        "<",
+                                                        ">=",
                                                         builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc),
                                                         builder.literal(idx, self.loc),
                                                         self.loc
@@ -1784,83 +1809,83 @@ module lib.ast {
                                 self.loc
                             ),
                             _.reduceRight(["gridIdxZ", "gridIdxY", "gridIdxX", "blockIdxZ", "blockIdxY", "blockIdxX"],
-                            function(res, id) {
-                              return builder.forStatement(
-                                builder.variableDeclaration(
-                                  "var",
-                                  [
-                                  builder.variableDeclarator(
-                                    builder.identifier(id, self.loc),
-                                    builder.literal(0, self.loc)
-                                    )],
-                                  self.loc
-                                  ),
-                                builder.binaryExpression(
-                                  "<",
-                                  builder.identifier(id, self.loc),
-                                  builder.memberExpression(
-                                    builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc),
-                                    builder.identifier(id[id.length-1].toLowerCase(), self.loc),
-                                    false,
-                                    self.loc
-                                  ),
-                                  self.loc
-                                  ),
-                                  builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc),
-                                  builder.blockStatement(res ? [res] : [], self.loc),
-                                self.loc
-                                )
-                              },
-                              builder.expressionStatement(
-                                builder.callExpression(
-                                  builder.memberExpression(
-                                    builder.memberExpression(
-                                      builder.identifier(
-                                        "lib",
-                                        self.loc
-                                        ),
-                                        builder.identifier(
-                                          "parallel",
-                                          self.loc
-                                          ),
-                                          false,
-                                          self.loc
-                                          ),
-                                          builder.identifier(
-                                            "scheduleThread",
+                                function (res, id) {
+                                    return builder.forStatement(
+                                        builder.variableDeclaration(
+                                            "var",
+                                            [
+                                                builder.variableDeclarator(
+                                                    builder.identifier(id, self.loc),
+                                                    builder.literal(0, self.loc)
+                                                )],
                                             self.loc
+                                        ),
+                                        builder.binaryExpression(
+                                            "<",
+                                            builder.identifier(id, self.loc),
+                                            builder.memberExpression(
+                                                builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc),
+                                                builder.identifier(id[id.length - 1].toLowerCase(), self.loc),
+                                                false,
+                                                self.loc
+                                            ),
+                                            self.loc
+                                        ),
+                                        builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc),
+                                        builder.blockStatement(res ? [res] : [], self.loc),
+                                        self.loc
+                                    )
+                                },
+                                builder.expressionStatement(
+                                    builder.callExpression(
+                                        builder.memberExpression(
+                                            builder.memberExpression(
+                                                builder.identifier(
+                                                    "lib",
+                                                    self.loc
+                                                ),
+                                                builder.identifier(
+                                                    "parallel",
+                                                    self.loc
+                                                ),
+                                                false,
+                                                self.loc
+                                            ),
+                                            builder.identifier(
+                                                "scheduleThread",
+                                                self.loc
                                             ),
                                             false,
                                             self.loc
-                                            ),
-                                            [
+                                        ),
+                                        [
                                             builder.callExpression(
-                                              builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)],
-                                              builder.functionExpression(null, [],
-                                                builder.blockStatement([
-                                                  builder.expressionStatement(
-                                                    builder.callExpression(
-                                                      this.callee.toEsprima(),
-                                                      _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a : Node) => a.toEsprima()))
-                                                      ),
-                                                      self.loc
-                                                      )]),
-                                                      self.loc
-                                                      ),
-                                                      self.loc
-                                                      ),
-                                                      ["gridDim", "blockDim"].map((gb) =>
-                                                      builder.objectExpression(["x", "y", "z"].map((dim : string) =>
-                                                      builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc)
-                                                      ), self.loc)
-                                                      )
-                                                      )
-                                                      ],
-                                                      self.loc
-                                                      ),
-                                                      self.loc
-                                                      )
-                        )]), self.loc);
+                                                builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)],
+                                                    builder.functionExpression(null, [],
+                                                        builder.blockStatement([
+                                                            builder.expressionStatement(
+                                                                builder.callExpression(
+                                                                    this.callee.toEsprima(),
+                                                                    _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a:Node) => a.toEsprima()))
+                                                                ),
+                                                                self.loc
+                                                            )]),
+                                                        self.loc
+                                                    ),
+                                                    self.loc
+                                                ),
+                                                ["gridDim", "blockDim"].map((gb) =>
+                                                        builder.objectExpression(["x", "y", "z"].map((dim:string) =>
+                                                                builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc)
+                                                        ), self.loc)
+                                                )
+                                            )
+                                        ],
+                                        self.loc
+                                    ),
+                                    self.loc
+                                )
+                            )]), self.loc);
                     } else {
                         args = _.map(this.config.concat(args), (a:Node) => a.toEsprima());
                         return castTo<esprima.Syntax.CallExpression >({
@@ -2374,7 +2399,7 @@ module lib.ast {
                             builder.assignmentExpression("=", builder.identifier(this.id.name, sloc),
                                 builder.callExpression(
                                     builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
-                                    [builder.literal(this.id.name, sloc)].concat(this.init.toEsprima()),
+                                    [builder.identifier("functionStack$", sloc), builder.literal(this.id.name, sloc)].concat(this.init.toEsprima()),
                                     sloc
                                 ), sloc),
                             sloc
@@ -2551,7 +2576,7 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.AssignmentExpression {
-                    if (this.left.type === "Identifier" && castTo<Identifier>(this.left).kind.type === "ReferenceType") {
+                    if (this.left.type === "Identifier") {
                         var left:Identifier = castTo<Identifier>(this.left);
 
                         var loc = this.loc;
@@ -2577,13 +2602,19 @@ module lib.ast {
                             true,
                             left.loc
                         );
+                        var acc;
+                        if (castTo<Identifier>(this.left).kind.type === "ReferenceType") {
+                            acc = builder.callExpression(
+                                builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
+                                [builder.identifier("functionStack$", sloc), builder.literal(left.name, sloc)].concat(this.right.toEsprima()),
+                                sloc
+                            );
+                        } else {
+                            acc = this.right.toEsprima();
+                        }
                         return builder.expressionStatement(
                             builder.assignmentExpression("=", lefte,
-                                builder.callExpression(
-                                    builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
-                                    [builder.literal(left.name, sloc)].concat(this.right.toEsprima()),
-                                    sloc
-                                ), sloc),
+                                acc, sloc),
                             sloc
                         );
                     } else {
@@ -3085,42 +3116,42 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.Node {
-                  var self = this;
-                  var loc = this.loc;
-                  var sloc = builder.sourceLocation(
-                    builder.position(loc.start.line, loc.start.column),
-                    builder.position(loc.end.line, loc.end.column)
+                    var self = this;
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
                     );
                     var libc = builder.memberExpression(
-                      builder.identifier(
-                        "lib",
-                        sloc
+                        builder.identifier(
+                            "lib",
+                            sloc
                         ),
                         builder.identifier(
-                          "c",
-                          sloc
-                          ),
-                          false,
-                          sloc
-                          );
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
 
-                  return builder.callExpression(
-                    builder.memberExpression(libc, builder.identifier("getElement", sloc), false, sloc),
-                    [
-                      self.object.toEsprima(),
-                      self.property.toEsprima()
-                    ],
-                    sloc
+                    return builder.callExpression(
+                        builder.memberExpression(libc, builder.identifier("getElement", sloc), false, sloc),
+                        [
+                            self.object.toEsprima(),
+                            self.property.toEsprima()
+                        ],
+                        sloc
                     )
                     /*
-                    return {
-                        type: "MemberExpression",
-                        object: castTo<esprima.Syntax.Expression>(this.object.toEsprima()),
-                        property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property.toEsprima()),
-                        computed: true,
-                        raw: this.raw, cform: this.cform,
-                        loc: this.loc
-                    }*/
+                     return {
+                     type: "MemberExpression",
+                     object: castTo<esprima.Syntax.Expression>(this.object.toEsprima()),
+                     property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property.toEsprima()),
+                     computed: true,
+                     raw: this.raw, cform: this.cform,
+                     loc: this.loc
+                     }*/
                 }
 
                 children_():Node[] {

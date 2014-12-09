@@ -33,5 +33,5 @@ $(() => {
     });
     var jsDoc = jsEditor.getDoc();
     jsDoc.setValue(res.code);
-    jsEditor.setSize("100%", 800);
+    jsEditor.setSize("100%", 1000);
 })
