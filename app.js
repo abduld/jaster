@@ -12849,7 +12849,9 @@ var lib;
                         var sloc = this.loc;
                         var initf = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("init", sloc), false, sloc);
                         var body = castTo(this.body.toEsprima());
-                        body.unshift(builder.expressionStatement(builder.assignmentExpression("=", builder.identifier("state$"), callExpression(initf, [], sloc), sloc), sloc));
+                        body.unshift(builder.variableDeclaration("var", [
+                            builder.variableDeclarator(builder.identifier("state$", sloc), callExpression(initf, [], sloc))
+                        ], sloc));
                         return {
                             type: "Program",
                             body: castTo(body),

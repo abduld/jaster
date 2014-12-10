@@ -2978,13 +2978,14 @@ module lib.ast {
                     );
                     var body : esprima.Syntax.Statement[] = castTo<esprima.Syntax.Statement[]>(this.body.toEsprima());
                     body.unshift(
-                        builder.expressionStatement(
-                            builder.assignmentExpression(
-                                "=",
-                                builder.identifier("state$"),
-                                callExpression(initf, [], sloc),
-                                sloc
-                            ),
+                        builder.variableDeclaration(
+                            "var",
+                            [
+                                builder.variableDeclarator(
+                                    builder.identifier("state$", sloc),
+                                    callExpression(initf, [], sloc)
+                                )
+                            ],
                             sloc
                         )
                     );
