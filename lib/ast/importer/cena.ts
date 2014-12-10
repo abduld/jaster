@@ -1219,6 +1219,31 @@ module lib.ast {
                             self.loc
                         );
                     }
+                    var handleEvent = function(nd : Node) {
+                        return builder.ifStatement(
+                            builder.callExpression(
+                                builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("chceckEvent", self.loc), false, self.loc),
+                                [
+                                    builder.identifier("state$", self.loc),
+                                    builder.identifier("worker$", self.loc),
+                                    builder.identifier("functionStack$", self.loc)
+                                ],
+                                self.loc
+                            ),
+                            builder.expressionStatement(
+                            builder.callExpression(
+                                builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("handleEvent", self.loc), false, self.loc),
+                                [
+                                    builder.identifier("state$", self.loc),
+                                    builder.identifier("worker$", self.loc),
+                                    builder.identifier("functionStack$", self.loc)
+                                ],
+                                self.loc
+                            ), self.loc),
+                            null,
+                            self.loc
+                        );
+                    }
                     var stmts = _.map(this.body.elements,
                         function (elem) : any[] {
                             var nd : any;
@@ -1243,9 +1268,9 @@ module lib.ast {
                             if (nd == null) {
                                 return idx < 5 || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
-                                        [recordLine(elem)];
+                                        [recordLine(elem),  handleEvent(elem)];
                             } else {
-                                return [recordLine(elem), nd];
+                                return [recordLine(elem), handleEvent(elem), nd];
                             }
                         }
                     );
@@ -1475,12 +1500,22 @@ module lib.ast {
                                         raw: self.raw, cform: self.cform,
                                         loc: self.loc
                                     },
-                                    builder.variableDeclaration("var", [
+                                    builder.variableDeclaration(
+                                        "var",
+                                        [
                                             builder.variableDeclarator(
                                                 builder.identifier("state$", self.loc),
                                                 builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(0, self.loc), true, self.loc),
                                                 self.loc
                                             ),
+                                            builder.variableDeclarator(
+                                                builder.identifier("worker$", self.loc),
+                                                builder.callExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("initWorker", self.loc), false, self.loc), [builder.identifier("state$", self.loc)], self.loc)
+                                            )
+                                        ],
+                                        self.loc
+                                    ),
+                                    builder.variableDeclaration("var", [
                                             builder.variableDeclarator(
                                                 builder.identifier("threadIdx", self.loc),
                                                 builder.objectExpression(
