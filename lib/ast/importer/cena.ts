@@ -1206,16 +1206,30 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.BlockStatement {
+                    var self = this;
+                    var idx = 0;
+                    var recordLine = function(nd : Node) {
+                        return builder.expressionStatement(
+                            builder.assignmentExpression(
+                                "=",
+                                builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal("position", self.loc), true, self.loc),
+                                builder.literal(isUndefined(nd) || isUndefined(nd.loc) ? self.loc.start.line : nd.loc.start.line, self.loc),
+                                self.loc
+                            ),
+                            self.loc
+                        );
+                    }
                     var stmts = _.map(this.body.elements,
-                        function (elem) : any {
+                        function (elem) : any[] {
+                            var nd : any;
                             if (elem.type === "EmptyExpression") {
-                                return null;
+                                nd = null;
                             } else if (_.isObject(elem.toEsprima()) && elem.toEsprima().type === "BlockStatement") {
-                                return castTo<esprima.Syntax.BlockStatement>(elem.toEsprima()).body;
+                                nd = castTo<esprima.Syntax.BlockStatement>(elem.toEsprima()).body;
                             } else if (lib.ast.utils.isStatement(elem.toEsprima())) {
-                                return elem.toEsprima();
+                                nd = elem.toEsprima();
                             } else if (lib.ast.utils.isExpression(elem.toEsprima())) {
-                                return {
+                                nd = {
                                     type: "ExpressionStatement",
                                     expression: elem.toEsprima(),
                                     loc: elem.loc,
@@ -1224,7 +1238,14 @@ module lib.ast {
                                 }
                             } else {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
-                                return null;
+                                nd = null;
+                            }
+                            if (nd == null) {
+                                return idx < 5 || isUndefined(elem) ? [] :
+                                    elem.loc.start.column === elem.loc.end.column ? [] :
+                                        [recordLine(elem)];
+                            } else {
+                                return [recordLine(elem), nd];
                             }
                         }
                     );
