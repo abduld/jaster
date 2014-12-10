@@ -41,11 +41,13 @@ function initWebApp() {
     jsEditor.setSize("100%", 1000);
 
     code = res.code;
+
+    lib.parallel.WorkerPool.start();
 }
 
 function initWorkerApp(event) {
     importScripts("Scripts/lodash.js");
-    console.log("in worker");
+    lib.parallel.actOnEvent(event);
 }
 
 if (lib.utils.ENVIRONMENT_IS_WEB) {
