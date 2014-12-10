@@ -13,6 +13,7 @@
 var code:string;
 
 function initWebApp() {
+  /*
     var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#cuda-code")[0]), {
         lineNumbers: true,
         readOnly: true,
@@ -21,7 +22,7 @@ function initWebApp() {
     var cudaDoc = cudaEditor.getDoc();
     cudaDoc.setValue(lib.example.mp2Source);
     cudaEditor.setSize("100%", 1000);
-
+*/
     var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
     var res = lib.ast.gen.generate(
         ast.toEsprima(),

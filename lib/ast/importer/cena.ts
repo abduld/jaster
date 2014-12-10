@@ -1359,6 +1359,16 @@ module lib.ast {
                         var blk:esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
                         var threadParams:Node[] = [];
                         if (!_.isEmpty(self.attributes)) {
+
+                          body = builder.functionExpression(
+                            null,
+                            [builder.identifier("lineState$", self.loc)],
+                            body
+                            );
+                          blk = castTo<esprima.Syntax.BlockStatement>(
+                            builder.blockStatement([
+                              builder.returnStatement(body, self.loc)
+                              ], self.loc));
                             threadParams = [
                                 new StringLiteral(self.rloc, "state$", "state$", "state$"),
                                 new StringLiteral(self.rloc, "threadIdx", "threadIdx", "threadIdx"),
@@ -1489,9 +1499,9 @@ module lib.ast {
                             body: builder.blockStatement([
                                     {
                                         type: "FunctionDeclaration",
-                                        id: builder.identifier(self.id.name + "_", self.id.loc),
+                                        id: builder.identifier(self.id.name + "$gen_", self.id.loc),
                                         params: [],
-                                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(body),
+                                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(blk),
                                         ret: self.ret.toEsprima(),
                                         attributes: self.attributes,
                                         defaults: [],
@@ -1524,6 +1534,14 @@ module lib.ast {
                                                 ),
                                                 self.loc
                                             ),
+                                            builder.variableDeclarator(
+                                              builder.identifier("threadFuns", self.loc),
+                                              builder.objectExpression(
+                                                _.map(["x", "y", "z"], (dim) =>
+                                                builder.property("init", builder.identifier(dim, self.loc), builder.arrayExpression([], self.loc), self.loc))
+                                                ),
+                                                self.loc
+                                                ),
                                             builder.variableDeclarator(
                                                 builder.identifier("blockIdx", self.loc),
                                                 builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(1, self.loc), true, self.loc),
@@ -1571,7 +1589,23 @@ module lib.ast {
                                         ),
                                         builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                             builder.literal("z", self.loc), true, self.loc), false, self.loc),
-                                        builder.blockStatement([builder.forStatement(
+                                        builder.blockStatement([
+                                          builder.expressionStatement(
+                                            builder.callExpression(
+                                              builder.memberExpression(
+                                                  builder.identifier("threadFuns", self.loc),
+                                                  builder.identifier("push", self.loc),
+                                                  false,
+                                                  self.loc
+                                                ),
+                                                [
+                                                  builder.arrayExpression([], self.loc)
+                                                ],
+                                                self.loc
+                                                ),
+                                                self.loc
+                                                ),
+                                          builder.forStatement(
                                             builder.assignmentExpression(
                                                 "=",
                                                 builder.memberExpression(builder.identifier("threadIdx", self.loc),
@@ -1591,6 +1625,28 @@ module lib.ast {
                                             builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                                 builder.literal("y", self.loc), true, self.loc), false, self.loc),
                                             builder.blockStatement([
+
+                                              builder.expressionStatement(
+                                                builder.callExpression(
+                                                  builder.memberExpression(
+                                                    builder.memberExpression(
+                                                      builder.identifier("threadFuns", self.loc),
+                                                      builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                      builder.literal("z", self.loc), true, self.loc),
+                                                      true,
+                                                      self.loc
+                                                      ),
+                                                                                                          builder.identifier("push", self.loc),
+                                                    false,
+                                                    self.loc
+                                                    ),
+                                                    [
+                                                    builder.arrayExpression([], self.loc)
+                                                    ],
+                                                    self.loc
+                                                    ),
+                                                    self.loc
+                                                    ),
                                                 builder.forStatement(
                                                     builder.assignmentExpression(
                                                         "=",
@@ -1611,12 +1667,38 @@ module lib.ast {
                                                     builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                                         builder.literal("x", self.loc), true, self.loc), false, self.loc),
                                                     builder.blockStatement([
-                                                        builder.expressionStatement(
-                                                            callExpression(
-                                                                builder.identifier(self.id.name + "_", self.id.loc),
+
+                                                      builder.expressionStatement(
+                                                        builder.callExpression(
+                                                          builder.memberExpression(
+                                                            builder.memberExpression(
+                                                              builder.identifier("threadFuns", self.loc),
+                                                              builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                              builder.literal("z", self.loc), true, self.loc),
+                                                              true,
+                                                              self.loc
+                                                              ),
+                                                              builder.memberExpression(
+                                                                  builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                                  builder.literal("y", self.loc), true, self.loc),
+                                                                  builder.identifier("push", self.loc),
+                                                                  false,
+                                                                  self.loc
+                                                                  ),
+                                                              false,
+                                                              self.loc
+                                                              ),
+                                                              [
+                                                              callExpression(
+                                                                builder.identifier(self.id.name + "$gen_", self.id.loc),
                                                                 _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
                                                                 self.loc
-                                                            ), self.loc)], self.loc),
+                                                                )
+                                                              ],
+                                                              self.loc
+                                                              ),
+                                                              self.loc
+                                                              )], self.loc),
                                                     self.loc
                                                 )],
                                                 self.loc
@@ -2375,7 +2457,7 @@ module lib.ast {
                         };
                     }
                     if (this.left.toEsprima().type === "ExpressionStatement") {
-                        debugger;
+                        this.left = castTo<ExpressionStatement>(this.left).expression;
                     }
                     this.setChildParents();
                 }
