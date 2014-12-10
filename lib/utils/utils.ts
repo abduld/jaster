@@ -20,6 +20,7 @@
 /// <reference path="./internal.ts" />
 /// <reference path="./functional.ts" />
 /// <reference path="./format.ts" />
+/// <reference path="./workerconsole.ts" />
 
 
 module lib {
@@ -28,6 +29,10 @@ module lib {
 
         export var isCommonJS:boolean = false;
         export var isNode:boolean = false;
+
+        export var ENVIRONMENT_IS_WEB : boolean = typeof window === 'object';
+        export var ENVIRONMENT_IS_WORKER : boolean  = typeof importScripts === 'function';
+
         /**
          * Various constant values. Enum'd so they are inlined by the TypeScript
          * compiler.

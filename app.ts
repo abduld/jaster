@@ -8,7 +8,11 @@
 /// <reference path="./typings/requirejs/require.d.ts" />
 /// <reference path="./lib/ref.ts" />
 
-$(() => {
+
+
+var code:string;
+
+function initWebApp() {
     var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#cuda-code")[0]), {
         lineNumbers: true,
         readOnly: true,
@@ -22,9 +26,8 @@ $(() => {
     var res = lib.ast.gen.generate(
         ast.toEsprima(),
         // we might have to do some extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
-        { sourceMap: true, sourceMapWithCode: true, comment: true, indent: true , sourceContent: ast.cform }
+        {sourceMap: true, sourceMapWithCode: true, comment: true, indent: true, sourceContent: ast.cform}
     );
-
 
     var jsEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#js-code")[0]), {
         lineNumbers: true,
@@ -36,4 +39,16 @@ $(() => {
     var jsDoc = jsEditor.getDoc();
     jsDoc.setValue(res.code + "\n" + res.map.toString());
     jsEditor.setSize("100%", 1000);
-})
+
+    code = res.code;
+}
+
+function initWorkerApp(event) {
+    console.log("in worker");
+}
+
+if (lib.utils.ENVIRONMENT_IS_WEB) {
+    $(initWebApp);
+} else if (lib.utils.ENVIRONMENT_IS_WORKER) {
+    self.onmessage = initWorkerApp;
+}

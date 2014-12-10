@@ -1515,7 +1515,7 @@ module lib.ast {
                                         ),
                                         builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                             builder.literal("z", self.loc), true, self.loc), false, self.loc),
-                                        builder.forStatement(
+                                        builder.blockStatement([builder.forStatement(
                                             builder.assignmentExpression(
                                                 "=",
                                                 builder.memberExpression(builder.identifier("threadIdx", self.loc),
@@ -1534,35 +1534,38 @@ module lib.ast {
                                             ),
                                             builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                                 builder.literal("y", self.loc), true, self.loc), false, self.loc),
-
-                                            builder.forStatement(
-                                                builder.assignmentExpression(
-                                                    "=",
-                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                        builder.literal("x", self.loc), true, self.loc),
-                                                    builder.literal(0, self.loc),
-                                                    self.loc
-                                                ),
-                                                builder.binaryExpression("<",
-                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                        builder.literal("x", self.loc), true, self.loc),
-                                                    builder.logicalExpression("||",
-                                                        builder.memberExpression(builder.identifier("blockDim", self.loc),
+                                            builder.blockStatement([
+                                                builder.forStatement(
+                                                    builder.assignmentExpression(
+                                                        "=",
+                                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
                                                             builder.literal("x", self.loc), true, self.loc),
-                                                        builder.literal(1, self.loc)),
+                                                        builder.literal(0, self.loc),
+                                                        self.loc
+                                                    ),
+                                                    builder.binaryExpression("<",
+                                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                            builder.literal("x", self.loc), true, self.loc),
+                                                        builder.logicalExpression("||",
+                                                            builder.memberExpression(builder.identifier("blockDim", self.loc),
+                                                                builder.literal("x", self.loc), true, self.loc),
+                                                            builder.literal(1, self.loc)),
+                                                        self.loc
+                                                    ),
+                                                    builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                        builder.literal("x", self.loc), true, self.loc), false, self.loc),
+                                                    builder.blockStatement([
+                                                        builder.expressionStatement(
+                                                            callExpression(
+                                                                builder.identifier(self.id.name + "_", self.id.loc),
+                                                                _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
+                                                                self.loc
+                                                            ), self.loc)], self.loc),
                                                     self.loc
-                                                ),
-                                                builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                    builder.literal("x", self.loc), true, self.loc), false, self.loc),
-                                                builder.blockStatement([
-                                                    builder.expressionStatement(
-                                                        callExpression(
-                                                            builder.identifier(self.id.name + "_", self.id.loc),
-                                                            _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
-                                                            self.loc
-                                                        ), self.loc)], self.loc)
+                                                )],
+                                                self.loc
                                             )
-                                        )
+                                        )], self.loc)
                                     )
                                     /*
 
@@ -2642,7 +2645,7 @@ module lib.ast {
 
                     if (this.left.type === "SubscriptExpression") {
                         var subs : SubscriptExpression = castTo<SubscriptExpression>(this.left);
-                        return builder.callExpression(
+                        return callExpression(
                             builder.memberExpression(libc, builder.identifier("setElement", sloc), false, sloc),
                             [ builder.identifier("functionStack$", sloc), subs.object.toEsprima(), subs.property.toEsprima(), this.right.toEsprima()],
                             sloc
@@ -2994,7 +2997,7 @@ module lib.ast {
                             [
                                 builder.variableDeclarator(
                                     builder.identifier("state$", sloc),
-                                    callExpression(initf, [], sloc)
+                                    builder.callExpression(initf, [], sloc)
                                 )
                             ],
                             sloc

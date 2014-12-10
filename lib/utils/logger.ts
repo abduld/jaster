@@ -1,4 +1,8 @@
-﻿module lib {
+﻿
+
+var global$ : any = ((v) : any => v)(this);
+
+module lib {
     export module utils {
         export module detail {
 
