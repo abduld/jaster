@@ -18,7 +18,7 @@ $(() => {
     cudaDoc.setValue(lib.example.mp2Source);
     cudaEditor.setSize("100%", 1000);
 
-    var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
+    var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
     var res = lib.ast.gen.generate(
         ast.toEsprima(),
         // we might have to do some extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
@@ -29,9 +29,11 @@ $(() => {
     var jsEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#js-code")[0]), {
         lineNumbers: true,
         readOnly: true,
-        mode: "javascript"
+        matchBrackets: true,
+        mode: "javascript",
+        theme: 'eclipse'
     });
     var jsDoc = jsEditor.getDoc();
-    jsDoc.setValue(res.code);
+    jsDoc.setValue(res.code + "\n" + res.map.toString());
     jsEditor.setSize("100%", 1000);
 })
