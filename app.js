@@ -11547,7 +11547,7 @@ var lib;
                             if (elem.type === "EmptyExpression") {
                                 return null;
                             }
-                            else if (elem.toEsprima().type === "BlockStatement") {
+                            else if (_.isObject(elem.toEsprima()) && elem.toEsprima().type === "BlockStatement") {
                                 return castTo(elem.toEsprima()).body;
                             }
                             else if (lib.ast.utils.isStatement(elem.toEsprima())) {
@@ -11645,7 +11645,6 @@ var lib;
                                 threadParams = [
                                     new StringLiteral(self.rloc, "threadIdx", "threadIdx", "threadIdx"),
                                     new StringLiteral(self.rloc, "blockIdx", "blockIdx", "blockIdx"),
-                                    new StringLiteral(self.rloc, "gridIdx", "gridIdx", "gridIdx"),
                                     new StringLiteral(self.rloc, "blockDim", "blockDim", "blockDim"),
                                     new StringLiteral(self.rloc, "gridDim", "gridDim", "gridDim")
                                 ];
@@ -11785,12 +11784,11 @@ var lib;
                                         builder.variableDeclarator(builder.identifier("threadIdx", self.loc), builder.objectExpression(_.map(["x", "y", "z"], function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.literal(0, self.loc), self.loc); })), self.loc),
                                         builder.variableDeclarator(builder.identifier("blockIdx", self.loc), builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(0, self.loc), true, self.loc), self.loc),
                                         builder.variableDeclarator(builder.identifier("blockDim", self.loc), builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(1, self.loc), true, self.loc), self.loc),
-                                        builder.variableDeclarator(builder.identifier("gridIdx", self.loc), builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc), self.loc),
-                                        builder.variableDeclarator(builder.identifier("gridDim", self.loc), builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(3, self.loc), true, self.loc), self.loc)
+                                        builder.variableDeclarator(builder.identifier("gridDim", self.loc), builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc), self.loc)
                                     ], self.loc),
                                     builder.variableDeclaration("var", _.map(this.params.elements, function (param, idx) { return builder.variableDeclarator(param.toEsprima(), builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(3 + idx, self.loc), true, self.loc), self.loc); }), self.loc),
                                     builder.forStatement(builder.assignmentExpression("=", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("z", self.loc), true, self.loc), builder.literal(0, self.loc), self.loc), builder.binaryExpression("<", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("z", self.loc), true, self.loc), builder.logicalExpression("||", builder.memberExpression(builder.identifier("blockDim", self.loc), builder.literal("z", self.loc), true, self.loc), builder.literal(1, self.loc)), self.loc), builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("z", self.loc), true, self.loc), false, self.loc), builder.forStatement(builder.assignmentExpression("=", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("y", self.loc), true, self.loc), builder.literal(0, self.loc), self.loc), builder.binaryExpression("<", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("y", self.loc), true, self.loc), builder.logicalExpression("||", builder.memberExpression(builder.identifier("blockDim", self.loc), builder.literal("y", self.loc), true, self.loc), builder.literal(1, self.loc)), self.loc), builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("y", self.loc), true, self.loc), false, self.loc), builder.forStatement(builder.assignmentExpression("=", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("x", self.loc), true, self.loc), builder.literal(0, self.loc), self.loc), builder.binaryExpression("<", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("x", self.loc), true, self.loc), builder.logicalExpression("||", builder.memberExpression(builder.identifier("blockDim", self.loc), builder.literal("x", self.loc), true, self.loc), builder.literal(1, self.loc)), self.loc), builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc), builder.literal("x", self.loc), true, self.loc), false, self.loc), builder.blockStatement([
-                                        builder.expressionStatement(builder.callExpression(builder.identifier(self.id.name + "_", self.id.loc), _.map(["threadIdx", "blockIdx", "gridIdx", "blockDim", "gridDim"], function (fld) { return builder.identifier(fld, self.loc); }).concat(this.params.toEsprima()), self.loc), self.loc)
+                                        builder.expressionStatement(builder.callExpression(builder.identifier(self.id.name + "_", self.id.loc), _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], function (fld) { return builder.identifier(fld, self.loc); }).concat(this.params.toEsprima()), self.loc), self.loc)
                                     ], self.loc))))
                                 ], self.loc),
                                 ret: self.ret.toEsprima(),
@@ -11941,13 +11939,13 @@ var lib;
                                     var id = builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(castTo(self.config[cn]).name, self.loc), true, self.loc);
                                     return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(builder.binaryExpression(">=", builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc), builder.literal(idx, self.loc), self.loc), builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc), builder.literal(1, self.loc), self.loc));
                                 }), self.loc), self.loc); }), self.loc),
-                                _.reduceRight(["gridIdxZ", "gridIdxY", "gridIdxX", "blockIdxZ", "blockIdxY", "blockIdxX"], function (res, id) {
+                                _.reduceRight(["blockIdxZ", "blockIdxY", "blockIdxX"], function (res, id) {
                                     return builder.forStatement(builder.variableDeclaration("var", [
                                         builder.variableDeclarator(builder.identifier(id, self.loc), builder.literal(0, self.loc))
-                                    ], self.loc), builder.binaryExpression("<", builder.identifier(id, self.loc), builder.memberExpression(builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc), builder.identifier(id[id.length - 1].toLowerCase(), self.loc), false, self.loc), self.loc), builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc), builder.blockStatement(res ? [res] : [], self.loc), self.loc);
+                                    ], self.loc), builder.binaryExpression("<", builder.identifier(id, self.loc), builder.memberExpression(builder.identifier("gridDim$", self.loc), builder.identifier(id[id.length - 1].toLowerCase(), self.loc), false, self.loc), self.loc), builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc), builder.blockStatement(res ? [res] : [], self.loc), self.loc);
                                 }, builder.expressionStatement(builder.callExpression(builder.memberExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("parallel", self.loc), false, self.loc), builder.identifier("scheduleThread", self.loc), false, self.loc), [
-                                    builder.callExpression(builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
-                                        builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
+                                    builder.callExpression(builder.functionExpression(null, [builder.identifier("blockIdx$", self.loc)], builder.functionExpression(null, [], builder.blockStatement([
+                                        builder.expressionStatement(builder.callExpression(this.callee.toEsprima(), _.map(["blockIdx$", "blockDim$", "gridDim$"], function (b) { return builder.identifier(b, self.loc); }).concat(_.map(args, function (a) { return a.toEsprima(); }))), self.loc)
                                     ]), self.loc), self.loc), ["gridDim", "blockDim"].map(function (gb) { return builder.objectExpression(["x", "y", "z"].map(function (dim) { return builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc); }), self.loc); }))
                                 ], self.loc), self.loc))
                             ]), self.loc);
@@ -12536,11 +12534,15 @@ var lib;
                         return new AssignmentExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                     };
                     AssignmentExpression.prototype.toEsprima_ = function () {
-                        if (this.left.type === "Identifier") {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
+                        var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
+                        if (this.left.type === "SubscriptExpression") {
+                            var subs = castTo(this.left);
+                            return builder.callExpression(builder.memberExpression(libc, builder.identifier("setElement", sloc), false, sloc), [builder.identifier("functionStack$", sloc), subs.object.toEsprima(), subs.property.toEsprima(), this.right.toEsprima()], sloc);
+                        }
+                        else if (this.left.type === "Identifier") {
                             var left = castTo(this.left);
-                            var loc = this.loc;
-                            var sloc = builder.sourceLocation(builder.position(loc.start.line, loc.start.column), builder.position(loc.end.line, loc.end.column));
-                            var libc = builder.memberExpression(builder.identifier("lib", sloc), builder.identifier("c", sloc), false, sloc);
                             var lefte = builder.memberExpression(builder.identifier("functionStack$", left.loc), builder.literal(left.name, left.loc), true, left.loc);
                             var acc;
                             if (castTo(this.left).kind.type === "ReferenceType") {

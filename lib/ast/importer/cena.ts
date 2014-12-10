@@ -341,7 +341,8 @@ module lib.ast {
                         type: "Literal",
                         value: val,
                         loc: this.loc,
-                        raw: this.raw, cform: this.cform
+                        raw: this.raw,
+                        cform: this.cform
                     }
                 }
                 toCString_():string {
@@ -1203,7 +1204,7 @@ module lib.ast {
                         function (elem) : any {
                             if (elem.type === "EmptyExpression") {
                                 return null;
-                            } else if (elem.toEsprima().type === "BlockStatement") {
+                            } else if (_.isObject(elem.toEsprima()) && elem.toEsprima().type === "BlockStatement") {
                                 return castTo<esprima.Syntax.BlockStatement>(elem.toEsprima()).body;
                             } else if (lib.ast.utils.isStatement(elem.toEsprima())) {
                                 return elem.toEsprima();
@@ -1309,7 +1310,6 @@ module lib.ast {
                             threadParams = [
                                 new StringLiteral(self.rloc, "threadIdx", "threadIdx", "threadIdx"),
                                 new StringLiteral(self.rloc, "blockIdx", "blockIdx", "blockIdx"),
-                                new StringLiteral(self.rloc, "gridIdx", "gridIdx", "gridIdx"),
                                 new StringLiteral(self.rloc, "blockDim", "blockDim", "blockDim"),
                                 new StringLiteral(self.rloc, "gridDim", "gridDim", "gridDim")
                             ];
@@ -1467,13 +1467,8 @@ module lib.ast {
                                                 self.loc
                                             ),
                                             builder.variableDeclarator(
-                                                builder.identifier("gridIdx", self.loc),
-                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
                                                 builder.identifier("gridDim", self.loc),
-                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(3, self.loc), true, self.loc),
+                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc),
                                                 self.loc
                                             )
                                         ],
@@ -1551,7 +1546,7 @@ module lib.ast {
                                                     builder.expressionStatement(
                                                         builder.callExpression(
                                                             builder.identifier(self.id.name + "_", self.id.loc),
-                                                            _.map(["threadIdx", "blockIdx", "gridIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
+                                                            _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
                                                             self.loc
                                                         ), self.loc)], self.loc)
                                             )
@@ -1808,7 +1803,7 @@ module lib.ast {
                                 )),
                                 self.loc
                             ),
-                            _.reduceRight(["gridIdxZ", "gridIdxY", "gridIdxX", "blockIdxZ", "blockIdxY", "blockIdxX"],
+                            _.reduceRight(["blockIdxZ", "blockIdxY", "blockIdxX"],
                                 function (res, id) {
                                     return builder.forStatement(
                                         builder.variableDeclaration(
@@ -1824,7 +1819,7 @@ module lib.ast {
                                             "<",
                                             builder.identifier(id, self.loc),
                                             builder.memberExpression(
-                                                builder.identifier(startsWith(id, "grid") ? "gridDim$" : "blockDim$", self.loc),
+                                                builder.identifier("gridDim$", self.loc),
                                                 builder.identifier(id[id.length - 1].toLowerCase(), self.loc),
                                                 false,
                                                 self.loc
@@ -1860,13 +1855,13 @@ module lib.ast {
                                         ),
                                         [
                                             builder.callExpression(
-                                                builder.functionExpression(null, [builder.identifier("gridIdx$", self.loc), builder.identifier("blockIdx$", self.loc)],
+                                                builder.functionExpression(null, [ builder.identifier("blockIdx$", self.loc)],
                                                     builder.functionExpression(null, [],
                                                         builder.blockStatement([
                                                             builder.expressionStatement(
                                                                 builder.callExpression(
                                                                     this.callee.toEsprima(),
-                                                                    _.map(["blockIdx$", "blockDim$", "gridIdx$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a:Node) => a.toEsprima()))
+                                                                    _.map(["blockIdx$", "blockDim$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a:Node) => a.toEsprima()))
                                                                 ),
                                                                 self.loc
                                                             )]),
@@ -2576,26 +2571,35 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.AssignmentExpression {
-                    if (this.left.type === "Identifier") {
-                        var left:Identifier = castTo<Identifier>(this.left);
 
-                        var loc = this.loc;
-                        var sloc = builder.sourceLocation(
-                            builder.position(loc.start.line, loc.start.column),
-                            builder.position(loc.end.line, loc.end.column)
-                        );
-                        var libc = builder.memberExpression(
-                            builder.identifier(
-                                "lib",
-                                sloc
-                            ),
-                            builder.identifier(
-                                "c",
-                                sloc
-                            ),
-                            false,
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
+                    );
+                    var libc = builder.memberExpression(
+                        builder.identifier(
+                            "lib",
+                            sloc
+                        ),
+                        builder.identifier(
+                            "c",
+                            sloc
+                        ),
+                        false,
+                        sloc
+                    );
+
+                    if (this.left.type === "SubscriptExpression") {
+                        var subs : SubscriptExpression = castTo<SubscriptExpression>(this.left);
+                        return builder.callExpression(
+                            builder.memberExpression(libc, builder.identifier("setElement", sloc), false, sloc),
+                            [ builder.identifier("functionStack$", sloc), subs.object.toEsprima(), subs.property.toEsprima(), this.right.toEsprima()],
                             sloc
                         );
+                    } else if (this.left.type === "Identifier") {
+                        var left:Identifier = castTo<Identifier>(this.left);
+
                         var lefte = builder.memberExpression(
                             builder.identifier("functionStack$", left.loc),
                             builder.literal(left.name, left.loc),
