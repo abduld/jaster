@@ -21,6 +21,7 @@
 /// <reference path="./functional.ts" />
 /// <reference path="./format.ts" />
 /// <reference path="./workerconsole.ts" />
+/// <reference path="./setImmediate.ts" />
 
 
 module lib {

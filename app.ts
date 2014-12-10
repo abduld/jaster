@@ -44,6 +44,7 @@ function initWebApp() {
 }
 
 function initWorkerApp(event) {
+    importScripts("Scripts/lodash.js");
     console.log("in worker");
 }
 
