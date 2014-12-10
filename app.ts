@@ -29,7 +29,9 @@ $(() => {
     var jsEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#js-code")[0]), {
         lineNumbers: true,
         readOnly: true,
-        mode: "javascript"
+        matchBrackets: true,
+        mode: "javascript",
+        theme: 'eclipse'
     });
     var jsDoc = jsEditor.getDoc();
     jsDoc.setValue(res.code + "\n" + res.map.toString());
