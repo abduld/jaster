@@ -1246,7 +1246,7 @@ module lib.ast {
                     var handleEvent = function (nd:Node) {
                         return builder.ifStatement(
                             builder.callExpression(
-                                builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("chceckEvent", self.loc), false, self.loc),
+                                builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("checkEvent", self.loc), false, self.loc),
                                 _.filter([
                                     builder.identifier("state$", self.loc),
                                     inCUDAFunction ? builder.identifier("worker$", self.loc) : null,
@@ -1290,7 +1290,6 @@ module lib.ast {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
                                 nd = null;
                             }
-                            console.log(idx);
                             if (nd == null) {
                                 return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0 )) || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
@@ -1779,16 +1778,6 @@ module lib.ast {
                                             builder.blockStatement([], self.loc),
                                             self.loc
                                         )])))
-                                    /*
-
-                                     builder.forStatement(
-                                     builder.variableDeclaration("var",
-                                     builder.variableDeclarator(),
-                                     self.loc
-                                     ),
-                                     builder.binaryExpression()
-                                     )
-                                     */
                                 ],
                                 self.loc
                             ),
