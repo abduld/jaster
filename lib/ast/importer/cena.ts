@@ -12,7 +12,7 @@ module lib.ast {
 
             var saveConditions:boolean = false;
             var inCUDAFunction:boolean = false;
-            var fakeMath : boolean = false;
+            var fakeMath:boolean = false;
 
             function startsWith(s:string, str:string):boolean {
                 return s.indexOf(str) === 0;
@@ -550,7 +550,7 @@ module lib.ast {
                             ]
                         }
                     } else {
-                        var self  = this;
+                        var self = this;
                         return builder.literal(this.value, self.loc);
                     }
                 }
@@ -597,45 +597,45 @@ module lib.ast {
                 }
 
                 toEsprima_():esprima.Syntax.NewExpression {
-if (fakeMath) {
-    var loc = this.loc;
-    var sloc = builder.sourceLocation(
-        builder.position(loc.start.line, loc.start.column),
-        builder.position(loc.end.line, loc.end.column)
-    );
-    var libc = builder.memberExpression(
-        builder.identifier(
-            "lib",
-            sloc
-        ),
-        builder.identifier(
-            "c",
-            sloc
-        ),
-        false,
-        sloc
-    );
-    return {
-        type: "NewExpression",
-        loc: this.loc,
-        callee: builder.memberExpression(
-            libc,
-            builder.identifier("Int32", sloc),
-            false
-        ),
-        arguments: [
-            castTo<esprima.Syntax.Expression>({
-                type: "Literal",
-                loc: this.loc,
-                raw: this.raw, cform: this.cform,
-                value: this.value
-            })
-        ]
-    }
-} else {
-        var self  = this;
-        return builder.literal(this.value, self.loc);
-}
+                    if (fakeMath) {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(
+                            builder.position(loc.start.line, loc.start.column),
+                            builder.position(loc.end.line, loc.end.column)
+                        );
+                        var libc = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        return {
+                            type: "NewExpression",
+                            loc: this.loc,
+                            callee: builder.memberExpression(
+                                libc,
+                                builder.identifier("Int32", sloc),
+                                false
+                            ),
+                            arguments: [
+                                castTo<esprima.Syntax.Expression>({
+                                    type: "Literal",
+                                    loc: this.loc,
+                                    raw: this.raw, cform: this.cform,
+                                    value: this.value
+                                })
+                            ]
+                        }
+                    } else {
+                        var self = this;
+                        return builder.literal(this.value, self.loc);
+                    }
                 }
 
                 toCString_():string {
@@ -680,46 +680,46 @@ if (fakeMath) {
                 }
 
                 toEsprima_():esprima.Syntax.NewExpression {
-if (fakeMath) {
-    var loc = this.loc;
-    var sloc = builder.sourceLocation(
-        builder.position(loc.start.line, loc.start.column),
-        builder.position(loc.end.line, loc.end.column)
-    );
-    var libc = builder.memberExpression(
-        builder.identifier(
-            "lib",
-            sloc
-        ),
-        builder.identifier(
-            "c",
-            sloc
-        ),
-        false,
-        sloc
-    );
-    return {
-        type: "NewExpression",
-        loc: this.loc,
-        callee: builder.memberExpression(
-            libc,
-            builder.identifier("Int64"),
-            false,
-            sloc
-        ),
-        arguments: [
-            castTo<esprima.Syntax.Expression>({
-                type: "Literal",
-                loc: this.loc,
-                raw: this.raw, cform: this.cform,
-                value: this.value
-            })
-        ]
-    }
-} else {
-    var self  = this;
-    return builder.literal(this.value, self.loc);
-}
+                    if (fakeMath) {
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(
+                            builder.position(loc.start.line, loc.start.column),
+                            builder.position(loc.end.line, loc.end.column)
+                        );
+                        var libc = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
+                            sloc
+                        );
+                        return {
+                            type: "NewExpression",
+                            loc: this.loc,
+                            callee: builder.memberExpression(
+                                libc,
+                                builder.identifier("Int64"),
+                                false,
+                                sloc
+                            ),
+                            arguments: [
+                                castTo<esprima.Syntax.Expression>({
+                                    type: "Literal",
+                                    loc: this.loc,
+                                    raw: this.raw, cform: this.cform,
+                                    value: this.value
+                                })
+                            ]
+                        }
+                    } else {
+                        var self = this;
+                        return builder.literal(this.value, self.loc);
+                    }
                 }
 
                 toCString_():string {
@@ -765,42 +765,43 @@ if (fakeMath) {
 
                 toEsprima_():esprima.Syntax.NewExpression {
                     if (fakeMath) {
-                    var loc = this.loc;
-                    var sloc = builder.sourceLocation(
-                        builder.position(loc.start.line, loc.start.column),
-                        builder.position(loc.end.line, loc.end.column)
-                    );
-                    var libc = builder.memberExpression(
-                        builder.identifier(
-                            "lib",
+                        var loc = this.loc;
+                        var sloc = builder.sourceLocation(
+                            builder.position(loc.start.line, loc.start.column),
+                            builder.position(loc.end.line, loc.end.column)
+                        );
+                        var libc = builder.memberExpression(
+                            builder.identifier(
+                                "lib",
+                                sloc
+                            ),
+                            builder.identifier(
+                                "c",
+                                sloc
+                            ),
+                            false,
                             sloc
-                        ),
-                        builder.identifier(
-                            "c",
-                            sloc
-                        ),
-                        false,
-                        sloc
-                    );
-                    return {
-                        type: "NewExpression",
-                        loc: this.loc,
-                        callee: builder.memberExpression(
-                            libc,
-                            builder.identifier("Float32", sloc),
-                            false
-                        ),
-                        arguments: [
-                            castTo<esprima.Syntax.Expression>({
-                                type: "Literal",
-                                loc: this.loc,
-                                value: this.value
-                            })
-                        ]
-                    }} else {
-                            var self  = this;
-                            return builder.literal(this.value, self.loc);
+                        );
+                        return {
+                            type: "NewExpression",
+                            loc: this.loc,
+                            callee: builder.memberExpression(
+                                libc,
+                                builder.identifier("Float32", sloc),
+                                false
+                            ),
+                            arguments: [
+                                castTo<esprima.Syntax.Expression>({
+                                    type: "Literal",
+                                    loc: this.loc,
+                                    value: this.value
+                                })
+                            ]
                         }
+                    } else {
+                        var self = this;
+                        return builder.literal(this.value, self.loc);
+                    }
                 }
 
                 toCString_():string {
@@ -1253,22 +1254,23 @@ if (fakeMath) {
                                 ], _.isObject),
                                 self.loc
                             ),
-                            builder.expressionStatement(
-                                builder.callExpression(
-                                    builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("handleEvent", self.loc), false, self.loc),
-                                    _.filter([
-                                        builder.identifier("state$", self.loc),
-                                        inCUDAFunction ? builder.identifier("worker$", self.loc) : null,
-                                        builder.identifier("functionStack$", self.loc)
-                                    ], _.isObject),
-                                    self.loc
-                                ), self.loc),
+                            builder.blockStatement([
+                                builder.expressionStatement(
+                                    builder.callExpression(
+                                        builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("handleEvent", self.loc), false, self.loc),
+                                        _.filter([
+                                            builder.identifier("state$", self.loc),
+                                            inCUDAFunction ? builder.identifier("worker$", self.loc) : null,
+                                            builder.identifier("functionStack$", self.loc)
+                                        ], _.isObject),
+                                        self.loc
+                                    ), self.loc)], self.loc),
                             null,
                             self.loc
                         );
                     }
                     var stmts = _.map(this.body.elements,
-                        function (elem):any[] {
+                        function (elem, idx):any[] {
                             var nd:any;
                             if (elem.type === "EmptyExpression") {
                                 nd = null;
@@ -1288,12 +1290,16 @@ if (fakeMath) {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
                                 nd = null;
                             }
+                            console.log(idx);
                             if (nd == null) {
-                                return idx < 5 || isUndefined(elem) ? [] :
+                                return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0 )) || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
                                         [recordLine(elem), handleEvent(elem)];
-                            } else {
+                            } else if (inCUDAFunction) {
                                 return [recordLine(elem), handleEvent(elem), nd];
+                            } else {
+                                return idx < 5 || (!inCUDAFunction && (idx % 10 !== 0 ))  || isUndefined(elem) ? [nd] :
+                                [recordLine(elem), handleEvent(elem), nd];
                             }
                         }
                     );
@@ -1695,84 +1701,84 @@ if (fakeMath) {
                                                 )
                                             )], self.loc)
                                     ),
-builder.returnStatement(builder.functionExpression(null, [], builder.blockStatement([
-                                    builder.whileStatement(
-                                        builder.callExpression(
-                                            builder.memberExpression(
-                                                builder.identifier("_", self.loc),
-                                                builder.identifier("all", self.loc),
-                                                false,
-                                                self.loc
-                                            ),
-                                            [
-                                                builder.callExpression(
-                                                    builder.memberExpression(
-                                                        builder.identifier("_", self.loc),
-                                                        builder.identifier("map", self.loc),
-                                                        false,
-                                                        self.loc
-                                                    ),
-                                                    [builder.identifier("threadFuns", self.loc),
-                                                        builder.functionExpression(null,
-                                                            [builder.identifier("threadFun", self.loc), builder.identifier("idx", self.loc)],
-                                                            builder.blockStatement([
-                                                                builder.returnStatement(
-                                                                    builder.assignmentExpression(
-                                                                        "=",
-                                                                        builder.memberExpression(
-                                                                            builder.identifier("threadStates", self.loc),
-                                                                            builder.identifier("idx", self.loc),
-                                                                            true,
-                                                                            self.loc
-                                                                        ),
-                                                                        builder.callExpression(builder.identifier("threadFun", self.loc), [
+                                    builder.returnStatement(builder.functionExpression(null, [], builder.blockStatement([
+                                        builder.whileStatement(
+                                            builder.callExpression(
+                                                builder.memberExpression(
+                                                    builder.identifier("_", self.loc),
+                                                    builder.identifier("all", self.loc),
+                                                    false,
+                                                    self.loc
+                                                ),
+                                                [
+                                                    builder.callExpression(
+                                                        builder.memberExpression(
+                                                            builder.identifier("_", self.loc),
+                                                            builder.identifier("map", self.loc),
+                                                            false,
+                                                            self.loc
+                                                        ),
+                                                        [builder.identifier("threadFuns", self.loc),
+                                                            builder.functionExpression(null,
+                                                                [builder.identifier("threadFun", self.loc), builder.identifier("idx", self.loc)],
+                                                                builder.blockStatement([
+                                                                    builder.returnStatement(
+                                                                        builder.assignmentExpression(
+                                                                            "=",
                                                                             builder.memberExpression(
                                                                                 builder.identifier("threadStates", self.loc),
                                                                                 builder.identifier("idx", self.loc),
                                                                                 true,
                                                                                 self.loc
-                                                                            )], self.loc),
-                                                                        self.loc
+                                                                            ),
+                                                                            builder.callExpression(builder.identifier("threadFun", self.loc), [
+                                                                                builder.memberExpression(
+                                                                                    builder.identifier("threadStates", self.loc),
+                                                                                    builder.identifier("idx", self.loc),
+                                                                                    true,
+                                                                                    self.loc
+                                                                                )], self.loc),
+                                                                            self.loc
+                                                                        )
                                                                     )
-                                                                )
-                                                            ], self.loc))
-                                                    ],
-                                                    self.loc
-                                                ),
-                                                builder.functionExpression(null,
-                                                    [builder.identifier("state", self.loc)],
-                                                    builder.blockStatement([
-                                                        builder.returnStatement(
-                                                            builder.logicalExpression(
-                                                                "||",
-                                                                builder.callExpression(
-                                                                    builder.memberExpression(
-                                                                        builder.identifier("_", self.loc),
-                                                                        builder.identifier("isUndefined", self.loc),
-                                                                        false,
+                                                                ], self.loc))
+                                                        ],
+                                                        self.loc
+                                                    ),
+                                                    builder.functionExpression(null,
+                                                        [builder.identifier("state", self.loc)],
+                                                        builder.blockStatement([
+                                                            builder.returnStatement(
+                                                                builder.logicalExpression(
+                                                                    "||",
+                                                                    builder.callExpression(
+                                                                        builder.memberExpression(
+                                                                            builder.identifier("_", self.loc),
+                                                                            builder.identifier("isUndefined", self.loc),
+                                                                            false,
+                                                                            self.loc
+                                                                        ),
+                                                                        [builder.identifier("state", self.loc)],
                                                                         self.loc
                                                                     ),
-                                                                    [builder.identifier("state", self.loc)],
-                                                                    self.loc
-                                                                ),
-                                                                builder.binaryExpression(
-                                                                    "!==",
-                                                                    builder.identifier("state", self.loc),
-                                                                    builder.literal("finish", self.loc),
+                                                                    builder.binaryExpression(
+                                                                        "!==",
+                                                                        builder.identifier("state", self.loc),
+                                                                        builder.literal("finish", self.loc),
+                                                                        self.loc
+                                                                    ),
                                                                     self.loc
                                                                 ),
                                                                 self.loc
-                                                            ),
-                                                            self.loc
-                                                        )
-                                                    ], self.loc))
+                                                            )
+                                                        ], self.loc))
 
-                                            ],
+                                                ],
+                                                self.loc
+                                            ),
+                                            builder.blockStatement([], self.loc),
                                             self.loc
-                                        ),
-                                        builder.blockStatement([], self.loc),
-                                        self.loc
-                                    )])))
+                                        )])))
                                     /*
 
                                      builder.forStatement(
@@ -2560,12 +2566,21 @@ builder.returnStatement(builder.functionExpression(null, [], builder.blockStatem
                         }
                     } else {
                         var self = this;
-                        return builder.binaryExpression(
-                            this.operator,
-                            this.left.toEsprima(),
-                            this.right.toEsprima(),
-                            self.loc
-                        )
+                        if (this.operator === "&&" || this.operator === "||") {
+                            return builder.logicalExpression(
+                                this.operator,
+                                this.left.toEsprima(),
+                                this.right.toEsprima(),
+                                self.loc
+                            )
+                        } else {
+                            return builder.binaryExpression(
+                                this.operator,
+                                this.left.toEsprima(),
+                                this.right.toEsprima(),
+                                self.loc
+                            )
+                        }
                     }
                 }
 
