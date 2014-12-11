@@ -38,7 +38,7 @@ function initWebApp() {
         theme: 'eclipse'
     });
     var jsDoc = jsEditor.getDoc();
-    jsDoc.setValue(res.code + "\n" + res.map.toString());
+    jsDoc.setValue(res.code /* + "\n" + res.map.toString() */);
     jsEditor.setSize("100%", 1000);
 
     code = res.code;

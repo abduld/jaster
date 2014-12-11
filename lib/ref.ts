@@ -6,3 +6,4 @@
 /// <reference path="./wb/wb.ts" />
 /// <reference path="./parallel/parallel.ts" />
 /// <reference path="./mp.ts" />
+/// <reference path="./lib.ts" />
