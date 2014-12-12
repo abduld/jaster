@@ -874,7 +874,7 @@ module lib.ast {
 
             export class ReferenceType extends Node {
                 value:Node
-                isCUDA:boolean
+                private isCUDA_:boolean
 
                 constructor(loc:any, raw:string, cform:string, value:any) {
                     super("ReferenceType", loc, raw, cform);
@@ -886,7 +886,16 @@ module lib.ast {
                 static fromCena(o:any):ReferenceType {
                     return new ReferenceType(o.loc, o.raw, o.cform, o.value);
                 }
-
+get isCUDA() : boolean {
+    if (inCUDAFunction) {
+        return true;
+    } else {
+        return this.isCUDA_;
+    }
+}
+                set isCUDA(val : boolean) {
+                    this.isCUDA_ = val;
+                }
                 makeCUDAReference() {
                     this.isCUDA = true;
                 }
@@ -1036,6 +1045,9 @@ module lib.ast {
                     if (_.isObject(parentFunction) && parentFunction.type === "FunctionExpression" && !_.isEmpty(castTo<FunctionExpression>(parentFunction).attributes)) {
                         this.makeCUDAReference();
                     }
+                    if (inCUDAFunction) {
+                        this.makeCUDAReference();
+                    }
                     if (this.kind.type === "ReferenceType") {
 
                         var loc = this.loc;
@@ -1068,9 +1080,9 @@ module lib.ast {
                                     name: "functionStack$",
                                     loc: this.loc
                                 }),
-                                castTo<esprima.Syntax.Identifier>({
-                                    type: "Identifier",
-                                    name: this.name,
+                                castTo<esprima.Syntax.Literal>({
+                                    type: "Literal",
+                                    value: this.name,
                                     loc: this.loc
                                 })],
                             kind: this.kind.toEsprima(),
@@ -2864,9 +2876,25 @@ module lib.ast {
                     );
 
                     if (this.left.type === "SubscriptExpression") {
+                        var ns = libc;
                         var subs:SubscriptExpression = castTo<SubscriptExpression>(this.left);
+                        if (subs.object.type === "Identifier" && _.isObject(castTo<Identifier>(subs.object).kind) &&
+                            castTo<ReferenceType>(castTo<Identifier>(subs.object).kind).isCUDA) {
+ns = builder.memberExpression(
+                                builder.identifier(
+                                    "lib",
+                                    sloc
+                                ),
+                                builder.identifier(
+                                    "cuda",
+                                    sloc
+                                ),
+                                false,
+                                sloc
+                            );
+                        }
                         return callExpression(
-                            builder.memberExpression(libc, builder.identifier("setElement", sloc), false, sloc),
+                            builder.memberExpression(ns, builder.identifier("setElement", sloc), false, sloc),
                             [builder.identifier("functionStack$", sloc), subs.object.toEsprima(), subs.property.toEsprima(), this.right.toEsprima()],
                             sloc
                         );
