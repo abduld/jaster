@@ -2,6 +2,7 @@
 
 /// <reference path="memory/memory.ts" />
 /// <reference path="cuda/exec/profile.ts" />
+/// <reference path="parallel/workerpool.ts" />
 
 module lib {
     export interface StateInterface {
@@ -9,6 +10,7 @@ module lib {
         model: typeof lib.cuda.exec.FermiArchitecture;
         globalMemory :lib.memory.GlobalMemoryManager;
         hostMemory :lib.memory.HostMemoryManager;
+        threadPool : typeof lib.parallel.WorkerPool;
         id: string;
     }
     export function init() : StateInterface {
@@ -17,6 +19,7 @@ module lib {
             model: lib.cuda.exec.FermiArchitecture,
             globalMemory : new lib.memory.GlobalMemoryManager(),
             hostMemory: new lib.memory.HostMemoryManager(),
+            threadPool: lib.parallel.WorkerPool,
             id: lib.utils.guuid()
         }
     }
@@ -49,6 +52,12 @@ module lib {
                 type: "CReference",
                 id: lib.utils.guuid()
             }
+        }
+    }
+
+    export module parallel {
+        export function scheduleThread(state: StateInterface, fun : Function) {
+
         }
     }
 }

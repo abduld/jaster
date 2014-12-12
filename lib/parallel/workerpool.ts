@@ -16,9 +16,15 @@ module lib {
             private retired_:Function[];
             private mask_:boolean[]
 
-            constructor(size:number) {
+            constructor(size?:number) {
+                if (_.isUndefined(size)) {
+                    size = navigator.hardwareConcurrency || 4;
+                }
                 this.size = size;
-                this.workers_ = _.map(_.range(size), (idx) => new WebWorker(idx, document.currentScript.src, this));
+                if (lib.utils.ENVIRONMENT_IS_WEB) {
+                    var self = this;
+                    this.workers_ = _.map(_.range(size), (idx) => new WebWorker(idx, document.currentScript.src, self));
+                }
             }
 
             private recieveMessage_(idx:number, msg : MessageEvent) {
@@ -47,9 +53,9 @@ module lib {
 
             }
         }
-        export var WorkerPool:WorkerPool_ = null;
+        export var WorkerPool :WorkerPool_;
         if (lib.utils.ENVIRONMENT_IS_WEB) {
-            WorkerPool = new WorkerPool_(navigator.hardwareConcurrency || 4);
+            WorkerPool = new WorkerPool_(2);
         }
     }
 }

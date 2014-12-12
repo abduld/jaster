@@ -3,7 +3,7 @@
 module lib {
     export module utils {
 
-
+if (false) {
         /*
          * WorkerConsole.js:
          *
@@ -73,13 +73,13 @@ module lib {
              * main thread. Once we get it, we define the console.log() function
              * and load and run the original file that was passed to the constructor.
              */
-            global$.onmessage = function(e) {
+            global$.onmessage = function (e) {
                 if (e.data === "console") {
                     // Define the console object
                     global$.console = {
                         _port: e.ports[0],           // Remember the port we log to
                         log: function log() {        // Define console.log()
-                            var c : any = global$.console;
+                            var c:any = global$.console;
                             // Copy the arguments into a real array
                             var args = Array.prototype.slice.call(arguments);
                             // Send the arguments as a message, over our side channel
@@ -95,6 +95,7 @@ module lib {
                     importScripts(url);                   // Load and run it now
                 }
             }
+        }
         }
     }
 }

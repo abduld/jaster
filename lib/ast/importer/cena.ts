@@ -969,7 +969,6 @@ get isCUDA() : boolean {
                 toEsprima_():esprima.Syntax.ObjectExpression {
                     var loc = this.loc;
                     var self = this;
-                    debugger;
                     return builder.objectExpression([
                         builder.property(
                             "init",

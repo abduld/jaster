@@ -7,5 +7,16 @@ module lib {
 
             }
         }
+
+        export class TaskScheduler {
+            tasks : Task[];
+            constructor() {
+
+            }
+            addTask(f : Function) {
+                tasks.push(f);
+            }
+
+        }
     }
 }
