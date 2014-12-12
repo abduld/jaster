@@ -1,4 +1,5 @@
 /// <reference path="../ref.ts" />
+/// <reference path="../c/memory/memory.ts" />
 
 module lib {
     export module memory {

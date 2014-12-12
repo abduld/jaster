@@ -43,7 +43,7 @@ function initWebApp() {
 
     code = res.code;
     global$.code = res;
-    lib.parallel.WorkerPool.start();
+    //lib.parallel.WorkerPool.start();
 }
 
 function initWorkerApp(event) {
@@ -54,5 +54,5 @@ function initWorkerApp(event) {
 if (lib.utils.ENVIRONMENT_IS_WEB) {
     $(initWebApp);
 } else if (lib.utils.ENVIRONMENT_IS_WORKER) {
-    self.onmessage = initWorkerApp;
+    //self.onmessage = initWorkerApp;
 }

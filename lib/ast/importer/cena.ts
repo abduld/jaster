@@ -966,8 +966,30 @@ get isCUDA() : boolean {
                     return new TypeExpression(o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
                 }
 
-                toEsprima_():esprima.Syntax.Comment {
-                    return null
+                toEsprima_():esprima.Syntax.ObjectExpression {
+                    var loc = this.loc;
+                    var self = this;
+                    debugger;
+                    return builder.objectExpression([
+                        builder.property(
+                            "init",
+                            builder.identifier("addressSpace", loc),
+                            builder.arrayExpression(_.map(self.addressSpace, (elem) => builder.literal(elem, loc)), loc),
+                            loc
+                        ),
+                        builder.property(
+                            "init",
+                            builder.identifier("qualifiers", loc),
+                            builder.arrayExpression(_.map(self.qualifiers, (elem) => builder.literal(elem, loc)), loc),
+                            loc
+                        ),
+                        builder.property(
+                            "init",
+                            builder.identifier("bases", loc),
+                            builder.arrayExpression(_.map(self.bases, (elem) => builder.literal(elem, loc)), loc),
+                            loc
+                        )
+                    ])
                     /* {
                      type: "Comment",
                      value: [this.addressSpace, this.qualifiers, this.bases].join(" "),
@@ -2657,34 +2679,12 @@ get isCUDA() : boolean {
                 }
 
                 toEsprima_():esprima.Syntax.Node {
-                    if (this.kind.type === "ReferenceType") {
-                        var loc = this.loc;
-                        var sloc = builder.sourceLocation(
-                            builder.position(loc.start.line, loc.start.column),
-                            builder.position(loc.end.line, loc.end.column)
-                        );
-                        var libc = builder.memberExpression(
-                            builder.identifier(
-                                "lib",
-                                sloc
-                            ),
-                            builder.identifier(
-                                "c",
-                                sloc
-                            ),
-                            false,
-                            sloc
-                        );
-                        return builder.expressionStatement(
-                            builder.assignmentExpression("=", builder.identifier(this.id.name, sloc),
-                                callExpression(
-                                    builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
-                                    [builder.identifier("functionStack$", sloc), builder.literal(this.id.name, sloc)].concat(this.init.toEsprima()),
-                                    sloc
-                                ), sloc),
-                            sloc
-                        );
-                    } else {
+
+                    var loc = this.loc;
+                    var sloc = builder.sourceLocation(
+                        builder.position(loc.start.line, loc.start.column),
+                        builder.position(loc.end.line, loc.end.column)
+                    );
                         var id = {
                             type: "MemberExpression",
                             computed: true,
@@ -2698,29 +2698,49 @@ get isCUDA() : boolean {
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
                         };
-                        return {
-                            type: "ExpressionStatement",
-                            expression: {
+                    if (this.kind.type !== "EmptyExpression") {
+                        return builder.expressionStatement(
+                            builder.sequenceExpression([
+                                builder.callExpression(
+                                    builder.memberExpression(
+                                        builder.identifier(
+                                            "lib",
+                                            sloc
+                                        ),
+                                        builder.identifier(
+                                            "setType",
+                                            sloc
+                                        ),
+                                        false,
+                                        sloc
+                                    ),
+                                    [
+                                        id,
+                                        this.kind.toEsprima()
+                                    ],
+                                    sloc
+                                ),
+                                {
+                                    type: "AssignmentExpression",
+                                    operator: "=",
+                                    right: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                                    left: id,
+                                    raw: this.raw, cform: this.cform,
+                                    loc: this.loc
+                                }])
+                        );
+                    } else {
+                        return builder.expressionStatement(
+                            {
                                 type: "AssignmentExpression",
                                 operator: "=",
                                 right: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
                                 left: id,
                                 raw: this.raw, cform: this.cform,
                                 loc: this.loc
-                            },
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
-                        }
+                            }
+                        );
                     }
-                    /* else {
-                     return {
-                     type: "VariableDeclarator",
-                     init: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
-                     id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
-                     raw: this.raw, cform: this.cform,
-                     loc: this.loc
-                     }
-                     } */
                 }
 
                 toCString_():string {
@@ -2788,7 +2808,7 @@ get isCUDA() : boolean {
                         return this.declarations[0].toEsprima();
                     } else {
                         return {
-                            type: "SequenceExpression",
+                            type: "VariableDeclaration",
                             expressions: castTo<esprima.Syntax.Node[]>(this.declarations.map((decl) => decl.toEsprima())),
                             raw: this.raw, cform: this.cform,
                             loc: this.loc

@@ -45,7 +45,7 @@ module lib {
                             case LogType.Error:
                             case LogType.Fatal:
                             default:
-                                //debugger;
+                                debugger;
                                 console.error(msg);
                                 break;
                         }
