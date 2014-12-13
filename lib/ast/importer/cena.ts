@@ -872,6 +872,70 @@ module lib.ast {
                 }
             }
 
+            export class ParameterExpression extends Node {
+              id:Identifier
+              kind:ReferenceType
+
+              constructor(loc:any, raw:string, cform:string, id:any, kind:any) {
+                super("ParameterExpression", loc, raw, cform);
+                this.id = castTo<Identifier>(fromCena(id));
+                this.kind = castTo<ReferenceType>(fromCena(kind));
+                this.id.kind = this.kind;
+                this.setChildParents();
+              }
+
+              static fromCena(o:any):ParameterExpression {
+                return new ParameterExpression(o.loc, o.raw, o.cform, o.data, o.kind);
+              }
+                makeCUDAReference() {
+                  this.kind.makeCUDAReference();
+                  this.id.makeCUDAReference();
+                }
+
+                toEsprima_():esprima.Syntax.Expression {
+                  var loc = this.loc;
+                  return this.id.toEsprima();
+                }
+
+                      toCString_():string {
+                        return this.kind.toCString() + " " + this.id.toCString();
+                      }
+
+                      hasChildren_():boolean {
+                        return false;
+                      }
+
+                      postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                        visit(this, data);
+                        this.kind.postOrderTraverse(visit, data);
+                        return this.id.postOrderTraverse(visit, data);
+                      }
+
+                      preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                        this.id.preOrderTraverse(visit, data);
+                        this.kind.preOrderTraverse(visit, data);
+                        return visit(this, data);
+                      }
+
+                      inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                        this.id.inOrderTraverse(visit, data);
+                        this.kind.inOrderTraverse(visit, data);
+                        return visit(this, data);
+                      }
+
+                      reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                        this.id.reversePostOrderTraverse(visit, data);
+                        this.kind.reversePostOrderTraverse(visit, data);
+                        return visit(this, data);
+                      }
+
+                      reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                        visit(this, data);
+                        this.kind.reversePreOrderTraverse(visit, data);
+                        return this.id.reversePreOrderTraverse(visit, data);
+                      }
+                    }
+
             export class ReferenceType extends Node {
                 value:Node
                 private isCUDA_:boolean
@@ -900,14 +964,23 @@ get isCUDA() : boolean {
                     this.isCUDA = true;
                 }
 
-                toEsprima_():esprima.Syntax.Comment {
-                    return null
-                    /* {
-                     type: "Comment",
-                     value: this.value.toCString(),
-                     raw: this.raw,
-                     loc: this.loc
-                     } */
+                toEsprima_():esprima.Syntax.Expression {
+                  var loc = this.loc;
+                    return builder.objectExpression([
+                      builder.property(
+                        "init",
+                        builder.identifier("type", loc),
+                        builder.literal("ReferenceType", loc),
+                        loc
+                        ),builder.property(
+                          "init",
+                          builder.identifier("kind", loc),
+                          this.value.toEsprima(),
+                          loc
+                          )
+                      ],
+                      loc
+                      )
                 }
 
                 toCString_():string {
@@ -970,6 +1043,12 @@ get isCUDA() : boolean {
                     var loc = this.loc;
                     var self = this;
                     return builder.objectExpression([
+                      builder.property(
+                        "init",
+                        builder.identifier("type", loc),
+                        builder.literal("TypeExpression", loc),
+                        loc
+                        ),
                         builder.property(
                             "init",
                             builder.identifier("addressSpace", loc),
@@ -1448,6 +1527,34 @@ get isCUDA() : boolean {
                                 var sparam;
                                 if (param.type === "StringLiteral") {
                                     sparam = param;
+                                  } else if (param.type === "ParameterExpression") {
+                                    var sloc = this.loc;
+                                    var id:Identifier = castTo<ParameterExpression>(param).id;
+                                    sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
+
+                                    blk.body.unshift(
+                                      builder.expressionStatement(
+                                      builder.callExpression(
+                                        builder.memberExpression(
+                                          builder.identifier(
+                                            "lib",
+                                            sloc
+                                            ),
+                                            builder.identifier(
+                                              "setType",
+                                              sloc
+                                              ),
+                                              false,
+                                              sloc
+                                              ),
+                                              _.reject([
+                                                builder.identifier("functionStack$", sloc),
+                                                builder.literal(id.name, id.loc),
+                                                castTo<ParameterExpression>(param).kind.toEsprima()
+                                                ], _.isNull),
+                                                sloc
+                                                ), sloc)
+                                                );
                                 } else {
                                     var id:Identifier = castTo<Identifier>(param);
                                     sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
@@ -2665,16 +2772,19 @@ get isCUDA() : boolean {
                 id:Identifier
                 kind:Node
 
-                constructor(loc:any, raw:string, cform:string, init:any, id:any) {
+                constructor(loc:any, raw:string, cform:string, init:any, id:any, kind:any) {
                     super("VariableDeclarator", loc, raw, cform);
                     this.init = isUndefined(init) ? new UndefinedExpression() : fromCena(init);
                     this.id = castTo<Identifier>(fromCena(id));
-                    this.kind = this.id.kind;
+                    this.kind = _.isUndefined(kind) ? this.id.kind : fromCena(kind);
+                    if (!_.isUndefined(kind)) {
+                      this.id.kind = this.kind;
+                    }
                     this.setChildParents();
                 }
 
                 static fromCena(o:any):Node {
-                    return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id);
+                    return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id, o.kind);
                 }
 
                 toEsprima_():esprima.Syntax.Node {
@@ -2697,6 +2807,9 @@ get isCUDA() : boolean {
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
                         };
+                        if (this.kind.toEsprima() === null) {
+                          debugger;
+                        }
                     if (this.kind.type !== "EmptyExpression") {
                         return builder.expressionStatement(
                             builder.sequenceExpression([
@@ -2713,10 +2826,11 @@ get isCUDA() : boolean {
                                         false,
                                         sloc
                                     ),
-                                    [
-                                        id,
+                                    _.reject([
+                                        builder.identifier("functionStack$", sloc),
+                                        builder.literal(this.id.name, this.id.loc),
                                         this.kind.toEsprima()
-                                    ],
+                                    ], _.isNull),
                                     sloc
                                 ),
                                 {
@@ -3777,7 +3891,7 @@ ns = builder.memberExpression(
                 dispatch.set("MemberExpression", MemberExpression.fromCena);
                 dispatch.set("Program", ProgramExpression.fromCena);
                 dispatch.set("Function", FunctionExpression.fromCena);
-                dispatch.set("ParameterExpression", (o) => Identifier.fromCena(o.data));
+                dispatch.set("ParameterExpression",ParameterExpression.fromCena);
                 dispatch.set("VariableDeclaration", VariableDeclaration.fromCena);
                 dispatch.set("VariableDeclarator", VariableDeclarator.fromCena);
                 dispatch.set("SymbolLiteral", SymbolLiteral.fromCena);
