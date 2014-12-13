@@ -1685,7 +1685,7 @@ module lib.ast {
                             type: "FunctionDeclaration",
                             id: castTo<esprima.Syntax.Identifier>(self.id.toEsprima()),
                             params: [],
-                            body: builder.blockStatement([
+                            body: builder.blockStatement(_.flatten([
                                 {
                                     type: "FunctionDeclaration",
                                     id: builder.identifier(self.id.name + "$gen_", self.id.loc),
@@ -1751,16 +1751,39 @@ module lib.ast {
                                 ],
                                     self.loc
                                     ),
-                                builder.variableDeclaration("var",
-                                    _.map(this.params.elements, (param, idx) =>
-                                        builder.variableDeclarator(
+
+                                    _.map(this.params.elements, (param, idx) => {
+                                        if (castTo<Identifier>(param).kind && castTo<Identifier>(param).kind.type === "ReferenceType") {
+                                          return builder.expressionStatement(
+                                            builder.callExpression(
+                                              builder.memberExpression(
+                                                builder.identifier(
+                                                  "lib",
+                                                  self.loc
+                                                  ),
+                                                  builder.identifier(
+                                                    "setReference",
+                                                    self.loc
+                                                    ),
+                                                    false,
+                                                    self.loc
+                                                    ),
+                                                    [
                                             param.toEsprima(),
                                             builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                            ],
                                             self.loc
-                                            )
+                                            ), self.loc)
+                                          } else {
+                                            return builder.variableDeclaration("var", [builder.variableDeclarator(
+                                              param.toEsprima(),
+                                              builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                              self.loc
+                                              )],
+                                              self.loc)
+                                          }
+                                        }
                                         ),
-                                    self.loc
-                                    ),
                                 builder.forStatement(
                                     builder.assignmentExpression(
                                         "=",
@@ -1937,7 +1960,7 @@ module lib.ast {
                                         builder.blockStatement([], self.loc),
                                         self.loc
                                         )])))
-                            ],
+                            ]),
                                 self.loc
                                 ),
                             ret: self.ret.toEsprima(),
@@ -2081,6 +2104,8 @@ module lib.ast {
                             false,
                             sloc
                             );
+
+                            args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (startsWith(this.callee.name, "cuda")) {
                         var libcuda = builder.memberExpression(
                             builder.identifier(
@@ -2113,6 +2138,7 @@ module lib.ast {
                                 castTo<ReferenceExpression>(args[0]).makeCUDAReference();
                             }
                         }
+                        args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (_.contains(["malloc", "free", "sizeof"], this.callee.name)) {
                         var libc = builder.memberExpression(
                             builder.identifier(
@@ -2132,6 +2158,7 @@ module lib.ast {
                             false,
                             sloc
                             );
+                            args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (_.contains(["ceil", "floor"], this.callee.name)) {
                         var libm = builder.memberExpression(
                             builder.identifier(
@@ -2509,7 +2536,7 @@ module lib.ast {
                         "lib",
                         sloc
                         ), builder.identifier(refname, sloc), false, sloc);
-                    return callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.toEsprima()], sloc);
+                    return callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.type === "Identifier" ? builder.literal(castTo<Identifier>(this.argument).name, sloc) : this.argument.toEsprima()], sloc);
                 }
 
                 toCString_(): string {

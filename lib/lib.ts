@@ -3,6 +3,7 @@
 /// <reference path="memory/memory.ts" />
 /// <reference path="cuda/exec/profile.ts" />
 /// <reference path="parallel/workerpool.ts" />
+/// <reference path="wb/wb.ts" />
 
 module lib {
     export interface StateInterface {
@@ -46,7 +47,7 @@ module lib {
         args: string[]
     }
     export module cuda {
-        export function cudaMalloc(state: StateInterface, ref: any, byteCount: number, args: string[]) {
+        export function cudaMalloc(state: StateInterface, stack, ref: any, byteCount: number, args: string[]) {
           lib.utils.assert.ok(ref.mem.type === "CUDAReference");
           return {
             type: "CUDAReference",
@@ -58,7 +59,7 @@ module lib {
     }
 
     export module c {
-        export function malloc(state: StateInterface, byteCount: number, args: string[]): CReference {
+        export function malloc(state: StateInterface, stack, byteCount: number, args: string[]): CReference {
             return {
                 type: "CReference",
                 id: lib.utils.guuid(),
@@ -82,8 +83,16 @@ module lib {
         stack["types"][name] = type;
     }
 
-    export function cudaReference(state, stack, name) {
+    export function cudaReference(state, stack, name) : any {
       var ref;
+      if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType") {
+        return {
+          type: "Identifier",
+          id: name,
+          stack: stack,
+          state: state
+        };
+      }
       lib.utils.assert.ok(stack[name].type === "CUDAReference");
       ref = stack[name];
       return {
@@ -96,8 +105,18 @@ module lib {
       }
     }
 
-    export function reference(state, stack, name) {
+    export function reference(state, stack, name) : any {
       var ref;
+      if (name === "argv") {
+        return {};
+      } else if (_.isUndefined(stack[name])&& stack.types[name] !== "ReferenceType") {
+        return {
+          type: "Identifier",
+          id: name,
+          stack: stack,
+          state: state
+        }
+      }
       lib.utils.assert.ok(stack[name].type === "CReference");
       ref = stack[name];
       return {

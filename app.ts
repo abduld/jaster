@@ -42,6 +42,7 @@ function initWebApp() {
     jsEditor.setSize("100%", 1000);
 
     code = res.code;
+    
     global$.code = res;
 }
 
