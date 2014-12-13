@@ -1149,9 +1149,9 @@ module lib.ast {
                         this.makeCUDAReference();
                     }
                     if (this.name === "cudaMemcpyDeviceToHost" || this.name === "cudaMemcpyDeviceToDevice" ||
-                    this.name === "cudaMemcpyHostToDevice") {
-                      var self = this;
-                      return builder.literal(this.name, self.loc);
+                        this.name === "cudaMemcpyHostToDevice") {
+                        var self = this;
+                        return builder.literal(this.name, self.loc);
                     }
                     if (this.kind.type === "ReferenceType") {
 
@@ -1201,14 +1201,13 @@ module lib.ast {
                         this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
                         var self = this;
                         if (this.parent.type === "CallExpression" && castTo<CallExpression>(this.parent).callee === this) {
-
                           return {
-                            type: "Identifier",
-                            name: this.name,
-                            kind: this.kind.toEsprima(),
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
-                          }
+                                type: "Identifier",
+                                name: this.name,
+                                kind: this.kind.toEsprima(),
+                                raw: this.raw, cform: this.cform,
+                                loc: this.loc
+                            }
                         }
                         return builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(self.name, self.loc), true, self.loc);
                     } else {
