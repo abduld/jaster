@@ -12,7 +12,7 @@ module lib.ast {
 
             var saveConditions: boolean = false;
             var inCUDAFunction: boolean = false;
-            var fakeMath: boolean = false;
+            export var FakeMath: boolean = false;
 
             function startsWith(s: string, str: string): boolean {
                 return s.indexOf(str) === 0;
@@ -514,7 +514,7 @@ module lib.ast {
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
-                    if (fakeMath) {
+                    if (FakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
@@ -597,7 +597,7 @@ module lib.ast {
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
-                    if (fakeMath) {
+                    if (FakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
@@ -680,7 +680,7 @@ module lib.ast {
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
-                    if (fakeMath) {
+                    if (FakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
@@ -764,7 +764,7 @@ module lib.ast {
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
-                    if (fakeMath) {
+                    if (FakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
@@ -2684,7 +2684,7 @@ module lib.ast {
                 }
 
                 toEsprima_(): esprima.Syntax.CallExpression {
-                    if (fakeMath) {
+                    if (FakeMath) {
                         var method: esprima.Syntax.MemberExpression = {
                             type: "MemberExpression",
                             object: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),

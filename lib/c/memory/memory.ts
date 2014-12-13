@@ -1,4 +1,5 @@
 /// <reference path='../../utils/utils.ts' />
+/// <reference path='../../ast/importer/cena.ts' />
 
 module lib.c {
     export module memory {
@@ -24,27 +25,47 @@ module lib.c {
                 this.KIND = CLiteralKind.Int8;
             }
 
-            getElement(idx: number, kind?: CLiteralKind): CLiteral {
+            getElement(idx: number, kind?: CLiteralKind): any {
 
                 if (_.isUndefined(kind)) {
                     kind = this.KIND;
                 }
+                if (lib.ast.importer.cena.FakeMath) {
                 switch (kind) {
                     case CLiteralKind.Int8:
-                        return new lib.c.type.Int8(this.data.getInt8(idx));
+                        return (this.data.getInt8(idx));
                     case CLiteralKind.Int16:
-                        return new lib.c.type.Int16(this.data.getInt16(idx));
+                        return (this.data.getInt16(idx));
                     case CLiteralKind.Int32:
-                        return new lib.c.type.Int32(this.data.getInt32(idx));
+                        return (this.data.getInt32(idx));
                     case CLiteralKind.Int64:
-                        return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
+                        return [this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1)];
                     case CLiteralKind.Uint8:
-                        return new lib.c.type.Uint8(this.data.getUint8(idx));
+                        return (this.data.getUint8(idx));
                     case CLiteralKind.Uint16:
-                        return new lib.c.type.Uint16(this.data.getUint16(idx));
+                        return (this.data.getUint16(idx));
                     case CLiteralKind.Uint32:
-                        return new lib.c.type.Uint32(this.data.getUint32(idx));
+                        return (this.data.getUint32(idx));
                 }
+              } else {
+
+                switch (kind) {
+                  case CLiteralKind.Int8:
+                  return new lib.c.type.Int8(this.data.getInt8(idx));
+                  case CLiteralKind.Int16:
+                  return new lib.c.type.Int16(this.data.getInt16(idx));
+                  case CLiteralKind.Int32:
+                  return new lib.c.type.Int32(this.data.getInt32(idx));
+                  case CLiteralKind.Int64:
+                  return new lib.c.type.Int64(this.data.getInt32(2 * idx), this.data.getInt32(2 * idx + 1));
+                  case CLiteralKind.Uint8:
+                  return new lib.c.type.Uint8(this.data.getUint8(idx));
+                  case CLiteralKind.Uint16:
+                  return new lib.c.type.Uint16(this.data.getUint16(idx));
+                  case CLiteralKind.Uint32:
+                  return new lib.c.type.Uint32(this.data.getUint32(idx));
+                }
+              }
             }
 
             setElement(idx: number, val: number, kind?: CLiteralKind): CLiteral;

@@ -35,14 +35,25 @@ module lib {
     export interface CUDAReference {
         type: string;
         id: string;
+        mem: lib.c.memory.Reference;
+        args: string[]
     }
     export interface CReference {
         type: string;
         id: string;
+        stack?: any;
+        mem: lib.c.memory.Reference;
+        args: string[]
     }
     export module cuda {
-        export function cudaMalloc(state: StateInterface, ref: CUDAReference, byteCount: number, args: string[]) {
-
+        export function cudaMalloc(state: StateInterface, ref: any, byteCount: number, args: string[]) {
+          lib.utils.assert.ok(ref.mem.type === "CUDAReference");
+          return {
+            type: "CUDAReference",
+            id: lib.utils.guuid(),
+            mem: state.globalMemory.malloc(byteCount),
+            args: args
+          }
         }
     }
 
@@ -50,14 +61,17 @@ module lib {
         export function malloc(state: StateInterface, byteCount: number, args: string[]): CReference {
             return {
                 type: "CReference",
-                id: lib.utils.guuid()
+                id: lib.utils.guuid(),
+                mem: state.hostMemory.malloc(byteCount),
+                args: args
             }
         }
     }
 
     export module parallel {
         export function scheduleThread(state: StateInterface, fun: Function) {
-
+          console.log("todo scheduleThread");
+          return ;
         }
     }
 
@@ -69,10 +83,30 @@ module lib {
     }
 
     export function cudaReference(state, stack, name) {
-
+      var ref;
+      lib.utils.assert.ok(stack[name].type === "CUDAReference");
+      ref = stack[name];
+      return {
+        type: ref.type,
+        stack: stack,
+        state: state,
+        id: ref.id,
+        mem: ref.mem,
+        args: ref.args
+      }
     }
 
     export function reference(state, stack, name) {
-
+      var ref;
+      lib.utils.assert.ok(stack[name].type === "CReference");
+      ref = stack[name];
+      return {
+        type: ref.type,
+        stack: stack,
+        state: state,
+        id: ref.id,
+        mem: ref.mem,
+        args: ref.args
+      }
     }
 }

@@ -24,17 +24,17 @@ module lib {
         }
         import CLiteralKind =  lib.c.memory.CLiteralKind;
 
-var typeStringToCLiteralKind : {[key: string]: CLiteralKind;} = {
-  char: CLiteralKind.Int8,
-  int8: CLiteralKind.Int8,
-  uint: CLiteralKind.Uint32,
-  unsigned: CLiteralKind.Uint32,
-  "unsigned int": CLiteralKind.Uint32,
-  int: CLiteralKind.Int32,
-  int64_t : CLiteralKind.Int64,
-  float: CLiteralKind.Float,
-  double: CLiteralKind.Double
-};
+        var typeStringToCLiteralKind : {[key: string]: CLiteralKind;} = {
+          char: CLiteralKind.Int8,
+          int8: CLiteralKind.Int8,
+          uint: CLiteralKind.Uint32,
+          unsigned: CLiteralKind.Uint32,
+          "unsigned int": CLiteralKind.Uint32,
+          int: CLiteralKind.Int32,
+          int64_t : CLiteralKind.Int64,
+          float: CLiteralKind.Float,
+          double: CLiteralKind.Double
+        };
         export function getElement(state, stack, ref, idx) {
           var typ;
           var mm;
