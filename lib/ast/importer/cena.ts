@@ -1892,7 +1892,9 @@ get isCUDA() : boolean {
                                                         builder.blockStatement([
                                                             builder.returnStatement(
                                                                 builder.logicalExpression(
-                                                                    "||",
+                                                                    "&&",
+                                                                    builder.unaryExpression(
+                                                                      "!",
                                                                     builder.callExpression(
                                                                         builder.memberExpression(
                                                                             builder.identifier("_", self.loc),
@@ -1902,7 +1904,7 @@ get isCUDA() : boolean {
                                                                         ),
                                                                         [builder.identifier("state", self.loc)],
                                                                         self.loc
-                                                                    ),
+                                                                    ), true, self.loc),
                                                                     builder.binaryExpression(
                                                                         "!==",
                                                                         builder.identifier("state", self.loc),
