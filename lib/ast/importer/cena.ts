@@ -1148,6 +1148,11 @@ module lib.ast {
                     if (inCUDAFunction) {
                         this.makeCUDAReference();
                     }
+                    if (this.name === "cudaMemcpyDeviceToHost" || this.name === "cudaMemcpyDeviceToDevice" ||
+                    this.name === "cudaMemcpyHostToDevice") {
+                      var self = this;
+                      return builder.literal(this.name, self.loc);
+                    }
                     if (this.kind.type === "ReferenceType") {
 
                         var loc = this.loc;
@@ -1193,8 +1198,18 @@ module lib.ast {
                             loc: this.loc
                         });
                     } else if (_.isObject(this.parent) && this.parent.type !== "Program" && this.parent.type !== "MemberExpression" &&
-                        this.parent.type !== "CallExpression" && this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
+                        this.parent.type != "FunctionDeclaration" && this.parent.type !== "FunctionExpression") {
                         var self = this;
+                        if (this.parent.type === "CallExpression" && castTo<CallExpression>(this.parent).callee === this) {
+
+                          return {
+                            type: "Identifier",
+                            name: this.name,
+                            kind: this.kind.toEsprima(),
+                            raw: this.raw, cform: this.cform,
+                            loc: this.loc
+                          }
+                        }
                         return builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal(self.name, self.loc), true, self.loc);
                     } else {
                         return {
