@@ -60,4 +60,19 @@ module lib {
 
         }
     }
+
+    export function setType(stack, name, type) {
+      if (_.isUndefined(stack["types"])) {
+        stack["types"] = {}
+      }
+      stack["types"][name] = type;
+    }
+
+    export function cudaReference(state, stack, name) {
+
+    }
+
+    export function reference(state, stack, name) {
+      
+    }
 }

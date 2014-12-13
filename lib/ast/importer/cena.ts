@@ -887,7 +887,7 @@ module lib.ast {
               static fromCena(o:any):ParameterExpression {
                 return new ParameterExpression(o.loc, o.raw, o.cform, o.data, o.kind);
               }
-                makeCUDAReference() {
+                makeerence() {
                   this.kind.makeCUDAReference();
                   this.id.makeCUDAReference();
                 }
@@ -1169,7 +1169,10 @@ get isCUDA() : boolean {
                             sloc
                         );
                         var refname = this.kind.type === "ReferenceType" && castTo<ReferenceType>(this.kind).isCUDA === true ? "cudaReference" : "reference";
-                        var ref = builder.memberExpression(libc, builder.identifier(refname, sloc), false, sloc);
+                        var ref = builder.memberExpression(builder.identifier(
+                          "lib",
+                          sloc
+                          ), builder.identifier(refname, sloc), false, sloc);
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
                             callee: castTo<esprima.Syntax.Identifier>(ref),
@@ -2485,20 +2488,11 @@ get isCUDA() : boolean {
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
                     );
-                    var libc = builder.memberExpression(
-                        builder.identifier(
-                            "lib",
-                            sloc
-                        ),
-                        builder.identifier(
-                            "c",
-                            sloc
-                        ),
-                        false,
-                        sloc
-                    );
                     var refname = this.isCUDA ? "cudaReference" : "reference";
-                    var ref = builder.memberExpression(libc, builder.identifier(refname, sloc), false, sloc);
+                    var ref = builder.memberExpression(builder.identifier(
+                      "lib",
+                      sloc
+                      ), builder.identifier(refname, sloc), false, sloc);
                     return callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.toEsprima()], sloc);
                 }
 

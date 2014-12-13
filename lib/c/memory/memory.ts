@@ -8,9 +8,10 @@ module lib.c {
             Host
         }
         ;
-        import CLiteral = lib.c.type.detail.CLiteral;
-        import CLiteralKind = lib.c.type.detail.CLiteralKind;
+        export import CLiteral = lib.c.type.detail.CLiteral;
+        export import CLiteralKind = lib.c.type.detail.CLiteralKind;
         export class Reference {
+          name: string;
             id:string;
             data:DataView;
             addressSpace:AddressSpace;
@@ -23,8 +24,12 @@ module lib.c {
                 this.KIND = CLiteralKind.Int8;
             }
 
-            get(idx:number):CLiteral {
-                switch (this.KIND) {
+            getElement(idx:number, kind? : CLiteralKind):CLiteral {
+
+              if (_.isUndefined(kind)) {
+                kind = this.KIND;
+              }
+              switch (kind) {
                     case CLiteralKind.Int8:
                         return new lib.c.type.Int8(this.data.getInt8(idx));
                     case CLiteralKind.Int16:
@@ -42,20 +47,23 @@ module lib.c {
                 }
             }
 
-            set(idx:number, val:number):CLiteral;
-            set(idx:number, val:CLiteral):CLiteral;
-            set(idx:number, val:any):any {
+            setElement(idx:number, val:number, kind? : CLiteralKind):CLiteral;
+            setElement(idx:number, val:CLiteral, kind? : CLiteralKind):CLiteral;
+            setElement(idx:number, val:any, kind? : CLiteralKind):any {
                 if (val instanceof lib.c.type.Int64) {
                     var i64:lib.c.type.Int64 = utils.castTo<lib.c.type.Int64>(val);
                     this.data.setInt32(2 * idx, i64.getHigh());
                     this.data.setInt32(2 * idx + 1, i64.getLow());
-                    return this.get(idx);
+                    return this.getElement(idx);
                 } else if (val instanceof Object) {
                     var tmp:CLiteral = utils.castTo<CLiteral>(val);
                     val = tmp.getValue()[0];
                 }
 
-                switch (this.KIND) {
+if (_.isUndefined(kind)) {
+  kind = this.KIND;
+}
+                switch (kind) {
                     case CLiteralKind.Int8:
                         this.data.setInt8(idx, val);
                         break;
@@ -79,7 +87,7 @@ module lib.c {
                         this.data.setUint32(idx, val);
                         break;
                 }
-                return this.get(idx);
+                return this.getElement(idx);
             }
 
             ref():Reference {
@@ -91,7 +99,7 @@ module lib.c {
             }
 
             deref():CLiteral {
-                return this.get(0);
+                return this.getElement(0);
             }
         }
 
