@@ -22,6 +22,7 @@
 /// <reference path="./format.ts" />
 /// <reference path="./workerconsole.ts" />
 /// <reference path="./setImmediate.ts" />
+/// <reference path="./buffer.ts" />
 
 
 module lib {
@@ -172,6 +173,12 @@ module lib {
                 _toString.call(value.callee) === '[object Function]';
             }
             return result;
+        };
+
+        export function sourceMapToComment(map) {
+            var json = JSON.stringify(map);
+            var buf = new lib.utils.Buffer(json);
+            return "//# sourceMappingURL=data:application/json;base64," + buf.toString("base64");
         };
     }
 }
