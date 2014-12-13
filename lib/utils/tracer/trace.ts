@@ -19,11 +19,11 @@ module lib.utils {
                 id: number;
             }
             class TracedNode {
-                private log_:LogEvent[];
-                private id_:NodeId;
-                private loc_:LineLocation;
+                private log_: LogEvent[];
+                private id_: NodeId;
+                private loc_: LineLocation;
 
-                constructor(loc:LineLocation) {
+                constructor(loc: LineLocation) {
 
                 }
 
@@ -36,14 +36,14 @@ module lib.utils {
                 }
             }
             class TracedFunction {
-                private name_:string;
-                private log_:LogEvent[];
-                private args_:any[];
-                private id_:NodeId;
-                private fun_:Function
+                private name_: string;
+                private log_: LogEvent[];
+                private args_: any[];
+                private id_: NodeId;
+                private fun_: Function
 
-                constructor(fun:Function) {
-                    this.fun_ = function (...args:any[]) {
+                constructor(fun: Function) {
+                    this.fun_ = function(...args: any[]) {
 
                         var res = fun(args);
 

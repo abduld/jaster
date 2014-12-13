@@ -6,7 +6,7 @@ module lib.ast.recast {
     var SourceMapGenerator = sourceMap.SourceMapGenerator;
     var hasOwn = Object.prototype.hasOwnProperty;
 
-    export function getUnionOfKeys(...args:any[]) {
+    export function getUnionOfKeys(...args: any[]) {
         var result = {};
         var argc = args.length;
         for (var i = 0; i < argc; ++i) {
@@ -41,7 +41,7 @@ module lib.ast.recast {
 
         var sourcesToContents = {};
 
-        smcLatter.eachMapping(function (mapping) {
+        smcLatter.eachMapping(function(mapping) {
             var origPos = smcFormer.originalPositionFor({
                 line: mapping.originalLine,
                 column: mapping.originalColumn

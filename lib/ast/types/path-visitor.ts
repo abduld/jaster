@@ -14,10 +14,10 @@ module lib.ast {
         var undefined;
 
         export class PathVisitor {
-            _reusableContextStack:any[];
-            _methodNameTable:any;
-            Context:any;
-            visitor:any;
+            _reusableContextStack: any[];
+            _methodNameTable: any;
+            Context: any;
+            visitor: any;
 
             constructor() {
                 assert.ok(this instanceof PathVisitor);
@@ -58,7 +58,7 @@ module lib.ast {
                     return node.value;
                 }
 
-                var rootPath = new NodePath({root: node});
+                var rootPath = new NodePath({ root: node });
                 visitor.visit(rootPath.get("root"));
                 return rootPath.value.root;
             }
@@ -206,59 +206,59 @@ module lib.ast {
         var sharedContextProtoMethods = Object.create(null);
 
         sharedContextProtoMethods.reset =
-            function reset(path) {
-                assert.ok(this instanceof this.Context);
-                assert.ok(path instanceof NodePath);
+        function reset(path) {
+            assert.ok(this instanceof this.Context);
+            assert.ok(path instanceof NodePath);
 
-                this.currentPath = path;
-                this.needToCallTraverse = true;
+            this.currentPath = path;
+            this.needToCallTraverse = true;
 
-                return this;
-            };
+            return this;
+        };
 
         sharedContextProtoMethods.invokeVisitorMethod =
-            function invokeVisitorMethod(methodName) {
-                assert.ok(this instanceof this.Context);
-                assert.ok(this.currentPath instanceof NodePath);
+        function invokeVisitorMethod(methodName) {
+            assert.ok(this instanceof this.Context);
+            assert.ok(this.currentPath instanceof NodePath);
 
-                var result = this.visitor[methodName].call(this, this.currentPath);
+            var result = this.visitor[methodName].call(this, this.currentPath);
 
-                if (result === false) {
-                    // Visitor methods return false to indicate that they have handled
-                    // their own traversal needs, and we should not complain if
-                    // this.needToCallTraverse is still true.
-                    this.needToCallTraverse = false;
-
-                } else if (result !== undefined) {
-                    // Any other non-undefined value returned from the visitor method
-                    // is interpreted as a replacement value.
-                    this.currentPath = this.currentPath.replace(result)[0];
-
-                    if (this.needToCallTraverse) {
-                        // If this.traverse still hasn't been called, visit the
-                        // children of the replacement node.
-                        this.traverse(this.currentPath);
-                    }
-                }
-
-                assert.strictEqual(
-                    this.needToCallTraverse, false,
-                    "Must either call this.traverse or return false in " + methodName
-                );
-            };
-
-        sharedContextProtoMethods.traverse =
-            function traverse(path, newVisitor) {
-                assert.ok(this instanceof this.Context);
-                assert.ok(path instanceof NodePath);
-                assert.ok(this.currentPath instanceof NodePath);
-
+            if (result === false) {
+                // Visitor methods return false to indicate that they have handled
+                // their own traversal needs, and we should not complain if
+                // this.needToCallTraverse is still true.
                 this.needToCallTraverse = false;
 
-                visitChildren(path, PathVisitor.fromMethodsObject(
-                    newVisitor || this.visitor
+            } else if (result !== undefined) {
+                // Any other non-undefined value returned from the visitor method
+                // is interpreted as a replacement value.
+                this.currentPath = this.currentPath.replace(result)[0];
+
+                if (this.needToCallTraverse) {
+                    // If this.traverse still hasn't been called, visit the
+                    // children of the replacement node.
+                    this.traverse(this.currentPath);
+                }
+            }
+
+            assert.strictEqual(
+                this.needToCallTraverse, false,
+                "Must either call this.traverse or return false in " + methodName
+                );
+        };
+
+        sharedContextProtoMethods.traverse =
+        function traverse(path, newVisitor) {
+            assert.ok(this instanceof this.Context);
+            assert.ok(path instanceof NodePath);
+            assert.ok(this.currentPath instanceof NodePath);
+
+            this.needToCallTraverse = false;
+
+            visitChildren(path, PathVisitor.fromMethodsObject(
+                newVisitor || this.visitor
                 ));
-            };
+        };
 
     }
 }

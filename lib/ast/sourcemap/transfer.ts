@@ -15,7 +15,7 @@ function transfer(mappingObject) {
     var fromSMC = new Consumer(fromSourceMap);
     var toSMC = new Consumer(toSourceMap);
     var resultMap = new Generator();
-    fromSMC.eachMapping(function (mapping) {
+    fromSMC.eachMapping(function(mapping) {
         var generatedPosition = {
             line: mapping.generatedLine,
             column: mapping.generatedColumn

@@ -8,39 +8,39 @@ module lib.ast {
             import builder_ = lib.ast.types.builders;
             import isUndefined = lib.utils.isUndefined;
 
-            var builder:any = castTo<any>(builder_);
+            var builder: any = castTo<any>(builder_);
 
-            var saveConditions:boolean = false;
-            var inCUDAFunction:boolean = false;
-            var fakeMath:boolean = false;
+            var saveConditions: boolean = false;
+            var inCUDAFunction: boolean = false;
+            var fakeMath: boolean = false;
 
-            function startsWith(s:string, str:string):boolean {
+            function startsWith(s: string, str: string): boolean {
                 return s.indexOf(str) === 0;
             };
-            function unknownLocation():esprima.Syntax.LineLocation {
+            function unknownLocation(): esprima.Syntax.LineLocation {
                 return builder.sourceLocation(
                     builder.position(1, 1),
                     builder.position(1, 1),
                     "cuda.js"
-                )
+                    )
             };
 
 
-            function callExpression(callee, args:any[], loc?) {
+            function callExpression(callee, args: any[], loc?) {
                 return builder.callExpression(callee, [builder.identifier("state$", loc)].concat(args), loc);
             }
 
             export class Node {
-                type:string
-                rloc:any
-                loc:esprima.Syntax.LineLocation
-                raw:string
-                cform:string
-                marker:any
-                parent:Node
-                deleted:boolean
+                type: string
+                rloc: any
+                loc: esprima.Syntax.LineLocation
+                raw: string
+                cform: string
+                marker: any
+                parent: Node
+                deleted: boolean
 
-                constructor(type:string, loc:any, raw:string, cform:string) {
+                constructor(type: string, loc: any, raw: string, cform: string) {
                     this.type = type;
                     this.rloc = loc;
                     if (isUndefined(loc)) {
@@ -50,7 +50,7 @@ module lib.ast {
                             builder.position(loc.start.line + 1, loc.start.column + 1),
                             builder.position(loc.end.line + 1, loc.end.column + 1),
                             "cuda.js"
-                        );
+                            );
                         ;
                     }
                     this.raw = raw;
@@ -60,11 +60,11 @@ module lib.ast {
                     this.deleted = false;
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new Node("Unknown", unknownLocation(), "", "");
                 }
 
-                toEsprima():esprima.Syntax.Node {
+                toEsprima(): esprima.Syntax.Node {
                     if (this.deleted) {
                         return (new EmptyExpression()).toEsprima();
                     } else {
@@ -72,7 +72,7 @@ module lib.ast {
                     }
                 }
 
-                toCString():string {
+                toCString(): string {
                     return this.deleted ? "" : this.toCString_();
                 }
 
@@ -83,57 +83,57 @@ module lib.ast {
                     return this.setChildParents_();
                 }
 
-                get children():Node[] {
+                get children(): Node[] {
                     if (this.deleted) {
                         return [];
                     }
                     return this.children_();
                 }
 
-                hasChildren():boolean {
+                hasChildren(): boolean {
                     return this.deleted ? false : this.hasChildren_();
                 }
 
-                postOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (this.deleted) {
                         return this;
                     }
                     return this.postOrderTraverse_(visit, data);
                 }
 
-                preOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (this.deleted) {
                         return this;
                     }
                     return this.preOrderTraverse_(visit, data);
                 }
 
-                inOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (this.deleted) {
                         return this;
                     }
                     return this.inOrderTraverse_(visit, data);
                 }
 
-                reversePostOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (this.deleted) {
                         return this;
                     }
                     return this.reversePostOrderTraverse_(visit, data);
                 }
 
-                reversePreOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (this.deleted) {
                         return this;
                     }
                     return this.reversePreOrderTraverse_(visit, data);
                 }
 
-                toEsprima_():esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
                     return null
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "";
                 }
 
@@ -145,31 +145,31 @@ module lib.ast {
                     _.each(this.children, (child) => child.parent = self);
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -182,27 +182,27 @@ module lib.ast {
                     return null
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
@@ -211,44 +211,44 @@ module lib.ast {
                     super("NullNode", unknownLocation(), "", "");
                 }
 
-                toEsprima_():esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
                     return null;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Literal<T> extends Node {
-                value:T;
+                value: T;
 
-                constructor(loc:any, raw:string, cform:string, value:T) {
+                constructor(loc: any, raw: string, cform: string, value: T) {
                     super("Literal", loc, raw, cform);
                     this.value = value;
                     this.setChildParents();
                 }
 
-                toEsprima_():esprima.Syntax.Literal {
+                toEsprima_(): esprima.Syntax.Literal {
                     return {
                         type: "Literal",
                         value: this.value,
@@ -257,36 +257,36 @@ module lib.ast {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.value.toString();
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class SymbolLiteral extends Literal<string> {
-                constructor(loc:any, raw:string, cform:string, value:string) {
+                constructor(loc: any, raw: string, cform: string, value: string) {
                     super(loc, raw, cform, value);
                     this.type = "SymbolLiteral";
                     this.setChildParents();
@@ -301,50 +301,50 @@ module lib.ast {
                  raw: this.raw, cform: this.cform
                  })
                  }*/
-                static fromCena(o:any):SymbolLiteral {
+                static fromCena(o: any): SymbolLiteral {
                     return new SymbolLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class StringLiteral extends Literal<string> {
-                constructor(loc:any, raw:string, cform:string, value:string) {
+                constructor(loc: any, raw: string, cform: string, value: string) {
                     super(loc, raw, cform, value);
                     this.type = "StringLiteral";
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):StringLiteral {
+                static fromCena(o: any): StringLiteral {
                     return new StringLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima_():esprima.Syntax.Literal {
+                toEsprima_(): esprima.Syntax.Literal {
                     var val = this.value.replace(/^"(.+(?="$))"$/, '$1');
                     return {
                         type: "Literal",
@@ -355,108 +355,108 @@ module lib.ast {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class BooleanLiteral extends Literal<boolean> {
-                constructor(loc:any, raw:string, cform:string, value:boolean) {
+                constructor(loc: any, raw: string, cform: string, value: boolean) {
                     super(loc, raw, cform, value);
                     this.type = "BooleanLiteral";
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new BooleanLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.value ? "true" : "false";
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class CharLiteral extends Node {
-                value:string
+                value: string
 
-                constructor(loc:any, raw:string, cform:string, value:string) {
+                constructor(loc: any, raw: string, cform: string, value: string) {
                     super("CharLiteral", loc, raw, cform);
                     this.value = value;
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):CharLiteral {
+                static fromCena(o: any): CharLiteral {
                     return new CharLiteral(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "'" + this.value + "'";
                 }
 
-                toEsprima_():esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     var loc = this.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    );
+                        );
                     var libc = builder.memberExpression(
                         builder.identifier(
                             "lib",
                             sloc
-                        ),
+                            ),
                         builder.identifier(
                             "c",
                             sloc
-                        ),
+                            ),
                         false,
                         sloc
-                    );
+                        );
                     return {
                         type: "NewExpression",
                         loc: this.loc,
@@ -464,7 +464,7 @@ module lib.ast {
                             libc,
                             builder.identifier("Char", sloc),
                             false
-                        ),
+                            ),
                         arguments: [
                             castTo<esprima.Syntax.Expression>({
                                 type: "Literal",
@@ -476,62 +476,62 @@ module lib.ast {
                     }
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Integer8Literal extends Node {
-                value:number
+                value: number
 
-                constructor(loc:any, raw:string, cform:string, value:number) {
+                constructor(loc: any, raw: string, cform: string, value: number) {
                     super("Integer8Literal", loc, raw, cform);
                     this.value = value;
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Integer8Literal {
+                static fromCena(o: any): Integer8Literal {
                     return new Integer8Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima_():esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     if (fakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
-                        );
+                            );
                         var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "c",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         return {
                             type: "NewExpression",
                             loc: this.loc,
@@ -539,7 +539,7 @@ module lib.ast {
                                 libc,
                                 builder.identifier("Int8", sloc),
                                 false
-                            ),
+                                ),
                             arguments: [
                                 castTo<esprima.Syntax.Expression>({
                                     type: "Literal",
@@ -555,66 +555,66 @@ module lib.ast {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "" + this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Integer32Literal extends Node {
-                value:number
+                value: number
 
-                constructor(loc:any, raw:string, cform:string, value:number) {
+                constructor(loc: any, raw: string, cform: string, value: number) {
                     super("Integer8Literal", loc, raw, cform);
                     this.value = value;
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Integer32Literal {
+                static fromCena(o: any): Integer32Literal {
                     return new Integer32Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima_():esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     if (fakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
-                        );
+                            );
                         var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "c",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         return {
                             type: "NewExpression",
                             loc: this.loc,
@@ -622,7 +622,7 @@ module lib.ast {
                                 libc,
                                 builder.identifier("Int32", sloc),
                                 false
-                            ),
+                                ),
                             arguments: [
                                 castTo<esprima.Syntax.Expression>({
                                     type: "Literal",
@@ -638,66 +638,66 @@ module lib.ast {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "" + this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Integer64Literal extends Node {
-                value:string
+                value: string
 
-                constructor(loc:any, raw:string, cform:string, value:string) {
+                constructor(loc: any, raw: string, cform: string, value: string) {
                     super("Integer8Literal", loc, raw, cform);
                     this.value = value;
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Integer64Literal {
+                static fromCena(o: any): Integer64Literal {
                     return new Integer64Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima_():esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     if (fakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
-                        );
+                            );
                         var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "c",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         return {
                             type: "NewExpression",
                             loc: this.loc,
@@ -706,7 +706,7 @@ module lib.ast {
                                 builder.identifier("Int64"),
                                 false,
                                 sloc
-                            ),
+                                ),
                             arguments: [
                                 castTo<esprima.Syntax.Expression>({
                                     type: "Literal",
@@ -722,66 +722,66 @@ module lib.ast {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "" + this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Float32Literal extends Node {
-                value:number
+                value: number
 
-                constructor(loc:any, raw:string, cform:string, value:number) {
+                constructor(loc: any, raw: string, cform: string, value: number) {
                     super("FloatLiteral", loc, raw, cform);
                     this.value = value;
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Float32Literal {
+                static fromCena(o: any): Float32Literal {
                     return new Float32Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toEsprima_():esprima.Syntax.NewExpression {
+                toEsprima_(): esprima.Syntax.NewExpression {
                     if (fakeMath) {
                         var loc = this.loc;
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
-                        );
+                            );
                         var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "c",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         return {
                             type: "NewExpression",
                             loc: this.loc,
@@ -789,7 +789,7 @@ module lib.ast {
                                 libc,
                                 builder.identifier("Float32", sloc),
                                 false
-                            ),
+                                ),
                             arguments: [
                                 castTo<esprima.Syntax.Expression>({
                                     type: "Literal",
@@ -804,269 +804,269 @@ module lib.ast {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "" + this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Float64Literal extends Literal<number> {
-                constructor(loc:any, raw:string, cform:string, value:number) {
+                constructor(loc: any, raw: string, cform: string, value: number) {
                     super(loc, raw, cform, value);
                     this.type = "Float64Literal";
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new Float64Literal(o.loc, o.raw, o.cform, o.value);
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "" + this.value;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
 
             export class ParameterExpression extends Node {
-              id:Identifier
-              kind:ReferenceType
+                id: Identifier
+              kind: ReferenceType
 
-              constructor(loc:any, raw:string, cform:string, id:any, kind:any) {
-                super("ParameterExpression", loc, raw, cform);
-                this.id = castTo<Identifier>(fromCena(id));
-                this.kind = castTo<ReferenceType>(fromCena(kind));
-                this.id.kind = this.kind;
-                this.setChildParents();
-              }
+              constructor(loc: any, raw: string, cform: string, id: any, kind: any) {
+                    super("ParameterExpression", loc, raw, cform);
+                    this.id = castTo<Identifier>(fromCena(id));
+                    this.kind = castTo<ReferenceType>(fromCena(kind));
+                    this.id.kind = this.kind;
+                    this.setChildParents();
+                }
 
-              static fromCena(o:any):ParameterExpression {
-                return new ParameterExpression(o.loc, o.raw, o.cform, o.data, o.kind);
-              }
+                static fromCena(o: any): ParameterExpression {
+                    return new ParameterExpression(o.loc, o.raw, o.cform, o.data, o.kind);
+                }
                 makeerence() {
-                  this.kind.makeCUDAReference();
-                  this.id.makeCUDAReference();
+                    this.kind.makeCUDAReference();
+                    this.id.makeCUDAReference();
                 }
 
-                toEsprima_():esprima.Syntax.Expression {
-                  var loc = this.loc;
-                  return this.id.toEsprima();
+                toEsprima_(): esprima.Syntax.Expression {
+                    var loc = this.loc;
+                    return this.id.toEsprima();
                 }
 
-                      toCString_():string {
-                        return this.kind.toCString() + " " + this.id.toCString();
-                      }
+                toCString_(): string {
+                    return this.kind.toCString() + " " + this.id.toCString();
+                }
 
-                      hasChildren_():boolean {
-                        return false;
-                      }
+                hasChildren_(): boolean {
+                    return false;
+                }
 
-                      postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                        visit(this, data);
-                        this.kind.postOrderTraverse(visit, data);
-                        return this.id.postOrderTraverse(visit, data);
-                      }
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.kind.postOrderTraverse(visit, data);
+                    return this.id.postOrderTraverse(visit, data);
+                }
 
-                      preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                        this.id.preOrderTraverse(visit, data);
-                        this.kind.preOrderTraverse(visit, data);
-                        return visit(this, data);
-                      }
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    this.id.preOrderTraverse(visit, data);
+                    this.kind.preOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
 
-                      inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                        this.id.inOrderTraverse(visit, data);
-                        this.kind.inOrderTraverse(visit, data);
-                        return visit(this, data);
-                      }
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    this.id.inOrderTraverse(visit, data);
+                    this.kind.inOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
 
-                      reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                        this.id.reversePostOrderTraverse(visit, data);
-                        this.kind.reversePostOrderTraverse(visit, data);
-                        return visit(this, data);
-                      }
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    this.id.reversePostOrderTraverse(visit, data);
+                    this.kind.reversePostOrderTraverse(visit, data);
+                    return visit(this, data);
+                }
 
-                      reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                        visit(this, data);
-                        this.kind.reversePreOrderTraverse(visit, data);
-                        return this.id.reversePreOrderTraverse(visit, data);
-                      }
-                    }
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    visit(this, data);
+                    this.kind.reversePreOrderTraverse(visit, data);
+                    return this.id.reversePreOrderTraverse(visit, data);
+                }
+            }
 
             export class ReferenceType extends Node {
-                value:Node
-                private isCUDA_:boolean
+                value: Node
+                private isCUDA_: boolean
 
-                constructor(loc:any, raw:string, cform:string, value:any) {
+                constructor(loc: any, raw: string, cform: string, value: any) {
                     super("ReferenceType", loc, raw, cform);
                     this.value = fromCena(value);
                     this.isCUDA = false;
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):ReferenceType {
+                static fromCena(o: any): ReferenceType {
                     return new ReferenceType(o.loc, o.raw, o.cform, o.value);
                 }
-get isCUDA() : boolean {
-    if (inCUDAFunction) {
-        return true;
-    } else {
-        return this.isCUDA_;
-    }
-}
-                set isCUDA(val : boolean) {
+                get isCUDA(): boolean {
+                    if (inCUDAFunction) {
+                        return true;
+                    } else {
+                        return this.isCUDA_;
+                    }
+                }
+                set isCUDA(val: boolean) {
                     this.isCUDA_ = val;
                 }
                 makeCUDAReference() {
                     this.isCUDA = true;
                 }
 
-                toEsprima_():esprima.Syntax.Expression {
-                  var loc = this.loc;
+                toEsprima_(): esprima.Syntax.Expression {
+                    var loc = this.loc;
                     return builder.objectExpression([
-                      builder.property(
-                        "init",
-                        builder.identifier("type", loc),
-                        builder.literal("ReferenceType", loc),
+                        builder.property(
+                            "init",
+                            builder.identifier("type", loc),
+                            builder.literal("ReferenceType", loc),
+                            loc
+                            ), builder.property(
+                            "init",
+                            builder.identifier("kind", loc),
+                            this.value.toEsprima(),
+                            loc
+                            )
+                    ],
                         loc
-                        ),builder.property(
-                          "init",
-                          builder.identifier("kind", loc),
-                          this.value.toEsprima(),
-                          loc
-                          )
-                      ],
-                      loc
-                      )
+                        )
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.value.toCString() + "*";
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.value.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.value.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.value.inOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.value.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.value.reversePreOrderTraverse(visit, data);
                 }
             }
             export class TypeExpression extends Node {
-                eaddressSpace:Node[]
-                equalifiers:Node[]
-                ebases:Node[]
-                addressSpace:string[]
-                qualifiers:string[]
-                bases:string[]
+                eaddressSpace: Node[]
+                equalifiers: Node[]
+                ebases: Node[]
+                addressSpace: string[]
+                qualifiers: string[]
+                bases: string[]
 
-                constructor(loc:any, raw:string, cform:string, addressSpace:string[], qualifiers:string[], bases:string[]) {
+                constructor(loc: any, raw: string, cform: string, addressSpace: string[], qualifiers: string[], bases: string[]) {
                     super("TypeExpression", loc, raw, cform);
-                    this.eaddressSpace = _.map(addressSpace || [undefined], (b:Node) => fromCena(b));
-                    this.equalifiers = _.map(qualifiers || [undefined], (b:Node) => fromCena(b));
-                    this.ebases = _.map(bases || [undefined], (b:Node) => fromCena(b));
-                    this.addressSpace = _.map(addressSpace || [undefined], (b:Node) => fromCena(b).toCString());
-                    this.qualifiers = _.map(qualifiers || [undefined], (b:Node) => fromCena(b).toCString());
-                    this.bases = _.map(bases || [undefined], (b:Node) => fromCena(b).toCString());
+                    this.eaddressSpace = _.map(addressSpace || [undefined], (b: Node) => fromCena(b));
+                    this.equalifiers = _.map(qualifiers || [undefined], (b: Node) => fromCena(b));
+                    this.ebases = _.map(bases || [undefined], (b: Node) => fromCena(b));
+                    this.addressSpace = _.map(addressSpace || [undefined], (b: Node) => fromCena(b).toCString());
+                    this.qualifiers = _.map(qualifiers || [undefined], (b: Node) => fromCena(b).toCString());
+                    this.bases = _.map(bases || [undefined], (b: Node) => fromCena(b).toCString());
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):TypeExpression {
+                static fromCena(o: any): TypeExpression {
                     return new TypeExpression(o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
                 }
 
-                toEsprima_():esprima.Syntax.ObjectExpression {
+                toEsprima_(): esprima.Syntax.ObjectExpression {
                     var loc = this.loc;
                     var self = this;
                     return builder.objectExpression([
-                      builder.property(
-                        "init",
-                        builder.identifier("type", loc),
-                        builder.literal("TypeExpression", loc),
-                        loc
-                        ),
+                        builder.property(
+                            "init",
+                            builder.identifier("type", loc),
+                            builder.literal("TypeExpression", loc),
+                            loc
+                            ),
                         builder.property(
                             "init",
                             builder.identifier("addressSpace", loc),
                             builder.arrayExpression(_.map(self.addressSpace, (elem) => builder.literal(elem, loc)), loc),
                             loc
-                        ),
+                            ),
                         builder.property(
                             "init",
                             builder.identifier("qualifiers", loc),
                             builder.arrayExpression(_.map(self.qualifiers, (elem) => builder.literal(elem, loc)), loc),
                             loc
-                        ),
+                            ),
                         builder.property(
                             "init",
                             builder.identifier("bases", loc),
                             builder.arrayExpression(_.map(self.bases, (elem) => builder.literal(elem, loc)), loc),
                             loc
-                        )
+                            )
                     ])
                     /* {
                      type: "Comment",
@@ -1080,39 +1080,39 @@ get isCUDA() : boolean {
                      } */
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return _.flatten([this.addressSpace, this.qualifiers, this.bases]).join(" ");
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class Identifier extends Node {
-                kind:Node
-                name:string
+                kind: Node
+                name: string
 
-                constructor(loc:any, raw:string, cform:string, name:string, kind?:any) {
+                constructor(loc: any, raw: string, cform: string, name: string, kind?: any) {
                     super("Identifier", loc, raw, cform);
                     this.name = name;
                     if (isUndefined(kind)) {
@@ -1123,7 +1123,7 @@ get isCUDA() : boolean {
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Identifier {
+                static fromCena(o: any): Identifier {
                     return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
                 }
 
@@ -1133,8 +1133,8 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toEsprima_():esprima.Syntax.Identifier {
-                    var parentFunction:Node = this.parent;
+                toEsprima_(): esprima.Syntax.Identifier {
+                    var parentFunction: Node = this.parent;
                     while (_.isObject(parentFunction) && parentFunction.type !== "FunctionExpression") {
                         if (_.isObject(parentFunction.parent)) {
                             parentFunction = parentFunction.parent;
@@ -1154,25 +1154,25 @@ get isCUDA() : boolean {
                         var sloc = builder.sourceLocation(
                             builder.position(loc.start.line, loc.start.column),
                             builder.position(loc.end.line, loc.end.column)
-                        );
+                            );
 
                         var libc = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "c",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         var refname = this.kind.type === "ReferenceType" && castTo<ReferenceType>(this.kind).isCUDA === true ? "cudaReference" : "reference";
                         var ref = builder.memberExpression(builder.identifier(
-                          "lib",
-                          sloc
-                          ), builder.identifier(refname, sloc), false, sloc);
+                            "lib",
+                            sloc
+                            ), builder.identifier(refname, sloc), false, sloc);
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
                             callee: castTo<esprima.Syntax.Identifier>(ref),
@@ -1207,7 +1207,7 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     if (false && this.kind.type != "EmptyExpression") {
                         return this.kind.toCString() + " " + this.name;
                     } else {
@@ -1215,47 +1215,47 @@ get isCUDA() : boolean {
                     }
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     return visit(this, data);
                 }
             }
             export class CompoundNode {
-                elements:Node[]
-                parent:Node
-                deleted:boolean;
+                elements: Node[]
+                parent: Node
+                deleted: boolean;
 
-                constructor(elements:any[]) {
+                constructor(elements: any[]) {
                     this.elements = isUndefined(elements) ? [] : elements.map((elem) => fromCena(elem));
                     var self = this;
-                    _.each(this.elements, (elem:Node) => elem.parent = self.parent);
+                    _.each(this.elements, (elem: Node) => elem.parent = self.parent);
                     this.deleted = false;
                 }
 
-                static fromCena(o:any):CompoundNode {
+                static fromCena(o: any): CompoundNode {
                     return new CompoundNode(o);
                 }
 
-                toEsprima():esprima.Syntax.Node[] {
+                toEsprima(): esprima.Syntax.Node[] {
                     if (this.deleted || isUndefined(this.elements)) {
                         return [];
                     } else {
@@ -1263,18 +1263,18 @@ get isCUDA() : boolean {
                     }
                 }
 
-                get children():Node[] {
+                get children(): Node[] {
                     return this.deleted ? [] : this.elements;
                 }
 
-                hasChildren():boolean {
+                hasChildren(): boolean {
                     return this.deleted ? false : _.isEmpty(this.elements);
                 }
 
 
-                postOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (!this.deleted) {
-                        var res:Node;
+                        var res: Node;
                         _.each(this.elements, (elem) => res = elem.postOrderTraverse(visit, data));
                         return res;
                     } else {
@@ -1282,9 +1282,9 @@ get isCUDA() : boolean {
                     }
                 }
 
-                preOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (!this.deleted) {
-                        var res:Node;
+                        var res: Node;
                         _.each(this.elements, (elem) => res = elem.preOrderTraverse(visit, data));
                         return res;
                     } else {
@@ -1292,9 +1292,9 @@ get isCUDA() : boolean {
                     }
                 }
 
-                inOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (!this.deleted) {
-                        var res:Node;
+                        var res: Node;
                         _.each(this.elements, (elem) => res = elem.inOrderTraverse(visit, data));
                         return res;
                     } else {
@@ -1302,9 +1302,9 @@ get isCUDA() : boolean {
                     }
                 }
 
-                reversePostOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (!this.deleted) {
-                        var res:Node;
+                        var res: Node;
                         _.forEachRight(this.elements, (elem) => res = elem.reversePostOrderTraverse(visit, data));
                         return res;
                     } else {
@@ -1312,9 +1312,9 @@ get isCUDA() : boolean {
                     }
                 }
 
-                reversePreOrderTraverse(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse(visit: (Node, any) => Node, data: any): Node {
                     if (!this.deleted) {
-                        var res:Node;
+                        var res: Node;
                         _.forEachRight(this.elements, (elem) => res = elem.reversePreOrderTraverse(visit, data));
                         return res;
                     } else {
@@ -1322,7 +1322,7 @@ get isCUDA() : boolean {
                     }
                 }
             }
-            function endsWith(subjectString:string, searchString:string, position?) {
+            function endsWith(subjectString: string, searchString: string, position?) {
                 if (position === undefined || position > subjectString.length) {
                     position = subjectString.length;
                 }
@@ -1332,33 +1332,33 @@ get isCUDA() : boolean {
             }
 
             export class BlockStatement extends Node {
-                body:CompoundNode
+                body: CompoundNode
 
-                constructor(loc:any, raw:string, cform:string, body:any) {
+                constructor(loc: any, raw: string, cform: string, body: any) {
                     super("BlockStatement", loc, raw, cform);
                     this.body = new CompoundNode(body);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):BlockStatement {
+                static fromCena(o: any): BlockStatement {
                     return new BlockStatement(o.loc, o.raw, o.cform, o.body);
                 }
 
-                toEsprima_():esprima.Syntax.BlockStatement {
+                toEsprima_(): esprima.Syntax.BlockStatement {
                     var self = this;
                     var idx = 0;
-                    var recordLine = function (nd:Node) {
+                    var recordLine = function(nd: Node) {
                         return builder.expressionStatement(
                             builder.assignmentExpression(
                                 "=",
                                 builder.memberExpression(builder.identifier("functionStack$", self.loc), builder.literal("position", self.loc), true, self.loc),
                                 builder.literal(isUndefined(nd) || isUndefined(nd.loc) ? self.loc.start.line : nd.loc.start.line, self.loc),
                                 self.loc
-                            ),
+                                ),
                             self.loc
-                        );
+                            );
                     }
-                    var handleEvent = function (nd:Node) {
+                    var handleEvent = function(nd: Node) {
                         return builder.ifStatement(
                             builder.callExpression(
                                 builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("checkEvent", self.loc), false, self.loc),
@@ -1368,7 +1368,7 @@ get isCUDA() : boolean {
                                     builder.identifier("functionStack$", self.loc)
                                 ], _.isObject),
                                 self.loc
-                            ),
+                                ),
                             builder.blockStatement([
                                 builder.expressionStatement(
                                     builder.callExpression(
@@ -1379,14 +1379,14 @@ get isCUDA() : boolean {
                                             builder.identifier("functionStack$", self.loc)
                                         ], _.isObject),
                                         self.loc
-                                    ), self.loc)], self.loc),
+                                        ), self.loc)], self.loc),
                             null,
                             self.loc
-                        );
+                            );
                     }
                     var stmts = _.map(this.body.elements,
-                        function (elem, idx):any[] {
-                            var nd:any;
+                        function(elem, idx): any[] {
+                            var nd: any;
                             if (elem.type === "EmptyExpression") {
                                 nd = null;
                             } else if (_.isObject(elem.toEsprima()) && elem.toEsprima().type === "BlockStatement") {
@@ -1406,17 +1406,17 @@ get isCUDA() : boolean {
                                 nd = null;
                             }
                             if (nd == null) {
-                                return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0 )) || isUndefined(elem) ? [] :
+                                return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0)) || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
-                                        [recordLine(elem), handleEvent(elem)];
+                                    [recordLine(elem), handleEvent(elem)];
                             } else if (inCUDAFunction) {
                                 return [recordLine(elem), handleEvent(elem), nd];
                             } else {
-                                return idx < 5 || (!inCUDAFunction && (idx % 10 !== 0 ))  || isUndefined(elem) ? [nd] :
-                                [recordLine(elem), handleEvent(elem), nd];
+                                return idx < 5 || (!inCUDAFunction && (idx % 10 !== 0)) || isUndefined(elem) ? [nd] :
+                                    [recordLine(elem), handleEvent(elem), nd];
                             }
                         }
-                    );
+                        );
                     stmts = _.reject(_.flatten(stmts), _.isNull);
                     return {
                         type: "BlockStatement",
@@ -1426,90 +1426,90 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toCString_():string {
-                    var prog:string[] = _.map(this.body.elements, (elem:Node) => elem.toCString());
-                    prog = _.map(prog, (elem:string) => endsWith(elem, ";") ? elem.substring(0, elem.length - 1).trim() : elem.trim());
-                    prog = _.filter(prog, (elem:string) => elem !== "");
+                toCString_(): string {
+                    var prog: string[] = _.map(this.body.elements, (elem: Node) => elem.toCString());
+                    prog = _.map(prog, (elem: string) => endsWith(elem, ";") ? elem.substring(0, elem.length - 1).trim() : elem.trim());
+                    prog = _.filter(prog, (elem: string) => elem !== "");
                     return "{\n" + prog.join(";\n") + "\n}";
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return this.body.children;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return this.body.hasChildren();
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.reversePostOrderTraverse(visit, data);
                 }
             }
             export class FunctionExpression extends Node {
-                attributes:string[]
-                ret:Node
-                id:Identifier
-                params:CompoundNode
-                body:Node
+                attributes: string[]
+                ret: Node
+                id: Identifier
+                params: CompoundNode
+                body: Node
 
-                constructor(loc:any, raw:string, cform:string, attributes:string[], ret:any, id:any, params:any[], body:any) {
+                constructor(loc: any, raw: string, cform: string, attributes: string[], ret: any, id: any, params: any[], body: any) {
                     super("FunctionExpression", loc, raw, cform);
                     this.attributes = attributes;
                     this.ret = isUndefined(ret) ? new EmptyExpression() : fromCena(ret);
-                    this.id = Identifier.fromCena({loc: loc, raw: raw, cform: cform, name: id});
+                    this.id = Identifier.fromCena({ loc: loc, raw: raw, cform: cform, name: id });
                     this.params = CompoundNode.fromCena(params);
                     if (isUndefined(body)) {
                         this.body = new EmptyExpression();
                     } else if (body.type === "BlockStatement") {
-                        var blk:BlockStatement = castTo<BlockStatement>(fromCena(body));
+                        var blk: BlockStatement = castTo<BlockStatement>(fromCena(body));
                         this.body = blk;
                     } else {
-                        var blk = BlockStatement.fromCena({loc: loc, raw: raw, cform: cform, body: body});
+                        var blk = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
                         this.body = blk;
                     }
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                 }
 
-                toEsprima_():esprima.Syntax.FunctionDeclaration {
+                toEsprima_(): esprima.Syntax.FunctionDeclaration {
                     var self = this;
                     saveConditions = true;
                     inCUDAFunction = !_.isEmpty(this.attributes);
                     var body = self.body.toEsprima();
                     if (body.type === "BlockStatement") {
-                        var blk:esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
-                        var threadParams:Node[] = [];
+                        var blk: esprima.Syntax.BlockStatement = castTo<esprima.Syntax.BlockStatement>(body);
+                        var threadParams: Node[] = [];
                         if (!_.isEmpty(self.attributes)) {
 
                             body = builder.functionExpression(
                                 builder.identifier(self.id.name + "$f_", self.loc),
                                 [/* builder.identifier("functionStack$", self.loc), */ builder.identifier("lineState$", self.loc)],
                                 body
-                            );
+                                );
                             blk = castTo<esprima.Syntax.BlockStatement>(
                                 builder.blockStatement([
                                     builder.returnStatement(body, self.loc)
@@ -1526,40 +1526,40 @@ get isCUDA() : boolean {
                         var idx = params.length;
                         var self = self;
                         _.eachRight(params,
-                            function (param) {
+                            function(param) {
                                 var sparam;
                                 if (param.type === "StringLiteral") {
                                     sparam = param;
-                                  } else if (param.type === "ParameterExpression") {
+                                } else if (param.type === "ParameterExpression") {
                                     var sloc = this.loc;
-                                    var id:Identifier = castTo<ParameterExpression>(param).id;
+                                    var id: Identifier = castTo<ParameterExpression>(param).id;
                                     sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
 
                                     blk.body.unshift(
-                                      builder.expressionStatement(
-                                      builder.callExpression(
-                                        builder.memberExpression(
-                                          builder.identifier(
-                                            "lib",
-                                            sloc
-                                            ),
-                                            builder.identifier(
-                                              "setType",
-                                              sloc
-                                              ),
-                                              false,
-                                              sloc
-                                              ),
-                                              _.reject([
-                                                builder.identifier("functionStack$", sloc),
-                                                builder.literal(id.name, id.loc),
-                                                castTo<ParameterExpression>(param).kind.toEsprima()
+                                        builder.expressionStatement(
+                                            builder.callExpression(
+                                                builder.memberExpression(
+                                                    builder.identifier(
+                                                        "lib",
+                                                        sloc
+                                                        ),
+                                                    builder.identifier(
+                                                        "setType",
+                                                        sloc
+                                                        ),
+                                                    false,
+                                                    sloc
+                                                    ),
+                                                _.reject([
+                                                    builder.identifier("functionStack$", sloc),
+                                                    builder.literal(id.name, id.loc),
+                                                    castTo<ParameterExpression>(param).kind.toEsprima()
                                                 ], _.isNull),
                                                 sloc
                                                 ), sloc)
-                                                );
+                                        );
                                 } else {
-                                    var id:Identifier = castTo<Identifier>(param);
+                                    var id: Identifier = castTo<Identifier>(param);
                                     sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
                                 }
                                 idx--;
@@ -1613,7 +1613,7 @@ get isCUDA() : boolean {
                                 });
                                 blk.body.unshift(k);
                             }
-                        );
+                            );
                         blk.body.unshift({
                             type: "VariableDeclaration",
                             loc: self.loc,
@@ -1667,265 +1667,265 @@ get isCUDA() : boolean {
                     saveConditions = false;
                     inCUDAFunction = false;
                     if (!_.isEmpty(self.attributes)) {
-                        return castTo<esprima.Syntax.FunctionDeclaration >({
+                        return castTo<esprima.Syntax.FunctionDeclaration>({
                             type: "FunctionDeclaration",
                             id: castTo<esprima.Syntax.Identifier>(self.id.toEsprima()),
                             params: [],
                             body: builder.blockStatement([
-                                    {
-                                        type: "FunctionDeclaration",
-                                        id: builder.identifier(self.id.name + "$gen_", self.id.loc),
-                                        params: [],
-                                        body: castTo<esprima.Syntax.BlockStatementOrExpression>(blk),
-                                        ret: self.ret.toEsprima(),
-                                        attributes: self.attributes,
-                                        defaults: [],
-                                        generator: false,
-                                        expression: false,
-                                        raw: self.raw, cform: self.cform,
-                                        loc: self.loc
-                                    },
-                                    builder.variableDeclaration(
-                                        "var",
-                                        [
-                                            builder.variableDeclarator(
-                                                builder.identifier("state$", self.loc),
-                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(0, self.loc), true, self.loc),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
-                                                builder.identifier("worker$", self.loc),
-                                                builder.callExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("initWorker", self.loc), false, self.loc), [builder.identifier("state$", self.loc)], self.loc)
-                                            )
-                                        ],
-                                        self.loc
-                                    ),
-                                    builder.variableDeclaration("var", [
-                                            builder.variableDeclarator(
-                                                builder.identifier("threadIdx", self.loc),
-                                                builder.objectExpression(
-                                                    _.map(["x", "y", "z"], (dim) =>
-                                                        builder.property("init", builder.identifier(dim, self.loc), builder.literal(0, self.loc), self.loc))
-                                                ),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
-                                                builder.identifier("threadFuns", self.loc),
-                                                builder.arrayExpression([], self.loc),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
-                                                builder.identifier("threadStates", self.loc),
-                                                builder.arrayExpression([], self.loc),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
-                                                builder.identifier("blockIdx", self.loc),
-                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(1, self.loc), true, self.loc),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
-                                                builder.identifier("blockDim", self.loc),
-                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc),
-                                                self.loc
-                                            ),
-                                            builder.variableDeclarator(
-                                                builder.identifier("gridDim", self.loc),
-                                                builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(3, self.loc), true, self.loc),
-                                                self.loc
-                                            )
-                                        ],
-                                        self.loc
-                                    ),
-                                    builder.variableDeclaration("var",
-                                        _.map(this.params.elements, (param, idx) =>
-                                                builder.variableDeclarator(
-                                                    param.toEsprima(),
-                                                    builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
-                                                    self.loc
-                                                )
-                                        ),
-                                        self.loc
-                                    ),
-                                    builder.forStatement(
-                                        builder.assignmentExpression(
-                                            "=",
-                                            builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                builder.literal("z", self.loc), true, self.loc),
-                                            builder.literal(0, self.loc),
+                                {
+                                    type: "FunctionDeclaration",
+                                    id: builder.identifier(self.id.name + "$gen_", self.id.loc),
+                                    params: [],
+                                    body: castTo<esprima.Syntax.BlockStatementOrExpression>(blk),
+                                    ret: self.ret.toEsprima(),
+                                    attributes: self.attributes,
+                                    defaults: [],
+                                    generator: false,
+                                    expression: false,
+                                    raw: self.raw, cform: self.cform,
+                                    loc: self.loc
+                                },
+                                builder.variableDeclaration(
+                                    "var",
+                                    [
+                                        builder.variableDeclarator(
+                                            builder.identifier("state$", self.loc),
+                                            builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(0, self.loc), true, self.loc),
                                             self.loc
+                                            ),
+                                        builder.variableDeclarator(
+                                            builder.identifier("worker$", self.loc),
+                                            builder.callExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("initWorker", self.loc), false, self.loc), [builder.identifier("state$", self.loc)], self.loc)
+                                            )
+                                    ],
+                                    self.loc
+                                    ),
+                                builder.variableDeclaration("var", [
+                                    builder.variableDeclarator(
+                                        builder.identifier("threadIdx", self.loc),
+                                        builder.objectExpression(
+                                            _.map(["x", "y", "z"], (dim) =>
+                                                builder.property("init", builder.identifier(dim, self.loc), builder.literal(0, self.loc), self.loc))
+                                            ),
+                                        self.loc
                                         ),
-                                        builder.binaryExpression("<",
-                                            builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                builder.literal("z", self.loc), true, self.loc),
-                                            builder.logicalExpression("||",
-                                                builder.memberExpression(builder.identifier("blockDim", self.loc),
-                                                    builder.literal("z", self.loc), true, self.loc),
-                                                builder.literal(1, self.loc)),
+                                    builder.variableDeclarator(
+                                        builder.identifier("threadFuns", self.loc),
+                                        builder.arrayExpression([], self.loc),
+                                        self.loc
+                                        ),
+                                    builder.variableDeclarator(
+                                        builder.identifier("threadStates", self.loc),
+                                        builder.arrayExpression([], self.loc),
+                                        self.loc
+                                        ),
+                                    builder.variableDeclarator(
+                                        builder.identifier("blockIdx", self.loc),
+                                        builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(1, self.loc), true, self.loc),
+                                        self.loc
+                                        ),
+                                    builder.variableDeclarator(
+                                        builder.identifier("blockDim", self.loc),
+                                        builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc),
+                                        self.loc
+                                        ),
+                                    builder.variableDeclarator(
+                                        builder.identifier("gridDim", self.loc),
+                                        builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(3, self.loc), true, self.loc),
+                                        self.loc
+                                        )
+                                ],
+                                    self.loc
+                                    ),
+                                builder.variableDeclaration("var",
+                                    _.map(this.params.elements, (param, idx) =>
+                                        builder.variableDeclarator(
+                                            param.toEsprima(),
+                                            builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
                                             self.loc
+                                            )
                                         ),
-                                        builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                            builder.literal("z", self.loc), true, self.loc), false, self.loc),
-                                        builder.blockStatement([
-                                            builder.forStatement(
-                                                builder.assignmentExpression(
-                                                    "=",
-                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                        builder.literal("y", self.loc), true, self.loc),
-                                                    builder.literal(0, self.loc),
-                                                    self.loc
+                                    self.loc
+                                    ),
+                                builder.forStatement(
+                                    builder.assignmentExpression(
+                                        "=",
+                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                            builder.literal("z", self.loc), true, self.loc),
+                                        builder.literal(0, self.loc),
+                                        self.loc
+                                        ),
+                                    builder.binaryExpression("<",
+                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                            builder.literal("z", self.loc), true, self.loc),
+                                        builder.logicalExpression("||",
+                                            builder.memberExpression(builder.identifier("blockDim", self.loc),
+                                                builder.literal("z", self.loc), true, self.loc),
+                                            builder.literal(1, self.loc)),
+                                        self.loc
+                                        ),
+                                    builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                        builder.literal("z", self.loc), true, self.loc), false, self.loc),
+                                    builder.blockStatement([
+                                        builder.forStatement(
+                                            builder.assignmentExpression(
+                                                "=",
+                                                builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                    builder.literal("y", self.loc), true, self.loc),
+                                                builder.literal(0, self.loc),
+                                                self.loc
                                                 ),
-                                                builder.binaryExpression("<",
-                                                    builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                            builder.binaryExpression("<",
+                                                builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                    builder.literal("y", self.loc), true, self.loc),
+                                                builder.logicalExpression("||",
+                                                    builder.memberExpression(builder.identifier("blockDim", self.loc),
                                                         builder.literal("y", self.loc), true, self.loc),
-                                                    builder.logicalExpression("||",
-                                                        builder.memberExpression(builder.identifier("blockDim", self.loc),
-                                                            builder.literal("y", self.loc), true, self.loc),
-                                                        builder.literal(1, self.loc)),
-                                                    self.loc
+                                                    builder.literal(1, self.loc)),
+                                                self.loc
                                                 ),
-                                                builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                    builder.literal("y", self.loc), true, self.loc), false, self.loc),
-                                                builder.blockStatement([
-                                                        builder.forStatement(
-                                                            builder.assignmentExpression(
-                                                                "=",
-                                                                builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                                    builder.literal("x", self.loc), true, self.loc),
-                                                                builder.literal(0, self.loc),
-                                                                self.loc
-                                                            ),
-                                                            builder.binaryExpression("<",
-                                                                builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                                    builder.literal("x", self.loc), true, self.loc),
-                                                                builder.logicalExpression("||",
-                                                                    builder.memberExpression(builder.identifier("blockDim", self.loc),
-                                                                        builder.literal("x", self.loc), true, self.loc),
-                                                                    builder.literal(1, self.loc)),
-                                                                self.loc
-                                                            ),
-                                                            builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
-                                                                builder.literal("x", self.loc), true, self.loc), false, self.loc),
-                                                            builder.blockStatement([
+                                            builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                builder.literal("y", self.loc), true, self.loc), false, self.loc),
+                                            builder.blockStatement([
+                                                builder.forStatement(
+                                                    builder.assignmentExpression(
+                                                        "=",
+                                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                            builder.literal("x", self.loc), true, self.loc),
+                                                        builder.literal(0, self.loc),
+                                                        self.loc
+                                                        ),
+                                                    builder.binaryExpression("<",
+                                                        builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                            builder.literal("x", self.loc), true, self.loc),
+                                                        builder.logicalExpression("||",
+                                                            builder.memberExpression(builder.identifier("blockDim", self.loc),
+                                                                builder.literal("x", self.loc), true, self.loc),
+                                                            builder.literal(1, self.loc)),
+                                                        self.loc
+                                                        ),
+                                                    builder.updateExpression("++", builder.memberExpression(builder.identifier("threadIdx", self.loc),
+                                                        builder.literal("x", self.loc), true, self.loc), false, self.loc),
+                                                    builder.blockStatement([
 
-                                                                builder.expressionStatement(
-                                                                    builder.callExpression(
-                                                                        builder.memberExpression(
-                                                                            builder.identifier("threadStates", self.loc),
-                                                                            builder.identifier("push", self.loc),
-                                                                            false,
-                                                                            self.loc
-                                                                        ),
-                                                                        [builder.literal("init", self.loc)
-                                                                        ])),
-                                                                builder.expressionStatement(
-                                                                    builder.callExpression(
-                                                                        builder.memberExpression(
-                                                                            builder.identifier("threadFuns", self.loc),
-                                                                            builder.identifier("push", self.loc),
-                                                                            false,
-                                                                            self.loc
-                                                                        ),
-                                                                        [
-                                                                            callExpression(
-                                                                                builder.identifier(self.id.name + "$gen_", self.id.loc),
-                                                                                _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
-                                                                                self.loc
-                                                                            )
-                                                                        ],
-                                                                        self.loc
-                                                                    ),
+                                                        builder.expressionStatement(
+                                                            builder.callExpression(
+                                                                builder.memberExpression(
+                                                                    builder.identifier("threadStates", self.loc),
+                                                                    builder.identifier("push", self.loc),
+                                                                    false,
                                                                     self.loc
-                                                                )], self.loc),
+                                                                    ),
+                                                                [builder.literal("init", self.loc)
+                                                                ])),
+                                                        builder.expressionStatement(
+                                                            builder.callExpression(
+                                                                builder.memberExpression(
+                                                                    builder.identifier("threadFuns", self.loc),
+                                                                    builder.identifier("push", self.loc),
+                                                                    false,
+                                                                    self.loc
+                                                                    ),
+                                                                [
+                                                                    callExpression(
+                                                                        builder.identifier(self.id.name + "$gen_", self.id.loc),
+                                                                        _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
+                                                                        self.loc
+                                                                        )
+                                                                ],
+                                                                self.loc
+                                                                ),
                                                             self.loc
-                                                        )],
+                                                            )], self.loc),
                                                     self.loc
+                                                    )],
+                                                self.loc
                                                 )
                                             )], self.loc)
                                     ),
-                                    builder.returnStatement(builder.functionExpression(null, [], builder.blockStatement([
-                                        builder.whileStatement(
-                                            builder.callExpression(
-                                                builder.memberExpression(
-                                                    builder.identifier("_", self.loc),
-                                                    builder.identifier("all", self.loc),
-                                                    false,
-                                                    self.loc
+                                builder.returnStatement(builder.functionExpression(null, [], builder.blockStatement([
+                                    builder.whileStatement(
+                                        builder.callExpression(
+                                            builder.memberExpression(
+                                                builder.identifier("_", self.loc),
+                                                builder.identifier("all", self.loc),
+                                                false,
+                                                self.loc
                                                 ),
-                                                [
-                                                    builder.callExpression(
-                                                        builder.memberExpression(
-                                                            builder.identifier("_", self.loc),
-                                                            builder.identifier("map", self.loc),
-                                                            false,
-                                                            self.loc
+                                            [
+                                                builder.callExpression(
+                                                    builder.memberExpression(
+                                                        builder.identifier("_", self.loc),
+                                                        builder.identifier("map", self.loc),
+                                                        false,
+                                                        self.loc
                                                         ),
-                                                        [builder.identifier("threadFuns", self.loc),
-                                                            builder.functionExpression(null,
-                                                                [builder.identifier("threadFun", self.loc), builder.identifier("idx", self.loc)],
-                                                                builder.blockStatement([
-                                                                    builder.returnStatement(
-                                                                        builder.assignmentExpression(
-                                                                            "=",
+                                                    [builder.identifier("threadFuns", self.loc),
+                                                        builder.functionExpression(null,
+                                                            [builder.identifier("threadFun", self.loc), builder.identifier("idx", self.loc)],
+                                                            builder.blockStatement([
+                                                                builder.returnStatement(
+                                                                    builder.assignmentExpression(
+                                                                        "=",
+                                                                        builder.memberExpression(
+                                                                            builder.identifier("threadStates", self.loc),
+                                                                            builder.identifier("idx", self.loc),
+                                                                            true,
+                                                                            self.loc
+                                                                            ),
+                                                                        builder.callExpression(builder.identifier("threadFun", self.loc), [
                                                                             builder.memberExpression(
                                                                                 builder.identifier("threadStates", self.loc),
                                                                                 builder.identifier("idx", self.loc),
                                                                                 true,
                                                                                 self.loc
-                                                                            ),
-                                                                            builder.callExpression(builder.identifier("threadFun", self.loc), [
-                                                                                builder.memberExpression(
-                                                                                    builder.identifier("threadStates", self.loc),
-                                                                                    builder.identifier("idx", self.loc),
-                                                                                    true,
-                                                                                    self.loc
                                                                                 )], self.loc),
-                                                                            self.loc
+                                                                        self.loc
                                                                         )
                                                                     )
-                                                                ], self.loc))
-                                                        ],
-                                                        self.loc
+                                                            ], self.loc))
+                                                    ],
+                                                    self.loc
                                                     ),
-                                                    builder.functionExpression(null,
-                                                        [builder.identifier("state", self.loc)],
-                                                        builder.blockStatement([
-                                                            builder.returnStatement(
-                                                                builder.logicalExpression(
-                                                                    "&&",
-                                                                    builder.unaryExpression(
-                                                                      "!",
+                                                builder.functionExpression(null,
+                                                    [builder.identifier("state", self.loc)],
+                                                    builder.blockStatement([
+                                                        builder.returnStatement(
+                                                            builder.logicalExpression(
+                                                                "&&",
+                                                                builder.unaryExpression(
+                                                                    "!",
                                                                     builder.callExpression(
                                                                         builder.memberExpression(
                                                                             builder.identifier("_", self.loc),
                                                                             builder.identifier("isUndefined", self.loc),
                                                                             false,
                                                                             self.loc
-                                                                        ),
+                                                                            ),
                                                                         [builder.identifier("state", self.loc)],
                                                                         self.loc
-                                                                    ), true, self.loc),
-                                                                    builder.binaryExpression(
-                                                                        "!==",
-                                                                        builder.identifier("state", self.loc),
-                                                                        builder.literal("finish", self.loc),
-                                                                        self.loc
-                                                                    ),
+                                                                        ), true, self.loc),
+                                                                builder.binaryExpression(
+                                                                    "!==",
+                                                                    builder.identifier("state", self.loc),
+                                                                    builder.literal("finish", self.loc),
                                                                     self.loc
-                                                                ),
+                                                                    ),
                                                                 self.loc
+                                                                ),
+                                                            self.loc
                                                             )
-                                                        ], self.loc))
+                                                    ], self.loc))
 
-                                                ],
-                                                self.loc
-                                            ),
-                                            builder.blockStatement([], self.loc),
+                                            ],
                                             self.loc
+                                            ),
+                                        builder.blockStatement([], self.loc),
+                                        self.loc
                                         )])))
-                                ],
+                            ],
                                 self.loc
-                            ),
+                                ),
                             ret: self.ret.toEsprima(),
                             attributes: self.attributes,
                             defaults: [],
@@ -1935,7 +1935,7 @@ get isCUDA() : boolean {
                             loc: self.loc
                         })
                     } else {
-                        return castTo<esprima.Syntax.FunctionDeclaration >({
+                        return castTo<esprima.Syntax.FunctionDeclaration>({
                             type: "FunctionDeclaration",
                             id: castTo<esprima.Syntax.Identifier>(this.id.toEsprima()),
                             params: [],
@@ -1951,19 +1951,19 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toCString_():string {
-                    return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, (p:Node) => p.toCString()).join(", ") + ") " + this.body.toCString();
+                toCString_(): string {
+                    return [this.attributes].join(" ") + this.ret.toCString() + " " + this.id.toCString() + " (" + _.map(this.params.elements, (p: Node) => p.toCString()).join(", ") + ") " + this.body.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return _.flatten<Node>([this.body, this.ret, this.id, this.params.children]);
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return this.body.hasChildren();
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.ret.postOrderTraverse(visit, data);
                     this.id.postOrderTraverse(visit, data);
@@ -1971,7 +1971,7 @@ get isCUDA() : boolean {
                     return this.body.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.ret.preOrderTraverse(visit, data);
                     this.id.preOrderTraverse(visit, data);
@@ -1979,7 +1979,7 @@ get isCUDA() : boolean {
                     return this.body.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.ret.inOrderTraverse(visit, data);
                     this.id.inOrderTraverse(visit, data);
@@ -1987,7 +1987,7 @@ get isCUDA() : boolean {
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePostOrderTraverse(visit, data);
                     this.params.reversePostOrderTraverse(visit, data);
                     this.id.reversePostOrderTraverse(visit, data);
@@ -1995,7 +1995,7 @@ get isCUDA() : boolean {
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePreOrderTraverse(visit, data);
                     this.params.reversePreOrderTraverse(visit, data);
                     this.id.reversePreOrderTraverse(visit, data);
@@ -2004,12 +2004,12 @@ get isCUDA() : boolean {
                 }
             }
             export class CallExpression extends Node {
-                callee:Identifier
-                arguments:CompoundNode
-                config:Node[]
-                isCUDA:boolean = false
+                callee: Identifier
+                arguments: CompoundNode
+                config: Node[]
+                isCUDA: boolean = false
 
-                constructor(loc:any, raw:string, cform:string, callee:any, arguments:any[], config?:any) {
+                constructor(loc: any, raw: string, cform: string, callee: any, arguments: any[], config?: any) {
                     super("CallExpression", loc, raw, cform);
                     if (lib.utils.isString(callee)) {
                         this.callee = new Identifier(this.loc, callee, callee, callee);
@@ -2017,32 +2017,32 @@ get isCUDA() : boolean {
                         this.callee = Identifier.fromCena(callee);
                     }
                     this.arguments = new CompoundNode(arguments);
-                    this.config = isUndefined(config) ? [] : _.map(config, (c:any) => fromCena(c));
+                    this.config = isUndefined(config) ? [] : _.map(config, (c: any) => fromCena(c));
                     this.isCUDA = !isUndefined(config);
                     if (this.callee.name === "sizeof") {
-                        var c:TypeExpression = castTo<TypeExpression>(fromCena(arguments[0]));
+                        var c: TypeExpression = castTo<TypeExpression>(fromCena(arguments[0]));
                         this.arguments = new CompoundNode([c.ebases[0]])
                     }
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.arguments), o.config);
                 }
 
 
-                toEsprima_():esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     var self = this;
-                    var extraArgs:string[] = [];
+                    var extraArgs: string[] = [];
                     var callee = this.callee.toEsprima();
-                    var args:any = this.arguments.elements;
+                    var args: any = this.arguments.elements;
                     var loc = this.callee.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    );
+                        );
                     if (this.config.length > 0) {
-                        _.each(args, (arg:any) => {
+                        _.each(args, (arg: any) => {
                             if (_.isFunction(arg.makeCUDAReference)) {
                                 arg.makeCUDAReference();
                             }
@@ -2053,40 +2053,40 @@ get isCUDA() : boolean {
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "wb",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         callee = builder.memberExpression(
                             libwb,
                             callee,
                             false,
                             sloc
-                        );
+                            );
                     } else if (startsWith(this.callee.name, "cuda")) {
                         var libcuda = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "cuda",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         callee = builder.memberExpression(
                             libcuda,
                             callee,
                             false,
                             sloc
-                        );
-                        if (_.any(args, (arg:Node) => arg.type === "ReferenceExpression" || (arg.type === "Identifier" && castTo<Identifier>(arg).kind.type === "ReferenceType"))) {
+                            );
+                        if (_.any(args, (arg: Node) => arg.type === "ReferenceExpression" || (arg.type === "Identifier" && castTo<Identifier>(arg).kind.type === "ReferenceType"))) {
                             if (this.callee.name === "cudaMalloc") {
                                 castTo<ReferenceExpression>(args[0]).makeCUDAReference();
                             } else if (this.callee.name === "cudaMemcpy") {
@@ -2104,41 +2104,41 @@ get isCUDA() : boolean {
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "c",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         callee = builder.memberExpression(
                             libc,
                             callee,
                             false,
                             sloc
-                        );
+                            );
                     } else if (_.contains(["ceil", "floor"], this.callee.name)) {
                         var libm = builder.memberExpression(
                             builder.identifier(
                                 "lib",
                                 sloc
-                            ),
+                                ),
                             builder.identifier(
                                 "m",
                                 sloc
-                            ),
+                                ),
                             false,
                             sloc
-                        );
+                            );
                         callee = builder.memberExpression(
                             libm,
                             callee,
                             false,
                             sloc
-                        );
+                            );
                     }
-                    var getIdentifiers = function (nd:Node) {
+                    var getIdentifiers = function(nd: Node) {
                         if (nd.type === "Identifier") {
                             return [nd];
                         } else if (nd.hasChildren()) {
@@ -2148,7 +2148,7 @@ get isCUDA() : boolean {
                         }
                     }
                     if (this.callee.name == "malloc" || this.callee.name === "cudaMalloc") {
-                        extraArgs = _.map(_.flatten(_.map(this.arguments.elements, getIdentifiers)), (a:Identifier) => builder.literal(a.name, this.loc));
+                        extraArgs = _.map(_.flatten(_.map(this.arguments.elements, getIdentifiers)), (a: Identifier) => builder.literal(a.name, this.loc));
                     }
                     if (this.config.length > 0) {
                         return builder.blockStatement(_.flatten([
@@ -2159,38 +2159,38 @@ get isCUDA() : boolean {
                                         builder.variableDeclarator(
                                             builder.identifier(name, self.loc),
                                             self.config[idx].toEsprima(), self.loc
-                                        )
+                                            )
                                     ],
                                     self.loc
-                                )
-                            ),
+                                    )
+                                ),
                             builder.variableDeclaration("var",
                                 _.map(["gridDim$", "blockDim$"], (d, cn) => builder.variableDeclarator(
                                     builder.identifier(d, self.loc),
                                     builder.objectExpression(
                                         _.map(["x", "y", "z"], (dim, idx) => {
-                                                var id = builder.identifier("p_" + d, self.loc);
-                                                return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(
-                                                    builder.binaryExpression(
-                                                        ">=",
-                                                        builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc),
-                                                        builder.literal(idx, self.loc),
-                                                        self.loc
-                                                    ),
-                                                    builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc),
-                                                    builder.literal(1, self.loc),
+                                            var id = builder.identifier("p_" + d, self.loc);
+                                            return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(
+                                                builder.binaryExpression(
+                                                    ">=",
+                                                    builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc),
+                                                    builder.literal(idx, self.loc),
                                                     self.loc
+                                                    ),
+                                                builder.memberExpression(id, builder.literal(idx, self.loc), true, self.loc),
+                                                builder.literal(1, self.loc),
+                                                self.loc
                                                 ));
-                                            }
-                                        ),
+                                        }
+                                            ),
                                         self.loc
-                                    ),
+                                        ),
                                     self.loc
-                                )),
+                                    )),
                                 self.loc
-                            ),
+                                ),
                             _.reduceRight(["blockIdxZ", "blockIdxY", "blockIdxX"],
-                                function (res, id) {
+                                function(res, id) {
                                     return builder.forStatement(
                                         builder.variableDeclaration(
                                             "var",
@@ -2198,9 +2198,9 @@ get isCUDA() : boolean {
                                                 builder.variableDeclarator(
                                                     builder.identifier(id, self.loc),
                                                     builder.literal(0, self.loc)
-                                                )],
+                                                    )],
                                             self.loc
-                                        ),
+                                            ),
                                         builder.binaryExpression(
                                             "<",
                                             builder.identifier(id, self.loc),
@@ -2209,13 +2209,13 @@ get isCUDA() : boolean {
                                                 builder.identifier(id[id.length - 1].toLowerCase(), self.loc),
                                                 false,
                                                 self.loc
-                                            ),
+                                                ),
                                             self.loc
-                                        ),
+                                            ),
                                         builder.updateExpression("++", builder.identifier(id, self.loc), true, self.loc),
                                         builder.blockStatement(res ? [res] : [], self.loc),
                                         self.loc
-                                    )
+                                        )
                                 },
                                 builder.expressionStatement(
                                     callExpression(
@@ -2224,67 +2224,67 @@ get isCUDA() : boolean {
                                                 builder.identifier(
                                                     "lib",
                                                     self.loc
-                                                ),
+                                                    ),
                                                 builder.identifier(
                                                     "parallel",
                                                     self.loc
-                                                ),
+                                                    ),
                                                 false,
                                                 self.loc
-                                            ),
+                                                ),
                                             builder.identifier(
                                                 "scheduleThread",
                                                 self.loc
-                                            ),
+                                                ),
                                             false,
                                             self.loc
-                                        ),
+                                            ),
                                         [
                                             callExpression(
                                                 builder.functionExpression(null, [builder.identifier("state$", self.loc), builder.identifier("blockIdx$", self.loc)],
                                                     builder.blockStatement([
-                                                            builder.expressionStatement(
-                                                                builder.functionExpression(null, [],
-                                                                    builder.blockStatement([
-                                                                        builder.expressionStatement(
-                                                                            callExpression(
-                                                                                this.callee.toEsprima(),
-                                                                                _.map(["blockIdx$", "blockDim$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a:Node) => a.toEsprima()))
+                                                        builder.expressionStatement(
+                                                            builder.functionExpression(null, [],
+                                                                builder.blockStatement([
+                                                                    builder.expressionStatement(
+                                                                        callExpression(
+                                                                            this.callee.toEsprima(),
+                                                                            _.map(["blockIdx$", "blockDim$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a: Node) => a.toEsprima()))
                                                                             ),
-                                                                            self.loc
+                                                                        self.loc
                                                                         )], self.loc),
-                                                                    self.loc
-                                                                ),
                                                                 self.loc
+                                                                ),
+                                                            self.loc
                                                             )],
                                                         self.loc
-                                                    ),
+                                                        ),
                                                     self.loc
-                                                ),
+                                                    ),
                                                 ["gridDim", "blockDim"].map((gb) =>
-                                                        builder.objectExpression(["x", "y", "z"].map((dim:string) =>
-                                                                builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc)
+                                                    builder.objectExpression(["x", "y", "z"].map((dim: string) =>
+                                                        builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc)
                                                         ), self.loc)
-                                                ),
+                                                    ),
                                                 self.loc
-                                            )
+                                                )
                                         ],
                                         self.loc
-                                    ),
+                                        ),
                                     self.loc
-                                )
-                            )]), self.loc);
+                                    )
+                                )]), self.loc);
                     } else {
-                        args = _.map(this.config.concat(args), (a:Node) => a.toEsprima());
+                        args = _.map(this.config.concat(args), (a: Node) => a.toEsprima());
                         if (!_.isEmpty(extraArgs)) {
                             args.push(builder.arrayExpression(
                                 extraArgs,
                                 this.loc
-                            ));
+                                ));
                         }
-                        return castTo<esprima.Syntax.CallExpression >({
+                        return castTo<esprima.Syntax.CallExpression>({
                             type: "CallExpression",
-                            config: _.map(this.config, (c:Node) => c.toEsprima()),
+                            config: _.map(this.config, (c: Node) => c.toEsprima()),
                             isCUDA: this.isCUDA,
                             callee: castTo<esprima.Syntax.Expression>(callee),
                             arguments: [builder.identifier("state$", self.loc)].concat(args),
@@ -2294,175 +2294,175 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toCString_():string {
-                    var ret:string = this.callee.toCString();
+                toCString_(): string {
+                    var ret: string = this.callee.toCString();
                     if (this.isCUDA) {
-                        ret += "<<<" + _.map(this.config, (c:Node) => c.toCString()).join(", ") + ">>>";
+                        ret += "<<<" + _.map(this.config, (c: Node) => c.toCString()).join(", ") + ">>>";
                     }
-                    ret += " (" + _.map(this.arguments.elements, (p:Node) => p.toCString()).join(", ") + ") ";
+                    ret += " (" + _.map(this.arguments.elements, (p: Node) => p.toCString()).join(", ") + ") ";
                     return ret;
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return _.flatten<Node>([this.callee, this.arguments.children]);
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return false;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.callee.postOrderTraverse(visit, data);
-                    _.each(this.config, (c:Node) => c.postOrderTraverse(visit, data));
+                    _.each(this.config, (c: Node) => c.postOrderTraverse(visit, data));
                     return this.arguments.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.callee.preOrderTraverse(visit, data);
-                    _.each(this.config, (c:Node) => c.postOrderTraverse(visit, data));
+                    _.each(this.config, (c: Node) => c.postOrderTraverse(visit, data));
                     this.arguments.preOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.callee.inOrderTraverse(visit, data);
-                    _.each(this.config, (c:Node) => c.inOrderTraverse(visit, data));
+                    _.each(this.config, (c: Node) => c.inOrderTraverse(visit, data));
                     return this.arguments.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.arguments.reversePostOrderTraverse(visit, data);
-                    _.each(this.config, (c:Node) => c.reversePostOrderTraverse(visit, data));
+                    _.each(this.config, (c: Node) => c.reversePostOrderTraverse(visit, data));
                     this.callee.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.arguments.reversePreOrderTraverse(visit, data);
-                    _.each(this.config, (c:Node) => c.reversePreOrderTraverse(visit, data));
+                    _.each(this.config, (c: Node) => c.reversePreOrderTraverse(visit, data));
                     this.callee.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class ParenExpression extends Node {
-                expression:Node
+                expression: Node
 
-                constructor(loc:any, raw:string, cform:string, expression:any) {
+                constructor(loc: any, raw: string, cform: string, expression: any) {
                     super("ParenExpression", loc, raw, cform);
                     this.expression = fromCena(expression);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ParenExpression(o.loc, o.raw, o.cform, o.expression);
                 }
 
-                toEsprima_():esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
                     return castTo<esprima.Syntax.Expression>(this.expression.toEsprima());
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "(" + this.expression.toCString() + ")";
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.expression];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class DereferenceExpression extends Node {
-                argument:Node
-                rawArgument:any
+                argument: Node
+                rawArgument: any
 
-                constructor(loc:any, raw:string, cform:string, argument:any) {
+                constructor(loc: any, raw: string, cform: string, argument: any) {
                     super("DereferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new DereferenceExpression(o.loc, o.raw, o.cform, o.argument);
                 }
 
-                toEsprima_():esprima.Syntax.CallExpression {
-                    var call:CallExpression = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
+                toEsprima_(): esprima.Syntax.CallExpression {
+                    var call: CallExpression = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
                     return castTo<esprima.Syntax.CallExpression>(call.toEsprima());
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "&" + this.argument.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class ReferenceExpression extends Node {
-                argument:Node
-                rawArgument:any
-                isCUDA:boolean
+                argument: Node
+                rawArgument: any
+                isCUDA: boolean
 
-                constructor(loc:any, raw:string, cform:string, argument:any) {
+                constructor(loc: any, raw: string, cform: string, argument: any) {
                     super("ReferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
@@ -2470,7 +2470,7 @@ get isCUDA() : boolean {
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ReferenceExpression(o.loc, o.raw, o.cform, o.argument);
                 }
 
@@ -2484,63 +2484,63 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toEsprima_():esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     var loc = this.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    );
+                        );
                     var refname = this.isCUDA ? "cudaReference" : "reference";
                     var ref = builder.memberExpression(builder.identifier(
-                      "lib",
-                      sloc
-                      ), builder.identifier(refname, sloc), false, sloc);
+                        "lib",
+                        sloc
+                        ), builder.identifier(refname, sloc), false, sloc);
                     return callExpression(ref, [builder.identifier("functionStack$", sloc), this.argument.toEsprima()], sloc);
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return "*" + this.argument.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class UnaryExpression extends Node {
-                operator:string
-                rawArgument:any
-                argument:Node
+                operator: string
+                rawArgument: any
+                argument: Node
 
-                constructor(loc:any, raw:string, cform:string, operator:string, argument:any) {
+                constructor(loc: any, raw: string, cform: string, operator: string, argument: any) {
                     super("UnaryExpression", loc, raw, cform);
                     this.operator = operator
                     this.rawArgument = argument;
@@ -2548,7 +2548,7 @@ get isCUDA() : boolean {
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     if (isUndefined(o.operator)) {
                         return new ErrorNode("Invalid UnaryExpression");
                     } else if (o.operator === "*") {
@@ -2560,7 +2560,7 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toEsprima_():any {
+                toEsprima_(): any {
                     if (this.operator === "*") {
                         var dnd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
                         return dnd.toEsprima();
@@ -2579,56 +2579,56 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.operator + this.argument.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
-            function makeOp(op:string, symbol:string):Identifier {
+            function makeOp(op: string, symbol: string): Identifier {
                 return new Identifier(unknownLocation(), symbol, symbol, op);
             }
 
             export class BinaryExpression extends Node {
-                operator:string
-                right:Node
-                left:Node
-                static PropertyTable:{
+                operator: string
+                right: Node
+                left: Node
+                static PropertyTable: {
                     [key: string]: Identifier;
                 } = undefined;
 
-                constructor(loc:any, raw:string, cform:string, operator:string, right:any, left:any) {
+                constructor(loc: any, raw: string, cform: string, operator: string, right: any, left: any) {
                     super("BinaryExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
@@ -2661,17 +2661,17 @@ get isCUDA() : boolean {
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new BinaryExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                 }
 
-                get property():Identifier {
+                get property(): Identifier {
                     return BinaryExpression.PropertyTable[this.operator];
                 }
 
-                toEsprima_():esprima.Syntax.CallExpression {
+                toEsprima_(): esprima.Syntax.CallExpression {
                     if (fakeMath) {
-                        var method:esprima.Syntax.MemberExpression = {
+                        var method: esprima.Syntax.MemberExpression = {
                             type: "MemberExpression",
                             object: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
                             property: castTo<esprima.Syntax.IdentifierOrExpression>(this.property),
@@ -2697,55 +2697,55 @@ get isCUDA() : boolean {
                                 this.left.toEsprima(),
                                 this.right.toEsprima(),
                                 self.loc
-                            )
+                                )
                         } else {
                             return builder.binaryExpression(
                                 this.operator,
                                 this.left.toEsprima(),
                                 this.right.toEsprima(),
                                 self.loc
-                            )
+                                )
                         }
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.left, this.right];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.postOrderTraverse(visit, data);
                     this.right.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.preOrderTraverse(visit, data);
                     return this.right.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.inOrderTraverse(visit, data);
                     visit(this, data);
                     return this.right.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.reversePostOrderTraverse(visit, data);
                     return this.right.reversePostOrderTraverse(visit, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.right.reversePreOrderTraverse(visit, data);
                     this.left.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
@@ -2758,54 +2758,54 @@ get isCUDA() : boolean {
                     super("VariableDeclarator", unknownLocation(), "", "");
                 }
 
-                toEsprima_():esprima.Syntax.Node {
-                    return ({type: "Identifier", name: "undefined"});
+                toEsprima_(): esprima.Syntax.Node {
+                    return ({ type: "Identifier", name: "undefined" });
                 }
             }
 
             export class VariableDeclarator extends Node {
-                init:Node
-                id:Identifier
-                kind:Node
+                init: Node
+                id: Identifier
+                kind: Node
 
-                constructor(loc:any, raw:string, cform:string, init:any, id:any, kind:any) {
+                constructor(loc: any, raw: string, cform: string, init: any, id: any, kind: any) {
                     super("VariableDeclarator", loc, raw, cform);
                     this.init = isUndefined(init) ? new UndefinedExpression() : fromCena(init);
                     this.id = castTo<Identifier>(fromCena(id));
                     this.kind = _.isUndefined(kind) ? this.id.kind : fromCena(kind);
                     if (!_.isUndefined(kind)) {
-                      this.id.kind = this.kind;
+                        this.id.kind = this.kind;
                     }
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id, o.kind);
                 }
 
-                toEsprima_():esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
 
                     var loc = this.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    );
-                        var id = {
-                            type: "MemberExpression",
-                            computed: true,
-                            object: castTo<esprima.Syntax.Identifier>({
-                                type: "Identifier",
-                                name: "functionStack$",
-                                raw: this.raw, cform: this.cform,
-                                loc: this.loc
-                            }),
-                            property: builder.literal(this.id.name, this.id.loc),
+                        );
+                    var id = {
+                        type: "MemberExpression",
+                        computed: true,
+                        object: castTo<esprima.Syntax.Identifier>({
+                            type: "Identifier",
+                            name: "functionStack$",
                             raw: this.raw, cform: this.cform,
                             loc: this.loc
-                        };
-                        if (this.kind.toEsprima() === null) {
-                          debugger;
-                        }
+                        }),
+                        property: builder.literal(this.id.name, this.id.loc),
+                        raw: this.raw, cform: this.cform,
+                        loc: this.loc
+                    };
+                    if (this.kind.toEsprima() === null) {
+                        debugger;
+                    }
                     if (this.kind.type !== "EmptyExpression") {
                         return builder.expressionStatement(
                             builder.sequenceExpression([
@@ -2814,21 +2814,21 @@ get isCUDA() : boolean {
                                         builder.identifier(
                                             "lib",
                                             sloc
-                                        ),
+                                            ),
                                         builder.identifier(
                                             "setType",
                                             sloc
-                                        ),
+                                            ),
                                         false,
                                         sloc
-                                    ),
+                                        ),
                                     _.reject([
                                         builder.identifier("functionStack$", sloc),
                                         builder.literal(this.id.name, this.id.loc),
                                         this.kind.toEsprima()
                                     ], _.isNull),
                                     sloc
-                                ),
+                                    ),
                                 {
                                     type: "AssignmentExpression",
                                     operator: "=",
@@ -2837,7 +2837,7 @@ get isCUDA() : boolean {
                                     raw: this.raw, cform: this.cform,
                                     loc: this.loc
                                 }])
-                        );
+                            );
                     } else {
                         return builder.expressionStatement(
                             {
@@ -2848,11 +2848,11 @@ get isCUDA() : boolean {
                                 raw: this.raw, cform: this.cform,
                                 loc: this.loc
                             }
-                        );
+                            );
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     if (this.init.type != "EmptyExpression") {
                         return this.kind.toCString() + " " + this.id.toCString() + " = " + this.init.toCString();
                     } else {
@@ -2860,39 +2860,39 @@ get isCUDA() : boolean {
                     }
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.init, this.id];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.id.postOrderTraverse(visit, data);
                     this.init.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.id.preOrderTraverse(visit, data);
                     return this.init.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.id.inOrderTraverse(visit, data);
                     this.init.inOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.id.reversePostOrderTraverse(visit, data);
                     return this.init.reversePostOrderTraverse(visit, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.init.reversePreOrderTraverse(visit, data);
                     return this.id.reversePreOrderTraverse(visit, data);
@@ -2900,19 +2900,19 @@ get isCUDA() : boolean {
             }
 
             export class VariableDeclaration extends Node {
-                declarations:Node[]
+                declarations: Node[]
 
-                constructor(loc:any, raw:string, cform:string, declarations:any) {
+                constructor(loc: any, raw: string, cform: string, declarations: any) {
                     super("VariableDeclaration", loc, raw, cform);
                     this.declarations = _.map(declarations, fromCena);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new VariableDeclaration(o.loc, o.raw, o.cform, o.declarations);
                 }
 
-                toEsprima_():esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
                     if (this.declarations.length === 1) {
                         return this.declarations[0].toEsprima();
                     } else {
@@ -2925,54 +2925,54 @@ get isCUDA() : boolean {
                     }
                 }
 
-                toCString_():string {
-                    return _.map(this.declarations, (decl:Node) => decl.toCString()).join(", ");
+                toCString_(): string {
+                    return _.map(this.declarations, (decl: Node) => decl.toCString()).join(", ");
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return this.declarations;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.declarations, (decl) => decl.postOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     var res;
                     visit(this, data);
                     _.each(this.declarations, (decl) => res = decl.preOrderTraverse(visit, data));
                     return res;
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.declarations, (decl) => decl.inOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     var res;
                     visit(this, data);
                     _.eachRight(this.declarations, (decl) => res = decl.reversePostOrderTraverse(visit, data));
                     return res;
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     var res;
                     _.eachRight(this.declarations, (decl) => res = decl.reversePreOrderTraverse(visit, data));
                     return visit(this, data);
                 }
             }
             export class AssignmentExpression extends Node {
-                operator:string
-                right:Node
-                left:Node
+                operator: string
+                right: Node
+                left: Node
 
-                constructor(loc:any, raw:string, cform:string, operator:string, left:any, right:any) {
+                constructor(loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
                     super("AssignmentExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
@@ -2980,69 +2980,69 @@ get isCUDA() : boolean {
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new AssignmentExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                 }
 
-                toEsprima_():esprima.Syntax.AssignmentExpression {
+                toEsprima_(): esprima.Syntax.AssignmentExpression {
 
                     var loc = this.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    );
+                        );
                     var libc = builder.memberExpression(
                         builder.identifier(
                             "lib",
                             sloc
-                        ),
+                            ),
                         builder.identifier(
                             "c",
                             sloc
-                        ),
+                            ),
                         false,
                         sloc
-                    );
+                        );
 
                     if (this.left.type === "SubscriptExpression") {
                         var ns = libc;
-                        var subs:SubscriptExpression = castTo<SubscriptExpression>(this.left);
+                        var subs: SubscriptExpression = castTo<SubscriptExpression>(this.left);
                         if (subs.object.type === "Identifier" && _.isObject(castTo<Identifier>(subs.object).kind) &&
                             castTo<ReferenceType>(castTo<Identifier>(subs.object).kind).isCUDA) {
-ns = builder.memberExpression(
+                            ns = builder.memberExpression(
                                 builder.identifier(
                                     "lib",
                                     sloc
-                                ),
+                                    ),
                                 builder.identifier(
                                     "cuda",
                                     sloc
-                                ),
+                                    ),
                                 false,
                                 sloc
-                            );
+                                );
                         }
                         return callExpression(
                             builder.memberExpression(ns, builder.identifier("setElement", sloc), false, sloc),
                             [builder.identifier("functionStack$", sloc), subs.object.toEsprima(), subs.property.toEsprima(), this.right.toEsprima()],
                             sloc
-                        );
+                            );
                     } else if (this.left.type === "Identifier") {
-                        var left:Identifier = castTo<Identifier>(this.left);
+                        var left: Identifier = castTo<Identifier>(this.left);
 
                         var lefte = builder.memberExpression(
                             builder.identifier("functionStack$", left.loc),
                             builder.literal(left.name, left.loc),
                             true,
                             left.loc
-                        );
+                            );
                         var acc;
                         if (castTo<Identifier>(this.left).kind.type === "ReferenceType") {
                             acc = callExpression(
                                 builder.memberExpression(libc, builder.identifier("makeReference", sloc), false, sloc),
                                 [builder.identifier("functionStack$", sloc), builder.literal(left.name, sloc)].concat(this.right.toEsprima()),
                                 sloc
-                            );
+                                );
                         } else {
                             acc = this.right.toEsprima();
                         }
@@ -3050,7 +3050,7 @@ ns = builder.memberExpression(
                             builder.assignmentExpression("=", lefte,
                                 acc, sloc),
                             sloc
-                        );
+                            );
                     } else {
                         return {
                             type: "AssignmentExpression",
@@ -3063,54 +3063,54 @@ ns = builder.memberExpression(
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.left.toCString() + " " + this.operator + " " + this.right.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.left, this.right];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.postOrderTraverse(visit, data);
                     this.right.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.preOrderTraverse(visit, data);
                     return this.right.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.inOrderTraverse(visit, data);
                     visit(this, data);
                     return this.right.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.reversePostOrderTraverse(visit, data);
                     return this.right.reversePostOrderTraverse(visit, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.right.reversePreOrderTraverse(visit, data);
                     this.left.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class IfStatement extends Node {
-                test:Node
-                consequent:Node
-                alternate:Node
+                test: Node
+                consequent: Node
+                alternate: Node
 
-                constructor(loc:any, raw:string, cform:string, test:any, consequent:any, alternate?:any) {
+                constructor(loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
                     super("IfStatement", loc, raw, cform);
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
@@ -3118,11 +3118,11 @@ ns = builder.memberExpression(
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new IfStatement(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                 }
 
-                toEsprima_():esprima.Syntax.Statement {
+                toEsprima_(): esprima.Syntax.Statement {
                     var cond = this.test.toEsprima();
                     var self = this;
                     var extra, condvar;
@@ -3132,16 +3132,16 @@ ns = builder.memberExpression(
                             builder.literal("cond$" + this.test.loc.start.line, self.loc),
                             true,
                             self.loc
-                        );
+                            );
                         extra = builder.expressionStatement(
                             builder.assignmentExpression(
                                 "=",
                                 condvar,
                                 cond,
                                 self.loc
-                            ),
+                                ),
                             self.loc
-                        );
+                            );
                         cond = condvar;
                     }
                     var ifstmt = {
@@ -3163,51 +3163,51 @@ ns = builder.memberExpression(
 
                 }
 
-                toCString_():string {
-                    var ret:string = "if (" + this.test.toCString() + ") " + this.consequent.toCString() + " ";
+                toCString_(): string {
+                    var ret: string = "if (" + this.test.toCString() + ") " + this.consequent.toCString() + " ";
                     if (this.alternate.type != "EmptyExpression") {
                         ret += " else " + this.alternate.toCString();
                     }
                     return ret;
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.test, this.consequent, this.alternate];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.test.postOrderTraverse(visit, data);
                     this.alternate.postOrderTraverse(visit, data);
                     this.consequent.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.preOrderTraverse(visit, data);
                     this.alternate.preOrderTraverse(visit, data);
                     return this.consequent.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.inOrderTraverse(visit, data);
                     this.alternate.inOrderTraverse(visit, data);
                     return this.consequent.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.consequent.reversePostOrderTraverse(visit, data);
                     this.alternate.reversePostOrderTraverse(visit, data);
                     this.test.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.consequent.reversePreOrderTraverse(visit, data);
                     this.alternate.reversePreOrderTraverse(visit, data);
@@ -3215,11 +3215,11 @@ ns = builder.memberExpression(
                 }
             }
             export class ConditionalExpression extends Node {
-                test:Node
-                consequent:Node
-                alternate:Node
+                test: Node
+                consequent: Node
+                alternate: Node
 
-                constructor(loc:any, raw:string, cform:string, test:any, consequent:any, alternate?:any) {
+                constructor(loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
                     super("ConditionalExpression", loc, raw, cform);
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
@@ -3227,11 +3227,11 @@ ns = builder.memberExpression(
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ConditionalExpression(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                 }
 
-                toEsprima_():esprima.Syntax.ConditionalExpression {
+                toEsprima_(): esprima.Syntax.ConditionalExpression {
                     // debugger;
                     return {
                         type: "ConditionalExpression",
@@ -3243,47 +3243,47 @@ ns = builder.memberExpression(
                     }
                 }
 
-                toCString_():string {
+                toCString_(): string {
                     return this.test.toCString() + " ? " + this.consequent.toCString() + " : " + this.alternate.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.test, this.consequent, this.alternate];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.test.postOrderTraverse(visit, data);
                     this.alternate.postOrderTraverse(visit, data);
                     this.consequent.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.preOrderTraverse(visit, data);
                     this.alternate.preOrderTraverse(visit, data);
                     return this.consequent.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.test.inOrderTraverse(visit, data);
                     this.alternate.inOrderTraverse(visit, data);
                     return this.consequent.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.consequent.reversePostOrderTraverse(visit, data);
                     this.alternate.reversePostOrderTraverse(visit, data);
                     this.test.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.consequent.reversePreOrderTraverse(visit, data);
                     this.alternate.reversePreOrderTraverse(visit, data);
@@ -3291,12 +3291,12 @@ ns = builder.memberExpression(
                 }
             }
             export class ForStatement extends Node {
-                init:Node
-                test:Node
-                update:Node
-                body:Node
+                init: Node
+                test: Node
+                update: Node
+                body: Node
 
-                constructor(loc:any, raw:string, cform:string, init:any, test:any, update:any, body:any) {
+                constructor(loc: any, raw: string, cform: string, init: any, test: any, update: any, body: any) {
                     super("ForStatement", loc, raw, cform);
                     this.init = fromCena(init);
                     this.test = fromCena(test);
@@ -3305,11 +3305,11 @@ ns = builder.memberExpression(
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ForStatement(o.loc, o.raw, o.cform, o.init, o.test, o.update, o.body);
                 }
 
-                toEsprima_():esprima.Syntax.ForStatement {
+                toEsprima_(): esprima.Syntax.ForStatement {
                     return {
                         type: "ForStatement",
                         init: castTo<esprima.Syntax.VariableDeclaratorOrExpression>(this.init.toEsprima()),
@@ -3321,15 +3321,15 @@ ns = builder.memberExpression(
                     }
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.init, this.test, this.update, this.body];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.init.postOrderTraverse(visit, data);
                     this.test.postOrderTraverse(visit, data);
                     this.update.postOrderTraverse(visit, data);
@@ -3337,7 +3337,7 @@ ns = builder.memberExpression(
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.init.preOrderTraverse(visit, data);
                     this.test.preOrderTraverse(visit, data);
@@ -3345,7 +3345,7 @@ ns = builder.memberExpression(
                     return this.body.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.init.inOrderTraverse(visit, data);
                     this.test.inOrderTraverse(visit, data);
@@ -3353,7 +3353,7 @@ ns = builder.memberExpression(
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePostOrderTraverse(visit, data);
                     this.update.reversePostOrderTraverse(visit, data);
                     this.test.reversePostOrderTraverse(visit, data);
@@ -3361,7 +3361,7 @@ ns = builder.memberExpression(
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.body.reversePostOrderTraverse(visit, data);
                     this.update.reversePostOrderTraverse(visit, data);
@@ -3371,33 +3371,33 @@ ns = builder.memberExpression(
 
             }
             export class ProgramExpression extends Node {
-                body:CompoundNode;
+                body: CompoundNode;
 
-                constructor(loc:any, raw:string, cform:string, body:any[]) {
+                constructor(loc: any, raw: string, cform: string, body: any[]) {
                     super("ProgramExpression", loc, raw, cform);
                     this.body = new CompoundNode(body);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ProgramExpression(o.loc, o.raw, o.cform, o.body);
                 }
 
-                toEsprima_():esprima.Syntax.Program {
+                toEsprima_(): esprima.Syntax.Program {
                     var sloc = this.loc;
                     var initf = builder.memberExpression(
                         builder.identifier(
                             "lib",
                             sloc
-                        ),
+                            ),
                         builder.identifier(
                             "init",
                             sloc
-                        ),
+                            ),
                         false,
                         sloc
-                    );
-                    var body:esprima.Syntax.Statement[] = castTo<esprima.Syntax.Statement[]>(this.body.toEsprima());
+                        );
+                    var body: esprima.Syntax.Statement[] = castTo<esprima.Syntax.Statement[]>(this.body.toEsprima());
                     body.unshift(
                         builder.variableDeclaration(
                             "var",
@@ -3405,11 +3405,11 @@ ns = builder.memberExpression(
                                 builder.variableDeclarator(
                                     builder.identifier("state$", sloc),
                                     builder.callExpression(initf, [], sloc)
-                                )
+                                    )
                             ],
                             sloc
-                        )
-                    );
+                            )
+                        );
                     return {
                         type: "Program",
                         body: castTo<esprima.Syntax.Statement[]>(body),
@@ -3419,47 +3419,47 @@ ns = builder.memberExpression(
                 }
 
 
-                toCString_():string {
-                    return _.map(this.body.elements, (elem:Node) => elem.toCString()).join("\n");
+                toCString_(): string {
+                    return _.map(this.body.elements, (elem: Node) => elem.toCString()).join("\n");
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return this.body.children;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return this.body.hasChildren();
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.body.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.body.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class ReturnStatement extends Node {
-                argument:Node;
+                argument: Node;
 
-                constructor(loc:any, raw:string, cform:string, argument?:Node) {
+                constructor(loc: any, raw: string, cform: string, argument?: Node) {
                     super("ReturnStatement", loc, raw, cform);
                     if (argument) {
                         this.argument = fromCena(argument);
@@ -3469,11 +3469,11 @@ ns = builder.memberExpression(
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
                 }
 
-                toEsprima_():esprima.Syntax.ReturnStatement {
+                toEsprima_(): esprima.Syntax.ReturnStatement {
 
                     return {
                         type: "ReturnStatement",
@@ -3481,149 +3481,149 @@ ns = builder.memberExpression(
                         raw: this.raw, cform: this.cform,
                         argument: lib.utils.castTo<esprima.Syntax.Expression>(
                             this.argument.toEsprima()
-                        )
+                            )
                     }
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.argument];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return !(this.argument instanceof EmptyExpression);
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.argument.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.argument.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class ExpressionStatement extends Node {
-                expression:Node;
+                expression: Node;
 
-                constructor(loc:any, raw:string, cform:string, expression:Node) {
+                constructor(loc: any, raw: string, cform: string, expression: Node) {
                     super("ExpressionStatement", loc, raw, cform);
                     this.expression = fromCena(expression);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ExpressionStatement(o.loc, o.raw, o.cform, o.expression);
                 }
 
-                toEsprima_():esprima.Syntax.ExpressionStatement {
+                toEsprima_(): esprima.Syntax.ExpressionStatement {
                     return {
                         type: "ExpressionStatement",
                         loc: this.loc,
                         raw: this.raw, cform: this.cform,
                         expression: lib.utils.castTo<esprima.Syntax.Expression>(
                             this.expression.toEsprima()
-                        )
+                            )
                     }
                 }
 
-                toCString():string {
+                toCString(): string {
                     return this.expression.toCString();
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.expression];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return !(this.expression instanceof EmptyExpression);
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.postOrderTraverse(visit, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.preOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     return this.expression.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePreOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.expression.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
             }
             export class ErrorNode extends Node {
-                constructor(raw?:string) {
+                constructor(raw?: string) {
                     super("ErrorNode", unknownLocation(), raw, raw);
                 }
             }
 
 
             export class SubscriptExpression extends Node {
-                object:Node
-                property:Node
+                object: Node
+                property: Node
 
-                constructor(loc:any, raw:string, cform:string, object:any, property:any) {
+                constructor(loc: any, raw: string, cform: string, object: any, property: any) {
                     super("SubscriptExpression", loc, raw, cform);
                     this.object = fromCena(object);
                     this.property = fromCena(property);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new SubscriptExpression(o.loc, o.raw, o.cform, o.object, o.property);
                 }
 
-                toCString():string {
+                toCString(): string {
                     return this.object.toCString() + "[" + this.property.toCString() + "]";
                 }
 
-                toEsprima_():esprima.Syntax.Node {
+                toEsprima_(): esprima.Syntax.Node {
                     var self = this;
                     var loc = this.loc;
                     var sloc = builder.sourceLocation(
                         builder.position(loc.start.line, loc.start.column),
                         builder.position(loc.end.line, loc.end.column)
-                    );
+                        );
                     var libc = builder.memberExpression(
                         builder.identifier(
                             "lib",
                             sloc
-                        ),
+                            ),
                         builder.identifier(
                             "c",
                             sloc
-                        ),
+                            ),
                         false,
                         sloc
-                    );
+                        );
 
                     return callExpression(
                         builder.memberExpression(libc, builder.identifier("getElement", sloc), false, sloc),
@@ -3632,7 +3632,7 @@ ns = builder.memberExpression(
                             self.property.toEsprima()
                         ],
                         sloc
-                    )
+                        )
                     /*
                      return {
                      type: "MemberExpression",
@@ -3644,39 +3644,39 @@ ns = builder.memberExpression(
                      }*/
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.object, this.property];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.object.postOrderTraverse(visit, data);
                     this.property.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.object.postOrderTraverse(visit, data);
                     return this.property.postOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.object.inOrderTraverse(visit, data);
                     return this.property.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.property.reversePostOrderTraverse(visit, data);
                     this.object.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.property.reversePreOrderTraverse(visit, data);
                     return this.object.reversePreOrderTraverse(visit, data);
@@ -3684,12 +3684,12 @@ ns = builder.memberExpression(
             }
 
             export class MemberExpression extends Node {
-                right:Node
-                left:Node
-                operator:string
-                computed:boolean
+                right: Node
+                left: Node
+                operator: string
+                computed: boolean
 
-                constructor(loc:any, raw:string, cform:string, left:any, operator:string, right:any, computed?:boolean) {
+                constructor(loc: any, raw: string, cform: string, left: any, operator: string, right: any, computed?: boolean) {
                     super("MemberExpression", loc, raw, cform);
                     this.left = fromCena(left);
                     this.right = fromCena(right);
@@ -3698,11 +3698,11 @@ ns = builder.memberExpression(
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new MemberExpression(o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
                 }
 
-                toEsprima_():esprima.Syntax.MemberExpression {
+                toEsprima_(): esprima.Syntax.MemberExpression {
                     return {
                         type: "MemberExpression",
                         object: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
@@ -3713,7 +3713,7 @@ ns = builder.memberExpression(
                     }
                 }
 
-                toCString():string {
+                toCString(): string {
                     if (this.computed === true || isUndefined(this.computed)) {
                         return this.left.toCString() + this.operator + this.right.toCString();
                     } else {
@@ -3721,39 +3721,39 @@ ns = builder.memberExpression(
                     }
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return [this.left, this.right];
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return true;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.postOrderTraverse(visit, data);
                     this.right.postOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.left.postOrderTraverse(visit, data);
                     return this.right.postOrderTraverse(visit, data);
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.left.inOrderTraverse(visit, data);
                     visit(this, data);
                     return this.right.inOrderTraverse(visit, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     this.right.reversePostOrderTraverse(visit, data);
                     this.left.reversePostOrderTraverse(visit, data);
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     visit(this, data);
                     this.right.reversePreOrderTraverse(visit, data);
                     return this.left.reversePreOrderTraverse(visit, data);
@@ -3761,19 +3761,19 @@ ns = builder.memberExpression(
             }
 
             export class ArrayExpression extends Node {
-                elements:Node[]
+                elements: Node[]
 
-                constructor(loc:any, raw:string, cform:string, elements:any[]) {
+                constructor(loc: any, raw: string, cform: string, elements: any[]) {
                     super("ArrayExpression", loc, raw, cform);
                     this.elements = _.map(elements, fromCena);
                     this.setChildParents();
                 }
 
-                static fromCena(o:any):Node {
+                static fromCena(o: any): Node {
                     return new ArrayExpression(o.loc, o.raw, o.cform, o.elements);
                 }
 
-                toEsprima_():esprima.Syntax.ArrayExpression {
+                toEsprima_(): esprima.Syntax.ArrayExpression {
                     return {
                         type: "ArrayExpression",
                         elements: castTo<esprima.Syntax.Expression[]>(_.map(this.elements, (elem) => elem.toEsprima())),
@@ -3782,51 +3782,51 @@ ns = builder.memberExpression(
                     }
                 }
 
-                toCString():string {
-                    return "[" + _.map(this.elements, (elem:Node) => elem.toCString()).join(", ") + "]";
+                toCString(): string {
+                    return "[" + _.map(this.elements, (elem: Node) => elem.toCString()).join(", ") + "]";
                 }
 
-                children_():Node[] {
+                children_(): Node[] {
                     return this.elements;
                 }
 
-                hasChildren_():boolean {
+                hasChildren_(): boolean {
                     return this.elements.length > 0;
                 }
 
-                postOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                postOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.elements, (elem) => elem.postOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                preOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    var res:Node;
+                preOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
                     visit(this, data);
                     _.each(this.elements, (elem) => res = elem.preOrderTraverse(visit, data));
                     return res;
                 }
 
-                inOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                inOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.elements, (elem) => elem.inOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                reversePostOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
+                reversePostOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
                     _.each(this.elements, (elem) => elem.reversePostOrderTraverse(visit, data));
                     return visit(this, data);
                 }
 
-                reversePreOrderTraverse_(visit:(Node, any) => Node, data:any):Node {
-                    var res:Node;
+                reversePreOrderTraverse_(visit: (Node, any) => Node, data: any): Node {
+                    var res: Node;
                     visit(this, data);
                     _.each(this.elements, (elem) => res = elem.reversePreOrderTraverse(visit, data));
                     return res;
                 }
             }
 
-            var dispatch:Map<string, (o:any) => Node> = new Map<string, (o:any) => Node>();
+            var dispatch: Map<string, (o: any) => Node> = new Map<string, (o: any) => Node>();
 
-            export function fromCena(o:any):Node {
+            export function fromCena(o: any): Node {
                 if (isUndefined(o) || isUndefined(o.type)) {
                     return new EmptyExpression();
                 } else if (lib.utils.isArray(o)) {
@@ -3839,16 +3839,16 @@ ns = builder.memberExpression(
                 return f(o);
             }
 
-            export function toJS(o:any):{ code: string; map: lib.ast.sourcemap.SourceNode; } { // from Cena
-                var nd:esprima.Syntax.Node = fromCena(o).toEsprima();
+            export function toJS(o: any): { code: string; map: lib.ast.sourcemap.SourceNode; } { // from Cena
+                var nd: esprima.Syntax.Node = fromCena(o).toEsprima();
                 return lib.ast.gen.generate(
                     nd,
                     // we might have to do  extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
-                    {sourceMap: true, sourceMapWithCode: true, comment: true}
-                );
+                    { sourceMap: true, sourceMapWithCode: true, comment: true }
+                    );
             }
 
-            var initialized:boolean = false;
+            var initialized: boolean = false;
 
             export function init() {
                 if (initialized) {
@@ -3887,7 +3887,7 @@ ns = builder.memberExpression(
                 dispatch.set("MemberExpression", MemberExpression.fromCena);
                 dispatch.set("Program", ProgramExpression.fromCena);
                 dispatch.set("Function", FunctionExpression.fromCena);
-                dispatch.set("ParameterExpression",ParameterExpression.fromCena);
+                dispatch.set("ParameterExpression", ParameterExpression.fromCena);
                 dispatch.set("VariableDeclaration", VariableDeclaration.fromCena);
                 dispatch.set("VariableDeclarator", VariableDeclarator.fromCena);
                 dispatch.set("SymbolLiteral", SymbolLiteral.fromCena);

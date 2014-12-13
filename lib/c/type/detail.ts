@@ -27,7 +27,7 @@ module lib.c.type.detail {
         Double = 62
     }
 
-    export var CLiteralKindMap:Map<CLiteralKind, any> = null;
+    export var CLiteralKindMap: Map<CLiteralKind, any> = null;
     if (CLiteralKindMap === null) {
         CLiteralKindMap = new Map<CLiteralKind, any>();
     }
@@ -47,10 +47,10 @@ module lib.c.type.detail {
         highest(): CLiteral;
         infinity(): CLiteral;
         getValue(): ArrayBufferView;
-        add(n:CLiteral): CLiteral;
-        sub(n:CLiteral): CLiteral;
-        mul(n:CLiteral): CLiteral;
-        div(n:CLiteral): CLiteral;
+        add(n: CLiteral): CLiteral;
+        sub(n: CLiteral): CLiteral;
+        mul(n: CLiteral): CLiteral;
+        div(n: CLiteral): CLiteral;
         negate(): CLiteral;
     }
 }

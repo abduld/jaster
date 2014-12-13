@@ -10,9 +10,9 @@ module lib.ast {
         var isArray = builtInTypes["array"];
 
         export class NodePath extends Path {
-            node:Node;
-            parent:any;
-            scope:Scope;
+            node: Node;
+            parent: any;
+            scope: Scope;
 
             constructor(value, parentPath?, name?) {
                 assert.ok(this instanceof NodePath);
@@ -266,7 +266,7 @@ module lib.ast {
 
         Object.defineProperties(NodePath.prototype, {
             node: {
-                get: function () {
+                get: function() {
                     Object.defineProperty(this, "node", {
                         configurable: true, // Enable deletion.
                         value: this._computeNode()
@@ -277,7 +277,7 @@ module lib.ast {
             },
 
             parent: {
-                get: function () {
+                get: function() {
                     Object.defineProperty(this, "parent", {
                         configurable: true, // Enable deletion.
                         value: this._computeParent()
@@ -288,7 +288,7 @@ module lib.ast {
             },
 
             scope: {
-                get: function () {
+                get: function() {
                     Object.defineProperty(this, "scope", {
                         configurable: true, // Enable deletion.
                         value: this._computeScope()
@@ -305,10 +305,10 @@ module lib.ast {
                 || n["LogicalExpression"].check(node);
         }
 
-        function isUnaryLike(node:Node) {
+        function isUnaryLike(node: Node) {
             return n["UnaryExpression"].check(node)
-                    // I considered making SpreadElement and SpreadProperty subtypes
-                    // of UnaryExpression, but they're not really Expression nodes.
+            // I considered making SpreadElement and SpreadProperty subtypes
+            // of UnaryExpression, but they're not really Expression nodes.
                 || (n["SpreadElement"] && n["SpreadElement"].check(node));
         }
 
@@ -323,8 +323,8 @@ module lib.ast {
             [">>", "<<", ">>>"],
             ["+", "-"],
             ["*", "/", "%"]
-        ].forEach(function (tier, i) {
-                tier.forEach(function (op) {
+        ].forEach(function(tier, i) {
+                tier.forEach(function(op) {
                     PRECEDENCE[op] = i;
                 });
             });
@@ -339,7 +339,7 @@ module lib.ast {
             }
 
             if (n["Node"].check(node)) {
-                return types.someField(node, function (name, child) {
+                return types.someField(node, function(name, child) {
                     return containsCallExpression(child);
                 });
             }
@@ -347,7 +347,7 @@ module lib.ast {
             return false;
         }
 
-        function firstInStatement(path:NodePath) {
+        function firstInStatement(path: NodePath) {
             for (var node, parent; path.parent; path = path.parent) {
                 node = path.node;
                 parent = path.parent.node;

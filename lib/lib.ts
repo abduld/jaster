@@ -6,18 +6,18 @@
 
 module lib {
     export interface StateInterface {
-        type : string;
+        type: string;
         model: typeof lib.cuda.exec.FermiArchitecture;
-        globalMemory :lib.memory.GlobalMemoryManager;
-        hostMemory :lib.memory.HostMemoryManager;
-        threadPool : typeof lib.parallel.WorkerPool;
+        globalMemory: lib.memory.GlobalMemoryManager;
+        hostMemory: lib.memory.HostMemoryManager;
+        threadPool: typeof lib.parallel.WorkerPool;
         id: string;
     }
-    export function init() : StateInterface {
+    export function init(): StateInterface {
         return {
             type: "GlobalState",
             model: lib.cuda.exec.FermiArchitecture,
-            globalMemory : new lib.memory.GlobalMemoryManager(),
+            globalMemory: new lib.memory.GlobalMemoryManager(),
             hostMemory: new lib.memory.HostMemoryManager(),
             threadPool: lib.parallel.WorkerPool,
             id: lib.utils.guuid()
@@ -41,13 +41,13 @@ module lib {
         id: string;
     }
     export module cuda {
-        export function cudaMalloc(state: StateInterface, ref : CUDAReference, byteCount : number, args : string[]) {
+        export function cudaMalloc(state: StateInterface, ref: CUDAReference, byteCount: number, args: string[]) {
 
         }
     }
 
     export module c {
-        export function malloc(state: StateInterface, byteCount : number, args : string[]) : CReference {
+        export function malloc(state: StateInterface, byteCount: number, args: string[]): CReference {
             return {
                 type: "CReference",
                 id: lib.utils.guuid()
@@ -56,16 +56,16 @@ module lib {
     }
 
     export module parallel {
-        export function scheduleThread(state: StateInterface, fun : Function) {
+        export function scheduleThread(state: StateInterface, fun: Function) {
 
         }
     }
 
     export function setType(stack, name, type) {
-      if (_.isUndefined(stack["types"])) {
-        stack["types"] = {}
+        if (_.isUndefined(stack["types"])) {
+            stack["types"] = {}
       }
-      stack["types"][name] = type;
+        stack["types"][name] = type;
     }
 
     export function cudaReference(state, stack, name) {
@@ -73,6 +73,6 @@ module lib {
     }
 
     export function reference(state, stack, name) {
-      
+
     }
 }

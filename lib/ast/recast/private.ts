@@ -32,10 +32,10 @@ module lib.ast.recast {
 
         function defProp(obj, name, value) {
             if (originalDefProp) try {
-                originalDefProp.call(originalObject, obj, name, {value: value});
+                originalDefProp.call(originalObject, obj, name, { value: value });
             } catch (definePropertyIsBrokenInIE8) {
-                obj[name] = value;
-            } else {
+                    obj[name] = value;
+                } else {
                 obj[name] = value;
             }
         }
@@ -60,7 +60,7 @@ module lib.ast.recast {
         var numToStr = makeSafeToCall(Number.prototype.toString);
         var strSlice = makeSafeToCall(String.prototype.slice);
 
-        var cloner = function () {
+        var cloner = function() {
         };
 
         function create(prototype) {
@@ -95,11 +95,11 @@ module lib.ast.recast {
         var originalGetOPNs = Object.getOwnPropertyNames;
         Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
             for (var names = originalGetOPNs(object),
-                     src = 0,
-                     dst = 0,
-                     len = names.length;
-                 src < len;
-                 ++src) {
+                src = 0,
+                dst = 0,
+                len = names.length;
+                src < len;
+                ++src) {
                 if (!hasOwn.call(uniqueKeys, names[src])) {
                     if (src > dst) {
                         names[dst] = names[src];

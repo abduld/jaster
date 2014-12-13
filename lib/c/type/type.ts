@@ -1,4 +1,4 @@
-﻿/// <reference path='../../utils/utils.ts' />
+/// <reference path='../../utils/utils.ts' />
 /// <reference path="int8.ts" />
 /// <reference path="uint8.ts" />
 /// <reference path="int16.ts" />

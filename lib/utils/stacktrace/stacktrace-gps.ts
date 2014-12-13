@@ -1,28 +1,28 @@
-﻿/*This is free and unencumbered software released into the public domain.
+/*This is free and unencumbered software released into the public domain.
 
- Anyone is free to copy, modify, publish, use, compile, sell, or
- distribute this software, either in source code form or as a compiled
- binary, for any purpose, commercial or non-commercial, and by any
- means.
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
- In jurisdictions that recognize copyright laws, the author or authors
- of this software dedicate any and all copyright interest in the
- software to the public domain. We make this dedication for the benefit
- of the public at large and to the detriment of our heirs and
- successors. We intend this dedication to be an overt act of
- relinquishment in perpetuity of all present and future rights to this
- software under copyright law.
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
- OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
 
- For more information, please refer to <http://unlicense.org>
- */
+For more information, please refer to <http://unlicense.org>
+*/
 // from https://github.com/stacktracejs/stacktrace-gps
 
 /// <reference path="../../../Scripts/typings/es6-promise/es6-promise.d.ts" />
@@ -37,18 +37,18 @@ module lib.utils {
          * @returns XMLHttpRequest, XDomainRequest or ActiveXObject
          * @private
          */
-        function _createXMLHTTPObject():XMLHttpRequest {
-            var xmlhttp:XMLHttpRequest;
+        function _createXMLHTTPObject(): XMLHttpRequest {
+            var xmlhttp: XMLHttpRequest;
             var XMLHttpFactories = [
-                function () {
+                function() {
                     return new XMLHttpRequest();
-                }, function () {
+                }, function() {
                     return new XDomainRequest();
-                }, function () {
+                }, function() {
                     return new ActiveXObject('Msxml2.XMLHTTP');
-                }, function () {
+                }, function() {
                     return new ActiveXObject('Msxml3.XMLHTTP');
-                }, function () {
+                }, function() {
                     return new ActiveXObject('Microsoft.XMLHTTP');
                 }
             ];
@@ -168,19 +168,19 @@ module lib.utils {
 
         function _newLocationInfoFromSourceMap(rawSourceMap, lineNumber, columnNumber) {
             return new SourceMap.SourceMapConsumer(rawSourceMap)
-                .originalPositionFor({line: lineNumber, column: columnNumber});
+                .originalPositionFor({ line: lineNumber, column: columnNumber });
         }
 
-        var factory = function (SourceMap, ES6Promise) {
+        var factory = function(SourceMap, ES6Promise) {
             return function StackTraceGPS(opts) {
                 this.sourceCache = {};
 
                 this._get = function _get(location) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function(resolve, reject) {
                         if (this.sourceCache[location]) {
                             resolve(this.sourceCache[location]);
                         } else {
-                            _xdr(location, function (source) {
+                            _xdr(location, function(source) {
                                 this.sourceCache[location] = source;
                                 resolve(source);
                             }.bind(this), reject);
@@ -195,7 +195,7 @@ module lib.utils {
                  *      {fileName: 'path/to/file.js', lineNumber: 100, columnNumber: 5}
                  */
                 this.findFunctionName = function StackTraceGPS$$findFunctionName(stackframe) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function(resolve, reject) {
                         _ensureStackFrameIsLegit(stackframe);
                         this._get(stackframe.fileName).then(function getSourceCallback(source) {
                             resolve(_findFunctionName(source, stackframe.lineNumber, stackframe.columnNumber));
@@ -210,12 +210,12 @@ module lib.utils {
                  *      {fileName: 'path/to/file.js', lineNumber: 100, columnNumber: 5}
                  */
                 this.getMappedLocation = function StackTraceGPS$$sourceMap(stackframe) {
-                    return new Promise(function (resolve, reject) {
+                    return new Promise(function(resolve, reject) {
                         _ensureSupportedEnvironment();
                         _ensureStackFrameIsLegit(stackframe);
 
-                        this._get(stackframe.fileName).then(function (source) {
-                            this._get(_findSourceMappingURL(source)).then(function (map) {
+                        this._get(stackframe.fileName).then(function(source) {
+                            this._get(_findSourceMappingURL(source)).then(function(map) {
                                 var lineNumber = stackframe.lineNumber;
                                 var columnNumber = stackframe.columnNumber;
                                 resolve(_newLocationInfoFromSourceMap(map, lineNumber, columnNumber));

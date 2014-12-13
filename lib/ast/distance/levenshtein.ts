@@ -28,10 +28,10 @@ module lib.ast {
     export module distance {
         // Levenshtein distance
         export class Levenshtein {
-            private _matrix:number[][];
-            distance:number;
+            private _matrix: number[][];
+            distance: number;
 
-            constructor(str_m:string, str_n:string) {
+            constructor(str_m: string, str_n: string) {
                 var previous, current, matrix
                 // Constructor
                 matrix = this._matrix = []
@@ -45,22 +45,22 @@ module lib.ast {
                 else {
                     // Danger Will Robinson
                     previous = [0]
-                    _.each(str_m, function (v, i) {
+                    _.each(str_m, function(v, i) {
                         i++, previous[i] = i
                     })
                     matrix[0] = previous
-                    _.each(str_n, function (n_val, n_idx) {
+                    _.each(str_n, function(n_val, n_idx) {
                         current = [++n_idx]
-                        _.each(str_m, function (m_val, m_idx) {
+                        _.each(str_m, function(m_val, m_idx) {
                             m_idx++
                             if (str_m.charAt(m_idx - 1) == str_n.charAt(n_idx - 1))
                                 current[m_idx] = previous[m_idx - 1]
                             else
                                 current[m_idx] = Math.min
-                                (previous[m_idx] + 1 // Deletion
+                                    (previous[m_idx] + 1 // Deletion
                                     , current[m_idx - 1] + 1 // Insertion
                                     , previous[m_idx - 1] + 1 // Subtraction
-                                )
+                                    )
                         })
                         previous = current
                         matrix[matrix.length] = previous
@@ -78,9 +78,9 @@ module lib.ast {
                 while (sep.length < (matrix[0] && matrix[0].length || 0))
                     sep[sep.length] = Array(buff.length + 1).join('-')
                 sep = sep.join('-+') + '-'
-                rows = _.map(matrix, function (row:number[]) {
+                rows = _.map(matrix, function(row: number[]) {
                     var cells
-                    cells = _.map(row, function (cell) {
+                    cells = _.map(row, function(cell) {
                         return (buff + cell).slice(-buff.length)
                     })
                     return cells.join(' |') + ' '

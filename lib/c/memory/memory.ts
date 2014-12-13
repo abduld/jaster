@@ -1,4 +1,4 @@
-﻿/// <reference path='../../utils/utils.ts' />
+/// <reference path='../../utils/utils.ts' />
 
 module lib.c {
     export module memory {
@@ -11,25 +11,25 @@ module lib.c {
         export import CLiteral = lib.c.type.detail.CLiteral;
         export import CLiteralKind = lib.c.type.detail.CLiteralKind;
         export class Reference {
-          name: string;
-            id:string;
-            data:DataView;
-            addressSpace:AddressSpace;
-            KIND:CLiteralKind;
+            name: string;
+            id: string;
+            data: DataView;
+            addressSpace: AddressSpace;
+            KIND: CLiteralKind;
 
-            constructor(id:string, addressSpace:AddressSpace, data:DataView) {
+            constructor(id: string, addressSpace: AddressSpace, data: DataView) {
                 this.id = id;
                 this.addressSpace = addressSpace;
                 this.data = data;
                 this.KIND = CLiteralKind.Int8;
             }
 
-            getElement(idx:number, kind? : CLiteralKind):CLiteral {
+            getElement(idx: number, kind?: CLiteralKind): CLiteral {
 
-              if (_.isUndefined(kind)) {
-                kind = this.KIND;
-              }
-              switch (kind) {
+                if (_.isUndefined(kind)) {
+                    kind = this.KIND;
+                }
+                switch (kind) {
                     case CLiteralKind.Int8:
                         return new lib.c.type.Int8(this.data.getInt8(idx));
                     case CLiteralKind.Int16:
@@ -47,22 +47,22 @@ module lib.c {
                 }
             }
 
-            setElement(idx:number, val:number, kind? : CLiteralKind):CLiteral;
-            setElement(idx:number, val:CLiteral, kind? : CLiteralKind):CLiteral;
-            setElement(idx:number, val:any, kind? : CLiteralKind):any {
+            setElement(idx: number, val: number, kind?: CLiteralKind): CLiteral;
+            setElement(idx: number, val: CLiteral, kind?: CLiteralKind): CLiteral;
+            setElement(idx: number, val: any, kind?: CLiteralKind): any {
                 if (val instanceof lib.c.type.Int64) {
-                    var i64:lib.c.type.Int64 = utils.castTo<lib.c.type.Int64>(val);
+                    var i64: lib.c.type.Int64 = utils.castTo<lib.c.type.Int64>(val);
                     this.data.setInt32(2 * idx, i64.getHigh());
                     this.data.setInt32(2 * idx + 1, i64.getLow());
                     return this.getElement(idx);
                 } else if (val instanceof Object) {
-                    var tmp:CLiteral = utils.castTo<CLiteral>(val);
+                    var tmp: CLiteral = utils.castTo<CLiteral>(val);
                     val = tmp.getValue()[0];
                 }
 
-if (_.isUndefined(kind)) {
-  kind = this.KIND;
-}
+                if (_.isUndefined(kind)) {
+                    kind = this.KIND;
+                }
                 switch (kind) {
                     case CLiteralKind.Int8:
                         this.data.setInt8(idx, val);
@@ -90,45 +90,45 @@ if (_.isUndefined(kind)) {
                 return this.getElement(idx);
             }
 
-            ref():Reference {
+            ref(): Reference {
                 return new Reference(
                     utils.guuid(),
                     this.addressSpace,
                     new DataView(this.data.buffer, 0, 1)
-                );
+                    );
             }
 
-            deref():CLiteral {
+            deref(): CLiteral {
                 return this.getElement(0);
             }
         }
 
-        var MB:number = 1024;
+        var MB: number = 1024;
         export class MemoryManager {
-            private addressSpace:AddressSpace;
+            private addressSpace: AddressSpace;
             //private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
-            private TOTAL_MEMORY:number;
-            private memory:ArrayBuffer;
-            private memoryOffset:number = 0;
+            private TOTAL_MEMORY: number;
+            private memory: ArrayBuffer;
+            private memoryOffset: number = 0;
 
-            constructor(addressSpace:AddressSpace) {
+            constructor(addressSpace: AddressSpace) {
                 this.TOTAL_MEMORY = 10 * MB;
                 this.addressSpace = addressSpace;
                 this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
             }
 
-            public malloc(n:number):Reference {
+            public malloc(n: number): Reference {
                 var buffer = new Reference(
                     utils.guuid(),
                     this.addressSpace,
                     new DataView(this.memory, this.memoryOffset, this.memoryOffset + n)
-                );
+                    );
                 //this.memmap.set(buffer.id, buffer);
                 this.memoryOffset += n;
                 return buffer;
             }
 
-            public free(mem:Reference):void {
+            public free(mem: Reference): void {
                 mem = undefined;
             }
 

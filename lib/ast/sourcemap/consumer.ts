@@ -1,4 +1,4 @@
-﻿/* -*- Mode: js; js-indent-level: 2; -*- */
+/* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE or:
@@ -54,7 +54,7 @@ module lib.ast {
             private _file;
             private _sourcesContent;
 
-            constructor(aSourceMap?:string) {
+            constructor(aSourceMap?: string) {
                 var sourceMap = aSourceMap;
                 if (typeof aSourceMap === 'string') {
                     sourceMap = JSON.parse(aSourceMap.replace(/^\)\]\}'/, ''));
@@ -149,7 +149,7 @@ module lib.ast {
              * @returns SourceMapConsumer
              */
             static fromSourceMap(aSourceMap) {
-                var smc:SourceMapConsumer = new SourceMapConsumer();
+                var smc: SourceMapConsumer = new SourceMapConsumer();
 
                 smc.names(ArraySet.fromArray(aSourceMap._names.toArray(), true));
                 smc.sources = ArraySet.fromArray(aSourceMap._sources.toArray(), true);
@@ -243,7 +243,7 @@ module lib.ast {
                 var previousSource = 0;
                 var previousName = 0;
                 var str = aStr;
-                var temp:base64VLQ.DecodeType = lib.utils.castTo<base64VLQ.DecodeType>({});
+                var temp: base64VLQ.DecodeType = lib.utils.castTo<base64VLQ.DecodeType>({});
                 var mapping;
 
                 while (str.length > 0) {
@@ -317,7 +317,7 @@ module lib.ast {
              * we are searching for in the given "haystack" of mappings.
              */
             private _findMapping(aNeedle, aMappings, aLineName,
-                                 aColumnName, aComparator) {
+                aColumnName, aComparator) {
                 // To return the position we are searching for, we must first find the
                 // mapping for the given position and then return the opposite position it
                 // points to. Because the mappings are sorted, we can use binary search to
@@ -325,11 +325,11 @@ module lib.ast {
 
                 if (aNeedle[aLineName] <= 0) {
                     throw new TypeError('Line must be greater than or equal to 1, got '
-                    + aNeedle[aLineName]);
+                        + aNeedle[aLineName]);
                 }
                 if (aNeedle[aColumnName] < 0) {
                     throw new TypeError('Column must be greater than or equal to 0, got '
-                    + aNeedle[aColumnName]);
+                        + aNeedle[aColumnName]);
                 }
 
                 return search(aNeedle, aMappings, aComparator);
@@ -351,42 +351,42 @@ module lib.ast {
              *   - name: The original identifier, or null.
              */
             originalPositionFor =
-                function SourceMapConsumer_originalPositionFor(aArgs) {
-                    var needle = {
-                        generatedLine: utils.getArg(aArgs, 'line'),
-                        generatedColumn: utils.getArg(aArgs, 'column')
-                    };
-
-                    var index = this._findMapping(needle,
-                        this._generatedMappings,
-                        "generatedLine",
-                        "generatedColumn",
-                        utils.compareByGeneratedPositions);
-
-                    if (index >= 0) {
-                        var mapping = this._generatedMappings[index];
-
-                        if (mapping.generatedLine === needle.generatedLine) {
-                            var source = utils.getArg(mapping, 'source', null);
-                            if (source != null && this.sourceRoot != null) {
-                                source = utils.join(this.sourceRoot, source);
-                            }
-                            return {
-                                source: source,
-                                line: utils.getArg(mapping, 'originalLine', null),
-                                column: utils.getArg(mapping, 'originalColumn', null),
-                                name: utils.getArg(mapping, 'name', null)
-                            };
-                        }
-                    }
-
-                    return {
-                        source: null,
-                        line: null,
-                        column: null,
-                        name: null
-                    };
+            function SourceMapConsumer_originalPositionFor(aArgs) {
+                var needle = {
+                    generatedLine: utils.getArg(aArgs, 'line'),
+                    generatedColumn: utils.getArg(aArgs, 'column')
                 };
+
+                var index = this._findMapping(needle,
+                    this._generatedMappings,
+                    "generatedLine",
+                    "generatedColumn",
+                    utils.compareByGeneratedPositions);
+
+                if (index >= 0) {
+                    var mapping = this._generatedMappings[index];
+
+                    if (mapping.generatedLine === needle.generatedLine) {
+                        var source = utils.getArg(mapping, 'source', null);
+                        if (source != null && this.sourceRoot != null) {
+                            source = utils.join(this.sourceRoot, source);
+                        }
+                        return {
+                            source: source,
+                            line: utils.getArg(mapping, 'originalLine', null),
+                            column: utils.getArg(mapping, 'originalColumn', null),
+                            name: utils.getArg(mapping, 'name', null)
+                        };
+                    }
+                }
+
+                return {
+                    source: null,
+                    line: null,
+                    column: null,
+                    name: null
+                };
+            };
 
             /**
              * Returns the original source content. The only argument is the url of the
@@ -561,7 +561,7 @@ module lib.ast {
                 }
 
                 var sourceRoot = this.sourceRoot;
-                mappings.map(function (mapping) {
+                mappings.map(function(mapping) {
                     var source = mapping.source;
                     if (source != null && sourceRoot != null) {
                         source = utils.join(sourceRoot, source);

@@ -3,19 +3,19 @@
 module lib.cuda.exec {
 
     export class Thread {
-        error:lib.utils.Error = new lib.utils.Error();
-        threadIdx:lib.cuda.Dim3 = new lib.cuda.Dim3(0);
-        blockIdx:lib.cuda.Dim3 = new lib.cuda.Dim3(0);
-        blockDim:lib.cuda.Dim3 = new lib.cuda.Dim3(0);
-        gridIdx:lib.cuda.Dim3 = new lib.cuda.Dim3(0);
-        gridDim:lib.cuda.Dim3 = new lib.cuda.Dim3(0);
-        block:Block;
-        warp:Warp;
-        status:cuda.Status;
-        fun:Function = undefined;
-        args:Array<any> = [];
+        error: lib.utils.Error = new lib.utils.Error();
+        threadIdx: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        blockIdx: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        blockDim: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        gridIdx: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        gridDim: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        block: Block;
+        warp: Warp;
+        status: cuda.Status;
+        fun: Function = undefined;
+        args: Array<any> = [];
 
-        constructor(block:Block, threadIdx:lib.cuda.Dim3, fun:Function, args:Array<any>) {
+        constructor(block: Block, threadIdx: lib.cuda.Dim3, fun: Function, args: Array<any>) {
             this.status = cuda.Status.Idle;
             this.block = block;
             this.blockIdx = block.blockIdx;
@@ -27,7 +27,7 @@ module lib.cuda.exec {
         }
 
         run() {
-            var res:cuda.Status;
+            var res: cuda.Status;
             this.status = cuda.Status.Running;
             try {
                 res = this.fun.apply(this, this.args);

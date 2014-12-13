@@ -1,4 +1,4 @@
-﻿/// <reference path='../../utils/utils.ts' />
+/// <reference path='../../utils/utils.ts' />
 /// <reference path='detail.ts' />
 
 
@@ -6,23 +6,23 @@ module lib.c.type {
     export module detail {
         import utils = lib.utils;
         export class Uint8 implements CLiteral, IntegerTraits, UnsignedIntegerTraits {
-            private value_:Uint8Array;
-            MAX_VALUE:number = 255;
-            MIN_VALUE:number = 0;
-            KIND:CLiteralKind = CLiteralKind.Uint8;
+            private value_: Uint8Array;
+            MAX_VALUE: number = 255;
+            MIN_VALUE: number = 0;
+            KIND: CLiteralKind = CLiteralKind.Uint8;
 
-            is_integer:() => boolean;
-            is_exact:() => boolean;
-            has_infinity:() => boolean;
-            is_modulo:() => boolean;
-            is_signed:() => boolean;
+            is_integer: () => boolean;
+            is_exact: () => boolean;
+            has_infinity: () => boolean;
+            is_modulo: () => boolean;
+            is_signed: () => boolean;
             min = () => new Uint8(this.MIN_VALUE);
             max = () => new Uint8(this.MAX_VALUE);
             lowest = () => new Uint8(this.MIN_VALUE);
             highest = () => new Uint8(this.MAX_VALUE);
             infinity = () => new Uint8(0);
 
-            constructor(n?:number) {
+            constructor(n?: number) {
                 this.value_ = new Uint8Array(1);
                 if (n) {
                     this.value_[0] = n;
@@ -31,11 +31,11 @@ module lib.c.type {
                 }
             }
 
-            getValue():Int8Array {
+            getValue(): Int8Array {
                 return this.value_;
             }
 
-            add(other:CLiteral):CLiteral {
+            add(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
                     return utils.castTo<CLiteral>(new Uint8(this.value_[0] + other.getValue()[0]));
                 }
@@ -43,12 +43,12 @@ module lib.c.type {
                 return new typ(this.value_[0] + other.getValue()[0]);
             }
 
-            addTo(other:CLiteral):CLiteral {
+            addTo(other: CLiteral): CLiteral {
                 this.value_[0] += other.getValue()[0];
                 return this;
             }
 
-            sub(other:CLiteral):CLiteral {
+            sub(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
                     return utils.castTo<CLiteral>(new Uint8(this.value_[0] - other.getValue()[0]));
                 }
@@ -56,12 +56,12 @@ module lib.c.type {
                 return new typ(this.value_[0] - other.getValue()[0]);
             }
 
-            subFrom(other:CLiteral):CLiteral {
+            subFrom(other: CLiteral): CLiteral {
                 this.value_[0] -= other.getValue()[0];
                 return this;
             }
 
-            mul(other:CLiteral):CLiteral {
+            mul(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
                     return utils.castTo<CLiteral>(new Uint8(this.value_[0] * other.getValue()[0]));
                 }
@@ -69,12 +69,12 @@ module lib.c.type {
                 return new typ(this.value_[0] * other.getValue()[0]);
             }
 
-            mulBy(other:CLiteral):CLiteral {
+            mulBy(other: CLiteral): CLiteral {
                 this.value_[0] *= other.getValue()[0];
                 return this;
             }
 
-            div(other:CLiteral):CLiteral {
+            div(other: CLiteral): CLiteral {
                 if (other.KIND <= this.KIND) {
                     return utils.castTo<CLiteral>(new Uint8(this.value_[0] / other.getValue()[0]));
                 }
@@ -82,16 +82,16 @@ module lib.c.type {
                 return new typ(this.value_[0] / other.getValue()[0]);
             }
 
-            divBy(other:CLiteral):CLiteral {
+            divBy(other: CLiteral): CLiteral {
                 this.value_[0] /= other.getValue()[0];
                 return this;
             }
 
-            negate():CLiteral {
+            negate(): CLiteral {
                 return utils.castTo<CLiteral>(new Uint8(-this.value_[0]));
             }
 
-            value():number {
+            value(): number {
                 return this.value_[0];
             }
         }

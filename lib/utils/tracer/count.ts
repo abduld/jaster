@@ -1,14 +1,14 @@
 module lib.utils {
     export module trace {
         export module counter {
-            var counter_:Map<string, number>;
+            var counter_: Map<string, number>;
             if (lib.utils.isUndefined(counter_)) {
                 counter_ = new Map<string, number>();
                 ;
             }
 
-            export function increment(x:string):number;
-            export function increment(x:any):number {
+            export function increment(x: string): number;
+            export function increment(x: any): number {
                 if (!lib.utils.isString(x)) {
                     return increment(lib.utils.hash(x));
                 }
@@ -21,8 +21,8 @@ module lib.utils {
                 return counter_.get(x);
             }
 
-            export function decrement(x:string):number;
-            export function decrement(x:string):number {
+            export function decrement(x: string): number;
+            export function decrement(x: string): number {
 
                 if (!lib.utils.isString(x)) {
                     return increment(lib.utils.hash(x));

@@ -1,28 +1,28 @@
-﻿/*This is free and unencumbered software released into the public domain.
+/*This is free and unencumbered software released into the public domain.
 
- Anyone is free to copy, modify, publish, use, compile, sell, or
- distribute this software, either in source code form or as a compiled
- binary, for any purpose, commercial or non-commercial, and by any
- means.
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
- In jurisdictions that recognize copyright laws, the author or authors
- of this software dedicate any and all copyright interest in the
- software to the public domain. We make this dedication for the benefit
- of the public at large and to the detriment of our heirs and
- successors. We intend this dedication to be an overt act of
- relinquishment in perpetuity of all present and future rights to this
- software under copyright law.
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
- OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
 
- For more information, please refer to <http://unlicense.org>
- */
+For more information, please refer to <http://unlicense.org>
+*/
 // from https://github.com/stacktracejs/stackframe
 module lib.utils {
     export module stacktrace {
@@ -31,11 +31,11 @@ module lib.utils {
         }
 
         export class StackFrame {
-            fileName:string;
-            functionName:string;
-            args:any[];
-            lineNumber:number;
-            columnNumber:number;
+            fileName: string;
+            functionName: string;
+            args: any[];
+            lineNumber: number;
+            columnNumber: number;
 
             constructor(functionName, args, fileName, lineNumber, columnNumber) {
                 if (functionName !== undefined) {
@@ -59,7 +59,7 @@ module lib.utils {
                 return this.functionName;
             }
 
-            setFunctionName(v:string) {
+            setFunctionName(v: string) {
                 this.functionName = String(v);
             }
 
@@ -67,7 +67,7 @@ module lib.utils {
                 return this.args;
             }
 
-            setArgs(v:any[]) {
+            setArgs(v: any[]) {
                 if (Object.prototype.toString.call(v) !== '[object Array]') {
                     throw new TypeError('Args must be an Array');
                 }
@@ -81,7 +81,7 @@ module lib.utils {
                 return this.fileName;
             }
 
-            setFileName(v:string) {
+            setFileName(v: string) {
                 this.fileName = String(v);
             }
 
@@ -89,7 +89,7 @@ module lib.utils {
                 return this.lineNumber;
             }
 
-            setLineNumber(v:number) {
+            setLineNumber(v: number) {
                 if (!_isNumber(v)) {
                     throw new TypeError('Line Number must be a Number');
                 }
@@ -100,7 +100,7 @@ module lib.utils {
                 return this.columnNumber;
             }
 
-            setColumnNumber(v:number) {
+            setColumnNumber(v: number) {
                 if (!_isNumber(v)) {
                     throw new TypeError('Column Number must be a Number');
                 }
