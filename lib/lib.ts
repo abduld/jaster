@@ -108,15 +108,19 @@ module lib {
     export function reference(state, stack, name) : any {
       var ref;
       if (name === "argv") {
-        return {};
+          return {};
       } else if (_.isUndefined(stack[name])&& stack.types[name] !== "ReferenceType") {
-        return {
-          type: "Identifier",
-          id: name,
-          stack: stack,
-          state: state
+
+              return {
+                  type: "Identifier",
+                  id: name,
+                  stack: stack,
+                  state: state
+              }
+
+      } else if (!_.isUndefined(stack[name]) && _.isNumber(stack[name])) {
+            return stack[name];
         }
-      }
       lib.utils.assert.ok(stack[name].type === "CReference");
       ref = stack[name];
       return {
@@ -127,5 +131,9 @@ module lib {
         mem: ref.mem,
         args: ref.args
       }
+    }
+
+    export function checkEvent(state, stack) {
+        return false;
     }
 }

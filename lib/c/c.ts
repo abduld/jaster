@@ -20,13 +20,21 @@ float: 4,
             uint32 : 4,
             uint64: 8
         };
-        export function sizeof(state, size : string) {
-            return sizeof_[size];
+        export function sizeof(state, typ : string) {
+            return sizeof_[typ];
         }
 
         export function makeReference(state, stack, name, data) {
-            var hostMem : lib.c. = state.hostMemory;
-            hostMem.
+            var hostMem : lib.memory.HostMemoryManager = state.hostMemory;
+            var typ = stack.types[name].kind.bases[0];
+            var elemSize = sizeof(state, typ);
+
+            return {
+                type: "CReference",
+                id: lib.utils.guuid(),
+                mem: hostMem.malloc(data.length * elemSize),
+                args: []
+            };
         }
     }
 }
