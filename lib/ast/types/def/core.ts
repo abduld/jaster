@@ -1,3 +1,5 @@
+/// <reference path="../types.ts" />
+
 module lib.ast.types {
     export module definitions {
         import types = lib.ast.types;

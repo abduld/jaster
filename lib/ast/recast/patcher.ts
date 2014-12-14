@@ -1,4 +1,5 @@
 /// <reference path="recast.ts" />
+/// <reference path="../types/node-path.ts" />
 module lib.ast.recast {
     import types = lib.ast.types;
     import assert = lib.utils.assert;
@@ -11,7 +12,7 @@ module lib.ast.recast {
     var isFunction: types.Type = types.builtInTypes["function"];
     var b = types.builders;
     var Node = types.namedTypes["Node"];
-    var Expression = types.namedTypes["Expression"];
+    var  Expression = types.namedTypes["Expression"];
     var SourceLocation = types.namedTypes["SourceLocation"];
 
     export function Patcher(lines) {
@@ -69,12 +70,12 @@ module lib.ast.recast {
     }
 
     export function getReprinter(path) {
-        assert.ok(path instanceof NodePath);
+        //assert.ok(path instanceof lib.ast.types.NodePath);
 
         // Make sure that this path refers specifically to a Node, rather than
         // some non-Node subproperty of a Node.
         var node = path.value;
-        if (!Node.check(node))
+        if (!lib.ast.types.namedTypes["Node"].check(node))
             return;
 
         var orig = node.original;

@@ -1411,6 +1411,7 @@ module lib.ast {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
                                 nd = null;
                             }
+                            nd = _.flatten(nd);
                             if (nd == null) {
                                 return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0)) || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
@@ -2841,9 +2842,6 @@ module lib.ast {
                         raw: this.raw, cform: this.cform,
                         loc: this.loc
                     };
-                    if (this.kind.toEsprima() === null) {
-                        debugger;
-                    }
                     var init = this.init.toEsprima();
                     if (this.id.kind.type === "TypeExpression" &&
                         castTo<TypeExpression>(this.id.kind).bases[0] === "int" && this.init.type !== "UndefinedExpression") {
@@ -2866,7 +2864,8 @@ module lib.ast {
                             )
                             }
                     if (this.kind.type !== "EmptyExpression") {
-                        return builder.expressionStatement(
+                        return builder.blockStatement([
+                        builder.expressionStatement(
                             builder.sequenceExpression([
                                 builder.callExpression(
                                     builder.memberExpression(
@@ -2888,15 +2887,23 @@ module lib.ast {
                                     ], _.isNull),
                                     sloc
                                     ),
-                                {
-                                    type: "AssignmentExpression",
-                                    operator: "=",
-                                    right: castTo<esprima.Syntax.Expression>(init),
-                                    left: id,
-                                    raw: this.raw, cform: this.cform,
-                                    loc: this.loc
-                                }])
-                            );
+                                builder.assignmentExpression(
+                                  "=",
+                                  id,
+                                  init,
+                                  this.loc
+                                )])
+                            ),builder.variableDeclaration(
+                              "var",
+                              [
+                              builder.variableDeclarator(
+                                builder.identifier(this.id.name, this.id.loc),
+                                id,
+                                sloc
+                                )
+                                ],
+                                sloc
+                                )], sloc);
                     } else {
                         var init = this.init.toEsprima();
                         if (this.id.kind.type === "TypeExpression" &&
@@ -3128,19 +3135,17 @@ module lib.ast {
                             acc = this.right.toEsprima();
                         }
                         return builder.expressionStatement(
+                          builder.sequenceExpression([
                             builder.assignmentExpression("=", lefte,
                                 acc, sloc),
-                            sloc
-                            );
+                                 builder.assignmentExpression("=", builder.identifier(left.name, left.loc), lefte, sloc)], sloc), sloc);
                     } else {
-                        return {
-                            type: "AssignmentExpression",
-                            operator: this.operator,
-                            left: castTo<esprima.Syntax.Expression>(this.left.toEsprima()),
-                            right: castTo<esprima.Syntax.Expression>(this.right.toEsprima()),
-                            raw: this.raw, cform: this.cform,
-                            loc: this.loc
-                        }
+                        return builder.expressionStatement(
+                          builder.sequenceExpression([
+                            builder.assignmentExpression("=", this.left.toEsprima(),
+                            acc, sloc)].concat(this.left.type === "Identifier" ?
+                            [builder.assignmentExpression("=", builder.identifier(castTo<Identifier>(this.left).name, left.loc), this.left.toEsprima(), sloc)]
+                            : []), sloc), sloc)
                     }
                 }
 

@@ -1,11 +1,5 @@
 /// <reference path="../../utils/utils.ts" />
 
-/// < reference path="shared.ts" />
-/// < reference path="equiv.ts" />
-/// < reference path="path.ts" />
-/// < reference path="node-path.ts" />
-/// < reference path="path-visitor.ts" />
-/// < reference path="scope.ts" />
 
 module lib.ast {
     export module types {
@@ -44,18 +38,13 @@ module lib.ast {
                 assert.ok(nameObjStr === funObjStr ||
                     nameObjStr === strObjStr,
                     name + " is neither a function nor a string");
-
-                Object.defineProperties(self, {
-                    name: { value: name },
-                    check: {
-                        value: function(value, deep) {
-                            var result = check.call(self, value, deep);
-                            if (!result && deep && objToStr.call(deep) === funObjStr)
-                                deep(self, value);
-                            return result;
-                        }
-                    }
-                });
+                this.name = name;
+                this.check = function(value, deep?) {
+                    var result = check.call(self, value, deep);
+                    if (!result && deep && objToStr.call(deep) === funObjStr)
+                        deep(self, value);
+                    return result;
+                }
             }
 
             // Like .check, except that failure triggers an AssertionError.

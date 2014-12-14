@@ -8,6 +8,7 @@ module lib {
             var logger = new Logger();
 
             export function assert(res, msg?) {
+              try {
                 if (!res) {
                     //debugger;
                     if (msg) {
@@ -16,6 +17,7 @@ module lib {
                         logger.error('FAIL: ');
                     }
                 }
+              } catch (e) {}
             }
 
             export function assertUnreachable(msg: string): void {

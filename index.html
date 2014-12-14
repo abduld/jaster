@@ -82,6 +82,7 @@
             qualifiers: [],
             bases: ['int']
           }), functionStack$['idx'] = Math.floor(blockIdx.x * blockDim.x + threadIdx.x);
+          var idx = functionStack$['idx'];
           functionStack$['position'] = 9;
           if (lib.checkEvent(state$, worker$, functionStack$)) {
             lib.handleEvent(state$, worker$, functionStack$);
@@ -92,7 +93,6 @@
             if (lib.checkEvent(state$, worker$, functionStack$)) {
               lib.handleEvent(state$, worker$, functionStack$);
             }
-            lib.cuda.setElement(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'out')), functionStack$['idx'], lib.c.getElement(state$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'in1')), functionStack$['idx']) + lib.c.getElement(state$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'in2')), functionStack$['idx']));
           }
         };
       }
@@ -151,12 +151,14 @@
         qualifiers: [],
         bases: ['int']
       }), functionStack$['args'] = undefined;
+      var args = functionStack$['args'];
       lib.setType(functionStack$, 'inputLength', {
         type: 'TypeExpression',
         addressSpace: [''],
         qualifiers: [],
         bases: ['int']
       }), functionStack$['inputLength'] = undefined;
+      var inputLength = functionStack$['inputLength'];
       lib.setType(functionStack$, 'hostInput1', {
         type: 'ReferenceType',
         kind: {
@@ -166,6 +168,7 @@
           bases: ['float']
         }
       }), functionStack$['hostInput1'] = undefined;
+      var hostInput1 = functionStack$['hostInput1'];
       lib.setType(functionStack$, 'hostInput2', {
         type: 'ReferenceType',
         kind: {
@@ -175,6 +178,7 @@
           bases: ['float']
         }
       }), functionStack$['hostInput2'] = undefined;
+      var hostInput2 = functionStack$['hostInput2'];
       lib.setType(functionStack$, 'hostOutput', {
         type: 'ReferenceType',
         kind: {
@@ -184,6 +188,7 @@
           bases: ['float']
         }
       }), functionStack$['hostOutput'] = undefined;
+      var hostOutput = functionStack$['hostOutput'];
       lib.setType(functionStack$, 'deviceInput1', {
         type: 'ReferenceType',
         kind: {
@@ -193,6 +198,7 @@
           bases: ['float']
         }
       }), functionStack$['deviceInput1'] = undefined;
+      var deviceInput1 = functionStack$['deviceInput1'];
       lib.setType(functionStack$, 'deviceInput2', {
         type: 'ReferenceType',
         kind: {
@@ -202,6 +208,7 @@
           bases: ['float']
         }
       }), functionStack$['deviceInput2'] = undefined;
+      var deviceInput2 = functionStack$['deviceInput2'];
       lib.setType(functionStack$, 'deviceOutput', {
         type: 'ReferenceType',
         kind: {
@@ -211,58 +218,40 @@
           bases: ['float']
         }
       }), functionStack$['deviceOutput'] = undefined;
-      functionStack$['args'] = lib.wb.wbArg_read(state$, functionStack$, functionStack$['argc'], lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'argv')));
-      lib.wb.wbTime_start(state$, functionStack$, 'Generic', 'Importing data and creating memory on host');
-      functionStack$['hostInput1'] = lib.c.makeReference(state$, functionStack$, 'hostInput1', lib.wb.wbImport(state$, functionStack$, 'input0', lib.reference(state$, functionStack$, 'inputLength')));
-      functionStack$['hostInput2'] = lib.c.makeReference(state$, functionStack$, 'hostInput2', lib.wb.wbImport(state$, functionStack$, 'input1', lib.reference(state$, functionStack$, 'inputLength')));
-      functionStack$['hostOutput'] = lib.c.makeReference(state$, functionStack$, 'hostOutput', lib.c.malloc(state$, functionStack$, functionStack$['inputLength'] * lib.c.sizeof(state$, functionStack$, 'float'), ['inputLength']));
-      lib.wb.wbTime_stop(state$, functionStack$, 'Generic', 'Importing data and creating memory on host');
-      lib.wb.wbLog(state$, functionStack$, 'TRACE', 'The input length is ', functionStack$['inputLength'], ' elements');
-      lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Allocating GPU memory.');
+      var deviceOutput = functionStack$['deviceOutput'];
+      functionStack$['position'] = 2;
+      if (lib.checkEvent(state$, functionStack$)) {
+        lib.handleEvent(state$, functionStack$);
+      }
       lib.setType(functionStack$, 'byteSize', {
         type: 'TypeExpression',
         addressSpace: [''],
         qualifiers: [],
         bases: ['int']
       }), functionStack$['byteSize'] = Math.floor(lib.c.sizeof(state$, functionStack$, 'float') * functionStack$['inputLength']);
+      var byteSize = functionStack$['byteSize'];
       functionStack$['position'] = 37;
       if (lib.checkEvent(state$, functionStack$)) {
         lib.handleEvent(state$, functionStack$);
       }
-      lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Allocating GPU memory.');
-      lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
-      lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceInput1'), functionStack$['byteSize'], [
-      'deviceInput1',
-      'byteSize'
-      ]);
-      lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceInput2'), functionStack$['byteSize'], [
-      'deviceInput2',
-      'byteSize'
-      ]);
-      lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceOutput'), functionStack$['byteSize'], [
-      'deviceOutput',
-      'byteSize'
-      ]);
-      lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
-      lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput1')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1')), functionStack$['byteSize'], 'cudaMemcpyHostToDevice');
       functionStack$['position'] = 52;
       if (lib.checkEvent(state$, functionStack$)) {
         lib.handleEvent(state$, functionStack$);
       }
-      lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput2')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1')), functionStack$['byteSize'], 'cudaMemcpyHostToDevice');
-      lib.wb.wbTime_start(state$, functionStack$, 'Compute', 'Performing CUDA computation');
       lib.setType(functionStack$, 'block_size', {
         type: 'TypeExpression',
         addressSpace: [''],
         qualifiers: [],
         bases: ['int']
       }), functionStack$['block_size'] = Math.floor(16);
+      var block_size = functionStack$['block_size'];
       lib.setType(functionStack$, 'n_blocks', {
         type: 'TypeExpression',
         addressSpace: [''],
         qualifiers: [],
         bases: ['int']
       }), functionStack$['n_blocks'] = Math.floor(functionStack$['inputLength'] / functionStack$['block_size'] + (functionStack$['inputLength'] % functionStack$['block_size'] == 0 ? 0 : 1));
+      var n_blocks = functionStack$['n_blocks'];
       var p_gridDim$ = [functionStack$['n_blocks']];
       var p_blockDim$ = [functionStack$['block_size']];
       var gridDim$ = {
@@ -289,23 +278,16 @@
           }
         }
       }
-      lib.cuda.cudaThreadSynchronize(state$, functionStack$);
-      lib.wb.wbTime_stop(state$, functionStack$, 'Compute', 'Performing CUDA computation');
-      lib.wb.wbTime_start(state$, functionStack$, 'Copy', 'Copying output memory to the CPU');
-      lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput')), lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceOutput')), functionStack$['byteSize'], 'cudaMemcpyDeviceToHost');
-      lib.wb.wbTime_stop(state$, functionStack$, 'Copy', 'Copying output memory to the CPU');
-      lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Freeing GPU Memory');
-      lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Freeing GPU Memory');
-      lib.wb.wbSolution(state$, functionStack$, functionStack$['args'], lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput')), functionStack$['inputLength']);
-      lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1')));
+      functionStack$['position'] = 2;
+      if (lib.checkEvent(state$, functionStack$)) {
+        lib.handleEvent(state$, functionStack$);
+      }
       functionStack$['position'] = 82;
       if (lib.checkEvent(state$, functionStack$)) {
         lib.handleEvent(state$, functionStack$);
       }
-      lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput2')));
-      lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput')));
-      return 0;
     }
+    //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImN1ZGEuanMiXSwibmFtZXMiOlsic3RhdGUkIiwibGliIiwiaW5pdCIsInZlY0FkZCIsInZlY0FkZCRnZW5fIiwiZnVuY3Rpb25TdGFjayQiLCJmdW5jdGlvbk5hbWUkIiwiYXJndW1lbnRzIiwidHlwZSIsImtpbmQiLCJhZGRyZXNzU3BhY2UiLCJxdWFsaWZpZXJzIiwiYmFzZXMiLCJ2ZWNBZGQkZl8iLCJsaW5lU3RhdGUkIiwiY2hlY2tFdmVudCIsIndvcmtlciQiLCJoYW5kbGVFdmVudCIsImJsb2NrSWR4IiwieCIsImJsb2NrRGltIiwidGhyZWFkSWR4IiwiaWR4IiwiYXJndW1lbnQiLCJpbml0V29ya2VyIiwieSIsInoiLCJ0aHJlYWRGdW5zIiwidGhyZWFkU3RhdGVzIiwiZ3JpZERpbSIsInNldFJlZmVyZW5jZSIsImxlbiIsInB1c2giLCJfIiwiYWxsIiwibWFwIiwidGhyZWFkRnVuIiwic3RhdGUiLCJpc1VuZGVmaW5lZCIsIm1haW4iLCJhcmdzIiwiaW5wdXRMZW5ndGgiLCJob3N0SW5wdXQxIiwiaG9zdElucHV0MiIsImhvc3RPdXRwdXQiLCJkZXZpY2VJbnB1dDEiLCJkZXZpY2VJbnB1dDIiLCJkZXZpY2VPdXRwdXQiLCJzaXplb2YiLCJieXRlU2l6ZSIsImJsb2NrX3NpemUiLCJuX2Jsb2NrcyIsInBfZ3JpZERpbSQiLCJwX2Jsb2NrRGltJCIsImdyaWREaW0kIiwibGVuZ3RoIiwiYmxvY2tEaW0kIiwiYmxvY2tJZHhaIiwiYmxvY2tJZHhZIiwiYmxvY2tJZHhYIiwicGFyYWxsZWwiLCJzY2hlZHVsZVRocmVhZCIsImJsb2NrSWR4JCJdLCJtYXBwaW5ncyI6IkFBQUMsSUFBQUEsTSxHQUFBQyxHQUFBLENBQUFDLElBQUE7QUFLQyxTQUFBQyxNQUFBO0FBQUEsYUFBQUMsV0FBQTtBQUFBLFlBQUFDLGNBQUEsT0FBQUMsYUFBQTtBQUFBLFFBQUFELGNBQUEsYUFBQUUsUyxDQUFBLEMsQ0FBQTtBQUFBLFFBQUFGLGNBQUEsZ0JBQUFFLFMsQ0FB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
 
   main([], 0);
     </script>
