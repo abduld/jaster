@@ -1,3 +1,6 @@
 module lib.wb {
-    export declare function wbImport(file:string, numRows:number, numCols:number);
+    export function wbImport(state, stack, file:string, numRowsRef) {
+        numRowsRef.stack[numRowsRef.id] = 100;
+        return _.range(100);
+    }
 }

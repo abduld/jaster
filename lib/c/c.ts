@@ -23,5 +23,10 @@ float: 4,
         export function sizeof(state, size : string) {
             return sizeof_[size];
         }
+
+        export function makeReference(state, stack, name, data) {
+            var hostMem : lib.c. = state.hostMemory;
+            hostMem.
+        }
     }
 }
