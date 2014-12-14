@@ -101,7 +101,7 @@ module lib {
 
     export module parallel {
         export function scheduleThread(state: StateInterface, fun: Function) {
-            console.log("todo scheduleThread");
+            setImmediate(fun);
             return;
         }
 
@@ -179,5 +179,12 @@ module lib {
 
     export function checkEvent(state, stack) {
         return false;
+    }
+
+    export function initWorker(state) {
+      return {
+        type: "Worker",
+        state: state
+      }
     }
 }

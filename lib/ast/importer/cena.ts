@@ -1411,7 +1411,7 @@ module lib.ast {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
                                 nd = null;
                             }
-                            nd = _.flatten(nd);
+                            nd = _.flatten([nd]);
                             if (nd == null) {
                                 return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0)) || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
@@ -1697,9 +1697,14 @@ module lib.ast {
                                     [
                                         builder.variableDeclarator(
                                             builder.identifier("state$", self.loc),
-                                            builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(0, self.loc), true, self.loc),
+                                            builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(0, self.loc), true, self.loc),
                                             self.loc
                                             ),
+                                            builder.variableDeclarator(
+                                              builder.identifier("functionStack$", self.loc),
+                                              builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(1, self.loc), true, self.loc),
+                                              self.loc
+                                              ),
                                         builder.variableDeclarator(
                                             builder.identifier("worker$", self.loc),
                                             builder.callExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("initWorker", self.loc), false, self.loc), [builder.identifier("state$", self.loc)], self.loc)
@@ -1728,17 +1733,17 @@ module lib.ast {
                                         ),
                                     builder.variableDeclarator(
                                         builder.identifier("blockIdx", self.loc),
-                                        builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(1, self.loc), true, self.loc),
+                                        builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(2, self.loc), true, self.loc),
                                         self.loc
                                         ),
                                     builder.variableDeclarator(
                                         builder.identifier("blockDim", self.loc),
-                                        builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(2, self.loc), true, self.loc),
+                                        builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(3, self.loc), true, self.loc),
                                         self.loc
                                         ),
                                     builder.variableDeclarator(
                                         builder.identifier("gridDim", self.loc),
-                                        builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(3, self.loc), true, self.loc),
+                                        builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(4, self.loc), true, self.loc),
                                         self.loc
                                         )
                                 ],
@@ -1763,14 +1768,14 @@ module lib.ast {
                                                     ),
                                                 [
                                                     param.toEsprima(),
-                                                    builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                                    builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(5 + idx, self.loc), true, self.loc),
                                                 ],
                                                 self.loc
                                                 ), self.loc)
                                           } else {
                                             return builder.variableDeclaration("var", [builder.variableDeclarator(
                                             param.toEsprima(),
-                                            builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                            builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
                                             self.loc
                                             )],
                                             self.loc)
@@ -2097,7 +2102,6 @@ module lib.ast {
                             false,
                             sloc
                             );
-
                         args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (startsWith(this.callee.name, "cuda")) {
                         var libcuda = builder.memberExpression(
@@ -2277,10 +2281,10 @@ module lib.ast {
                                             callExpression(
                                                 builder.functionExpression(null, [builder.identifier("state$", self.loc), builder.identifier("functionStack$", self.loc), builder.identifier("blockIdx$", self.loc)],
                                                     builder.blockStatement([
-                                                        builder.expressionStatement(
+                                                        builder.returnStatement(
                                                             builder.functionExpression(null, [],
                                                                 builder.blockStatement([
-                                                                    builder.expressionStatement(
+                                                                    builder.returnStatement(
                                                                         callExpression(
                                                                             this.callee.toEsprima(),
                                                                             [builder.identifier("functionStack$", self.loc)].concat(

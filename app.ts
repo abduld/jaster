@@ -40,7 +40,7 @@ function initWebApp() {
     var jsDoc = jsEditor.getDoc();
 
     code = res.code ;
-    code = code + "\n" + lib.utils.sourceMapToComment(res.map.toJSON());
+    //code = code + "\n" + lib.utils.sourceMapToComment(res.map.toJSON());
     jsDoc.setValue(code);
     jsEditor.setSize("100%", 1000);
 
