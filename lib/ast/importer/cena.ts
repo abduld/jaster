@@ -1161,38 +1161,30 @@ module lib.ast {
                             builder.position(loc.end.line, loc.end.column)
                             );
 
-                        var libc = builder.memberExpression(
-                            builder.identifier(
-                                "lib",
-                                sloc
-                                ),
-                            builder.identifier(
-                                "c",
-                                sloc
-                                ),
-                            false,
-                            sloc
-                            );
                         var refname = this.kind.type === "ReferenceType" && castTo<ReferenceType>(this.kind).isCUDA === true ? "cudaReference" : "reference";
                         var ref = builder.memberExpression(builder.identifier(
                             "lib",
                             sloc
                             ), builder.identifier(refname, sloc), false, sloc);
+                        var val : any = builder.literal(this.name, this.loc);
+                        if (castTo<ReferenceType>(this.kind).type === "ReferenceType") {
+                        var typ : ReferenceType = castTo<ReferenceType>(castTo<ReferenceType>(this.kind).value);
+                            refname = castTo<ReferenceType>(typ).type === "ReferenceType" && castTo<ReferenceType>(typ).isCUDA === true ? "cudaReference" : "reference";
+                            val = builder.callExpression(ref, [
+                                builder.identifier("state$", sloc),
+                                builder.identifier("functionStack$", sloc), builder.literal(this.name, this.loc)], sloc);
+                            ref = builder.memberExpression(builder.identifier(
+                                "lib",
+                                sloc
+                            ), builder.identifier(refname, sloc), false, sloc);
+                        }
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
                             callee: castTo<esprima.Syntax.Identifier>(ref),
                             arguments: [
                                 builder.identifier("state$", sloc),
-                                castTo<esprima.Syntax.Identifier>({
-                                    type: "Identifier",
-                                    name: "functionStack$",
-                                    loc: this.loc
-                                }),
-                                castTo<esprima.Syntax.Literal>({
-                                    type: "Literal",
-                                    value: this.name,
-                                    loc: this.loc
-                                })],
+                                builder.identifier("functionStack$", sloc),
+                                val],
                             kind: this.kind.toEsprima(),
                             raw: this.raw, cform: this.cform,
                             loc: this.loc

@@ -48,6 +48,16 @@ module lib {
     }
     export module cuda {
         export function cudaMalloc(state: StateInterface, stack, ref: any, byteCount: number, args: string[]) {
+            if (ref.type === "Identifier") {
+                ref = {
+                    type: "CUDAReference",
+                    id: ref.id,
+                    mem: state.globalMemory.malloc(byteCount),
+                    args: args
+                };
+                stack[ref.id] = ref;
+                return ref;
+            }
           lib.utils.assert.ok(ref.mem.type === "CUDAReference");
           return {
             type: "CUDAReference",
@@ -55,6 +65,16 @@ module lib {
             mem: state.globalMemory.malloc(byteCount),
             args: args
           }
+        }
+        export function cudaMemcpy(state: StateInterface, stack, trg, src, size, direction) {
+            switch (direction) {
+             case "cudaMemcpyHostToDevice":
+                case "cudaMemcpyDeviceToHost":
+                    break ;
+                default:
+                    console.log("Invalid direction " + direction);
+            }
+            (new Int8Array(trg.mem.data.buffer, 0, size)).set(new Int8Array(src.mem.data.buffer, 0, size));
         }
     }
 
@@ -85,7 +105,8 @@ module lib {
 
     export function cudaReference(state, stack, name) : any {
       var ref;
-      if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType") {
+      if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType"&& stack.types[name] !== "CUDAReferenceType"
+          && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
         return {
           type: "Identifier",
           id: name,
@@ -109,7 +130,12 @@ module lib {
       var ref;
       if (name === "argv") {
           return {};
-      } else if (_.isUndefined(stack[name])&& stack.types[name] !== "ReferenceType") {
+      } else if (_.isObject(name) && name.type === "CUDAReference") {
+          return name;
+      } else if (_.isObject(name) && name.type === "CReference") {
+          return name;
+      } else if (_.isUndefined(stack[name])&& stack.types[name] !== "ReferenceType" && stack.types[name] !== "CUDAReferenceType"
+          && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
 
               return {
                   type: "Identifier",
@@ -119,6 +145,9 @@ module lib {
               }
 
       } else if (!_.isUndefined(stack[name]) && _.isNumber(stack[name])) {
+            return stack[name];
+        }
+        if (stack[name].type === "CUDAReference") {
             return stack[name];
         }
       lib.utils.assert.ok(stack[name].type === "CReference");

@@ -20,14 +20,14 @@ float: 4,
             uint32 : 4,
             uint64: 8
         };
-        export function sizeof(state, typ : string) {
+        export function sizeof(state, stack, typ : string) {
             return sizeof_[typ];
         }
 
         export function makeReference(state, stack, name, data) {
             var hostMem : lib.memory.HostMemoryManager = state.hostMemory;
             var typ = stack.types[name].kind.bases[0];
-            var elemSize = sizeof(state, typ);
+            var elemSize = sizeof(state, stack, typ);
 
             return {
                 type: "CReference",

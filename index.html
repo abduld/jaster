@@ -22,291 +22,299 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/q.js/1.1.2/q.js"></script>
     <script src="app.js"></script>
     <script type="text/javascript">
-    var state$ = lib.init();
-    function vecAdd() {
-      function vecAdd$gen_() {
-        var functionStack$ = {}, functionName$ = 'vecAdd';
-        functionStack$['state$'] = arguments[0];
-        functionStack$['threadIdx'] = arguments[1];
-        functionStack$['blockIdx'] = arguments[2];
-        functionStack$['blockDim'] = arguments[3];
-        functionStack$['gridDim'] = arguments[4];
-        functionStack$['in1'] = arguments[5];
-        lib.setType(functionStack$, 'in1', {
-          type: 'ReferenceType',
-          kind: {
+
+
+
+
+
+
+      var state$ = lib.init();
+      function vecAdd() {
+        function vecAdd$gen_() {
+          var functionStack$ = {}, functionName$ = 'vecAdd';
+          functionStack$['state$'] = arguments[0];
+          functionStack$['threadIdx'] = arguments[1];
+          functionStack$['blockIdx'] = arguments[2];
+          functionStack$['blockDim'] = arguments[3];
+          functionStack$['gridDim'] = arguments[4];
+          functionStack$['in1'] = arguments[5];
+          lib.setType(functionStack$, 'in1', {
+            type: 'ReferenceType',
+            kind: {
+              type: 'TypeExpression',
+              addressSpace: [''],
+              qualifiers: [],
+              bases: ['float']
+            }
+          });
+          functionStack$['in2'] = arguments[6];
+          lib.setType(functionStack$, 'in2', {
+            type: 'ReferenceType',
+            kind: {
+              type: 'TypeExpression',
+              addressSpace: [''],
+              qualifiers: [],
+              bases: ['float']
+            }
+          });
+          functionStack$['out'] = arguments[7];
+          lib.setType(functionStack$, 'out', {
+            type: 'ReferenceType',
+            kind: {
+              type: 'TypeExpression',
+              addressSpace: [''],
+              qualifiers: [],
+              bases: ['float']
+            }
+          });
+          functionStack$['len'] = arguments[8];
+          lib.setType(functionStack$, 'len', {
             type: 'TypeExpression',
             addressSpace: [''],
             qualifiers: [],
-            bases: ['float']
+            bases: ['int']
+          });
+          return function vecAdd$f_(lineState$) {
+            functionStack$['position'] = 8;
+            if (lib.checkEvent(state$, worker$, functionStack$)) {
+              lib.handleEvent(state$, worker$, functionStack$);
+            }
+            lib.setType(functionStack$, 'idx', {
+              type: 'TypeExpression',
+              addressSpace: [''],
+              qualifiers: [],
+              bases: ['int']
+            }), functionStack$['idx'] = threadIdx.x + blockDim.x * blockIdx.x;
+            functionStack$['position'] = 9;
+            if (lib.checkEvent(state$, worker$, functionStack$)) {
+              lib.handleEvent(state$, worker$, functionStack$);
+            }
+            functionStack$['cond$9'] = functionStack$['len'] < functionStack$['idx'];
+            if (functionStack$['cond$9']) {
+              functionStack$['position'] = 9;
+              if (lib.checkEvent(state$, worker$, functionStack$)) {
+                lib.handleEvent(state$, worker$, functionStack$);
+              }
+              lib.cuda.setElement(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'out')), functionStack$['idx'], lib.c.getElement(state$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'in2')), functionStack$['idx']) + lib.c.getElement(state$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'in1')), functionStack$['idx']));
+            }
+          };
+        }
+        var state$ = argument[0], worker$ = lib.initWorker(state$);
+        var threadIdx = {
+          x: 0,
+          y: 0,
+          z: 0
+        }, threadFuns = [], threadStates = [], blockIdx = argument[1], blockDim = argument[2], gridDim = argument[3];
+        lib.setReference(lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'in1')), argument[4]);
+        lib.setReference(lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'in2')), argument[5]);
+        lib.setReference(lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'out')), argument[6]);
+        var len = argument[7];
+        for (threadIdx['z'] = 0; threadIdx['z'] < (blockDim['z'] || 1); threadIdx['z']++) {
+          for (threadIdx['y'] = 0; threadIdx['y'] < (blockDim['y'] || 1); threadIdx['y']++) {
+            for (threadIdx['x'] = 0; threadIdx['x'] < (blockDim['x'] || 1); threadIdx['x']++) {
+              threadStates.push('init');
+              threadFuns.push(vecAdd$gen_(state$, threadIdx, blockIdx, blockDim, gridDim, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'in1')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'in2')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'out')), len));
+            }
           }
-        });
-        functionStack$['in2'] = arguments[6];
-        lib.setType(functionStack$, 'in2', {
-          type: 'ReferenceType',
-          kind: {
-            type: 'TypeExpression',
-            addressSpace: [''],
-            qualifiers: [],
-            bases: ['float']
+        }
+        return function () {
+          while (_.all(_.map(threadFuns, function (threadFun, idx) {
+            return threadStates[idx] = threadFun(threadStates[idx]);
+          }), function (state) {
+            return !_.isUndefined(state) && state !== 'finish';
+          })) {
           }
-        });
-        functionStack$['out'] = arguments[7];
-        lib.setType(functionStack$, 'out', {
-          type: 'ReferenceType',
-          kind: {
-            type: 'TypeExpression',
-            addressSpace: [''],
-            qualifiers: [],
-            bases: ['float']
-          }
-        });
-        functionStack$['len'] = arguments[8];
-        lib.setType(functionStack$, 'len', {
+        };
+      }
+      function main() {
+        var functionStack$ = {}, functionName$ = 'main';
+        functionStack$['argc'] = arguments[0];
+        lib.setType(functionStack$, 'argc', {
           type: 'TypeExpression',
           addressSpace: [''],
           qualifiers: [],
           bases: ['int']
         });
-        return function vecAdd$f_(lineState$) {
-          functionStack$['position'] = 8;
-          if (lib.checkEvent(state$, worker$, functionStack$)) {
-            lib.handleEvent(state$, worker$, functionStack$);
-          }
-          lib.setType(functionStack$, 'idx', {
-            type: 'TypeExpression',
-            addressSpace: [''],
-            qualifiers: [],
-            bases: ['int']
-          }), functionStack$['idx'] = threadIdx.x + blockDim.x * blockIdx.x;
-          functionStack$['position'] = 9;
-          if (lib.checkEvent(state$, worker$, functionStack$)) {
-            lib.handleEvent(state$, worker$, functionStack$);
-          }
-          functionStack$['cond$9'] = functionStack$['len'] < functionStack$['idx'];
-          if (functionStack$['cond$9']) {
-            functionStack$['position'] = 9;
-            if (lib.checkEvent(state$, worker$, functionStack$)) {
-              lib.handleEvent(state$, worker$, functionStack$);
+        functionStack$['argv'] = arguments[1];
+        lib.setType(functionStack$, 'argv', {
+          type: 'ReferenceType',
+          kind: {
+            type: 'ReferenceType',
+            kind: {
+              type: 'TypeExpression',
+              addressSpace: [''],
+              qualifiers: [],
+              bases: ['char']
             }
-            lib.cuda.setElement(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'out'), functionStack$['idx'], lib.c.getElement(state$, lib.cudaReference(state$, functionStack$, 'in2'), functionStack$['idx']) + lib.c.getElement(state$, lib.cudaReference(state$, functionStack$, 'in1'), functionStack$['idx']));
           }
-        };
-      }
-      var state$ = argument[0], worker$ = lib.initWorker(state$);
-      var threadIdx = {
-        x: 0,
-        y: 0,
-        z: 0
-      }, threadFuns = [], threadStates = [], blockIdx = argument[1], blockDim = argument[2], gridDim = argument[3];
-      lib.setReference(lib.reference(state$, functionStack$, 'in1'), argument[4]);
-      lib.setReference(lib.reference(state$, functionStack$, 'in2'), argument[5]);
-      lib.setReference(lib.reference(state$, functionStack$, 'out'), argument[6]);
-      var len = argument[7];
-      for (threadIdx['z'] = 0; threadIdx['z'] < (blockDim['z'] || 1); threadIdx['z']++) {
-        for (threadIdx['y'] = 0; threadIdx['y'] < (blockDim['y'] || 1); threadIdx['y']++) {
-          for (threadIdx['x'] = 0; threadIdx['x'] < (blockDim['x'] || 1); threadIdx['x']++) {
-            threadStates.push('init');
-            threadFuns.push(vecAdd$gen_(state$, threadIdx, blockIdx, blockDim, gridDim, lib.reference(state$, functionStack$, 'in1'), lib.reference(state$, functionStack$, 'in2'), lib.reference(state$, functionStack$, 'out'), len));
-          }
-        }
-      }
-      return function () {
-        while (_.all(_.map(threadFuns, function (threadFun, idx) {
-          return threadStates[idx] = threadFun(threadStates[idx]);
-        }), function (state) {
-          return !_.isUndefined(state) && state !== 'finish';
-        })) {
-        }
-      };
-    }
-    function main() {
-      var functionStack$ = {}, functionName$ = 'main';
-      functionStack$['argc'] = arguments[0];
-      lib.setType(functionStack$, 'argc', {
-        type: 'TypeExpression',
-        addressSpace: [''],
-        qualifiers: [],
-        bases: ['int']
-      });
-      functionStack$['argv'] = arguments[1];
-      lib.setType(functionStack$, 'argv', {
-        type: 'ReferenceType',
-        kind: {
+        });
+        lib.setType(functionStack$, 'args', {
+          type: 'TypeExpression',
+          addressSpace: [''],
+          qualifiers: [],
+          bases: ['int']
+        }), functionStack$['args'] = undefined;
+        lib.setType(functionStack$, 'inputLength', {
+          type: 'TypeExpression',
+          addressSpace: [''],
+          qualifiers: [],
+          bases: ['int']
+        }), functionStack$['inputLength'] = undefined;
+        lib.setType(functionStack$, 'hostInput1', {
           type: 'ReferenceType',
           kind: {
             type: 'TypeExpression',
             addressSpace: [''],
             qualifiers: [],
-            bases: ['char']
+            bases: ['float']
+          }
+        }), functionStack$['hostInput1'] = undefined;
+        lib.setType(functionStack$, 'hostInput2', {
+          type: 'ReferenceType',
+          kind: {
+            type: 'TypeExpression',
+            addressSpace: [''],
+            qualifiers: [],
+            bases: ['float']
+          }
+        }), functionStack$['hostInput2'] = undefined;
+        lib.setType(functionStack$, 'hostOutput', {
+          type: 'ReferenceType',
+          kind: {
+            type: 'TypeExpression',
+            addressSpace: [''],
+            qualifiers: [],
+            bases: ['float']
+          }
+        }), functionStack$['hostOutput'] = undefined;
+        lib.setType(functionStack$, 'deviceInput1', {
+          type: 'ReferenceType',
+          kind: {
+            type: 'TypeExpression',
+            addressSpace: [''],
+            qualifiers: [],
+            bases: ['float']
+          }
+        }), functionStack$['deviceInput1'] = undefined;
+        lib.setType(functionStack$, 'deviceInput2', {
+          type: 'ReferenceType',
+          kind: {
+            type: 'TypeExpression',
+            addressSpace: [''],
+            qualifiers: [],
+            bases: ['float']
+          }
+        }), functionStack$['deviceInput2'] = undefined;
+        lib.setType(functionStack$, 'deviceOutput', {
+          type: 'ReferenceType',
+          kind: {
+            type: 'TypeExpression',
+            addressSpace: [''],
+            qualifiers: [],
+            bases: ['float']
+          }
+        }), functionStack$['deviceOutput'] = undefined;
+        functionStack$['args'] = lib.wb.wbArg_read(state$, functionStack$, functionStack$['argc'], lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'argv')));
+        lib.wb.wbTime_start(state$, functionStack$, 'Generic', 'Importing data and creating memory on host');
+        functionStack$['hostInput1'] = lib.c.makeReference(state$, functionStack$, 'hostInput1', lib.wb.wbImport(state$, functionStack$, 'input0', lib.reference(state$, functionStack$, 'inputLength')));
+        functionStack$['hostInput2'] = lib.c.makeReference(state$, functionStack$, 'hostInput2', lib.wb.wbImport(state$, functionStack$, 'input1', lib.reference(state$, functionStack$, 'inputLength')));
+        functionStack$['hostOutput'] = lib.c.makeReference(state$, functionStack$, 'hostOutput', lib.c.malloc(state$, functionStack$, lib.c.sizeof(state$, functionStack$, 'float') * functionStack$['inputLength'], ['inputLength']));
+        lib.wb.wbTime_stop(state$, functionStack$, 'Generic', 'Importing data and creating memory on host');
+        lib.wb.wbLog(state$, functionStack$, 'TRACE', 'The input length is ', functionStack$['inputLength'], ' elements');
+        lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Allocating GPU memory.');
+        lib.setType(functionStack$, 'byteSize', {
+          type: 'TypeExpression',
+          addressSpace: [''],
+          qualifiers: [],
+          bases: ['int']
+        }), functionStack$['byteSize'] = functionStack$['inputLength'] * lib.c.sizeof(state$, functionStack$, 'float');
+        functionStack$['position'] = 37;
+        if (lib.checkEvent(state$, functionStack$)) {
+          lib.handleEvent(state$, functionStack$);
+        }
+        lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Allocating GPU memory.');
+        lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
+        lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceInput1'), functionStack$['byteSize'], [
+          'deviceInput1',
+          'byteSize'
+        ]);
+        lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceInput2'), functionStack$['byteSize'], [
+          'deviceInput2',
+          'byteSize'
+        ]);
+        lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceOutput'), functionStack$['byteSize'], [
+          'deviceOutput',
+          'byteSize'
+        ]);
+        lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
+        lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput1')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1')), functionStack$['byteSize'], 'cudaMemcpyHostToDevice');
+        functionStack$['position'] = 52;
+        if (lib.checkEvent(state$, functionStack$)) {
+          lib.handleEvent(state$, functionStack$);
+        }
+        lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput2')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1')), functionStack$['byteSize'], 'cudaMemcpyHostToDevice');
+        lib.wb.wbTime_start(state$, functionStack$, 'Compute', 'Performing CUDA computation');
+        lib.setType(functionStack$, 'block_size', {
+          type: 'TypeExpression',
+          addressSpace: [''],
+          qualifiers: [],
+          bases: ['int']
+        }), functionStack$['block_size'] = 16;
+        lib.setType(functionStack$, 'n_blocks', {
+          type: 'TypeExpression',
+          addressSpace: [''],
+          qualifiers: [],
+          bases: ['int']
+        }), functionStack$['n_blocks'] = (0 == functionStack$['block_size'] % functionStack$['inputLength'] ? 0 : 1) + functionStack$['block_size'] / functionStack$['inputLength'];
+        var p_gridDim$ = [functionStack$['n_blocks']];
+        var p_blockDim$ = [functionStack$['block_size']];
+        var gridDim$ = {
+          x: p_gridDim$.length >= 0 ? p_gridDim$[0] : 1,
+          y: p_gridDim$.length >= 1 ? p_gridDim$[1] : 1,
+          z: p_gridDim$.length >= 2 ? p_gridDim$[2] : 1
+        }, blockDim$ = {
+          x: p_blockDim$.length >= 0 ? p_blockDim$[0] : 1,
+          y: p_blockDim$.length >= 1 ? p_blockDim$[1] : 1,
+          z: p_blockDim$.length >= 2 ? p_blockDim$[2] : 1
+        };
+        for (var blockIdxZ = 0; blockIdxZ < gridDim$.z; ++blockIdxZ) {
+          for (var blockIdxY = 0; blockIdxY < gridDim$.y; ++blockIdxY) {
+            for (var blockIdxX = 0; blockIdxX < gridDim$.x; ++blockIdxX) {
+              lib.parallel.scheduleThread(state$, function (state$, blockIdx$) {
+                (function () {
+                  vecAdd(state$, blockIdx$, blockDim$, gridDim$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput1')), lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput2')), lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceOutput')), functionStack$['inputLength']);
+                });
+              }(state$, {
+                x: gridDimX,
+                y: gridDimY,
+                z: gridDimZ
+              }, {
+                x: blockDimX,
+                y: blockDimY,
+                z: blockDimZ
+              }));
+            }
           }
         }
-      });
-      lib.setType(functionStack$, 'args', {
-        type: 'TypeExpression',
-        addressSpace: [''],
-        qualifiers: [],
-        bases: ['int']
-      }), functionStack$['args'] = undefined;
-      lib.setType(functionStack$, 'inputLength', {
-        type: 'TypeExpression',
-        addressSpace: [''],
-        qualifiers: [],
-        bases: ['int']
-      }), functionStack$['inputLength'] = undefined;
-      lib.setType(functionStack$, 'hostInput1', {
-        type: 'ReferenceType',
-        kind: {
-          type: 'TypeExpression',
-          addressSpace: [''],
-          qualifiers: [],
-          bases: ['float']
+        lib.cuda.cudaThreadSynchronize(state$, functionStack$);
+        lib.wb.wbTime_stop(state$, functionStack$, 'Compute', 'Performing CUDA computation');
+        lib.wb.wbTime_start(state$, functionStack$, 'Copy', 'Copying output memory to the CPU');
+        lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput')), lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceOutput')), functionStack$['byteSize'], 'cudaMemcpyDeviceToHost');
+        lib.wb.wbTime_stop(state$, functionStack$, 'Copy', 'Copying output memory to the CPU');
+        lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Freeing GPU Memory');
+        lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Freeing GPU Memory');
+        lib.wb.wbSolution(state$, functionStack$, functionStack$['args'], lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput')), functionStack$['inputLength']);
+        lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1')));
+        functionStack$['position'] = 82;
+        if (lib.checkEvent(state$, functionStack$)) {
+          lib.handleEvent(state$, functionStack$);
         }
-      }), functionStack$['hostInput1'] = undefined;
-      lib.setType(functionStack$, 'hostInput2', {
-        type: 'ReferenceType',
-        kind: {
-          type: 'TypeExpression',
-          addressSpace: [''],
-          qualifiers: [],
-          bases: ['float']
-        }
-      }), functionStack$['hostInput2'] = undefined;
-      lib.setType(functionStack$, 'hostOutput', {
-        type: 'ReferenceType',
-        kind: {
-          type: 'TypeExpression',
-          addressSpace: [''],
-          qualifiers: [],
-          bases: ['float']
-        }
-      }), functionStack$['hostOutput'] = undefined;
-      lib.setType(functionStack$, 'deviceInput1', {
-        type: 'ReferenceType',
-        kind: {
-          type: 'TypeExpression',
-          addressSpace: [''],
-          qualifiers: [],
-          bases: ['float']
-        }
-      }), functionStack$['deviceInput1'] = undefined;
-      lib.setType(functionStack$, 'deviceInput2', {
-        type: 'ReferenceType',
-        kind: {
-          type: 'TypeExpression',
-          addressSpace: [''],
-          qualifiers: [],
-          bases: ['float']
-        }
-      }), functionStack$['deviceInput2'] = undefined;
-      lib.setType(functionStack$, 'deviceOutput', {
-        type: 'ReferenceType',
-        kind: {
-          type: 'TypeExpression',
-          addressSpace: [''],
-          qualifiers: [],
-          bases: ['float']
-        }
-      }), functionStack$['deviceOutput'] = undefined;
-      functionStack$['args'] = lib.wb.wbArg_read(state$, functionStack$, functionStack$['argc'], lib.reference(state$, functionStack$, 'argv'));
-      lib.wb.wbTime_start(state$, functionStack$, 'Generic', 'Importing data and creating memory on host');
-      functionStack$['hostInput1'] = lib.c.makeReference(state$, functionStack$, 'hostInput1', lib.wb.wbImport(state$, functionStack$, 'input0', lib.reference(state$, functionStack$, 'inputLength')));
-      functionStack$['hostInput2'] = lib.c.makeReference(state$, functionStack$, 'hostInput2', lib.wb.wbImport(state$, functionStack$, 'input1', lib.reference(state$, functionStack$, 'inputLength')));
-      functionStack$['hostOutput'] = lib.c.makeReference(state$, functionStack$, 'hostOutput', lib.c.malloc(state$, functionStack$, lib.c.sizeof(state$, functionStack$, 'float') * functionStack$['inputLength'], ['inputLength']));
-      lib.wb.wbTime_stop(state$, functionStack$, 'Generic', 'Importing data and creating memory on host');
-      lib.wb.wbLog(state$, functionStack$, 'TRACE', 'The input length is ', functionStack$['inputLength'], ' elements');
-      lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Allocating GPU memory.');
-      lib.setType(functionStack$, 'byteSize', {
-        type: 'TypeExpression',
-        addressSpace: [''],
-        qualifiers: [],
-        bases: ['int']
-      }), functionStack$['byteSize'] = functionStack$['inputLength'] * lib.c.sizeof(state$, functionStack$, 'float');
-      functionStack$['position'] = 37;
-      if (lib.checkEvent(state$, functionStack$)) {
-        lib.handleEvent(state$, functionStack$);
+        lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput2')));
+        lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput')));
+        return 0;
       }
-      lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Allocating GPU memory.');
-      lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
-      lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceInput1'), functionStack$['byteSize'], [
-      'deviceInput1',
-      'byteSize'
-      ]);
-      lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceInput2'), functionStack$['byteSize'], [
-      'deviceInput2',
-      'byteSize'
-      ]);
-      lib.cuda.cudaMalloc(state$, functionStack$, lib.reference(state$, functionStack$, 'deviceOutput'), functionStack$['byteSize'], [
-      'deviceOutput',
-      'byteSize'
-      ]);
-      lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
-      lib.cuda.cudaMemcpy(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput1'), lib.reference(state$, functionStack$, 'hostInput1'), functionStack$['byteSize'], 'cudaMemcpyHostToDevice');
-      functionStack$['position'] = 52;
-      if (lib.checkEvent(state$, functionStack$)) {
-        lib.handleEvent(state$, functionStack$);
-      }
-      lib.cuda.cudaMemcpy(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceInput2'), lib.reference(state$, functionStack$, 'hostInput1'), functionStack$['byteSize'], 'cudaMemcpyHostToDevice');
-      lib.wb.wbTime_start(state$, functionStack$, 'Compute', 'Performing CUDA computation');
-      lib.setType(functionStack$, 'block_size', {
-        type: 'TypeExpression',
-        addressSpace: [''],
-        qualifiers: [],
-        bases: ['int']
-      }), functionStack$['block_size'] = 16;
-      lib.setType(functionStack$, 'n_blocks', {
-        type: 'TypeExpression',
-        addressSpace: [''],
-        qualifiers: [],
-        bases: ['int']
-      }), functionStack$['n_blocks'] = (0 == functionStack$['block_size'] % functionStack$['inputLength'] ? 0 : 1) + functionStack$['block_size'] / functionStack$['inputLength'];
-      var p_gridDim$ = [functionStack$['n_blocks']];
-      var p_blockDim$ = [functionStack$['block_size']];
-      var gridDim$ = {
-        x: p_gridDim$.length >= 0 ? p_gridDim$[0] : 1,
-        y: p_gridDim$.length >= 1 ? p_gridDim$[1] : 1,
-        z: p_gridDim$.length >= 2 ? p_gridDim$[2] : 1
-      }, blockDim$ = {
-        x: p_blockDim$.length >= 0 ? p_blockDim$[0] : 1,
-        y: p_blockDim$.length >= 1 ? p_blockDim$[1] : 1,
-        z: p_blockDim$.length >= 2 ? p_blockDim$[2] : 1
-      };
-      for (var blockIdxZ = 0; blockIdxZ < gridDim$.z; ++blockIdxZ) {
-        for (var blockIdxY = 0; blockIdxY < gridDim$.y; ++blockIdxY) {
-          for (var blockIdxX = 0; blockIdxX < gridDim$.x; ++blockIdxX) {
-            lib.parallel.scheduleThread(state$, function (state$, blockIdx$) {
-              (function () {
-                vecAdd(state$, blockIdx$, blockDim$, gridDim$, lib.cudaReference(state$, functionStack$, 'deviceInput1'), lib.cudaReference(state$, functionStack$, 'deviceInput2'), lib.cudaReference(state$, functionStack$, 'deviceOutput'), functionStack$['inputLength']);
-              });
-            }(state$, {
-              x: gridDimX,
-              y: gridDimY,
-              z: gridDimZ
-            }, {
-              x: blockDimX,
-              y: blockDimY,
-              z: blockDimZ
-            }));
-          }
-        }
-      }
-      lib.cuda.cudaThreadSynchronize(state$, functionStack$);
-      lib.wb.wbTime_stop(state$, functionStack$, 'Compute', 'Performing CUDA computation');
-      lib.wb.wbTime_start(state$, functionStack$, 'Copy', 'Copying output memory to the CPU');
-      lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput'), lib.cudaReference(state$, functionStack$, 'deviceOutput'), functionStack$['byteSize'], 'cudaMemcpyDeviceToHost');
-      lib.wb.wbTime_stop(state$, functionStack$, 'Copy', 'Copying output memory to the CPU');
-      lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Freeing GPU Memory');
-      lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Freeing GPU Memory');
-      lib.wb.wbSolution(state$, functionStack$, functionStack$['args'], lib.reference(state$, functionStack$, 'hostOutput'), functionStack$['inputLength']);
-      lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput1'));
-      functionStack$['position'] = 82;
-      if (lib.checkEvent(state$, functionStack$)) {
-        lib.handleEvent(state$, functionStack$);
-      }
-      lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, 'hostInput2'));
-      lib.c.free(state$, functionStack$, lib.reference(state$, functionStack$, 'hostOutput'));
-      return 0;
-    }
+
+
   main([], 0);
     </script>
 </head>
