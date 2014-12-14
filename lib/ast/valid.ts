@@ -1,27 +1,27 @@
-﻿/*
- Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
- Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
+/*
+Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
+Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
- * Redistributions of source code must retain the above copyright
- notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright
- notice, this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
- DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 // from https://github.com/estools/esvalid
 module lib.ast {
@@ -38,7 +38,7 @@ module lib.ast {
             return Object(val);
         }
 
-        function merge(target, source, ...args:any[]) {
+        function merge(target, source, ...args: any[]) {
             var from;
             var keys;
             var to = ToObject(target);
@@ -138,7 +138,7 @@ module lib.ast {
 
 
         var E;
-        export var InvalidAstError = E = (function () {
+        export var InvalidAstError = E = (function() {
             function C() {
             }
 
@@ -153,7 +153,7 @@ module lib.ast {
             InvalidAstError.prototype.constructor = InvalidAstError;
             InvalidAstError.prototype.name = "InvalidAstError";
             return InvalidAstError;
-        }());
+        } ());
 
 
         // errorsP :: {labels :: [Label], inFunc :: Boolean, inIter :: Boolean, inSwitch :: Boolean} -> Node -> [InvalidAstError]
@@ -193,7 +193,7 @@ module lib.ast {
                         if (node.elements == null)
                             errors.push(new E(node, "ArrayExpression `elements` member must be non-null"));
                         else
-                            [].push.apply(errors, concatMap(function (element) {
+                            [].push.apply(errors, concatMap(function(element) {
                                 if (element == null)
                                     return [];
                                 else if (!isExpression(element))
@@ -232,7 +232,7 @@ module lib.ast {
                         if (node.body == null)
                             errors.push(new E(node, "BlockStatement `body` member must be non-null"));
                         else
-                            [].push.apply(errors, concatMap(function (stmt) {
+                            [].push.apply(errors, concatMap(function(stmt) {
                                 var es = [];
                                 if (!isStatement(stmt))
                                     es.push(new E(stmt != null ? stmt : node, "BlockStatement `body` member must only contain statement nodes"));
@@ -260,7 +260,7 @@ module lib.ast {
                         if (node.arguments == null)
                             errors.push(new E(node, "CallExpression `arguments` member must be non-null"));
                         else
-                            [].push.apply(errors, concatMap(function (arg) {
+                            [].push.apply(errors, concatMap(function(arg) {
                                 var es = [];
                                 if (!isExpression(arg))
                                     es.push(new E(arg != null ? arg : node, "CallExpression `arguments` member must only contain expression nodes"));
@@ -321,7 +321,7 @@ module lib.ast {
                         if (!isExpression(node.test))
                             errors.push(new E(node, "DoWhileStatement `test` member must be an expression node"));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
                         if (node.test != null)
                             [].push.apply(errors, recurse(node.test));
                         break;
@@ -348,7 +348,7 @@ module lib.ast {
                         if (node.right != null)
                             [].push.apply(errors, recurse(node.right));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
                         break;
 
                     case "ForStatement":
@@ -367,7 +367,7 @@ module lib.ast {
                         if (node.update != null)
                             [].push.apply(errors, recurse(node.update));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
                         break;
 
                     case "FunctionDeclaration":
@@ -379,7 +379,7 @@ module lib.ast {
                         if (node.params == null)
                             errors.push(new E(node, "FunctionDeclaration `params` member must be non-null"));
                         else
-                            [].push.apply(errors, concatMap(function (param) {
+                            [].push.apply(errors, concatMap(function(param) {
                                 var es = [];
                                 if (param == null)
                                     return [new E(node, "FunctionDeclaration `params` member must not contain null values")];
@@ -399,14 +399,14 @@ module lib.ast {
                         if (node.id != null)
                             [].push.apply(errors, recurse(node.id));
                         if (node.body != null) {
-                            recursionFn = errorsP(merge({}, state, {inFunc: true}));
+                            recursionFn = errorsP(merge({}, state, { inFunc: true }));
                             if (node.body.type === "BlockStatement") {
-                                strict = state.strict || any(function (d) {
+                                strict = state.strict || any(function(d) {
                                     return d === "use strict";
                                 }, directives(node.body.body));
                                 if (strict && !state.strict)
-                                    recursionFn = errorsP(merge({}, state, {strict: true, inFunc: true}));
-                                [].push.apply(errors, recursionFn({type: "Program", body: node.body.body}));
+                                    recursionFn = errorsP(merge({}, state, { strict: true, inFunc: true }));
+                                [].push.apply(errors, recursionFn({ type: "Program", body: node.body.body }));
                             } else {
                                 [].push.apply(errors, recursionFn(node.body));
                             }
@@ -424,7 +424,7 @@ module lib.ast {
                         if (node.params == null)
                             errors.push(new E(node, "FunctionExpression `params` member must be non-null"));
                         else
-                            [].push.apply(errors, concatMap(function (param) {
+                            [].push.apply(errors, concatMap(function(param) {
                                 var es = [];
                                 if (param == null)
                                     return [new E(node, "FunctionExpression `params` member must not contain null values")];
@@ -444,14 +444,14 @@ module lib.ast {
                         if (node.id != null)
                             [].push.apply(errors, recurse(node.id));
                         if (node.body != null) {
-                            recursionFn = errorsP(merge({}, state, {inFunc: true}));
+                            recursionFn = errorsP(merge({}, state, { inFunc: true }));
                             if (node.body.type === "BlockStatement") {
-                                strict = state.strict || any(function (d) {
+                                strict = state.strict || any(function(d) {
                                     return d === "use strict";
                                 }, directives(node.body.body));
                                 if (strict && !state.strict)
-                                    recursionFn = errorsP(merge({}, state, {strict: true, inFunc: true}));
-                                [].push.apply(errors, recursionFn({type: "Program", body: node.body.body}));
+                                    recursionFn = errorsP(merge({}, state, { strict: true, inFunc: true }));
+                                [].push.apply(errors, recursionFn({ type: "Program", body: node.body.body }));
                             } else {
                                 [].push.apply(errors, recursionFn(node.body));
                             }
@@ -498,7 +498,7 @@ module lib.ast {
                             errors.push(new E(node, "LabeledStatement `body` member must be a statement node"));
                         if (node.body != null) {
                             if (node.label != null)
-                                [].push.apply(errors, errorsP(merge({}, state, {labels: state.labels.concat(node.label.name)}))(node.body));
+                                [].push.apply(errors, errorsP(merge({}, state, { labels: state.labels.concat(node.label.name) }))(node.body));
                             else
                                 [].push.apply(errors, recurse(node.body));
                         }
@@ -562,7 +562,7 @@ module lib.ast {
                         if (node.arguments == null)
                             errors.push(new E(node, "NewExpression `arguments` member must be non-null"));
                         else
-                            [].push.apply(errors, concatMap(function (arg) {
+                            [].push.apply(errors, concatMap(function(arg) {
                                 var es = [];
                                 if (!isExpression(arg))
                                     es.push(new E(arg != null ? arg : node, "NewExpression `arguments` member must only contain expression nodes"));
@@ -581,7 +581,7 @@ module lib.ast {
                             initKeySet = {};
                             getKeySet = {};
                             setKeySet = {};
-                            [].push.apply(errors, concatMap(function (property) {
+                            [].push.apply(errors, concatMap(function(property) {
                                 var es = [], key;
                                 if (property == null)
                                     return [new E(node, "ObjectExpression `properties` must not contain null values")];
@@ -668,11 +668,11 @@ module lib.ast {
                         if (node.body == null) {
                             errors.push(new E(node, "Program `body` member must be non-null"));
                         } else {
-                            strict = state.strict || any(function (d) {
+                            strict = state.strict || any(function(d) {
                                 return d === "use strict";
                             }, directives(node.body));
-                            recursionFn = strict && !state.strict ? errorsP(merge({}, state, {strict: true})) : recurse;
-                            [].push.apply(errors, concatMap(function (sourceElement) {
+                            recursionFn = strict && !state.strict ? errorsP(merge({}, state, { strict: true })) : recurse;
+                            [].push.apply(errors, concatMap(function(sourceElement) {
                                 var es = [];
                                 if (!isSourceElement(sourceElement))
                                     es.push(new E(sourceElement != null ? sourceElement : node, "Program `body` member must only contain statement or function declaration nodes"));
@@ -699,7 +699,7 @@ module lib.ast {
                         } else {
                             if (node.expressions.length < 2)
                                 errors.push(new E(node, "SequenceExpression `expressions` member length must be >= 2"));
-                            [].push.apply(errors, concatMap(function (expr) {
+                            [].push.apply(errors, concatMap(function(expr) {
                                 var es = [];
                                 if (!isExpression(expr))
                                     es.push(new E(expr != null ? expr : node, "SequenceExpression `expressions` member must only contain expression nodes"));
@@ -719,8 +719,8 @@ module lib.ast {
                         if (node.consequent == null) {
                             errors.push(new E(node, "SwitchCase `consequent` member must be non-null"));
                         } else {
-                            recursionFn = errorsP(merge({}, state, {inSwitch: true}));
-                            [].push.apply(errors, concatMap(function (stmt) {
+                            recursionFn = errorsP(merge({}, state, { inSwitch: true }));
+                            [].push.apply(errors, concatMap(function(stmt) {
                                 var es = [];
                                 if (!isStatement(stmt))
                                     es.push(new E(stmt != null ? stmt : node, "SwitchCase `consequent` member must only contain statement nodes"));
@@ -737,7 +737,7 @@ module lib.ast {
                         if (node.cases == null) {
                             errors.push(new E(node, "SwitchStatement `cases` member must be non-null"));
                         } else {
-                            [].push.apply(errors, concatMap(function (switchCase) {
+                            [].push.apply(errors, concatMap(function(switchCase) {
                                 var es = [];
                                 if (switchCase == null || switchCase.type !== "SwitchCase")
                                     es.push(new E(switchCase != null ? switchCase : node, "SwitchStatement `cases` member must only contain SwitchCase nodes"));
@@ -745,9 +745,9 @@ module lib.ast {
                                     [].push.apply(es, recurse(switchCase));
                                 return es;
                             }, node.cases));
-                            if (filter(node.cases, function (c) {
-                                    return c != null && c.test == null;
-                                }).length > 1)
+                            if (filter(node.cases, function(c) {
+                                return c != null && c.test == null;
+                            }).length > 1)
                                 errors.push(new E(node, "SwitchStatement `cases` member must contain no more than one SwitchCase with a null `test` member"));
                         }
                         if (node.discriminant != null)
@@ -771,7 +771,7 @@ module lib.ast {
                             errors.push(new E(node.block != null ? node.block : node, "TryStatement `block` member must be a BlockStatement node"));
                         if (node.finalizer != null && node.finalizer.type !== "BlockStatement")
                             errors.push(new E(node.finalizer, "TryStatement `finalizer` member must be a BlockStatement node"));
-                        [].push.apply(errors, concatMap(function (handler) {
+                        [].push.apply(errors, concatMap(function(handler) {
                             var es = [];
                             if (handler == null || handler.type !== "CatchClause")
                                 es.push(new E(handler != null ? handler : node, "TryStatement `handler` member must be a CatchClause node"));
@@ -816,7 +816,7 @@ module lib.ast {
                                 errors.push(new E(node, "VariableDeclaration `declarations` member must be non-empty"));
                             if (VARIABLE_DECLARATION_KINDS.indexOf(node.kind) < 0)
                                 errors.push(new E(node, "VariableDeclaration `kind` member must be one of " + JSON.stringify(VARIABLE_DECLARATION_KINDS)));
-                            [].push.apply(errors, concatMap(function (decl) {
+                            [].push.apply(errors, concatMap(function(decl) {
                                 var es = [];
                                 if (decl == null || decl.type !== "VariableDeclarator")
                                     es.push(new E(decl != null ? decl : node, "VariableDeclaration `declarations` member must contain only VariableDeclarator nodes"));
@@ -847,7 +847,7 @@ module lib.ast {
                         if (node.test != null)
                             [].push.apply(errors, recurse(node.test));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
                         break;
 
                     case "WithStatement":
@@ -860,7 +860,7 @@ module lib.ast {
                         if (node.object != null)
                             [].push.apply(errors, recurse(node.object));
                         if (node.body != null)
-                            [].push.apply(errors, errorsP(merge({}, state, {inIter: true}))(node.body));
+                            [].push.apply(errors, errorsP(merge({}, state, { inIter: true }))(node.body));
                         break;
 
                     default:
@@ -881,7 +881,7 @@ module lib.ast {
             };
         }
 
-        var START_STATE = {labels: [], inFunc: false, inIter: false, inSwitch: false, strict: false};
+        var START_STATE = { labels: [], inFunc: false, inIter: false, inSwitch: false, strict: false };
 
 
         // isValid :: Maybe Node -> Boolean

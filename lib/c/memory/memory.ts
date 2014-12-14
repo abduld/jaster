@@ -124,7 +124,8 @@ module lib.c {
             }
         }
 
-        var MB: number = 1024;
+        var KB: number = 1024;
+        var MB: number = KB*KB;
         export class MemoryManager {
             private addressSpace: AddressSpace;
             //private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();

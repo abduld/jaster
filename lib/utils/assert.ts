@@ -1,4 +1,4 @@
-﻿/// <reference path="logger.ts" />
+/// <reference path="logger.ts" />
 
 module lib {
     export module utils {
@@ -18,17 +18,17 @@ module lib {
                 }
             }
 
-            export function assertUnreachable(msg:string):void {
+            export function assertUnreachable(msg: string): void {
                 var location = new Error().stack.split('\n')[1];
                 throw new Error("Reached unreachable location " + location + msg);
             }
 
-            export function error(message:string) {
+            export function error(message: string) {
                 console.error(message);
                 throw new Error(message);
             }
 
-            export function assertNotImplemented(condition:boolean, message:string) {
+            export function assertNotImplemented(condition: boolean, message: string) {
                 if (!condition) {
                     error("notImplemented: " + message);
                 }
@@ -60,7 +60,7 @@ module lib {
 
                 ok(aprops === bprops, msg);
 
-                aprops.forEach(function (prop) {
+                aprops.forEach(function(prop) {
                     ok(a.hasOwnProperty(prop), msg);
                     ok(b.hasOwnProperty(prop), msg);
                     deepEqual(a[prop], b[prop], msg);

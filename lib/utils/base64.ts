@@ -73,7 +73,7 @@ module lib.utils {
 
         }
 
-        function _utf8_encode(str ) {
+        function _utf8_encode(str) {
             str = str.replace(/\r\n/g, "\n");
             var utftext = "";
 

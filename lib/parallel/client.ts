@@ -1,14 +1,14 @@
 module lib {
     export module parallel {
 
-        var port:MessagePort = undefined;
-        var id:string;
+        var port: MessagePort = undefined;
+        var id: string;
 
-        export function actOnEvent(event:MessageEvent) {
+        export function actOnEvent(event: MessageEvent) {
             switch (event.data.command) {
                 case "setPort":
                     port = event.ports[0];
-                    break ;
+                    break;
                 case "setConsole":
                     if (_.isUndefined(global$.console._port)) {
                         global$.console = {

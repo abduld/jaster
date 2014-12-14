@@ -8,19 +8,19 @@ module lib {
             Cancel
         }
         ;
-        var INIT_PAUSE_LENGTH:number = 100; // milliseconds;
+        var INIT_PAUSE_LENGTH: number = 100; // milliseconds;
         export class ParallelWorker {
-            private id:string;
-            private master_port:MessagePort;
-            private status:WorkerStatus;
-            private chan:MessageChannel;
-            private fun:(...args:any[]) => any;
-            private pause_length:number;
-            private timeout_handle:number = -1;
-            private worker:Worker;
-            private fun_string:string;
+            private id: string;
+            private master_port: MessagePort;
+            private status: WorkerStatus;
+            private chan: MessageChannel;
+            private fun: (...args: any[]) => any;
+            private pause_length: number;
+            private timeout_handle: number = -1;
+            private worker: Worker;
+            private fun_string: string;
 
-            constructor(fun:Function, port:MessagePort) {
+            constructor(fun: Function, port: MessagePort) {
                 this.id = utils.guuid();
                 this.status = WorkerStatus.Idle;
                 this.master_port = port;
@@ -30,8 +30,8 @@ module lib {
                 // Build a worker from an anonymous function body
                 var blobURL = URL.createObjectURL(new Blob(
                     ['(', fun.toString(), ')()'],
-                    {type: 'application/javascript'}
-                ));
+                    { type: 'application/javascript' }
+                    ));
 
                 this.worker = new Worker(blobURL);
 
@@ -39,8 +39,8 @@ module lib {
                 URL.revokeObjectURL(blobURL);
             }
 
-            private run0(init:number, end:number, inc:number):boolean {
-                var iter:number = init;
+            private run0(init: number, end: number, inc: number): boolean {
+                var iter: number = init;
                 if (this.status === WorkerStatus.Paused) {
                     this.pause_length *= 2;
                     setTimeout(this.run0, this.pause_length, [init, end, inc]);
@@ -62,7 +62,7 @@ module lib {
                 this.status = WorkerStatus.Idle;
             }
 
-            run(fun:any, start_idx:number, end_idx:number, inc?:number):boolean {
+            run(fun: any, start_idx: number, end_idx: number, inc?: number): boolean {
                 this.fun = fun;
                 this.pause_length = INIT_PAUSE_LENGTH;
                 this.status = WorkerStatus.Busy;

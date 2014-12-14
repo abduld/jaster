@@ -1,8 +1,8 @@
 interface Navigator {
-    hardwareConcurrency : number;
+    hardwareConcurrency: number;
 }
 interface Document {
-    currentScript : any;
+    currentScript: any;
 }
 
 
@@ -10,13 +10,13 @@ interface Document {
 module lib {
     export module parallel {
         class WorkerPool_ {
-            private workers_:WebWorker[];
-            private size:number;
-            private pending_:Function[];
-            private retired_:Function[];
-            private mask_:boolean[]
+            private workers_: WebWorker[];
+            private size: number;
+            private pending_: Function[];
+            private retired_: Function[];
+            private mask_: boolean[]
 
-            constructor(size?:number) {
+            constructor(size?: number) {
                 if (_.isUndefined(size)) {
                     size = navigator.hardwareConcurrency || 4;
                 }
@@ -27,18 +27,18 @@ module lib {
                 }
             }
 
-            private recieveMessage_(idx:number, msg : MessageEvent) {
+            private recieveMessage_(idx: number, msg: MessageEvent) {
 
             }
 
-            private recieveError_(idx:number, msg : MessageEvent) {
+            private recieveError_(idx: number, msg: MessageEvent) {
 
             }
 
             start() {
                 _.each(this.workers_,
-                    (worker:WebWorker) => worker.start()
-                );
+                    (worker: WebWorker) => worker.start()
+                    );
             }
 
             pause() {
@@ -53,7 +53,7 @@ module lib {
 
             }
         }
-        export var WorkerPool :WorkerPool_;
+        export var WorkerPool: WorkerPool_;
         if (lib.utils.ENVIRONMENT_IS_WEB) {
             WorkerPool = new WorkerPool_(2);
         }

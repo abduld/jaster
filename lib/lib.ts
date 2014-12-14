@@ -58,23 +58,27 @@ module lib {
                 stack[ref.id] = ref;
                 return ref;
             }
-          lib.utils.assert.ok(ref.mem.type === "CUDAReference");
+            lib.utils.assert.ok(ref.mem.type === "CUDAReference");
           return {
-            type: "CUDAReference",
-            id: lib.utils.guuid(),
-            mem: state.globalMemory.malloc(byteCount),
-            args: args
-          }
+                type: "CUDAReference",
+                id: lib.utils.guuid(),
+                mem: state.globalMemory.malloc(byteCount),
+                args: args
+            }
         }
         export function cudaMemcpy(state: StateInterface, stack, trg, src, size, direction) {
             switch (direction) {
-             case "cudaMemcpyHostToDevice":
+                case "cudaMemcpyHostToDevice":
                 case "cudaMemcpyDeviceToHost":
-                    break ;
+                    break;
                 default:
                     console.log("Invalid direction " + direction);
             }
             (new Int8Array(trg.mem.data.buffer, 0, size)).set(new Int8Array(src.mem.data.buffer, 0, size));
+        }
+
+        export function cudaThreadSynchronize(state, stack) {
+            lib.parallel.synchronize(state, stack);
         }
     }
 
@@ -87,12 +91,23 @@ module lib {
                 args: args
             }
         }
+
+        export function free(state: StateInterface, stack, ref) {
+            if (_.isString(stack[ref.id])) {
+                delete stack[ref.id];
+            }
+        }
     }
 
     export module parallel {
         export function scheduleThread(state: StateInterface, fun: Function) {
-          console.log("todo scheduleThread");
-          return ;
+            console.log("todo scheduleThread");
+            return;
+        }
+
+        export function synchronize(state: StateInterface, stack) {
+            console.log("todo synchronize");
+            return;
         }
     }
 
@@ -103,46 +118,46 @@ module lib {
         stack["types"][name] = type;
     }
 
-    export function cudaReference(state, stack, name) : any {
-      var ref;
-      if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType"&& stack.types[name] !== "CUDAReferenceType"
-          && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
-        return {
-          type: "Identifier",
-          id: name,
-          stack: stack,
-          state: state
-        };
-      }
-      lib.utils.assert.ok(stack[name].type === "CUDAReference");
-      ref = stack[name];
+    export function cudaReference(state, stack, name): any {
+        var ref;
+        if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType" && stack.types[name] !== "CUDAReferenceType"
+            && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
+            return {
+                type: "Identifier",
+                id: name,
+                stack: stack,
+                state: state
+            };
+        }
+        lib.utils.assert.ok(stack[name].type === "CUDAReference");
+        ref = stack[name];
       return {
-        type: ref.type,
-        stack: stack,
-        state: state,
-        id: ref.id,
-        mem: ref.mem,
-        args: ref.args
-      }
+            type: ref.type,
+            stack: stack,
+            state: state,
+            id: ref.id,
+            mem: ref.mem,
+            args: ref.args
+        }
     }
 
-    export function reference(state, stack, name) : any {
-      var ref;
-      if (name === "argv") {
-          return {};
-      } else if (_.isObject(name) && name.type === "CUDAReference") {
-          return name;
-      } else if (_.isObject(name) && name.type === "CReference") {
-          return name;
-      } else if (_.isUndefined(stack[name])&& stack.types[name] !== "ReferenceType" && stack.types[name] !== "CUDAReferenceType"
-          && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
+    export function reference(state, stack, name): any {
+        var ref;
+        if (name === "argv") {
+            return {};
+        } else if (_.isObject(name) && name.type === "CUDAReference") {
+            return name;
+        } else if (_.isObject(name) && name.type === "CReference") {
+            return name;
+        } else if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType" && stack.types[name] !== "CUDAReferenceType"
+            && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
 
               return {
-                  type: "Identifier",
-                  id: name,
-                  stack: stack,
-                  state: state
-              }
+                type: "Identifier",
+                id: name,
+                stack: stack,
+                state: state
+            }
 
       } else if (!_.isUndefined(stack[name]) && _.isNumber(stack[name])) {
             return stack[name];
@@ -150,16 +165,16 @@ module lib {
         if (stack[name].type === "CUDAReference") {
             return stack[name];
         }
-      lib.utils.assert.ok(stack[name].type === "CReference");
-      ref = stack[name];
+        lib.utils.assert.ok(stack[name].type === "CReference");
+        ref = stack[name];
       return {
-        type: ref.type,
-        stack: stack,
-        state: state,
-        id: ref.id,
-        mem: ref.mem,
-        args: ref.args
-      }
+            type: ref.type,
+            stack: stack,
+            state: state,
+            id: ref.id,
+            mem: ref.mem,
+            args: ref.args
+        }
     }
 
     export function checkEvent(state, stack) {

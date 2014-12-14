@@ -1,4 +1,4 @@
-﻿module lib.ast {
+module lib.ast {
 
     export declare module esprima {
 
@@ -17,7 +17,7 @@
             source?: boolean
         }
         module Syntax {
-// Node
+            // Node
             interface Node {
                 type: string
                 loc?: LineLocation
@@ -33,16 +33,16 @@
                 line: number
                 column: number
             }
-// Comment
+            // Comment
             interface Comment extends Node {
                 value: string
             }
-// Program
+            // Program
             interface Program extends Node {
                 body: Statement[]
                 comments?: Comment[]
             }
-// Function
+            // Function
             interface Function extends Node {
                 id: Identifier // | null
                 params: Identifier[]
@@ -54,7 +54,7 @@
             }
             interface BlockStatementOrExpression extends BlockStatement, Expression {
             }
-// Statement
+            // Statement
             interface Statement extends Node {
             }
             interface EmptyStatement extends Statement {
@@ -127,7 +127,7 @@
             }
             interface StatementOrList extends Array<Statement>, Statement {
             }
-// Declaration
+            // Declaration
             interface Declaration extends Statement {
             }
             interface FunctionDeclaration extends Declaration {
@@ -147,15 +147,15 @@
                 id: Identifier // Pattern
                 init: Expression
             }
-// Expression
+            // Expression
             interface Expression extends Node { // | Pattern
             }
-//interface Expression extends
-// ThisExpression, ArrayExpression, ObjectExpression, FunctionExpression,
-// ArrowFunctionExpression, SequenceExpression, UnaryExpression, BinaryExpression,
-// AssignmentExpression, UpdateExpression, LogicalExpression, ConditionalExpression,
-// NewExpression, CallExpression, MemberExpression {
-//}
+            //interface Expression extends
+            // ThisExpression, ArrayExpression, ObjectExpression, FunctionExpression,
+            // ArrowFunctionExpression, SequenceExpression, UnaryExpression, BinaryExpression,
+            // AssignmentExpression, UpdateExpression, LogicalExpression, ConditionalExpression,
+            // NewExpression, CallExpression, MemberExpression {
+            //}
             interface ThisExpression extends Expression {
             }
             interface ArrayExpression extends Expression {
@@ -223,10 +223,10 @@
             }
             interface IdentifierOrExpression extends Identifier, Expression {
             }
-// Pattern
-// interface Pattern extends Node {
-// }
-// Clauses
+            // Pattern
+            // interface Pattern extends Node {
+            // }
+            // Clauses
             interface SwitchCase extends Node {
                 test: Expression
                 consequent: Statement[]
@@ -236,7 +236,7 @@
                 guard: Expression
                 body: BlockStatement
             }
-// Misc
+            // Misc
             interface Identifier extends Node, Expression { // | Pattern
                 name: string
             }
@@ -338,10 +338,10 @@
         // A function following one of those tokens is an expression.
         FnExprTokens = ['(', '{', '[', 'in', 'typeof', 'instanceof', 'new',
             'return', 'case', 'delete', 'throw', 'void',
-            // assignment operators
+        // assignment operators
             '=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=', '>>>=',
             '&=', '|=', '^=', ',',
-            // binary/unary operators
+        // binary/unary operators
             '+', '-', '*', '/', '%', '++', '--', '<<', '>>', '>>>', '&',
             '|', '^', '!', '~', '&&', '||', '?', ':', '===', '==', '>=',
             '<=', '<', '>', '!=', '!=='];
@@ -612,7 +612,7 @@
 
         function skipSingleLineComment(offset) {
             var start, ch, comment;
-            var loc:any;
+            var loc: any;
 
             start = index - offset;
             loc = {
@@ -1404,7 +1404,7 @@
             };
         }
 
-        function scanRegExp():any {
+        function scanRegExp(): any {
             var start, body, flags, value;
 
             lookahead = null;
@@ -1712,7 +1712,7 @@
 
         WrappingNode.prototype = Node.prototype = {
 
-            processComment: function () {
+            processComment: function() {
                 var lastChild,
                     trailingComments,
                     bottomRight = extra.bottomRightStack,
@@ -1764,7 +1764,7 @@
                 bottomRight.push(this);
             },
 
-            finish: function () {
+            finish: function() {
                 if (extra.range) {
                     this.range[1] = index;
                 }
@@ -1780,14 +1780,14 @@
                 }
             },
 
-            finishArrayExpression: function (elements) {
+            finishArrayExpression: function(elements) {
                 this.type = Syntax.ArrayExpression;
                 this.elements = elements;
                 this.finish();
                 return this;
             },
 
-            finishArrowFunctionExpression: function (params, defaults, body, expression) {
+            finishArrowFunctionExpression: function(params, defaults, body, expression) {
                 this.type = Syntax.ArrowFunctionExpression;
                 this.id = null;
                 this.params = params;
@@ -1800,7 +1800,7 @@
                 return this;
             },
 
-            finishAssignmentExpression: function (operator, left, right) {
+            finishAssignmentExpression: function(operator, left, right) {
                 this.type = Syntax.AssignmentExpression;
                 this.operator = operator;
                 this.left = left;
@@ -1809,7 +1809,7 @@
                 return this;
             },
 
-            finishBinaryExpression: function (operator, left, right) {
+            finishBinaryExpression: function(operator, left, right) {
                 this.type = (operator === '||' || operator === '&&') ? Syntax.LogicalExpression : Syntax.BinaryExpression;
                 this.operator = operator;
                 this.left = left;
@@ -1818,21 +1818,21 @@
                 return this;
             },
 
-            finishBlockStatement: function (body) {
+            finishBlockStatement: function(body) {
                 this.type = Syntax.BlockStatement;
                 this.body = body;
                 this.finish();
                 return this;
             },
 
-            finishBreakStatement: function (label) {
+            finishBreakStatement: function(label) {
                 this.type = Syntax.BreakStatement;
                 this.label = label;
                 this.finish();
                 return this;
             },
 
-            finishCallExpression: function (callee, args) {
+            finishCallExpression: function(callee, args) {
                 this.type = Syntax.CallExpression;
                 this.callee = callee;
                 this.arguments = args;
@@ -1840,7 +1840,7 @@
                 return this;
             },
 
-            finishCatchClause: function (param, body) {
+            finishCatchClause: function(param, body) {
                 this.type = Syntax.CatchClause;
                 this.param = param;
                 this.body = body;
@@ -1848,7 +1848,7 @@
                 return this;
             },
 
-            finishConditionalExpression: function (test, consequent, alternate) {
+            finishConditionalExpression: function(test, consequent, alternate) {
                 this.type = Syntax.ConditionalExpression;
                 this.test = test;
                 this.consequent = consequent;
@@ -1857,20 +1857,20 @@
                 return this;
             },
 
-            finishContinueStatement: function (label) {
+            finishContinueStatement: function(label) {
                 this.type = Syntax.ContinueStatement;
                 this.label = label;
                 this.finish();
                 return this;
             },
 
-            finishDebuggerStatement: function () {
+            finishDebuggerStatement: function() {
                 this.type = Syntax.DebuggerStatement;
                 this.finish();
                 return this;
             },
 
-            finishDoWhileStatement: function (body, test) {
+            finishDoWhileStatement: function(body, test) {
                 this.type = Syntax.DoWhileStatement;
                 this.body = body;
                 this.test = test;
@@ -1878,20 +1878,20 @@
                 return this;
             },
 
-            finishEmptyStatement: function () {
+            finishEmptyStatement: function() {
                 this.type = Syntax.EmptyStatement;
                 this.finish();
                 return this;
             },
 
-            finishExpressionStatement: function (expression) {
+            finishExpressionStatement: function(expression) {
                 this.type = Syntax.ExpressionStatement;
                 this.expression = expression;
                 this.finish();
                 return this;
             },
 
-            finishForStatement: function (init, test, update, body) {
+            finishForStatement: function(init, test, update, body) {
                 this.type = Syntax.ForStatement;
                 this.init = init;
                 this.test = test;
@@ -1901,7 +1901,7 @@
                 return this;
             },
 
-            finishForInStatement: function (left, right, body) {
+            finishForInStatement: function(left, right, body) {
                 this.type = Syntax.ForInStatement;
                 this.left = left;
                 this.right = right;
@@ -1911,7 +1911,7 @@
                 return this;
             },
 
-            finishFunctionDeclaration: function (id, params, defaults, body) {
+            finishFunctionDeclaration: function(id, params, defaults, body) {
                 this.type = Syntax.FunctionDeclaration;
                 this.id = id;
                 this.params = params;
@@ -1924,7 +1924,7 @@
                 return this;
             },
 
-            finishFunctionExpression: function (id, params, defaults, body) {
+            finishFunctionExpression: function(id, params, defaults, body) {
                 this.type = Syntax.FunctionExpression;
                 this.id = id;
                 this.params = params;
@@ -1937,14 +1937,14 @@
                 return this;
             },
 
-            finishIdentifier: function (name) {
+            finishIdentifier: function(name) {
                 this.type = Syntax.Identifier;
                 this.name = name;
                 this.finish();
                 return this;
             },
 
-            finishIfStatement: function (test, consequent, alternate) {
+            finishIfStatement: function(test, consequent, alternate) {
                 this.type = Syntax.IfStatement;
                 this.test = test;
                 this.consequent = consequent;
@@ -1953,7 +1953,7 @@
                 return this;
             },
 
-            finishLabeledStatement: function (label, body) {
+            finishLabeledStatement: function(label, body) {
                 this.type = Syntax.LabeledStatement;
                 this.label = label;
                 this.body = body;
@@ -1961,7 +1961,7 @@
                 return this;
             },
 
-            finishLiteral: function (token) {
+            finishLiteral: function(token) {
                 this.type = Syntax.Literal;
                 this.value = token.value;
                 this.raw = source.slice(token.start, token.end);
@@ -1969,7 +1969,7 @@
                 return this;
             },
 
-            finishMemberExpression: function (accessor, object, property) {
+            finishMemberExpression: function(accessor, object, property) {
                 this.type = Syntax.MemberExpression;
                 this.computed = accessor === '[';
                 this.object = object;
@@ -1978,7 +1978,7 @@
                 return this;
             },
 
-            finishNewExpression: function (callee, args) {
+            finishNewExpression: function(callee, args) {
                 this.type = Syntax.NewExpression;
                 this.callee = callee;
                 this.arguments = args;
@@ -1986,14 +1986,14 @@
                 return this;
             },
 
-            finishObjectExpression: function (properties) {
+            finishObjectExpression: function(properties) {
                 this.type = Syntax.ObjectExpression;
                 this.properties = properties;
                 this.finish();
                 return this;
             },
 
-            finishPostfixExpression: function (operator, argument) {
+            finishPostfixExpression: function(operator, argument) {
                 this.type = Syntax.UpdateExpression;
                 this.operator = operator;
                 this.argument = argument;
@@ -2002,14 +2002,14 @@
                 return this;
             },
 
-            finishProgram: function (body) {
+            finishProgram: function(body) {
                 this.type = Syntax.Program;
                 this.body = body;
                 this.finish();
                 return this;
             },
 
-            finishProperty: function (kind, key, value) {
+            finishProperty: function(kind, key, value) {
                 this.type = Syntax.Property;
                 this.key = key;
                 this.value = value;
@@ -2018,21 +2018,21 @@
                 return this;
             },
 
-            finishReturnStatement: function (argument) {
+            finishReturnStatement: function(argument) {
                 this.type = Syntax.ReturnStatement;
                 this.argument = argument;
                 this.finish();
                 return this;
             },
 
-            finishSequenceExpression: function (expressions) {
+            finishSequenceExpression: function(expressions) {
                 this.type = Syntax.SequenceExpression;
                 this.expressions = expressions;
                 this.finish();
                 return this;
             },
 
-            finishSwitchCase: function (test, consequent) {
+            finishSwitchCase: function(test, consequent) {
                 this.type = Syntax.SwitchCase;
                 this.test = test;
                 this.consequent = consequent;
@@ -2040,7 +2040,7 @@
                 return this;
             },
 
-            finishSwitchStatement: function (discriminant, cases) {
+            finishSwitchStatement: function(discriminant, cases) {
                 this.type = Syntax.SwitchStatement;
                 this.discriminant = discriminant;
                 this.cases = cases;
@@ -2048,20 +2048,20 @@
                 return this;
             },
 
-            finishThisExpression: function () {
+            finishThisExpression: function() {
                 this.type = Syntax.ThisExpression;
                 this.finish();
                 return this;
             },
 
-            finishThrowStatement: function (argument) {
+            finishThrowStatement: function(argument) {
                 this.type = Syntax.ThrowStatement;
                 this.argument = argument;
                 this.finish();
                 return this;
             },
 
-            finishTryStatement: function (block, guardedHandlers, handlers, finalizer) {
+            finishTryStatement: function(block, guardedHandlers, handlers, finalizer) {
                 this.type = Syntax.TryStatement;
                 this.block = block;
                 this.guardedHandlers = guardedHandlers;
@@ -2071,7 +2071,7 @@
                 return this;
             },
 
-            finishUnaryExpression: function (operator, argument) {
+            finishUnaryExpression: function(operator, argument) {
                 this.type = (operator === '++' || operator === '--') ? Syntax.UpdateExpression : Syntax.UnaryExpression;
                 this.operator = operator;
                 this.argument = argument;
@@ -2080,7 +2080,7 @@
                 return this;
             },
 
-            finishVariableDeclaration: function (declarations, kind) {
+            finishVariableDeclaration: function(declarations, kind) {
                 this.type = Syntax.VariableDeclaration;
                 this.declarations = declarations;
                 this.kind = kind;
@@ -2088,7 +2088,7 @@
                 return this;
             },
 
-            finishVariableDeclarator: function (id, init) {
+            finishVariableDeclarator: function(id, init) {
                 this.type = Syntax.VariableDeclarator;
                 this.id = id;
                 this.init = init;
@@ -2096,7 +2096,7 @@
                 return this;
             },
 
-            finishWhileStatement: function (test, body) {
+            finishWhileStatement: function(test, body) {
                 this.type = Syntax.WhileStatement;
                 this.test = test;
                 this.body = body;
@@ -2104,7 +2104,7 @@
                 return this;
             },
 
-            finishWithStatement: function (object, body) {
+            finishWithStatement: function(object, body) {
                 this.type = Syntax.WithStatement;
                 this.object = object;
                 this.body = body;
@@ -2132,15 +2132,15 @@
 
         // Throw an exception
 
-        function throwError(token, messageFormat, ...args:any[]) {
+        function throwError(token, messageFormat, ...args: any[]) {
             var error,
                 msg = messageFormat.replace(
                     /%(\d)/g,
-                    function (whole, index) {
+                    function(whole, index) {
                         assert(index < args.length, 'Message reference must be in range');
                         return args[index];
                     }
-                );
+                    );
 
             if (typeof token.lineNumber === 'number') {
                 error = new Error('Line ' + token.lineNumber + ': ' + msg);
@@ -2158,7 +2158,7 @@
             throw error;
         }
 
-        function throwErrorTolerant(...args:any[]) {
+        function throwErrorTolerant(...args: any[]) {
             try {
                 throwError.apply(null, args);
             } catch (e) {
@@ -2915,7 +2915,7 @@
                 throwError(
                     strict ? options.stricted : options.firstRestricted,
                     options.message
-                );
+                    );
             }
 
             if (defaultCount === 0) {
@@ -3136,7 +3136,7 @@
 
         // 12.3 Empty Statement
 
-        function parseEmptyStatement(...args:any[]) {
+        function parseEmptyStatement(...args: any[]) {
             var node = new Node();
             expect(';');
             return node.finishEmptyStatement(args);
@@ -3831,7 +3831,7 @@
             };
         }
 
-        function parseFunctionDeclaration(...args:any[]) {
+        function parseFunctionDeclaration(...args: any[]) {
             var id, params = [], defaults = [], body, token, stricted, tmp, firstRestricted, message, previousStrict, node = new Node();
 
             expectKeyword('function');
@@ -4011,7 +4011,7 @@
             extra.tokens = tokens;
         }
 
-        export function tokenize(code:string, options?:Options):Array<Token> {
+        export function tokenize(code: string, options?: Options): Array<Token> {
             var tokens;
 
 
@@ -4091,7 +4091,7 @@
             return tokens;
         }
 
-        export function parse(code:string, options?:lib.ast.esprima.Options):lib.ast.esprima.Syntax.Program {
+        export function parse(code: string, options?: lib.ast.esprima.Options): lib.ast.esprima.Syntax.Program {
             var program;
 
             source = code;
@@ -4160,12 +4160,12 @@
         }
 
         // Sync with *.json manifests.
-        export var version:string = '2.0.0-dev';
+        export var version: string = '2.0.0-dev';
 
 
         // Deep copy.
         /* istanbul ignore next */
-        Syntax = (function () {
+        Syntax = (function() {
             var name, types = {};
 
             if (typeof Object.create === 'function') {
@@ -4183,6 +4183,6 @@
             }
 
             return types;
-        }());
+        } ());
     }
 }

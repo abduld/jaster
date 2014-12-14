@@ -1,4 +1,4 @@
-﻿
+
 /// <reference path="./typings/assert/assert.d.ts" />
 /// <reference path="./typings/lodash/lodash.d.ts" />
 /// <reference path="./typings/parallel/parallel.d.ts" />
@@ -10,25 +10,25 @@
 
 
 
-var code:string;
+var code: string;
 
 function initWebApp() {
-  /*
-    var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#cuda-code")[0]), {
-        lineNumbers: true,
-        readOnly: true,
-        mode: "text/x-c++src"
-    });
-    var cudaDoc = cudaEditor.getDoc();
-    cudaDoc.setValue(lib.example.mp2Source);
-    cudaEditor.setSize("100%", 1000);
-*/
+    /*
+      var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#cuda-code")[0]), {
+          lineNumbers: true,
+          readOnly: true,
+          mode: "text/x-c++src"
+      });
+      var cudaDoc = cudaEditor.getDoc();
+      cudaDoc.setValue(lib.example.mp2Source);
+      cudaEditor.setSize("100%", 1000);
+  */
     var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
     var res = lib.ast.gen.generate(
         ast.toEsprima(),
         // we might have to do some extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
-        {sourceMap: true, sourceMapWithCode: true, comment: true, indent: true, sourceContent: ast.cform}
-    );
+        { sourceMap: true, sourceMapWithCode: true, comment: true, indent: true, sourceContent: ast.cform }
+        );
 
     var jsEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#js-code")[0]), {
         lineNumbers: true,
@@ -38,11 +38,14 @@ function initWebApp() {
         theme: 'eclipse'
     });
     var jsDoc = jsEditor.getDoc();
-    jsDoc.setValue(res.code  + "\n" + lib.utils.sourceMapToComment(res.map.toJSON()));
+
+    code = res.code ;
+    //code = code + "\n" + lib.utils.sourceMapToComment(res.map.toJSON());
+    jsDoc.setValue(code);
     jsEditor.setSize("100%", 1000);
 
     code = res.code;
-    
+
     global$.code = res;
 }
 

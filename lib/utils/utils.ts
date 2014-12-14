@@ -1,4 +1,4 @@
-﻿/// <reference path="./logger.ts" />
+/// <reference path="./logger.ts" />
 /// <reference path="./assert.ts" />
 /// <reference path="./rand.ts" />
 /// <reference path="./mixin.ts" />
@@ -29,11 +29,11 @@ module lib {
 
     export module utils {
 
-        export var isCommonJS:boolean = false;
-        export var isNode:boolean = false;
+        export var isCommonJS: boolean = false;
+        export var isNode: boolean = false;
 
-        export var ENVIRONMENT_IS_WEB : boolean = typeof window === 'object';
-        export var ENVIRONMENT_IS_WORKER : boolean  = typeof importScripts === 'function';
+        export var ENVIRONMENT_IS_WEB: boolean = typeof window === 'object';
+        export var ENVIRONMENT_IS_WORKER: boolean = typeof importScripts === 'function';
 
         /**
          * Various constant values. Enum'd so they are inlined by the TypeScript
@@ -60,7 +60,7 @@ module lib {
         export var global_isFinite = globals.isFinite;
         var _slice = Array.prototype.slice;
         var _indexOf = String.prototype.indexOf;
-        export function _toString(s?:any) :string {
+        export function _toString(s?: any): string {
             if (s) {
                 return s.toString();
             } else {
@@ -77,34 +77,34 @@ module lib {
             /*jshint notypeof: false */
         };
 
-        export function isString(value):boolean {
+        export function isString(value): boolean {
             return typeof value === "string";
         }
 
-        export function isFunction(value):boolean {
+        export function isFunction(value): boolean {
             return typeof value === "function";
         }
 
-        export function isNumber(value):boolean {
+        export function isNumber(value): boolean {
             return typeof value === "number";
         }
 
-        export function isInteger(value):boolean {
+        export function isInteger(value): boolean {
             return (value | 0) === value;
         }
 
-        export function isArray(value):boolean {
-            var f = Array.isArray || function (xs) {
+        export function isArray(value): boolean {
+            var f = Array.isArray || function(xs) {
                 return Object.prototype.toString.call(xs) === '[object Array]';
             };
             return f(value);
         }
 
-        export function isNumberOrString(value):boolean {
+        export function isNumberOrString(value): boolean {
             return typeof value === "number" || typeof value === "string";
         }
 
-        export function isObject(value):boolean {
+        export function isObject(value): boolean {
             return typeof value === "object" || typeof value === 'function';
         }
 
@@ -112,11 +112,11 @@ module lib {
             return typeof value == 'undefined';
         }
 
-        export function toNumber(x):number {
+        export function toNumber(x): number {
             return +x;
         }
 
-        export function float2int(a:number):number {
+        export function float2int(a: number): number {
             if (a > constant.INT_MAX) {
                 return constant.INT_MAX;
             } else if (a < constant.INT_MIN) {
@@ -126,7 +126,7 @@ module lib {
             }
         }
 
-        export function isNumericString(value:string):boolean {
+        export function isNumericString(value: string): boolean {
             // ECMAScript 5.1 - 9.8.1 Note 1, this expression is true for all
             // numbers x other than -0.
             return String(Number(value)) === value;
@@ -145,13 +145,13 @@ module lib {
             }
         }
 
-        export function getTicks():number {
+        export function getTicks(): number {
             return performance.now();
         }
 
         // Creates and initializes *JavaScript* array to *val* in each element slot.
         // Like memset, but for arrays.
-        export function arrayset<T>(len:number, val:T):T[] {
+        export function arrayset<T>(len: number, val: T): T[] {
             var array = new Array(len);
             for (var i = 0; i < len; i++) {
                 array[i] = val;

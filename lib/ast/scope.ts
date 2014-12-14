@@ -326,13 +326,13 @@ module lib.ast {
                  * @member {String} Scope#type
                  */
                 this.type =
-                    (scopeType === SCOPE_TDZ) ? 'TDZ' :
-                        (block.type === Syntax.BlockStatement) ? 'block' :
-                            (block.type === Syntax.FunctionExpression || block.type === Syntax.FunctionDeclaration || block.type === Syntax.ArrowFunctionExpression) ? 'function' :
-                                (block.type === Syntax.CatchClause) ? 'catch' :
-                                    (block.type === Syntax.ForInStatement || block.type === Syntax.ForOfStatement || block.type === Syntax.ForStatement) ? 'for' :
-                                        (block.type === Syntax.WithStatement) ? 'with' :
-                                            (block.type === Syntax.ClassBody) ? 'class' : 'global';
+                (scopeType === SCOPE_TDZ) ? 'TDZ' :
+                (block.type === Syntax.BlockStatement) ? 'block' :
+                (block.type === Syntax.FunctionExpression || block.type === Syntax.FunctionDeclaration || block.type === Syntax.ArrowFunctionExpression) ? 'function' :
+                (block.type === Syntax.CatchClause) ? 'catch' :
+                (block.type === Syntax.ForInStatement || block.type === Syntax.ForOfStatement || block.type === Syntax.ForStatement) ? 'for' :
+                (block.type === Syntax.WithStatement) ? 'with' :
+                (block.type === Syntax.ClassBody) ? 'class' : 'global';
                 /**
                  * The scoped {@link Variable}s of this scope, as <code>{ Variable.name
          * : Variable }</code>.
@@ -390,7 +390,7 @@ module lib.ast {
                  * @member {Scope} Scope#variableScope
                  */
                 this.variableScope =
-                    (this.type === 'global' || this.type === 'function') ? this : currentScope.variableScope;
+                (this.type === 'global' || this.type === 'function') ? this : currentScope.variableScope;
                 /**
                  * Whether this scope is created by a FunctionExpression.
                  * @member {boolean} Scope#functionExpressionScope
@@ -547,7 +547,7 @@ module lib.ast {
                 this.through.push(ref);
             };
 
-            Scope.prototype.__defineGeneric = function (name, set, variables, node, info) {
+            Scope.prototype.__defineGeneric = function(name, set, variables, node, info) {
                 var variable;
 
                 variable = set.get(name);
@@ -565,18 +565,18 @@ module lib.ast {
                 }
             };
 
-            Scope.prototype.__defineArguments = function () {
+            Scope.prototype.__defineArguments = function() {
                 this.__defineGeneric('arguments', this.set, this.variables);
                 this.taints.set('arguments', true);
             };
 
-            Scope.prototype.__defineImplicit = function (node, info) {
+            Scope.prototype.__defineImplicit = function(node, info) {
                 if (node && node.type === Syntax.Identifier) {
                     this.__defineGeneric(node.name, this.implicit.set, this.implicit.variables, node, info);
                 }
             };
 
-            Scope.prototype.__define = function (node, info) {
+            Scope.prototype.__define = function(node, info) {
                 if (node && node.type === Syntax.Identifier) {
                     this.__defineGeneric(node.name, this.set, this.variables, node, info);
                 }
@@ -685,7 +685,7 @@ module lib.ast {
                 }
             };
 
-            Scope.prototype.isUsedName = function (name) {
+            Scope.prototype.isUsedName = function(name) {
                 if (this.set.has(name)) {
                     return true;
                 }
@@ -758,25 +758,25 @@ module lib.ast {
                 this.attached = false;
             };
 
-            ScopeManager.prototype.__nestScope = function (node, parent) {
+            ScopeManager.prototype.__nestScope = function(node, parent) {
                 return new Scope(this, node, parent, SCOPE_NORMAL);
             };
 
-            ScopeManager.prototype.__nestTDZScope = function (node, iterationNode) {
+            ScopeManager.prototype.__nestTDZScope = function(node, iterationNode) {
                 return new Scope(this, node, iterationNode, SCOPE_TDZ);
             };
 
-            ScopeManager.prototype.__nestFunctionExpressionNameScope = function (node, parent) {
+            ScopeManager.prototype.__nestFunctionExpressionNameScope = function(node, parent) {
                 return new Scope(this, node, parent, SCOPE_FUNCTION_EXPRESSION_NAME);
             };
 
-            ScopeManager.prototype.__isES6 = function () {
+            ScopeManager.prototype.__isES6 = function() {
                 return this.__options.ecmaVersion >= 6;
             };
 
             function traverseIdentifierInPattern(rootPattern, callback) {
                 estraverse.traverse(rootPattern, {
-                    enter: function (pattern, parent) {
+                    enter: function(pattern, parent) {
                         var i, iz, element, property;
 
                         switch (pattern.type) {
@@ -828,7 +828,7 @@ module lib.ast {
                 // FIXME: Don't consider initializer with complex patterns.
                 // Such as,
                 // var [a, b, c = 20] = array;
-                traverseIdentifierInPattern(decl.id, function (pattern, toplevel) {
+                traverseIdentifierInPattern(decl.id, function(pattern, toplevel) {
                     variableTargetScope.__define(pattern, {
                         type: type,
                         name: pattern,
@@ -860,7 +860,7 @@ module lib.ast {
                 scopeManager.__nestScope(node, null);
                 letOrConstDecl = node.left;
                 doVariableDeclaration(currentScope, Variable.Variable, letOrConstDecl, 0);
-                traverseIdentifierInPattern(letOrConstDecl.declarations[0].id, function (pattern) {
+                traverseIdentifierInPattern(letOrConstDecl.declarations[0].id, function(pattern) {
                     currentScope.__referencing(pattern, Reference.WRITE, node.right, null, true);
                 });
             }
@@ -908,7 +908,7 @@ module lib.ast {
                         switch (this.type()) {
                             case Syntax.AssignmentExpression:
                                 if (node.operator === '=') {
-                                    traverseIdentifierInPattern(node.left, function (pattern, toplevel) {
+                                    traverseIdentifierInPattern(node.left, function(pattern, toplevel) {
                                         var maybeImplicitGlobal = null;
                                         if (!currentScope.isStrict) {
                                             maybeImplicitGlobal = {
@@ -965,7 +965,7 @@ module lib.ast {
 
                             case Syntax.CatchClause:
                                 scopeManager.__nestScope(node, parent);
-                                traverseIdentifierInPattern(node.param, function (pattern) {
+                                traverseIdentifierInPattern(node.param, function(pattern) {
                                     currentScope.__define(pattern, {
                                         type: Variable.CatchClause,
                                         name: node.param,
@@ -1046,11 +1046,11 @@ module lib.ast {
                                         // LetOrConst Declarations are specially handled.
                                         break;
                                     }
-                                    traverseIdentifierInPattern(node.left.declarations[0].id, function (pattern) {
+                                    traverseIdentifierInPattern(node.left.declarations[0].id, function(pattern) {
                                         currentScope.__referencing(pattern, Reference.WRITE, node.right, null, true);
                                     });
                                 } else {
-                                    traverseIdentifierInPattern(node.left, function (pattern) {
+                                    traverseIdentifierInPattern(node.left, function(pattern) {
                                         var maybeImplicitGlobal = null;
                                         if (!currentScope.isStrict) {
                                             maybeImplicitGlobal = {
@@ -1083,7 +1083,7 @@ module lib.ast {
                                 scopeManager.__nestScope(node, parent);
 
                                 for (i = 0, iz = node.params.length; i < iz; ++i) {
-                                    traverseIdentifierInPattern(node.params[i], function (pattern) {
+                                    traverseIdentifierInPattern(node.params[i], function(pattern) {
                                         currentScope.__define(pattern, {
                                             type: Variable.Parameter,
                                             name: pattern,

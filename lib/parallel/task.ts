@@ -9,11 +9,11 @@ module lib {
         }
 
         export class TaskScheduler {
-            tasks : Task[];
+            tasks: Task[];
             constructor() {
 
             }
-            addTask(f : Function) {
+            addTask(f: Function) {
                 tasks.push(f);
             }
 

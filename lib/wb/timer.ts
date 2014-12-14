@@ -7,9 +7,9 @@ module lib.wb {
         endTime?: number;
         stopped: boolean;
     }
-    var times_:Array<TimeEntry> = [];
+    var times_: Array<TimeEntry> = [];
 
-    export function wbTime_start(state, category:string, ...args:any[]) {
+    export function wbTime_start(state, category: string, ...args: any[]) {
         times_.unshift({
             category: category,
             message: args.join(""),
@@ -18,8 +18,8 @@ module lib.wb {
         });
     }
 
-    export function wbTime_stop(state, category:string, ...args:any[]) {
-        var timer = _.find(times_, {'category': category, 'stopped': false});
+    export function wbTime_stop(state, category: string, ...args: any[]) {
+        var timer = _.find(times_, { 'category': category, 'stopped': false });
         if (lib.utils.isUndefined(timer)) {
             return;
         }

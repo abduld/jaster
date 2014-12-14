@@ -41,12 +41,12 @@ module lib.utils {
 
     // This function accepts the same arguments as setImmediate, but
     // returns a function that requires no arguments.
-    function partiallyApplied(handler, ...args:any[]) {
-        return function () {
+    function partiallyApplied(handler, ...args: any[]) {
+        return function() {
             if (typeof handler === "function") {
                 handler.apply(undefined, args);
             } else {
-                var f:Function = new Function("" + handler);
+                var f: Function = new Function("" + handler);
                 f();
             }
         };
@@ -84,7 +84,7 @@ module lib.utils {
         if (global.postMessage && !global.importScripts) {
             var postMessageIsAsynchronous = true;
             var oldOnMessage = global.onmessage;
-            global.onmessage = function () {
+            global.onmessage = function() {
                 postMessageIsAsynchronous = false;
             };
             global.postMessage("", "*");
@@ -99,7 +99,7 @@ module lib.utils {
         // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
 
         var messagePrefix = "setImmediate$" + Math.random() + "$";
-        var onGlobalMessage = function (event) {
+        var onGlobalMessage = function(event) {
             if (event.source === global &&
                 typeof event.data === "string" &&
                 event.data.indexOf(messagePrefix) === 0) {
@@ -113,7 +113,7 @@ module lib.utils {
             global.attachEvent("onmessage", onGlobalMessage);
         }
 
-        setImediate = function () {
+        setImediate = function() {
             var handle = addFromSetImmediateArguments(arguments);
             global.postMessage(messagePrefix + handle, "*");
             return handle;
@@ -122,12 +122,12 @@ module lib.utils {
 
     function installMessageChannelImplementation() {
         var channel = new MessageChannel();
-        channel.port1.onmessage = function (event) {
+        channel.port1.onmessage = function(event) {
             var handle = event.data;
             runIfPresent(handle);
         };
 
-        setImediate = function () {
+        setImediate = function() {
             var handle = addFromSetImmediateArguments(arguments);
             channel.port2.postMessage(handle);
             return handle;
@@ -136,12 +136,12 @@ module lib.utils {
 
     function installReadyStateChangeImplementation() {
         var html = doc.documentElement;
-        setImediate = function () {
+        setImediate = function() {
             var handle = addFromSetImmediateArguments(arguments);
             // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
             // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
             var script = doc.createElement("script");
-            script.onreadystatechange = function () {
+            script.onreadystatechange = function() {
                 runIfPresent(handle);
                 script.onreadystatechange = null;
                 html.removeChild(script);
@@ -153,7 +153,7 @@ module lib.utils {
     }
 
     function installSetTimeoutImplementation() {
-        setImediate = function () {
+        setImediate = function() {
             var handle = addFromSetImmediateArguments(arguments);
             setTimeout(partiallyApplied(runIfPresent, handle), 0);
             return handle;

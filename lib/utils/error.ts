@@ -1,4 +1,4 @@
-﻿module lib.utils {
+module lib.utils {
     export module detail {
         export enum ErrorCode {
             Success,
@@ -10,13 +10,13 @@
     }
     ;
     export class Error {
-        code:detail.ErrorCode;
-        message:string;
-        stack:any;
+        code: detail.ErrorCode;
+        message: string;
+        stack: any;
 
-        constructor(code?:detail.ErrorCode);
-        constructor(str?:string);
-        constructor(arg?:any) {
+        constructor(code?: detail.ErrorCode);
+        constructor(str?: string);
+        constructor(arg?: any) {
             if (arg) {
                 if (isString(arg)) {
                     this.message = arg;

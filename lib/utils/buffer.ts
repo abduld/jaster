@@ -24,7 +24,7 @@
  */
 
 module lib {
-    export module  utils {
+    export module utils {
         function trimRight(str) {
             return str.replace(/[\n\s]+$/g, "");
         }
@@ -35,10 +35,10 @@ module lib {
         }
 
         export class Buffer {
-            buf:string;
-            format:any;
-            position:any;
-            private _indent:any;
+            buf: string;
+            format: any;
+            position: any;
+            private _indent: any;
 
             constructor(s, format?) {
                 this.position = s;
@@ -130,7 +130,7 @@ module lib {
                     if (this.endsWith(repeat(i, "\n"))) return;
 
                     var self = this;
-                    _.times(i, function () {
+                    _.times(i, function() {
                         self.newline(null, removeLast);
                     });
                     return;
@@ -175,12 +175,12 @@ module lib {
                 return _.contains(chars, _.last(buf));
             }
 
-            toString(typ ? : string) : string{
+            toString(typ?: string): string {
                 if (_.isUndefined(typ)) {
                     typ = "ASCII";
                 }
                 typ = typ.toUpperCase();
-                switch(typ) {
+                switch (typ) {
                     case "ASCII":
                         return this.buf;
                     case "BASE64":

@@ -1,8 +1,8 @@
-﻿module lib.utils {
+module lib.utils {
     export module timer {
 
 
-        export function now():number {
+        export function now(): number {
             return performance.now();
         }
     }

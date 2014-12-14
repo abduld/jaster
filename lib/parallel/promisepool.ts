@@ -1,13 +1,13 @@
-﻿/*
- * Promise Pool v0.1
- * https://github.com/vilic/promise-pool
- * 
- * By VILIC VANE
- * https://github.com/vilic
- * 
- * Written in TypeScript
- * http://typescriptlang.org
- */
+/*
+* Promise Pool v0.1
+* https://github.com/vilic/promise-pool
+* 
+* By VILIC VANE
+* https://github.com/vilic
+* 
+* Written in TypeScript
+* http://typescriptlang.org
+*/
 /// <reference path="../../typings/q-retry/q-retry.d.ts" />
 module lib {
     export module parallel {
@@ -41,17 +41,17 @@ module lib {
             /**
              * (get/set) the max concurrency of this task pool.
              */
-            concurrency:number;
+            concurrency: number;
 
-            private _tasksData:T[] = [];
+            private _tasksData: T[] = [];
 
             /**
              * (get/set) the processor function that handles tasks data.
              */
-            processor:(data:T, index:number) => Q.IPromise<void>;
+            processor: (data: T, index: number) => Q.IPromise<void>;
 
-            private _deferred:Q.Deferred<IResult>;
-            private _pauseDeferred:Q.Deferred<void>;
+            private _deferred: Q.Deferred<IResult>;
+            private _pauseDeferred: Q.Deferred<void>;
 
             /**
              * (get) the number of successful tasks.
@@ -76,7 +76,7 @@ module lib {
             /**
              * (get/set) indicates whether this task pool is endless, if so, tasks can still be added even after all previous tasks have been fulfilled.
              */
-            endless:boolean;
+            endless: boolean;
 
             /**
              * (get/set) defaults to 0, the number or retries that this task pool will take for every single task, could be Infinity.
@@ -101,7 +101,7 @@ module lib {
             private _index = 0;
             private _currentConcurrency = 0;
 
-            onProgress:(progress:IProgress) => void;
+            onProgress: (progress: IProgress) => void;
 
             /**
              * initialize a task pool.
@@ -110,7 +110,7 @@ module lib {
              * @param endless defaults to false. indicates whether this task pool is endless, if so, tasks can still be added even after all previous tasks have been fulfilled.
              * @param tasksData an initializing array of task data.
              */
-            constructor(processor:(data:T, index:number) => Q.IPromise<void>, concurrency:number, endless = false, tasksData?:T[]) {
+            constructor(processor: (data: T, index: number) => Q.IPromise<void>, concurrency: number, endless = false, tasksData?: T[]) {
                 this.concurrency = concurrency;
                 this.processor = processor;
                 this.endless = endless;
@@ -124,13 +124,13 @@ module lib {
              * add a data item.
              * @param taskData task data to add.
              */
-            add(taskData:T):void;
+            add(taskData: T): void;
             /**
              * add data items.
              * @param tasskData tasks data to add.
              */
-            add(tasksData:T[]):void;
-            add(tasksData:any) {
+            add(tasksData: T[]): void;
+            add(tasksData: any) {
                 if (this._deferred && !this._deferred.promise.isPending()) {
                     console.warn('all the tasks have been accomplished, reset the pool before adding new tasks.');
                     return;
@@ -151,7 +151,7 @@ module lib {
              * start tasks, return a promise that will be fulfilled after all tasks accomplish if endless is false.
              * @param onProgress a callback that will be triggered every time when a single task is fulfilled.
              */
-            start(onProgress?:(progress:IProgress) => void):Q.Promise<IResult> {
+            start(onProgress?: (progress: IProgress) => void): Q.Promise<IResult> {
                 if (this._deferred) {
                     if (this._pauseDeferred) {
                         console.warn('tasks pool has already been started, use resume to continue the tasks.');
@@ -184,7 +184,7 @@ module lib {
                 }
             }
 
-            private _process(data:T, index:number) {
+            private _process(data: T, index: number) {
                 Q
                     .retry(() => {
                         return Q
@@ -213,7 +213,7 @@ module lib {
                     });
             }
 
-            private _notifyProgress(index:number, success:boolean, err:any, retries:number) {
+            private _notifyProgress(index: number, success: boolean, err: any, retries: number) {
                 if (typeof this.onProgress == 'function') {
                     this.onProgress({
                         success: success,
@@ -244,7 +244,7 @@ module lib {
             /**
              * pause tasks and return a promise that will be fulfilled after the running tasks accomplish. this will wait for running tasks to complete instead of aborting them.
              */
-            pause():Q.Promise<void> {
+            pause(): Q.Promise<void> {
                 if (this._pauseDeferred) {
                     if (!this._pauseDeferred.promise.isPending()) {
                         console.warn('tasks have already been paused.');
@@ -280,7 +280,7 @@ module lib {
             /**
              * pause tasks, then clear pending tasks data and reset counters. return a promise that will be fulfilled after resetting accomplish.
              */
-            reset():Q.Promise<void> {
+            reset(): Q.Promise<void> {
                 return this.pause().then(() => {
                     this.rejected = 0;
                     this.fulfilled = 0;

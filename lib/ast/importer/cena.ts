@@ -1166,9 +1166,9 @@ module lib.ast {
                             "lib",
                             sloc
                             ), builder.identifier(refname, sloc), false, sloc);
-                        var val : any = builder.literal(this.name, this.loc);
+                        var val: any = builder.literal(this.name, this.loc);
                         if (castTo<ReferenceType>(this.kind).type === "ReferenceType") {
-                        var typ : ReferenceType = castTo<ReferenceType>(castTo<ReferenceType>(this.kind).value);
+                            var typ: ReferenceType = castTo<ReferenceType>(castTo<ReferenceType>(this.kind).value);
                             refname = castTo<ReferenceType>(typ).type === "ReferenceType" && castTo<ReferenceType>(typ).isCUDA === true ? "cudaReference" : "reference";
                             val = builder.callExpression(ref, [
                                 builder.identifier("state$", sloc),
@@ -1176,7 +1176,7 @@ module lib.ast {
                             ref = builder.memberExpression(builder.identifier(
                                 "lib",
                                 sloc
-                            ), builder.identifier(refname, sloc), false, sloc);
+                                ), builder.identifier(refname, sloc), false, sloc);
                         }
                         return castTo<esprima.Syntax.Identifier>({
                             type: "CallExpression",
@@ -1744,38 +1744,38 @@ module lib.ast {
                                     self.loc
                                     ),
 
-                                    _.map(this.params.elements, (param, idx) => {
-                                        if (castTo<Identifier>(param).kind && castTo<Identifier>(param).kind.type === "ReferenceType") {
+                                _.map(this.params.elements, (param, idx) => {
+                                    if (castTo<Identifier>(param).kind && castTo<Identifier>(param).kind.type === "ReferenceType") {
                                           return builder.expressionStatement(
                                             builder.callExpression(
-                                              builder.memberExpression(
-                                                builder.identifier(
-                                                  "lib",
-                                                  self.loc
-                                                  ),
-                                                  builder.identifier(
-                                                    "setReference",
-                                                    self.loc
-                                                    ),
+                                                builder.memberExpression(
+                                                    builder.identifier(
+                                                        "lib",
+                                                        self.loc
+                                                        ),
+                                                    builder.identifier(
+                                                        "setReference",
+                                                        self.loc
+                                                        ),
                                                     false,
                                                     self.loc
                                                     ),
-                                                    [
-                                            param.toEsprima(),
-                                            builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
-                                            ],
-                                            self.loc
-                                            ), self.loc)
+                                                [
+                                                    param.toEsprima(),
+                                                    builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                                ],
+                                                self.loc
+                                                ), self.loc)
                                           } else {
                                             return builder.variableDeclaration("var", [builder.variableDeclarator(
-                                              param.toEsprima(),
-                                              builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
-                                              self.loc
-                                              )],
-                                              self.loc)
+                                            param.toEsprima(),
+                                            builder.memberExpression(builder.identifier("argument", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                            self.loc
+                                            )],
+                                            self.loc)
                                           }
-                                        }
-                                        ),
+                                }
+                                    ),
                                 builder.forStatement(
                                     builder.assignmentExpression(
                                         "=",
@@ -2097,7 +2097,7 @@ module lib.ast {
                             sloc
                             );
 
-                            args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
+                        args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (startsWith(this.callee.name, "cuda")) {
                         var libcuda = builder.memberExpression(
                             builder.identifier(
@@ -2150,7 +2150,7 @@ module lib.ast {
                             false,
                             sloc
                             );
-                            args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
+                        args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (_.contains(["ceil", "floor"], this.callee.name)) {
                         var libm = builder.memberExpression(
                             builder.identifier(
@@ -2205,7 +2205,7 @@ module lib.ast {
                                             var id = builder.identifier("p_" + d, self.loc);
                                             return builder.property("init", builder.identifier(dim, self.loc), builder.conditionalExpression(
                                                 builder.binaryExpression(
-                                                    ">=",
+                                                    ">",
                                                     builder.memberExpression(id, builder.identifier("length", self.loc), false, self.loc),
                                                     builder.literal(idx, self.loc),
                                                     self.loc
@@ -2274,7 +2274,7 @@ module lib.ast {
                                             ),
                                         [
                                             callExpression(
-                                                builder.functionExpression(null, [builder.identifier("state$", self.loc), builder.identifier("blockIdx$", self.loc)],
+                                                builder.functionExpression(null, [builder.identifier("state$", self.loc), builder.identifier("functionStack$", self.loc), builder.identifier("blockIdx$", self.loc)],
                                                     builder.blockStatement([
                                                         builder.expressionStatement(
                                                             builder.functionExpression(null, [],
@@ -2282,8 +2282,9 @@ module lib.ast {
                                                                     builder.expressionStatement(
                                                                         callExpression(
                                                                             this.callee.toEsprima(),
-                                                                            _.map(["blockIdx$", "blockDim$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a: Node) => a.toEsprima()))
-                                                                            ),
+                                                                            [builder.identifier("functionStack$", self.loc)].concat(
+                                                                                _.map(["blockIdx$", "blockDim$", "gridDim$"], (b) => builder.identifier(b, self.loc)).concat(_.map(args, (a: Node) => a.toEsprima()))
+                                                                                )),
                                                                         self.loc
                                                                         )], self.loc),
                                                                 self.loc
@@ -2294,11 +2295,12 @@ module lib.ast {
                                                         ),
                                                     self.loc
                                                     ),
-                                                ["gridDim", "blockDim"].map((gb) =>
+                                                [
+                                                    builder.identifier("functionStack$", self.loc),
                                                     builder.objectExpression(["x", "y", "z"].map((dim: string) =>
-                                                        builder.property("init", builder.identifier(dim, self.loc), builder.identifier(gb + dim.toUpperCase(), self.loc), self.loc)
+                                                        builder.property("init", builder.identifier(dim, self.loc), builder.identifier("blockIdx" + dim.toUpperCase(), self.loc), self.loc)
                                                         ), self.loc)
-                                                    ),
+                                                ],
                                                 self.loc
                                                 )
                                         ],
@@ -2661,7 +2663,7 @@ module lib.ast {
                     [key: string]: Identifier;
                 } = undefined;
 
-                constructor(loc: any, raw: string, cform: string, operator: string, right: any, left: any) {
+                constructor(loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
                     super("BinaryExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
@@ -2690,6 +2692,9 @@ module lib.ast {
                     }
                     if (this.left.toEsprima().type === "ExpressionStatement") {
                         this.left = castTo<ExpressionStatement>(this.left).expression;
+                    }
+                    if (this.right.toEsprima().type === "ExpressionStatement") {
+                        this.right = castTo<ExpressionStatement>(this.right).expression;
                     }
                     this.setChildParents();
                 }
@@ -2788,7 +2793,7 @@ module lib.ast {
             export class UndefinedExpression extends Node {
 
                 constructor() {
-                    super("VariableDeclarator", unknownLocation(), "", "");
+                    super("UndefinedExpression", unknownLocation(), "", "");
                 }
 
                 toEsprima_(): esprima.Syntax.Node {
@@ -2839,6 +2844,27 @@ module lib.ast {
                     if (this.kind.toEsprima() === null) {
                         debugger;
                     }
+                    var init = this.init.toEsprima();
+                    if (this.id.kind.type === "TypeExpression" &&
+                        castTo<TypeExpression>(this.id.kind).bases[0] === "int" && this.init.type !== "UndefinedExpression") {
+                        init = builder.callExpression(
+
+                            builder.memberExpression(
+                                builder.identifier(
+                                    "Math",
+                                    sloc
+                                    ),
+                                builder.identifier(
+                                    "floor",
+                                    sloc
+                                    ),
+                                false,
+                                sloc
+                                ),
+                            [init],
+                            sloc
+                            )
+                            }
                     if (this.kind.type !== "EmptyExpression") {
                         return builder.expressionStatement(
                             builder.sequenceExpression([
@@ -2865,22 +2891,44 @@ module lib.ast {
                                 {
                                     type: "AssignmentExpression",
                                     operator: "=",
-                                    right: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                                    right: castTo<esprima.Syntax.Expression>(init),
                                     left: id,
                                     raw: this.raw, cform: this.cform,
                                     loc: this.loc
                                 }])
                             );
                     } else {
+                        var init = this.init.toEsprima();
+                        if (this.id.kind.type === "TypeExpression" &&
+                            castTo<TypeExpression>(this.id.kind).bases[0] === "int") {
+                            init = builder.callExpression(
+
+                                builder.memberExpression(
+                                    builder.identifier(
+                                        "Math",
+                                        sloc
+                                        ),
+                                    builder.identifier(
+                                        "floor",
+                                        sloc
+                                        ),
+                                    false,
+                                    sloc
+                                    ),
+                                [init],
+                                sloc
+                                )
+                      }
                         return builder.expressionStatement(
                             {
                                 type: "AssignmentExpression",
                                 operator: "=",
-                                right: castTo<esprima.Syntax.Expression>(this.init.toEsprima()),
+                                right: castTo<esprima.Syntax.Expression>(init),
                                 left: id,
                                 raw: this.raw, cform: this.cform,
                                 loc: this.loc
-                            }
+                            },
+                            this.loc
                             );
                     }
                 }

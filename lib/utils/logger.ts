@@ -1,6 +1,6 @@
-﻿
 
-var global$ : any = ((v) : any => v)(this);
+
+var global$: any = ((v): any => v)(this);
 
 module lib {
     export module utils {
@@ -15,9 +15,9 @@ module lib {
             }
 
             export class Logger {
-                private _level:LogType;
+                private _level: LogType;
 
-                constructor(level?:LogType) {
+                constructor(level?: LogType) {
                     if (level) {
                         this._level = level;
                     } else {
@@ -25,8 +25,8 @@ module lib {
                     }
                 }
 
-                private _go(msg:string, type:LogType) {
-                    var color:{ [id: string]: string; } = {
+                private _go(msg: string, type: LogType) {
+                    var color: { [id: string]: string; } = {
                         "LogType.Debug": '\033[39m',
                         "LogType.Trace": '\033[39m',
                         "LogType.Warn": '\033[33m',
@@ -56,19 +56,19 @@ module lib {
                     this._go(msg, LogType.Debug);
                 }
 
-                trace(msg:string) {
+                trace(msg: string) {
                     this._go(msg, LogType.Trace);
                 }
 
-                warn(msg:string) {
+                warn(msg: string) {
                     this._go(msg, LogType.Warn);
                 }
 
-                error(msg:string) {
+                error(msg: string) {
                     this._go(msg, LogType.Error);
                 }
 
-                fatal(msg:string) {
+                fatal(msg: string) {
                     this._go(msg, LogType.Fatal);
                 }
             }
