@@ -23,7 +23,7 @@ function initWebApp() {
       cudaDoc.setValue(lib.example.mp2Source);
       cudaEditor.setSize("100%", 1000);
   */
-    var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
+    var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
     var res = lib.ast.gen.generate(
         ast.toEsprima(),
         // we might have to do some extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
@@ -39,7 +39,7 @@ function initWebApp() {
     });
     var jsDoc = jsEditor.getDoc();
 
-    code = res.code ;
+    code = res.code;
     //code = code + "\n" + lib.utils.sourceMapToComment(res.map.toJSON());
     jsDoc.setValue(code);
     jsEditor.setSize("100%", 1000);
@@ -57,5 +57,5 @@ function initWorkerApp(event) {
 if (lib.utils.ENVIRONMENT_IS_WEB) {
     $(initWebApp);
 } else if (lib.utils.ENVIRONMENT_IS_WORKER) {
-    self.onmessage = initWorkerApp;
+    //self.onmessage = initWorkerApp;
 }

@@ -25,16 +25,22 @@ module lib {
         }
 
         export function makeReference(state, stack, name, data) {
+            if (_.contains(["CReference", "CUDAReference"], data.type)) {
+                return _.extend(data, { name: name });
+            }
             var hostMem: lib.memory.HostMemoryManager = state.hostMemory;
             var typ = stack.types[name].kind.bases[0];
             var elemSize = sizeof(state, stack, typ);
-
-            return {
+            var mem = hostMem.malloc(data.length * elemSize);
+            var ref = {
                 type: "CReference",
                 id: name,
-                mem: hostMem.malloc(data.length * elemSize),
+                mem: mem,
                 args: []
             };
+
+            _.each(data, (elem, idx) => setElement(state, stack, ref, idx, elem));
+            return ref;
         }
     }
 }

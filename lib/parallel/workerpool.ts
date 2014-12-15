@@ -55,7 +55,7 @@ module lib {
         }
         export var WorkerPool: WorkerPool_;
         if (lib.utils.ENVIRONMENT_IS_WEB) {
-            WorkerPool = new WorkerPool_(2);
+            //WorkerPool = new WorkerPool_(2);
         }
     }
 }

@@ -1390,6 +1390,8 @@ module lib.ast {
                             self.loc
                             );
                     }
+                    var syncPositions = [];
+                    var offset = 0;
                     var stmts = _.map(this.body.elements,
                         function(elem, idx): any[] {
                             var nd: any;
@@ -1400,12 +1402,14 @@ module lib.ast {
                             } else if (lib.ast.utils.isStatement(elem.toEsprima())) {
                                 nd = elem.toEsprima();
                             } else if (lib.ast.utils.isExpression(elem.toEsprima())) {
-                                nd = {
-                                    type: "ExpressionStatement",
-                                    expression: elem.toEsprima(),
-                                    loc: elem.loc,
-                                    raw: elem.raw,
-                                    cform: elem.cform
+                                nd = builder.expressionStatement(
+                                  elem.toEsprima(),
+                                  elem.loc
+                                  );
+                                if (elem.type === "CallExpression" && castTo<CallExpression>(elem).callee.type === "Identifier" &&
+                                _.contains(["cudaDeviceSynchronize", "cudaThreadSynchronize"], castTo<Identifier>(castTo<CallExpression>(elem).callee).name)) {
+                                  syncPositions.push(offset);
+                                  nd = elem.toEsprima();
                                 }
                             } else {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
@@ -1413,21 +1417,78 @@ module lib.ast {
                             }
                             nd = _.flatten([nd]);
                             if (nd == null) {
-                                return idx < 5 || (!inCUDAFunction && (idx % 5 !== 0)) || isUndefined(elem) ? [] :
+                                nd = idx < 5 || (!inCUDAFunction && (idx % 5 !== 0)) || isUndefined(elem) ? [] :
                                     elem.loc.start.column === elem.loc.end.column ? [] :
                                     [recordLine(elem), handleEvent(elem)];
                             } else if (inCUDAFunction) {
-                                return [recordLine(elem), handleEvent(elem), nd];
+                                nd = [recordLine(elem), handleEvent(elem), nd];
                             } else {
-                                return idx < 5 || (!inCUDAFunction && (idx % 10 !== 0)) || isUndefined(elem) ? [nd] :
+                                nd = idx < 5 || (!inCUDAFunction && (idx % 10 !== 0)) || isUndefined(elem) ? [nd] :
                                     [recordLine(elem), handleEvent(elem), nd];
                             }
+                            offset += _.reject(_.flatten(nd), _.isNull).length;
+                            return nd;
                         }
                         );
                     stmts = _.reject(_.flatten(stmts), _.isNull);
+                    var blk = [];
+                    if (syncPositions.length > 0) {
+                      var next = stmts.length - 1;
+                      syncPositions.unshift(0);
+                      _.forEachRight(syncPositions, (val, idx) => {
+                          var syncFunction : any = stmts[val];
+                          if (idx === syncPositions.length - 1) {
+                            blk = stmts.slice(val + 1, next);
+                          }
+                          if (val === 0) {
+                            blk = stmts.slice(val + 1, next).concat(blk);
+                            return ;
+                          }
+                          var contbody = builder.blockStatement(_.flatten(blk));
+                          var cont = builder.functionExpression(null, [], contbody);
+                          var call = builder.callExpression(
+                            builder.memberExpression(
+                              syncFunction,
+                              builder.identifier(
+                                "then",
+                                self.loc
+                                ),
+                                false,
+                                self.loc
+                                ),
+                                [cont]
+                                );
+                          if (idx === syncPositions.length - 1) {
+                            call = builder.callExpression(
+                              builder.memberExpression(
+                              call,
+                              builder.identifier("done"), false),
+                              [
+                              builder.functionExpression(null, [],
+                                builder.blockStatement([
+                                  builder.expressionStatement(
+                                builder.callExpression(builder.memberExpression(
+                                  builder.identifier("console"),
+                                  builder.identifier("log"),
+                                  false
+                                  ),
+                                  [builder.literal("completed program execution")]
+                                  ))]))]
+                              );
+                          }
+                          blk = [
+                            builder.expressionStatement(call)
+                              ];
+                                    next = val;
+                        }
+
+                      );
+                    } else {
+                      blk = stmts;
+                    }
                     return {
                         type: "BlockStatement",
-                        body: castTo<esprima.Syntax.Statement[]>(stmts),
+                        body: castTo<esprima.Syntax.Statement[]>(blk),
                         loc: this.loc,
                         raw: this.raw, cform: this.cform
                     }
@@ -1570,7 +1631,19 @@ module lib.ast {
                                     sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
                                 }
                                 idx--;
-                                var k = castTo<esprima.Syntax.ExpressionStatement>({
+                                var k;
+                                k =
+                                builder.variableDeclaration(
+                                    "var",
+                                    [
+                                        builder.variableDeclarator(
+                                            builder.identifier(sparam.value, param.loc),
+                                            builder.memberExpression(builder.identifier("functionStack$", self.loc), sparam.toEsprima(), true, self.loc),
+                                            self.loc
+                                            )]
+                                    );
+                                blk.body.unshift(k);
+                                k = castTo<esprima.Syntax.ExpressionStatement>({
                                     type: "ExpressionStatement",
                                     expression: {
                                         type: "AssignmentExpression",
@@ -1604,7 +1677,7 @@ module lib.ast {
                                             },
                                             property: {
                                                 type: "Literal",
-                                                value: idx,
+                                                value: idx === 0 || _.isEmpty(self.attributes) ? idx : idx + 1,
                                                 raw: idx.toString(),
                                                 loc: self.loc,
                                                 cform: self.cform
@@ -1621,6 +1694,24 @@ module lib.ast {
                                 blk.body.unshift(k);
                             }
                             );
+                        if (!_.isEmpty(self.attributes)) {
+                            blk.body.unshift(
+                                builder.expressionStatement(
+                                    builder.assignmentExpression(
+                                        "=",
+                                        builder.identifier("functionStack$", self.loc),
+                                        builder.callExpression(
+                                            builder.memberExpression(builder.identifier("_", self.loc),
+                                                builder.identifier("clone", self.loc), false, self.loc),
+                                            [
+                                                builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(1, self.loc), true, self.loc),
+                                                builder.identifier("true", self.loc)
+                                            ],
+                                            self.loc),
+                                        self.loc
+                                        )
+                                    ));
+                        }
                         blk.body.unshift({
                             type: "VariableDeclaration",
                             loc: self.loc,
@@ -1700,11 +1791,11 @@ module lib.ast {
                                             builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(0, self.loc), true, self.loc),
                                             self.loc
                                             ),
-                                            builder.variableDeclarator(
-                                              builder.identifier("functionStack$", self.loc),
-                                              builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(1, self.loc), true, self.loc),
-                                              self.loc
-                                              ),
+                                        builder.variableDeclarator(
+                                            builder.identifier("functionStack$", self.loc),
+                                            builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(1, self.loc), true, self.loc),
+                                            self.loc
+                                            ),
                                         builder.variableDeclarator(
                                             builder.identifier("worker$", self.loc),
                                             builder.callExpression(builder.memberExpression(builder.identifier("lib", self.loc), builder.identifier("initWorker", self.loc), false, self.loc), [builder.identifier("state$", self.loc)], self.loc)
@@ -1767,6 +1858,8 @@ module lib.ast {
                                                     self.loc
                                                     ),
                                                 [
+                                                    builder.identifier("state$", self.loc),
+                                                    builder.identifier("functionStack$", self.loc),
                                                     param.toEsprima(),
                                                     builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(5 + idx, self.loc), true, self.loc),
                                                 ],
@@ -1775,7 +1868,7 @@ module lib.ast {
                                           } else {
                                             return builder.variableDeclaration("var", [builder.variableDeclarator(
                                             param.toEsprima(),
-                                            builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(4 + idx, self.loc), true, self.loc),
+                                            builder.memberExpression(builder.identifier("arguments", self.loc), builder.literal(5 + idx, self.loc), true, self.loc),
                                             self.loc
                                             )],
                                             self.loc)
@@ -1864,7 +1957,15 @@ module lib.ast {
                                                                 [
                                                                     callExpression(
                                                                         builder.identifier(self.id.name + "$gen_", self.id.loc),
-                                                                        _.map(["threadIdx", "blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima()),
+                                                                        [builder.identifier("functionStack$", self.loc)].concat(
+                                                                            [
+                                                                                builder.objectExpression(
+                                                                                    _.map(["x", "y", "z"], (dim) =>
+                                                                                        builder.property("init", builder.identifier(dim, self.loc), builder.memberExpression(
+                                                                                            builder.identifier("threadIdx", self.loc), builder.literal(dim, self.loc), true, self.loc), self.loc))
+                                                                                    )
+                                                                            ]).concat(
+                                                                            _.map(["blockIdx", "blockDim", "gridDim"], (fld) => builder.identifier(fld, self.loc)).concat(this.params.toEsprima())),
                                                                         self.loc
                                                                         )
                                                                 ],
@@ -2869,42 +2970,42 @@ module lib.ast {
                             }
                     if (this.kind.type !== "EmptyExpression") {
                         return builder.blockStatement([
-                        builder.expressionStatement(
-                            builder.sequenceExpression([
-                                builder.callExpression(
-                                    builder.memberExpression(
-                                        builder.identifier(
-                                            "lib",
+                            builder.expressionStatement(
+                                builder.sequenceExpression([
+                                    builder.callExpression(
+                                        builder.memberExpression(
+                                            builder.identifier(
+                                                "lib",
+                                                sloc
+                                                ),
+                                            builder.identifier(
+                                                "setType",
+                                                sloc
+                                                ),
+                                            false,
                                             sloc
                                             ),
-                                        builder.identifier(
-                                            "setType",
-                                            sloc
-                                            ),
-                                        false,
+                                        _.reject([
+                                            builder.identifier("functionStack$", sloc),
+                                            builder.literal(this.id.name, this.id.loc),
+                                            this.kind.toEsprima()
+                                        ], _.isNull),
                                         sloc
                                         ),
-                                    _.reject([
-                                        builder.identifier("functionStack$", sloc),
-                                        builder.literal(this.id.name, this.id.loc),
-                                        this.kind.toEsprima()
-                                    ], _.isNull),
-                                    sloc
-                                    ),
-                                builder.assignmentExpression(
-                                  "=",
-                                  id,
-                                  init,
-                                  this.loc
-                                )])
-                            ),builder.variableDeclaration(
-                              "var",
-                              [
-                              builder.variableDeclarator(
-                                builder.identifier(this.id.name, this.id.loc),
-                                id,
-                                sloc
-                                )
+                                    builder.assignmentExpression(
+                                        "=",
+                                        id,
+                                        init,
+                                        this.loc
+                                        )])
+                                ), builder.variableDeclaration(
+                                "var",
+                                [
+                                    builder.variableDeclarator(
+                                        builder.identifier(this.id.name, this.id.loc),
+                                        id,
+                                        sloc
+                                        )
                                 ],
                                 sloc
                                 )], sloc);
@@ -3139,17 +3240,17 @@ module lib.ast {
                             acc = this.right.toEsprima();
                         }
                         return builder.expressionStatement(
-                          builder.sequenceExpression([
-                            builder.assignmentExpression("=", lefte,
-                                acc, sloc),
-                                 builder.assignmentExpression("=", builder.identifier(left.name, left.loc), lefte, sloc)], sloc), sloc);
+                            builder.sequenceExpression([
+                                builder.assignmentExpression("=", lefte,
+                                    acc, sloc),
+                                builder.assignmentExpression("=", builder.identifier(left.name, left.loc), lefte, sloc)], sloc), sloc);
                     } else {
                         return builder.expressionStatement(
-                          builder.sequenceExpression([
-                            builder.assignmentExpression("=", this.left.toEsprima(),
-                            acc, sloc)].concat(this.left.type === "Identifier" ?
-                            [builder.assignmentExpression("=", builder.identifier(castTo<Identifier>(this.left).name, left.loc), this.left.toEsprima(), sloc)]
-                            : []), sloc), sloc)
+                            builder.sequenceExpression([
+                                builder.assignmentExpression("=", this.left.toEsprima(),
+                                    acc, sloc)].concat(this.left.type === "Identifier" ?
+                                [builder.assignmentExpression("=", builder.identifier(castTo<Identifier>(this.left).name, left.loc), this.left.toEsprima(), sloc)]
+                                : []), sloc), sloc)
                     }
                 }
 
@@ -3487,6 +3588,25 @@ module lib.ast {
                         false,
                         sloc
                         );
+                        var cudaFunctions : string[] = _.reject(_.map(this.body.elements, (elem) => {
+                          if (elem.type === "FunctionExpression" && castTo<FunctionExpression>(elem).id.type === "Identifier" &&
+                          castTo<FunctionExpression>(elem).attributes.length > 0 ) {
+
+                            return castTo<Identifier>(castTo<FunctionExpression>(elem).id).name;
+
+                          } else {
+                            return null;
+                            }}), _.isNull);
+
+                            var mpNum = 0;
+                            _.each(cudaFunctions, (fun) => {
+                              if (mpNum === 0) {
+                              if (startsWith(cudaFunctions[0].toLowerCase(), "vec")) {
+                                mpNum = 1;
+                              } else if (startsWith(cudaFunctions[0].toLowerCase(), "sgemm")) {
+                                mpNum = 2;
+                              }
+                            }});
                     var body: esprima.Syntax.Statement[] = castTo<esprima.Syntax.Statement[]>(this.body.toEsprima());
                     body.unshift(
                         builder.variableDeclaration(
@@ -3494,7 +3614,7 @@ module lib.ast {
                             [
                                 builder.variableDeclarator(
                                     builder.identifier("state$", sloc),
-                                    builder.callExpression(initf, [], sloc)
+                                    builder.callExpression(initf, [builder.literal(mpNum)], sloc)
                                     )
                             ],
                             sloc
@@ -3718,6 +3838,7 @@ module lib.ast {
                     return callExpression(
                         builder.memberExpression(libc, builder.identifier("getElement", sloc), false, sloc),
                         [
+                            builder.identifier("functionStack$", self.loc),
                             self.object.toEsprima(),
                             self.property.toEsprima()
                         ],

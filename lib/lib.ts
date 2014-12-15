@@ -8,15 +8,19 @@
 module lib {
     export interface StateInterface {
         type: string;
+        mpnum : number;
         model: typeof lib.cuda.exec.FermiArchitecture;
         globalMemory: lib.memory.GlobalMemoryManager;
         hostMemory: lib.memory.HostMemoryManager;
         threadPool: typeof lib.parallel.WorkerPool;
         id: string;
     }
-    export function init(): StateInterface {
+    export function init(mpnum : number): StateInterface {
+        parallel.funsToProcess = [];
+        parallel.funsMask = [];
         return {
             type: "GlobalState",
+            mpnum : mpnum,
             model: lib.cuda.exec.FermiArchitecture,
             globalMemory: new lib.memory.GlobalMemoryManager(),
             hostMemory: new lib.memory.HostMemoryManager(),
@@ -74,15 +78,52 @@ module lib {
                 default:
                     console.log("Invalid direction " + direction);
             }
-            (new Int8Array(trg.mem.data.buffer, 0, size)).set(new Int8Array(src.mem.data.buffer, 0, size));
+            var trgbuf = new Int8Array(trg.mem.data.buffer, 0, size);
+            var srcbuf = new Int8Array(src.mem.data.buffer, 0, size);
+            trgbuf.set(srcbuf);
+
+        }
+        export function cudaMemset(state: StateInterface, stack, trg, val, size) {
+          var trgbuf = new Int8Array(trg.mem.data.buffer, 0, size);
+          _.each(_.range(size), (idx : number) => trgbuf[idx] = val);
         }
 
         export function cudaThreadSynchronize(state, stack) {
-            lib.parallel.synchronize(state, stack);
+            return lib.parallel.synchronize(state, stack);
+        }
+
+
+        export function cudaDeviceSynchronize(state, stack) {
+          return cudaThreadSynchronize(state, stack);
+        }
+
+        export function getElement(state, stack, ref, idx) {
+            return lib.memory.getElement(state, stack, ref, idx);
+        }
+
+        export function setElement(state, stack, ref, idx, val) {
+            var res = lib.memory.setElement(state, stack, ref, idx, val);
+            //console.log("Set element " + idx + " to " + val + " element[ " + idx + "] = " + getElement(state, stack, ref, idx));
         }
     }
 
+    export module m {
+      export function ceil(state, arg) {
+        return Math.ceil(arg);
+      }
+      export function floor(state, arg) {
+        return Math.floor(arg);
+      }
+    }
     export module c {
+
+        export function getElement(state, stack, ref, idx) {
+            return lib.memory.getElement(state, stack, ref, idx);
+        }
+
+        export function setElement(state, stack, ref, idx, val) {
+            return lib.memory.setElement(state, stack, ref, idx, val);
+        }
         export function malloc(state: StateInterface, stack, byteCount: number, args: string[]): CReference {
             return {
                 type: "CReference",
@@ -100,14 +141,23 @@ module lib {
     }
 
     export module parallel {
+        export var funsToProcess: any[] = [];
+        export var funsMask : boolean[] = [];
+        export var finished: boolean = false;
         export function scheduleThread(state: StateInterface, fun: Function) {
-            setImmediate(fun);
+          var len = funsMask.length;
+          funsMask.push(false);
+            funsToProcess.push(fun());
             return;
         }
 
+        function sleepFor( sleepDuration ){
+          var now = new Date().getTime();
+        while(new Date().getTime() < now + sleepDuration){ /* do nothing */ }
+      }
+
         export function synchronize(state: StateInterface, stack) {
-            console.log("todo synchronize");
-            return;
+            return Q.all(_.map(_.shuffle(lib.parallel.funsToProcess), Q.fcall));
         }
     }
 
@@ -131,23 +181,14 @@ module lib {
         }
         lib.utils.assert.ok(stack[name].type === "CUDAReference");
         ref = stack[name];
-      return {
-            type: ref.type,
-            stack: stack,
-            state: state,
-            id: ref.id,
-            mem: ref.mem,
-            args: ref.args
-        }
+      return ref
     }
 
     export function reference(state, stack, name): any {
         var ref;
         if (name === "argv") {
             return {};
-        } else if (_.isObject(name) && name.type === "CUDAReference") {
-            return name;
-        } else if (_.isObject(name) && name.type === "CReference") {
+        } else if (_.isObject(name) && _.contains(["CUDAReference", "CReference", "Identifier"], name.type)) {
             return name;
         } else if (_.isUndefined(stack[name]) && stack.types[name] !== "ReferenceType" && stack.types[name] !== "CUDAReferenceType"
             && stack.types[name] !== "CReference" && stack.types[name] !== "CUDAReference") {
@@ -167,13 +208,12 @@ module lib {
         }
         lib.utils.assert.ok(stack[name].type === "CReference");
         ref = stack[name];
-      return {
-            type: ref.type,
-            stack: stack,
-            state: state,
-            id: ref.id,
-            mem: ref.mem,
-            args: ref.args
+      return ref;
+    }
+
+    export function setReference(state, stack, to, from) {
+        if (to.type === "Identifier") {
+            stack[to.id] = from;
         }
     }
 
@@ -183,8 +223,8 @@ module lib {
 
     export function initWorker(state) {
       return {
-        type: "Worker",
-        state: state
-      }
+            type: "Worker",
+            state: state
+        }
     }
 }

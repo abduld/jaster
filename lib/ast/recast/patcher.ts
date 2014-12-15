@@ -12,7 +12,7 @@ module lib.ast.recast {
     var isFunction: types.Type = types.builtInTypes["function"];
     var b = types.builders;
     var Node = types.namedTypes["Node"];
-    var  Expression = types.namedTypes["Expression"];
+    var Expression = types.namedTypes["Expression"];
     var SourceLocation = types.namedTypes["SourceLocation"];
 
     export function Patcher(lines) {

@@ -38,24 +38,50 @@ module lib {
         export function getElement(state, stack, ref, idx) {
             var typ;
             var mm;
+            var id = ref.id;
+            if (_.contains(["CUDAReference", "CReference"], ref.type)) {
+                ref = ref.mem;
+            }
             if (ref.addressSpace === "Global") {
                 mm = state.globalMemory;
             } else {
                 mm = state.hostMemory;
             }
-            typ = state["types"][ref.name];
-            if (typ != "ReferenceType") {
+            typ = stack["types"][id];
+            if (typ.type !== "ReferenceType") {
                 console.log("Invalid type " + JSON.stringify(typ));
             }
             typ = typ.kind;
-            if (typ == "ReferenceType") {
+            if (typ.type === "ReferenceType") {
                 console.log("Unexpected type " + JSON.stringify(typ));
             }
             typ = typeStringToCLiteralKind[typ.bases[0]];
             return ref.getElement(idx, typ);
         }
-        export function setElement(state, stack, ref, idx, data) {
+        export function setElement(state, stack, ref, idx, val) {
 
+            var typ;
+            var mm;
+            var id = ref.id;
+            if (_.contains(["CUDAReference", "CReference"], ref.type)) {
+                ref = ref.mem;
+            }
+            if (ref.addressSpace === "Global") {
+                mm = state.globalMemory;
+            } else {
+                mm = state.hostMemory;
+            }
+            typ = stack["types"][id];
+            if (typ.type !== "ReferenceType") {
+                console.log("Invalid type " + JSON.stringify(typ));
+            }
+            typ = typ.kind;
+            if (typ.type === "ReferenceType") {
+                console.log("Unexpected type " + JSON.stringify(typ));
+            }
+            typ = typeStringToCLiteralKind[typ.bases[0]];
+            var res = ref.setElement(idx, val, typ);
+            return res;
         }
     }
 }
