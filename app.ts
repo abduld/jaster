@@ -23,7 +23,7 @@ function initWebApp() {
       cudaDoc.setValue(lib.example.mp2Source);
       cudaEditor.setSize("100%", 1000);
   */
-    var ast = lib.ast.importer.cena.fromCena(lib.example.mp2);
+    var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
     var res = lib.ast.gen.generate(
         ast.toEsprima(),
         // we might have to do some extra think here (see https://github.com/estools/escodegen/wiki/Source-Map-Usage )
