@@ -1403,13 +1403,13 @@ module lib.ast {
                                 nd = elem.toEsprima();
                             } else if (lib.ast.utils.isExpression(elem.toEsprima())) {
                                 nd = builder.expressionStatement(
-                                  elem.toEsprima(),
-                                  elem.loc
-                                  );
+                                    elem.toEsprima(),
+                                    elem.loc
+                                    );
                                 if (elem.type === "CallExpression" && castTo<CallExpression>(elem).callee.type === "Identifier" &&
-                                _.contains(["cudaDeviceSynchronize", "cudaThreadSynchronize"], castTo<Identifier>(castTo<CallExpression>(elem).callee).name)) {
-                                  syncPositions.push(offset);
-                                  nd = elem.toEsprima();
+                                    _.contains(["cudaDeviceSynchronize", "cudaThreadSynchronize"], castTo<Identifier>(castTo<CallExpression>(elem).callee).name)) {
+                                    syncPositions.push(offset);
+                                    nd = elem.toEsprima();
                                 }
                             } else {
                                 lib.utils.assert.fail(true, "The generated node is neither a statement or expression");
@@ -1418,13 +1418,13 @@ module lib.ast {
                             nd = _.flatten([nd]);
                             if (nd == null) {
                                 nd = idx < 5 || (!inCUDAFunction && (idx % 5 !== 0)) || isUndefined(elem) ? [] :
-                                    elem.loc.start.column === elem.loc.end.column ? [] :
-                                    [recordLine(elem), handleEvent(elem)];
+                                elem.loc.start.column === elem.loc.end.column ? [] :
+                                [recordLine(elem), handleEvent(elem)];
                             } else if (inCUDAFunction) {
                                 nd = [recordLine(elem), handleEvent(elem), nd];
                             } else {
                                 nd = idx < 5 || (!inCUDAFunction && (idx % 10 !== 0)) || isUndefined(elem) ? [nd] :
-                                    [recordLine(elem), handleEvent(elem), nd];
+                                [recordLine(elem), handleEvent(elem), nd];
                             }
                             offset += _.reject(_.flatten(nd), _.isNull).length;
                             return nd;
@@ -1433,58 +1433,58 @@ module lib.ast {
                     stmts = _.reject(_.flatten(stmts), _.isNull);
                     var blk = [];
                     if (syncPositions.length > 0) {
-                      var next = stmts.length - 1;
-                      syncPositions.unshift(0);
-                      _.forEachRight(syncPositions, (val, idx) => {
-                          var syncFunction : any = stmts[val];
-                          if (idx === syncPositions.length - 1) {
-                            blk = stmts.slice(val + 1, next);
-                          }
-                          if (val === 0) {
-                            blk = stmts.slice(val + 1, next).concat(blk);
-                            return ;
-                          }
-                          var contbody = builder.blockStatement(_.flatten(blk));
-                          var cont = builder.functionExpression(null, [], contbody);
-                          var call = builder.callExpression(
-                            builder.memberExpression(
-                              syncFunction,
-                              builder.identifier(
-                                "then",
-                                self.loc
-                                ),
-                                false,
-                                self.loc
-                                ),
+                        var next = stmts.length - 1;
+                        syncPositions.unshift(0);
+                        _.forEachRight(syncPositions, (val, idx) => {
+                            var syncFunction: any = stmts[val];
+                            if (idx === syncPositions.length - 1) {
+                                blk = stmts.slice(val + 1, next);
+                            }
+                            if (val === 0) {
+                                blk = stmts.slice(val + 1, next).concat(blk);
+                                return;
+                            }
+                            var contbody = builder.blockStatement(_.flatten(blk));
+                            var cont = builder.functionExpression(null, [], contbody);
+                            var call = builder.callExpression(
+                                builder.memberExpression(
+                                    syncFunction,
+                                    builder.identifier(
+                                        "then",
+                                        self.loc
+                                        ),
+                                    false,
+                                    self.loc
+                                    ),
                                 [cont]
                                 );
-                          if (idx === syncPositions.length - 1) {
-                            call = builder.callExpression(
-                              builder.memberExpression(
-                              call,
-                              builder.identifier("done"), false),
-                              [
-                              builder.functionExpression(null, [],
-                                builder.blockStatement([
-                                  builder.expressionStatement(
-                                builder.callExpression(builder.memberExpression(
-                                  builder.identifier("console"),
-                                  builder.identifier("log"),
-                                  false
-                                  ),
-                                  [builder.literal("completed program execution")]
-                                  ))]))]
-                              );
-                          }
-                          blk = [
-                            builder.expressionStatement(call)
-                              ];
-                                    next = val;
+                            if (idx === syncPositions.length - 1) {
+                                call = builder.callExpression(
+                                    builder.memberExpression(
+                                        call,
+                                        builder.identifier("done"), false),
+                                    [
+                                        builder.functionExpression(null, [],
+                                            builder.blockStatement([
+                                                builder.expressionStatement(
+                                                    builder.callExpression(builder.memberExpression(
+                                                        builder.identifier("console"),
+                                                        builder.identifier("log"),
+                                                        false
+                                                        ),
+                                                        [builder.literal("completed program execution")]
+                                                        ))]))]
+                                    );
+                            }
+                            blk = [
+                                builder.expressionStatement(call)
+                            ];
+                            next = val;
                         }
 
-                      );
+                            );
                     } else {
-                      blk = stmts;
+                        blk = stmts;
                     }
                     return {
                         type: "BlockStatement",
@@ -3588,25 +3588,27 @@ module lib.ast {
                         false,
                         sloc
                         );
-                        var cudaFunctions : string[] = _.reject(_.map(this.body.elements, (elem) => {
-                          if (elem.type === "FunctionExpression" && castTo<FunctionExpression>(elem).id.type === "Identifier" &&
-                          castTo<FunctionExpression>(elem).attributes.length > 0 ) {
+                    var cudaFunctions: string[] = _.reject(_.map(this.body.elements, (elem) => {
+                        if (elem.type === "FunctionExpression" && castTo<FunctionExpression>(elem).id.type === "Identifier" &&
+                            castTo<FunctionExpression>(elem).attributes.length > 0) {
 
                             return castTo<Identifier>(castTo<FunctionExpression>(elem).id).name;
 
-                          } else {
+                        } else {
                             return null;
-                            }}), _.isNull);
+                        }
+                    }), _.isNull);
 
-                            var mpNum = 0;
-                            _.each(cudaFunctions, (fun) => {
-                              if (mpNum === 0) {
-                              if (startsWith(cudaFunctions[0].toLowerCase(), "vec")) {
+                    var mpNum = 0;
+                    _.each(cudaFunctions, (fun) => {
+                        if (mpNum === 0) {
+                            if (startsWith(cudaFunctions[0].toLowerCase(), "vec")) {
                                 mpNum = 1;
-                              } else if (startsWith(cudaFunctions[0].toLowerCase(), "sgemm")) {
+                            } else if (startsWith(cudaFunctions[0].toLowerCase(), "sgemm")) {
                                 mpNum = 2;
-                              }
-                            }});
+                            }
+                        }
+                    });
                     var body: esprima.Syntax.Statement[] = castTo<esprima.Syntax.Statement[]>(this.body.toEsprima());
                     body.unshift(
                         builder.variableDeclaration(

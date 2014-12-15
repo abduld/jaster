@@ -370,7 +370,7 @@
       lib.wb.wbTime_start(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
       lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceA')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostA')), functionStack$['numARows'] * functionStack$['numAColumns'] * lib.c.sizeof(state$, functionStack$, 'float'), 'cudaMemcpyHostToDevice');
       lib.cuda.cudaMemcpy(state$, functionStack$, lib.reference(state$, functionStack$, lib.cudaReference(state$, functionStack$, 'deviceB')), lib.reference(state$, functionStack$, lib.reference(state$, functionStack$, 'hostB')), functionStack$['numBRows'] * functionStack$['numBColumns'] * lib.c.sizeof(state$, functionStack$, 'float'), 'cudaMemcpyHostToDevice');
-      debugger;
+      
       lib.wb.wbTime_stop(state$, functionStack$, 'GPU', 'Copying input memory to the GPU.');
       lib.setType(functionStack$, 'blockDim', {
         type: 'TypeExpression',
