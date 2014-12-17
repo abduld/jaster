@@ -129,9 +129,13 @@ the code similarity algorithm is computationally expensive ($O(n^4)$ in time and
 we were not able to perform full correlation between the codes}). Similarity between
 two codes is measured using a modified version of the Zhang-Shasha tree edit distance algorithm.
 
-The Zhang-Shasha algorithm measure the distance between two trees with respenct to
-distance functions. The distance functions decide the weight of inserting, deleting,
-and renaming nodes in the AST tree.
+We use the Zhang-Shasha algorithm measure the distance between two trees with respenct to
+distance functions. The algorithm determines the distance between two pairs of ASTs by
+calculating the number of insersions, deletions, and renaming of the nodes
+required to equate the AST nodes. Since two noes might be different in the AST but semantically
+the same, we perform canonicalization to mimic semantic equivalence. Since we still want
+to be able to present the user with the AST differences, we maintain the original node
+information while performing the canonicalization.
 
 \subsubsection{Cannonicalization of the AST Representation}
 
