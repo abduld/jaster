@@ -1302,10 +1302,10 @@ module lib.ast {
                 parent: Node
                 deleted: boolean;
 
-                constructor(o : any[], elements?: any[]) {
-                  if (_.isUndefined(elements)) {
-                    elements = o;
-                  }
+                constructor(o: any[], elements?: any[]) {
+                    if (_.isUndefined(elements)) {
+                        elements = o;
+                    }
                     this.elements = isUndefined(elements) ? [] : elements.map((elem) => fromCena(elem));
                     var self = this;
                     _.each(this.elements, (elem: Node) => elem.parent = self.parent);
@@ -3539,7 +3539,7 @@ module lib.ast {
                 consequent: Node
                 alternate: Node
 
-                constructor(o : any, loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
                     super("IfStatement", loc, raw, cform);
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
@@ -3547,7 +3547,7 @@ module lib.ast {
                     this.setChildParents(); this.setOriginal(o);;
                 }
 
-                toCanonicalForm() : any {
+                toCanonicalForm(): any {
                     var tmp;
                     var test = this.test;
                     var consequent = this.consequent.toCanonicalForm();
@@ -3555,7 +3555,7 @@ module lib.ast {
                     if (_.isArray(consequent) && _.isArray(alternate)) {
                         if (consequent.length > alternate.length) {
                             test = UnaryExpression.fromCena({
-                                  loc: test.org.loc, raw: test.org.raw, cform: test.org.cform, operator: "!", argument: test.org
+                                loc: test.org.loc, raw: test.org.raw, cform: test.org.cform, operator: "!", argument: test.org
                             });
                             tmp = consequent;
                             consequent = alternate;
@@ -3563,7 +3563,7 @@ module lib.ast {
                         }
                     } else if (_.isObject(alternate) && _.isArray(consequent)) {
                         test = UnaryExpression.fromCena({
-                          loc: test.org.loc, raw: test.org.raw, cform: test.org.cform, operator: "!", argument: test.org
+                            loc: test.org.loc, raw: test.org.raw, cform: test.org.cform, operator: "!", argument: test.org
                         });
                         tmp = consequent;
                         consequent = alternate;
@@ -3632,7 +3632,7 @@ module lib.ast {
                     return ret;
                 }
 
-                children_(): Node[]{
+                children_(): Node[] {
                     return [this.test, this.consequent, this.alternate];
                 }
 
