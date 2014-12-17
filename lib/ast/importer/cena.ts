@@ -3141,14 +3141,13 @@ module lib.ast {
 
 
                 toCanonicalForm(): any {
-                    return {
-                        type: "VariableDeclarator",
-                        id: this.id.toCanonicalForm(),
-                        init: this.init.toCanonicalForm(),
-                        loc: this.loc,
-                        children: ["id", "init"]
+                  if (this.init.type === "UndefinedExpression") {
+                    return [];
+                  } else {
+                    var ass = new AssignmentExpression(this.org, this.loc, this.raw, this.cform, "=", this.id, this.init);
+                    return ass.toCanonicalForm();
                     }
-                    }
+                  }
                 static fromCena(o: any): Node {
                     return new VariableDeclarator(o, o.loc, o.raw, o.cform, o.init, o.id, o.kind);
                 }
@@ -3866,7 +3865,7 @@ module lib.ast {
                 }
 
                 toCanonicalForm(): any {
-                    return this.toCanonicalForm();
+                    return this.body.toCanonicalForm();
                 }
                 static fromCena(o: any): Node {
                     return new ProgramExpression(o, o.loc, o.raw, o.cform, o.body);
