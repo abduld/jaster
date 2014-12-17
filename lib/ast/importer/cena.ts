@@ -39,6 +39,7 @@ module lib.ast {
                 marker: any
                 parent: Node
                 deleted: boolean
+                org: any
 
                 constructor(type: string, loc: any, raw: string, cform: string) {
                     this.type = type;
@@ -60,6 +61,9 @@ module lib.ast {
                     this.deleted = false;
                 }
 
+                setOriginal(org: any) {
+                    this.org = org;
+                }
                 static fromCena(o: any): Node {
                     return new Node("Unknown", unknownLocation(), "", "");
                 }
@@ -70,6 +74,14 @@ module lib.ast {
                     } else {
                         return this.toEsprima_();
                     }
+                }
+
+                toCanonicalForm(): any {
+                    return []
+                }
+
+                isLexographicallyLess(nd: Node): boolean {
+                    return false;
                 }
 
                 toCString(): string {
@@ -182,6 +194,10 @@ module lib.ast {
                     return null
                 }
 
+                toCanonicalForm(): any {
+                    return []
+                }
+
                 hasChildren_(): boolean {
                     return false;
                 }
@@ -215,6 +231,10 @@ module lib.ast {
                     return null;
                 }
 
+                toCanonicalForm(): any {
+                    return []
+                }
+
                 hasChildren_(): boolean {
                     return false;
                 }
@@ -242,10 +262,19 @@ module lib.ast {
             export class Literal<T> extends Node {
                 value: T;
 
-                constructor(loc: any, raw: string, cform: string, value: T) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: T) {
                     super("Literal", loc, raw, cform);
                     this.value = value;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+                toCanonicalForm(): any {
+                    return {
+                        type: "Literal",
+                        value: this.value,
+                        loc: this.loc,
+                        children: ["value"]
+                    }
                 }
 
                 toEsprima_(): esprima.Syntax.Literal {
@@ -286,10 +315,10 @@ module lib.ast {
                 }
             }
             export class SymbolLiteral extends Literal<string> {
-                constructor(loc: any, raw: string, cform: string, value: string) {
-                    super(loc, raw, cform, value);
+                constructor(o: any, loc: any, raw: string, cform: string, value: string) {
+                    super(o, loc, raw, cform, value);
                     this.type = "SymbolLiteral";
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 /*
@@ -302,7 +331,7 @@ module lib.ast {
                  })
                  }*/
                 static fromCena(o: any): SymbolLiteral {
-                    return new SymbolLiteral(o.loc, o.raw, o.cform, o.value);
+                    return new SymbolLiteral(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toCString_(): string {
@@ -334,14 +363,14 @@ module lib.ast {
                 }
             }
             export class StringLiteral extends Literal<string> {
-                constructor(loc: any, raw: string, cform: string, value: string) {
-                    super(loc, raw, cform, value);
+                constructor(o: any, loc: any, raw: string, cform: string, value: string) {
+                    super(o, loc, raw, cform, value);
                     this.type = "StringLiteral";
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): StringLiteral {
-                    return new StringLiteral(o.loc, o.raw, o.cform, o.value);
+                    return new StringLiteral(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toEsprima_(): esprima.Syntax.Literal {
@@ -384,14 +413,14 @@ module lib.ast {
                 }
             }
             export class BooleanLiteral extends Literal<boolean> {
-                constructor(loc: any, raw: string, cform: string, value: boolean) {
-                    super(loc, raw, cform, value);
+                constructor(o: any, loc: any, raw: string, cform: string, value: boolean) {
+                    super(o, loc, raw, cform, value);
                     this.type = "BooleanLiteral";
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): Node {
-                    return new BooleanLiteral(o.loc, o.raw, o.cform, o.value);
+                    return new BooleanLiteral(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toCString_(): string {
@@ -425,14 +454,14 @@ module lib.ast {
             export class CharLiteral extends Node {
                 value: string
 
-                constructor(loc: any, raw: string, cform: string, value: string) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: string) {
                     super("CharLiteral", loc, raw, cform);
                     this.value = value;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): CharLiteral {
-                    return new CharLiteral(o.loc, o.raw, o.cform, o.value);
+                    return new CharLiteral(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toCString_(): string {
@@ -503,14 +532,14 @@ module lib.ast {
             export class Integer8Literal extends Node {
                 value: number
 
-                constructor(loc: any, raw: string, cform: string, value: number) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: number) {
                     super("Integer8Literal", loc, raw, cform);
                     this.value = value;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): Integer8Literal {
-                    return new Integer8Literal(o.loc, o.raw, o.cform, o.value);
+                    return new Integer8Literal(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
@@ -586,14 +615,14 @@ module lib.ast {
             export class Integer32Literal extends Node {
                 value: number
 
-                constructor(loc: any, raw: string, cform: string, value: number) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: number) {
                     super("Integer8Literal", loc, raw, cform);
                     this.value = value;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): Integer32Literal {
-                    return new Integer32Literal(o.loc, o.raw, o.cform, o.value);
+                    return new Integer32Literal(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
@@ -669,14 +698,14 @@ module lib.ast {
             export class Integer64Literal extends Node {
                 value: string
 
-                constructor(loc: any, raw: string, cform: string, value: string) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: string) {
                     super("Integer8Literal", loc, raw, cform);
                     this.value = value;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): Integer64Literal {
-                    return new Integer64Literal(o.loc, o.raw, o.cform, o.value);
+                    return new Integer64Literal(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
@@ -753,14 +782,14 @@ module lib.ast {
             export class Float32Literal extends Node {
                 value: number
 
-                constructor(loc: any, raw: string, cform: string, value: number) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: number) {
                     super("FloatLiteral", loc, raw, cform);
                     this.value = value;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): Float32Literal {
-                    return new Float32Literal(o.loc, o.raw, o.cform, o.value);
+                    return new Float32Literal(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toEsprima_(): esprima.Syntax.NewExpression {
@@ -833,14 +862,14 @@ module lib.ast {
                 }
             }
             export class Float64Literal extends Literal<number> {
-                constructor(loc: any, raw: string, cform: string, value: number) {
-                    super(loc, raw, cform, value);
+                constructor(o: any, loc: any, raw: string, cform: string, value: number) {
+                    super(o, loc, raw, cform, value);
                     this.type = "Float64Literal";
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): Node {
-                    return new Float64Literal(o.loc, o.raw, o.cform, o.value);
+                    return new Float64Literal(o, o.loc, o.raw, o.cform, o.value);
                 }
 
                 toCString_(): string {
@@ -876,20 +905,26 @@ module lib.ast {
                 id: Identifier
               kind: ReferenceType
 
-              constructor(loc: any, raw: string, cform: string, id: any, kind: any) {
+              constructor(o: any, loc: any, raw: string, cform: string, id: any, kind: any) {
                     super("ParameterExpression", loc, raw, cform);
                     this.id = castTo<Identifier>(fromCena(id));
                     this.kind = castTo<ReferenceType>(fromCena(kind));
                     this.id.kind = this.kind;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
                 static fromCena(o: any): ParameterExpression {
-                    return new ParameterExpression(o.loc, o.raw, o.cform, o.data, o.kind);
+                    return new ParameterExpression(o, o.loc, o.raw, o.cform, o.data, o.kind);
                 }
-                makeerence() {
+
+                makeCUDAReference() {
                     this.kind.makeCUDAReference();
                     this.id.makeCUDAReference();
+                }
+
+
+                toCanonicalForm(): any {
+                    return []
                 }
 
                 toEsprima_(): esprima.Syntax.Expression {
@@ -940,15 +975,19 @@ module lib.ast {
                 value: Node
                 private isCUDA_: boolean
 
-                constructor(loc: any, raw: string, cform: string, value: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, value: any) {
                     super("ReferenceType", loc, raw, cform);
                     this.value = fromCena(value);
                     this.isCUDA = false;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+
+                toCanonicalForm(): any {
+                    return []
+                }
                 static fromCena(o: any): ReferenceType {
-                    return new ReferenceType(o.loc, o.raw, o.cform, o.value);
+                    return new ReferenceType(o, o.loc, o.raw, o.cform, o.value);
                 }
                 get isCUDA(): boolean {
                     if (inCUDAFunction) {
@@ -1024,7 +1063,7 @@ module lib.ast {
                 qualifiers: string[]
                 bases: string[]
 
-                constructor(loc: any, raw: string, cform: string, addressSpace: string[], qualifiers: string[], bases: string[]) {
+                constructor(o: any, loc: any, raw: string, cform: string, addressSpace: string[], qualifiers: string[], bases: string[]) {
                     super("TypeExpression", loc, raw, cform);
                     this.eaddressSpace = _.map(addressSpace || [undefined], (b: Node) => fromCena(b));
                     this.equalifiers = _.map(qualifiers || [undefined], (b: Node) => fromCena(b));
@@ -1032,11 +1071,15 @@ module lib.ast {
                     this.addressSpace = _.map(addressSpace || [undefined], (b: Node) => fromCena(b).toCString());
                     this.qualifiers = _.map(qualifiers || [undefined], (b: Node) => fromCena(b).toCString());
                     this.bases = _.map(bases || [undefined], (b: Node) => fromCena(b).toCString());
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+
+                toCanonicalForm(): any {
+                    return []
+                }
                 static fromCena(o: any): TypeExpression {
-                    return new TypeExpression(o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
+                    return new TypeExpression(o, o.loc, o.raw, o.cform, o.addressSpace, o.qualifiers, o.bases);
                 }
 
                 toEsprima_(): esprima.Syntax.ObjectExpression {
@@ -1112,7 +1155,7 @@ module lib.ast {
                 kind: Node
                 name: string
 
-                constructor(loc: any, raw: string, cform: string, name: string, kind?: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, name: string, kind?: any) {
                     super("Identifier", loc, raw, cform);
                     this.name = name;
                     if (isUndefined(kind)) {
@@ -1120,11 +1163,20 @@ module lib.ast {
                     } else {
                         this.kind = fromCena(kind);
                     }
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+
+                toCanonicalForm(): any {
+                    return {
+                        type: "Identifier",
+                        name: this.name.slice(0, 3),
+                        loc: this.loc,
+                        children: ["name"]
+                    }
+                }
                 static fromCena(o: any): Identifier {
-                    return new Identifier(o.loc, o.raw, o.cform, o.name, o.kind);
+                    return new Identifier(o, o.loc, o.raw, o.cform, o.name, o.kind);
                 }
 
                 makeCUDAReference() {
@@ -1250,11 +1302,19 @@ module lib.ast {
                 parent: Node
                 deleted: boolean;
 
-                constructor(elements: any[]) {
+                constructor(o : any[], elements?: any[]) {
+                  if (_.isUndefined(elements)) {
+                    elements = o;
+                  }
                     this.elements = isUndefined(elements) ? [] : elements.map((elem) => fromCena(elem));
                     var self = this;
                     _.each(this.elements, (elem: Node) => elem.parent = self.parent);
                     this.deleted = false;
+                }
+
+
+                toCanonicalForm(): any {
+                    return _.flatten(_.map(this.elements, (elem) => elem.toCanonicalForm()))
                 }
 
                 static fromCena(o: any): CompoundNode {
@@ -1340,14 +1400,19 @@ module lib.ast {
             export class BlockStatement extends Node {
                 body: CompoundNode
 
-                constructor(loc: any, raw: string, cform: string, body: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, body: any) {
                     super("BlockStatement", loc, raw, cform);
                     this.body = new CompoundNode(body);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+
+                toCanonicalForm(): any {
+                    return _.flatten(this.body.toCanonicalForm())
                 }
 
                 static fromCena(o: any): BlockStatement {
-                    return new BlockStatement(o.loc, o.raw, o.cform, o.body);
+                    return new BlockStatement(o, o.loc, o.raw, o.cform, o.body);
                 }
 
                 toEsprima_(): esprima.Syntax.BlockStatement {
@@ -1541,7 +1606,7 @@ module lib.ast {
                 params: CompoundNode
                 body: Node
 
-                constructor(loc: any, raw: string, cform: string, attributes: string[], ret: any, id: any, params: any[], body: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, attributes: string[], ret: any, id: any, params: any[], body: any) {
                     super("FunctionExpression", loc, raw, cform);
                     this.attributes = attributes;
                     this.ret = isUndefined(ret) ? new EmptyExpression() : fromCena(ret);
@@ -1556,11 +1621,20 @@ module lib.ast {
                         var blk = BlockStatement.fromCena({ loc: loc, raw: raw, cform: cform, body: body });
                         this.body = blk;
                     }
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+
+                toCanonicalForm(): any {
+                    if (this.attributes.length > 0) {
+                        return this.body.toCanonicalForm();
+                    } else {
+                        return [];
+                    }
                 }
 
                 static fromCena(o: any): Node {
-                    return new FunctionExpression(o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
+                    return new FunctionExpression(o, o.loc, o.raw, o.cform, o.attributes, o.ret, o.id, o.params, o.body);
                 }
 
                 toEsprima_(): esprima.Syntax.FunctionDeclaration {
@@ -1583,11 +1657,11 @@ module lib.ast {
                                     builder.returnStatement(body, self.loc)
                                 ], self.loc));
                             threadParams = [
-                                new StringLiteral(self.rloc, "state$", "state$", "state$"),
-                                new StringLiteral(self.rloc, "threadIdx", "threadIdx", "threadIdx"),
-                                new StringLiteral(self.rloc, "blockIdx", "blockIdx", "blockIdx"),
-                                new StringLiteral(self.rloc, "blockDim", "blockDim", "blockDim"),
-                                new StringLiteral(self.rloc, "gridDim", "gridDim", "gridDim")
+                                new StringLiteral(this.org, self.rloc, "state$", "state$", "state$"),
+                                new StringLiteral(this.org, self.rloc, "threadIdx", "threadIdx", "threadIdx"),
+                                new StringLiteral(this.org, self.rloc, "blockIdx", "blockIdx", "blockIdx"),
+                                new StringLiteral(this.org, self.rloc, "blockDim", "blockDim", "blockDim"),
+                                new StringLiteral(this.org, self.rloc, "gridDim", "gridDim", "gridDim")
                             ];
                         }
                         var params = threadParams.concat(self.params.elements);
@@ -1601,7 +1675,7 @@ module lib.ast {
                                 } else if (param.type === "ParameterExpression") {
                                     var sloc = this.loc;
                                     var id: Identifier = castTo<ParameterExpression>(param).id;
-                                    sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
+                                    sparam = new StringLiteral(this.org, id.rloc, id.raw, id.cform, id.name);
 
                                     blk.body.unshift(
                                         builder.expressionStatement(
@@ -1628,7 +1702,7 @@ module lib.ast {
                                         );
                                 } else {
                                     var id: Identifier = castTo<Identifier>(param);
-                                    sparam = new StringLiteral(id.rloc, id.raw, id.cform, id.name);
+                                    sparam = new StringLiteral(this.org, id.rloc, id.raw, id.cform, id.name);
                                 }
                                 idx--;
                                 var k;
@@ -2145,10 +2219,10 @@ module lib.ast {
                 config: Node[]
                 isCUDA: boolean = false
 
-                constructor(loc: any, raw: string, cform: string, callee: any, arguments: any[], config?: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, callee: any, arguments: any[], config?: any) {
                     super("CallExpression", loc, raw, cform);
                     if (lib.utils.isString(callee)) {
-                        this.callee = new Identifier(this.loc, callee, callee, callee);
+                        this.callee = new Identifier(this.org, this.loc, callee, callee, callee);
                     } else {
                         this.callee = Identifier.fromCena(callee);
                     }
@@ -2159,11 +2233,22 @@ module lib.ast {
                         var c: TypeExpression = castTo<TypeExpression>(fromCena(arguments[0]));
                         this.arguments = new CompoundNode([c.ebases[0]])
                     }
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+
+                toCanonicalForm(): any {
+                    return {
+                        type: "CallExpression",
+                        callee: this.callee.toCanonicalForm(),
+                        arguments: this.arguments.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["callee", "arguments"]
+                    }
                 }
 
                 static fromCena(o: any): Node {
-                    return new CallExpression(o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.arguments), o.config);
+                    return new CallExpression(o, o.loc, o.raw, o.cform, o.callee, castTo<any[]>(o.arguments), o.config);
                 }
 
 
@@ -2203,7 +2288,7 @@ module lib.ast {
                             false,
                             sloc
                             );
-                        args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
+                        args = [new Identifier(this.org, sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (startsWith(this.callee.name, "cuda")) {
                         var libcuda = builder.memberExpression(
                             builder.identifier(
@@ -2236,7 +2321,7 @@ module lib.ast {
                                 castTo<ReferenceExpression>(args[0]).makeCUDAReference();
                             }
                         }
-                        args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
+                        args = [new Identifier(this.org, sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (_.contains(["malloc", "free", "sizeof"], this.callee.name)) {
                         var libc = builder.memberExpression(
                             builder.identifier(
@@ -2256,7 +2341,7 @@ module lib.ast {
                             false,
                             sloc
                             );
-                        args = [new Identifier(sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
+                        args = [new Identifier(this.org, sloc, "functionStack$", "functionStack$", "functionStack$")].concat(args);
                     } else if (_.contains(["ceil", "floor"], this.callee.name)) {
                         var libm = builder.memberExpression(
                             builder.identifier(
@@ -2490,14 +2575,19 @@ module lib.ast {
             export class ParenExpression extends Node {
                 expression: Node
 
-                constructor(loc: any, raw: string, cform: string, expression: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, expression: any) {
                     super("ParenExpression", loc, raw, cform);
                     this.expression = fromCena(expression);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+
+                toCanonicalForm(): any {
+                    return this.expression.toCanonicalForm()
                 }
 
                 static fromCena(o: any): Node {
-                    return new ParenExpression(o.loc, o.raw, o.cform, o.expression);
+                    return new ParenExpression(o, o.loc, o.raw, o.cform, o.expression);
                 }
 
                 toEsprima_(): esprima.Syntax.Node {
@@ -2545,19 +2635,23 @@ module lib.ast {
                 argument: Node
                 rawArgument: any
 
-                constructor(loc: any, raw: string, cform: string, argument: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, argument: any) {
                     super("DereferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+                toCanonicalForm(): any {
+                    return this.argument.toCanonicalForm()
                 }
 
                 static fromCena(o: any): Node {
-                    return new DereferenceExpression(o.loc, o.raw, o.cform, o.argument);
+                    return new DereferenceExpression(o, o.loc, o.raw, o.cform, o.argument);
                 }
 
                 toEsprima_(): esprima.Syntax.CallExpression {
-                    var call: CallExpression = new CallExpression(this.loc, this.raw, this.cform, new Identifier(this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
+                    var call: CallExpression = new CallExpression(this.org, this.loc, this.raw, this.cform, new Identifier(this.org, this.loc, this.raw, this.cform, "dereference"), [this.rawArgument]);
                     return castTo<esprima.Syntax.CallExpression>(call.toEsprima());
                 }
 
@@ -2603,16 +2697,19 @@ module lib.ast {
                 rawArgument: any
                 isCUDA: boolean
 
-                constructor(loc: any, raw: string, cform: string, argument: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, argument: any) {
                     super("ReferenceExpression", loc, raw, cform);
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
                     this.isCUDA = false;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+                toCanonicalForm(): any {
+                    return this.argument.toCanonicalForm()
                 }
 
                 static fromCena(o: any): Node {
-                    return new ReferenceExpression(o.loc, o.raw, o.cform, o.argument);
+                    return new ReferenceExpression(o, o.loc, o.raw, o.cform, o.argument);
                 }
 
                 makeCUDAReference() {
@@ -2681,12 +2778,84 @@ module lib.ast {
                 rawArgument: any
                 argument: Node
 
-                constructor(loc: any, raw: string, cform: string, operator: string, argument: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, operator: string, argument: any) {
                     super("UnaryExpression", loc, raw, cform);
                     this.operator = operator
                     this.rawArgument = argument;
                     this.argument = fromCena(argument);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+                toCanonicalForm(): any {
+                    if (this.operator === "*" || this.operator === "&") {
+                        return this.argument.toCanonicalForm();
+                    }
+                    if (this.argument.type === "UnaryExpression") {
+                        var un = castTo<UnaryExpression>(this.argument);
+                        if (_.any([
+                            this.operator === "!" && un.operator === "!",
+                            this.operator === "++" && un.operator === "--",
+                            this.operator === "--" && un.operator === "++"
+                        ])) {
+                            return un.argument.toCanonicalForm();
+                        }
+                    } else if (this.argument.type === "BinaryExpression") {
+                        var newop = "";
+                        var bin = castTo<BinaryExpression>(this.argument);
+                        var canonicalform = bin.toCanonicalForm();
+                        var left = canonicalform.left;
+                        var right = canonicalform.right;
+                        if (this.operator === "!" && _.contains([
+                            "<", ">", "<=", ">=", "&&", "||", "!=", "=="
+                        ], bin.operator)) {
+                            switch (bin.operator) {
+                                case "<":
+                                    newop = ">=";
+                                    break;
+                                case "<=":
+                                    newop = "<";
+                                    break;
+                                case ">":
+                                    newop = "<=";
+                                    break;
+                                case ">=":
+                                    newop = "<";
+                                    break;
+                                case "||":
+                                    if (left.type === "UnaryExpression" && right.type === "UnaryExpression" &&
+                                        left.operator === "!" && right.operator === "!") {
+                                        left = left.argument;
+                                        right = right.argument;
+                                        newop = "&&";
+                                    }
+                                    break;
+                                case "&&":
+                                    if (left.type === "UnaryExpression" && right.type === "UnaryExpression" &&
+                                        left.operator === "!" && right.operator === "!") {
+                                        left = left.argument;
+                                        right = right.argument;
+                                        newop = "||";
+                                    }
+                                    break;
+                            }
+                        }
+                        if (newop !== "") {
+                            return {
+                                type: "BinaryExpression",
+                                operator: newop,
+                                left: left,
+                                right: right,
+                                loc: bin.loc,
+                                children: ["operator", "left", "right"]
+                            }
+                        }
+                    }
+                    return {
+                        type: "UnaryExpression",
+                        operator: this.operator,
+                        argument: this.argument.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["operator", "argument"]
+                    }
                 }
 
                 static fromCena(o: any): Node {
@@ -2697,16 +2866,16 @@ module lib.ast {
                     } else if (o.operator === "&") {
                         return ReferenceExpression.fromCena(o);
                     } else {
-                        return new UnaryExpression(o.loc, o.raw, o.cform, o.operator, o.argument);
+                        return new UnaryExpression(o, o.loc, o.raw, o.cform, o.operator, o.argument);
                     }
                 }
 
                 toEsprima_(): any {
                     if (this.operator === "*") {
-                        var dnd = new DereferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
+                        var dnd = new DereferenceExpression(this.org, this.loc, this.raw, this.cform, this.rawArgument);
                         return dnd.toEsprima();
                     } else if (this.operator === "&") {
-                        var rnd = new ReferenceExpression(this.loc, this.raw, this.cform, this.rawArgument);
+                        var rnd = new ReferenceExpression(this.org, this.loc, this.raw, this.cform, this.rawArgument);
                         return rnd.toEsprima();
                     } else if (this.operator === "++" || this.operator === "--") {
                         return builder.updateExpression(this.operator, this.argument.toEsprima(), true, this.loc);
@@ -2758,7 +2927,7 @@ module lib.ast {
                 }
             }
             function makeOp(op: string, symbol: string): Identifier {
-                return new Identifier(unknownLocation(), symbol, symbol, op);
+                return new Identifier(this.org, unknownLocation(), symbol, symbol, op);
             }
 
             export class BinaryExpression extends Node {
@@ -2769,7 +2938,7 @@ module lib.ast {
                     [key: string]: Identifier;
                 } = undefined;
 
-                constructor(loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
                     super("BinaryExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
@@ -2802,11 +2971,58 @@ module lib.ast {
                     if (this.right.toEsprima().type === "ExpressionStatement") {
                         this.right = castTo<ExpressionStatement>(this.right).expression;
                     }
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+
+                toCanonicalForm(): any {
+                    var left = this.left;
+                    var right = this.right;
+                    var op = this.operator;
+                    var tmp;
+
+                    if (right.isLexographicallyLess(left)) {
+                        switch (op) {
+                            case "+":
+                            case "*":
+                            case "&":
+                            case "|":
+                            case "<":
+                            case "<=":
+                            case ">":
+                            case ">=":
+                                tmp = right;
+                                right = left;
+                                left = right;
+                                switch (op) {
+                                    case "<":
+                                        op = ">=";
+                                        break;
+                                    case "<=":
+                                        op = ">";
+                                        break;
+                                    case ">":
+                                        op = "<=";
+                                        break;
+                                    case ">=":
+                                        op = "<";
+                                        break;
+                                }
+                                break;
+
+                        }
+                    }
+                    return {
+                        type: "BinaryExpression",
+                        operator: op,
+                        left: left.toCanonicalForm(),
+                        right: right.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["operator", "left", "right"]
+                    }
+                }
                 static fromCena(o: any): Node {
-                    return new BinaryExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
+                    return new BinaryExpression(o, o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                 }
 
                 get property(): Identifier {
@@ -2912,7 +3128,7 @@ module lib.ast {
                 id: Identifier
                 kind: Node
 
-                constructor(loc: any, raw: string, cform: string, init: any, id: any, kind: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, init: any, id: any, kind: any) {
                     super("VariableDeclarator", loc, raw, cform);
                     this.init = isUndefined(init) ? new UndefinedExpression() : fromCena(init);
                     this.id = castTo<Identifier>(fromCena(id));
@@ -2920,11 +3136,21 @@ module lib.ast {
                     if (!_.isUndefined(kind)) {
                         this.id.kind = this.kind;
                     }
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+
+                toCanonicalForm(): any {
+                    return {
+                        type: "VariableDeclarator",
+                        id: this.id.toCanonicalForm(),
+                        init: this.init.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["id", "init"]
+                    }
+                    }
                 static fromCena(o: any): Node {
-                    return new VariableDeclarator(o.loc, o.raw, o.cform, o.init, o.id, o.kind);
+                    return new VariableDeclarator(o, o.loc, o.raw, o.cform, o.init, o.id, o.kind);
                 }
 
                 toEsprima_(): esprima.Syntax.Node {
@@ -3095,14 +3321,17 @@ module lib.ast {
             export class VariableDeclaration extends Node {
                 declarations: Node[]
 
-                constructor(loc: any, raw: string, cform: string, declarations: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, declarations: any) {
                     super("VariableDeclaration", loc, raw, cform);
                     this.declarations = _.map(declarations, fromCena);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+                toCanonicalForm(): any {
+                    return _.flatten(_.map(this.declarations, (decl) => decl.toCanonicalForm()));
+                }
                 static fromCena(o: any): Node {
-                    return new VariableDeclaration(o.loc, o.raw, o.cform, o.declarations);
+                    return new VariableDeclaration(o, o.loc, o.raw, o.cform, o.declarations);
                 }
 
                 toEsprima_(): esprima.Syntax.Node {
@@ -3165,16 +3394,25 @@ module lib.ast {
                 right: Node
                 left: Node
 
-                constructor(loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, operator: string, left: any, right: any) {
                     super("AssignmentExpression", loc, raw, cform);
                     this.operator = operator
                     this.right = fromCena(right);
                     this.left = fromCena(left);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+                toCanonicalForm(): any {
+                    return {
+                        type: "AssignmentExpression",
+                        left: this.left.toCanonicalForm(),
+                        right: this.right.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["left", "right"]
+                    }
+                    }
                 static fromCena(o: any): Node {
-                    return new AssignmentExpression(o.loc, o.raw, o.cform, o.operator, o.left, o.right);
+                    return new AssignmentExpression(o, o.loc, o.raw, o.cform, o.operator, o.left, o.right);
                 }
 
                 toEsprima_(): esprima.Syntax.AssignmentExpression {
@@ -3301,16 +3539,48 @@ module lib.ast {
                 consequent: Node
                 alternate: Node
 
-                constructor(loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
+                constructor(o : any, loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
                     super("IfStatement", loc, raw, cform);
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
                     this.alternate = isUndefined(alternate) ? new EmptyExpression() : fromCena(alternate);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+                toCanonicalForm() : any {
+                    var tmp;
+                    var test = this.test;
+                    var consequent = this.consequent.toCanonicalForm();
+                    var alternate = this.alternate.toCanonicalForm();
+                    if (_.isArray(consequent) && _.isArray(alternate)) {
+                        if (consequent.length > alternate.length) {
+                            test = UnaryExpression.fromCena({
+                                  loc: test.org.loc, raw: test.org.raw, cform: test.org.cform, operator: "!", argument: test.org
+                            });
+                            tmp = consequent;
+                            consequent = alternate;
+                            alternate = tmp;
+                        }
+                    } else if (_.isObject(alternate) && _.isArray(consequent)) {
+                        test = UnaryExpression.fromCena({
+                          loc: test.org.loc, raw: test.org.raw, cform: test.org.cform, operator: "!", argument: test.org
+                        });
+                        tmp = consequent;
+                        consequent = alternate;
+                        alternate = tmp;
+                    }
+                    return {
+                        type: "IfStatement",
+                        test: test.toCanonicalForm(),
+                        consequent: consequent,
+                        alternate: alternate,
+                        loc: this.loc,
+                        children: ["test", "consequent", "alternate"]
+                    }
+                    }
+
                 static fromCena(o: any): Node {
-                    return new IfStatement(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
+                    return new IfStatement(o, o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                 }
 
                 toEsprima_(): esprima.Syntax.Statement {
@@ -3362,7 +3632,7 @@ module lib.ast {
                     return ret;
                 }
 
-                children_(): Node[] {
+                children_(): Node[]{
                     return [this.test, this.consequent, this.alternate];
                 }
 
@@ -3410,16 +3680,21 @@ module lib.ast {
                 consequent: Node
                 alternate: Node
 
-                constructor(loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, test: any, consequent: any, alternate?: any) {
                     super("ConditionalExpression", loc, raw, cform);
                     this.test = fromCena(test);
                     this.consequent = fromCena(consequent);
                     this.alternate = fromCena(alternate);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+                toCanonicalForm(): any {
+                    var exp = IfStatement.fromCena(this.org);
+                        return exp.toCanonicalForm()
+                      }
+
                 static fromCena(o: any): Node {
-                    return new ConditionalExpression(o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
+                    return new ConditionalExpression(o, o.loc, o.raw, o.cform, o.test, o.consequent, o.alternate);
                 }
 
                 toEsprima_(): esprima.Syntax.ConditionalExpression {
@@ -3487,17 +3762,37 @@ module lib.ast {
                 update: Node
                 body: Node
 
-                constructor(loc: any, raw: string, cform: string, init: any, test: any, update: any, body: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, init: any, test: any, update: any, body: any) {
                     super("ForStatement", loc, raw, cform);
                     this.init = fromCena(init);
                     this.test = fromCena(test);
                     this.update = fromCena(update);
                     this.body = fromCena(body);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+                toCanonicalForm(): any {
+                    var init = this.init;
+                    var test = this.test;
+                    var update = this.update;
+                    var body = this.body;
+                  return [
+                        init.toCanonicalForm(),
+                        {
+                            type: "WhileStatement",
+                            test: test.toCanonicalForm(),
+                            body: _.flatten([
+                                [this.body.toCanonicalForm()],
+                                [this.update.toCanonicalForm()]
+                            ]),
+                            loc: this.loc,
+                            children: ["test", "body"]
+                        }
+                    ]
                 }
 
                 static fromCena(o: any): Node {
-                    return new ForStatement(o.loc, o.raw, o.cform, o.init, o.test, o.update, o.body);
+                    return new ForStatement(o, o.loc, o.raw, o.cform, o.init, o.test, o.update, o.body);
                 }
 
                 toEsprima_(): esprima.Syntax.ForStatement {
@@ -3564,14 +3859,17 @@ module lib.ast {
             export class ProgramExpression extends Node {
                 body: CompoundNode;
 
-                constructor(loc: any, raw: string, cform: string, body: any[]) {
+                constructor(o: any, loc: any, raw: string, cform: string, body: any[]) {
                     super("ProgramExpression", loc, raw, cform);
                     this.body = new CompoundNode(body);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+                toCanonicalForm(): any {
+                    return this.toCanonicalForm();
+                }
                 static fromCena(o: any): Node {
-                    return new ProgramExpression(o.loc, o.raw, o.cform, o.body);
+                    return new ProgramExpression(o, o.loc, o.raw, o.cform, o.body);
                 }
 
                 toEsprima_(): esprima.Syntax.Program {
@@ -3671,18 +3969,22 @@ module lib.ast {
             export class ReturnStatement extends Node {
                 argument: Node;
 
-                constructor(loc: any, raw: string, cform: string, argument?: Node) {
+                constructor(o: any, loc: any, raw: string, cform: string, argument?: Node) {
                     super("ReturnStatement", loc, raw, cform);
                     if (argument) {
                         this.argument = fromCena(argument);
                     } else {
                         this.argument = new EmptyExpression();
                     }
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+                toCanonicalForm(): any {
+                    return [];
                 }
 
                 static fromCena(o: any): Node {
-                    return new ReturnStatement(o.loc, o.raw, o.cform, o.argument);
+                    return new ReturnStatement(o, o.loc, o.raw, o.cform, o.argument);
                 }
 
                 toEsprima_(): esprima.Syntax.ReturnStatement {
@@ -3733,14 +4035,18 @@ module lib.ast {
             export class ExpressionStatement extends Node {
                 expression: Node;
 
-                constructor(loc: any, raw: string, cform: string, expression: Node) {
+                constructor(o: any, loc: any, raw: string, cform: string, expression: Node) {
                     super("ExpressionStatement", loc, raw, cform);
                     this.expression = fromCena(expression);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+                toCanonicalForm(): any {
+                    return this.expression.toCanonicalForm();
                 }
 
                 static fromCena(o: any): Node {
-                    return new ExpressionStatement(o.loc, o.raw, o.cform, o.expression);
+                    return new ExpressionStatement(o, o.loc, o.raw, o.cform, o.expression);
                 }
 
                 toEsprima_(): esprima.Syntax.ExpressionStatement {
@@ -3792,7 +4098,7 @@ module lib.ast {
                 }
             }
             export class ErrorNode extends Node {
-                constructor(raw?: string) {
+                constructor(o: any, raw?: string) {
                     super("ErrorNode", unknownLocation(), raw, raw);
                 }
             }
@@ -3802,15 +4108,25 @@ module lib.ast {
                 object: Node
                 property: Node
 
-                constructor(loc: any, raw: string, cform: string, object: any, property: any) {
+                constructor(o: any, loc: any, raw: string, cform: string, object: any, property: any) {
                     super("SubscriptExpression", loc, raw, cform);
                     this.object = fromCena(object);
                     this.property = fromCena(property);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+                toCanonicalForm(): any {
+                  return {
+                        type: "SubscriptExpression",
+                        object: this.object.toCanonicalForm(),
+                        property: this.property.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["object", "property"]
+                    }
+              }
+
                 static fromCena(o: any): Node {
-                    return new SubscriptExpression(o.loc, o.raw, o.cform, o.object, o.property);
+                    return new SubscriptExpression(o, o.loc, o.raw, o.cform, o.object, o.property);
                 }
 
                 toCString(): string {
@@ -3902,17 +4218,27 @@ module lib.ast {
                 operator: string
                 computed: boolean
 
-                constructor(loc: any, raw: string, cform: string, left: any, operator: string, right: any, computed?: boolean) {
+                constructor(o: any, loc: any, raw: string, cform: string, left: any, operator: string, right: any, computed?: boolean) {
                     super("MemberExpression", loc, raw, cform);
                     this.left = fromCena(left);
                     this.right = fromCena(right);
                     this.operator = operator;
                     this.computed = computed;
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
+                }
+
+                toCanonicalForm(): any {
+                  return {
+                        type: "MemberExpression",
+                        right: this.right.toCanonicalForm(),
+                        left: this.left.toCanonicalForm(),
+                        loc: this.loc,
+                        children: ["right", "left"]
+                    }
                 }
 
                 static fromCena(o: any): Node {
-                    return new MemberExpression(o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
+                    return new MemberExpression(o, o.loc, o.raw, o.cform, o.left, o.operator, o.right, o.computed);
                 }
 
                 toEsprima_(): esprima.Syntax.MemberExpression {
@@ -3976,14 +4302,18 @@ module lib.ast {
             export class ArrayExpression extends Node {
                 elements: Node[]
 
-                constructor(loc: any, raw: string, cform: string, elements: any[]) {
+                constructor(o: any, loc: any, raw: string, cform: string, elements: any[]) {
                     super("ArrayExpression", loc, raw, cform);
                     this.elements = _.map(elements, fromCena);
-                    this.setChildParents();
+                    this.setChildParents(); this.setOriginal(o);;
                 }
 
+
+                toCanonicalForm(): any {
+                    return _.flatten(_.map(this.elements, (elem) => elem.toCanonicalForm()));
+                }
                 static fromCena(o: any): Node {
-                    return new ArrayExpression(o.loc, o.raw, o.cform, o.elements);
+                    return new ArrayExpression(o, o.loc, o.raw, o.cform, o.elements);
                 }
 
                 toEsprima_(): esprima.Syntax.ArrayExpression {

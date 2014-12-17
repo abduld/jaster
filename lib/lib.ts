@@ -103,7 +103,7 @@ module lib {
 
         export function setElement(state, stack, ref, idx, val) {
             var res = lib.memory.setElement(state, stack, ref, idx, val);
-            console.log("Set element " + idx + " to " + val + " element[ " + idx + "] = " + getElement(state, stack, ref, idx));
+            //console.log("Set element " + idx + " to " + val + " element[ " + idx + "] = " + getElement(state, stack, ref, idx));
         }
     }
 
