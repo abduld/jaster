@@ -12,7 +12,21 @@
 
 var code: string;
 
+
+
+function visualize() {
+  console.log("Starting visualization");
+  var dom = document.getElementById("visualization");
+  var rect = lib.viz.gridVisualization({
+    blockDim: new lib.cuda.Dim3(4, 4),
+    gridDim: new lib.cuda.Dim3(16, 16)
+    });
+    React.render(rect, dom);
+  }
+
 function initWebApp() {
+
+  visualize();
     /*
       var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#cuda-code")[0]), {
           lineNumbers: true,
@@ -47,6 +61,7 @@ function initWebApp() {
     code = res.code;
 
     global$.code = res;
+
 }
 
 function initWorkerApp(event) {

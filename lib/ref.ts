@@ -5,5 +5,6 @@
 /// <reference path="./worker/worker.ts" />
 /// <reference path="./wb/wb.ts" />
 /// <reference path="./parallel/parallel.ts" />
+/// <reference path="./viz/viz.ts" />
 /// <reference path="./mp.ts" />
 /// <reference path="./lib.ts" />
