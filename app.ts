@@ -13,20 +13,25 @@
 var code: string;
 
 
-
-function visualize() {
-  console.log("Starting visualization");
-  var dom = document.getElementById("visualization");
+var vizNode : any = undefined;
+function visualize(options? : number) {
+  var dom = $("#visualization")[0];
+  if (_.isUndefined(options)) {
+    options = lib.utils.castTo<any>($(".ccode")[0]).value.indexOf("<=") > 0 ? 1 : 0;
+}
+  $(".visualize-btn").hide();
   var rect = lib.viz.gridVisualization({
     blockDim: new lib.cuda.Dim3(4, 4),
-    gridDim: new lib.cuda.Dim3(8, 8)
+    gridDim: new lib.cuda.Dim3(8, 8),
+    options: options
     });
-    React.render(rect, dom);
+    console.log(vizNode);
+    vizNode = React.render(rect, dom, () =>$(".visualize-btn").show() );
   }
 
 function initWebApp() {
 
-  visualize();
+  //visualize();
     /*
       var cudaEditor = CodeMirror.fromTextArea(lib.utils.castTo<HTMLTextAreaElement>($("#cuda-code")[0]), {
           lineNumbers: true,
@@ -36,7 +41,6 @@ function initWebApp() {
       var cudaDoc = cudaEditor.getDoc();
       cudaDoc.setValue(lib.example.mp2Source);
       cudaEditor.setSize("100%", 1000);
-  */
     var ast = lib.ast.importer.cena.fromCena(lib.example.mp1);
     var res = lib.ast.gen.generate(
         ast.toEsprima(),
@@ -61,6 +65,8 @@ function initWebApp() {
     code = res.code;
 
     global$.code = res;
+
+    */
 
 }
 

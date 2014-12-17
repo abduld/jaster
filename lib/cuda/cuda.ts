@@ -35,6 +35,9 @@ module lib {
                     return 3;
                 }
             }
+            toString() {
+              return "[" + [this.x,this.y,this.z].slice(0, this.dimension()-1).join(", ") + "]";
+            }
         }
     }
 }
