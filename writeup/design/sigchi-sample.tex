@@ -1,0 +1,306 @@
+\documentclass[nocopyrightspace]{sigchi}
+
+% Use this command to override the default ACM copyright statement (e.g. for preprints).
+% Consult the conference website for the camera-ready copyright statement.
+
+% Arabic page numbers for submission.
+% Remove this line to eliminate page numbers for the camera ready copy
+% \pagenumbering{arabic}
+
+
+% Load basic packages
+\usepackage{balance}  % to better equalize the last page
+\usepackage{graphics} % for EPS, load graphicx instead
+\usepackage{times}    % comment if you want LaTeX's default font
+\usepackage{url}      % llt: nicely formatted URLs
+
+% llt: Define a global style for URLs, rather that the default one
+\makeatletter
+\def\url@leostyle{%
+  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{\def\UrlFont{\small\bf\ttfamily}}}
+\makeatother
+\urlstyle{leo}
+
+
+% To make various LaTeX processors do the right thing with page size.
+\def\pprw{8.5in}
+\def\pprh{11in}
+\special{papersize=\pprw,\pprh}
+\setlength{\paperwidth}{\pprw}
+\setlength{\paperheight}{\pprh}
+\setlength{\pdfpagewidth}{\pprw}
+\setlength{\pdfpageheight}{\pprh}
+
+% Make sure hyperref comes last of your loaded packages,
+% to give it a fighting chance of not being over-written,
+% since its job is to redefine many LaTeX commands.
+\usepackage[pdftex]{hyperref}
+\hypersetup{
+pdftitle={SIGCHI Conference Proceedings Format},
+pdfauthor={LaTeX},
+pdfkeywords={SIGCHI, proceedings, archival format},
+bookmarksnumbered,
+pdfstartview={FitH},
+colorlinks,
+citecolor=black,
+filecolor=black,
+linkcolor=black,
+urlcolor=black,
+breaklinks=true,
+}
+
+% create a shortcut to typeset table headings
+\newcommand\tabhead[1]{\small\textbf{#1}}
+
+
+% End of preamble. Here it comes the document.
+\begin{document}
+
+\title{Eliminating Buffer Overflows in MOOC Labs by Visualizing Memory Accesses in Parallel Programs}
+
+\numberofauthors{3}
+\author{
+  \alignauthor Abdul Dakkak\\
+    \affaddr{University of Illinois at Urbana-Champaign}\\
+    \email{dakkak@illinois.edu}
+    }
+
+\maketitle
+
+\begin{abstract}
+  The recent popularity of Massive Open On-line Courses (MOOC) creates
+  both opportunities and challenges. Since while the courses do reach
+  thousands of students, systems and processes designed to deal with
+  hundreds fail to scale. In the ``Hetrogenous Parallel Programming" class
+  offered through Coursera, the main issue in scaling was system reliability due
+  to memory indexing error encountered while running students' code.
+  Since students' code is run on Graphical Processing Units (GPUs), the system
+  would crash when executing certain memory errors. Aside from redundancy to avoid
+  single points of failure, giving students' tools to visualize how their code
+  indexes memory would not only decrease the amount of faulty code executing on
+  the GPU, but also allow students' to visually understand code.
+  In this project we developed Jaster: a source-to-source compiler that takes
+  CUDA (a GPU programming language) as input and produces JavaScript code.
+  Unlike CUDA code, which requires
+  specialized GPU hardware, the JavaScript code is executed
+  in the student's browser. During the JavaScript code execution, a visualization
+  of the memory region is displayed along with it's access pattern.
+  The tool will be deployed in the course's next installment in January 2015.
+\end{abstract}
+
+% \keywords{Visualization; debugging; MOOC; Parallel Programming; CUDA; GPGPU; }
+
+\section{Introduction}
+
+
+
+\section{Motivation}
+
+
+
+Due to the fact we think sequentially, parallel programming is hard to get
+right. A slew of other problems crop up due to the  indeterministic nature of
+parallel code. Logic errors such as race conditions, deadlocks, and starvation
+cause indeterministicly generate unexpected outcome or cause system errors.
+Since parallel languages are also hosted within a low level language,
+you inherit aditional problems such as: unsafe type casts, buffer overflows,
+bad array index calculations.
+
+Current CUDA debugging tools such as Nsight for Visual Studio or {\tt cuda-gdb}
+for Unix operate by suspending the GPU. This means that one needs at least two
+GPU cards are needed while debugging GPU code. Futhremore, these debugging tools
+are quite involved --- requiring the learning of new commands, understand a
+different workflow, and because these tools are proprietery cannot not be easily
+integrated with the course's system.
+
+
+\subsection{Background}
+
+\section{Dataset}
+
+
+\subsection{Code Similarity}
+
+Since template code was provided to the students, and the code follows the course
+lectures, structural similarity within the solutions should be common. To hone in
+on the visualization, we mine the dataset (which contains a sampling of 100 programs
+from each lab~\footnote{The database contains over 2 million programs, but since
+the code similarity algorithm is computationally expensive ($O(n^4)$ in time and $O(n^2)$ in space),
+we were not able to perform full correlation between the codes}). Similarity between
+two codes is measured using a modified version of the Zhang-Shasha tree edit distance algorithm.
+
+The Zhang-Shasha algorithm measure the distance between two trees with respenct to
+distance functions. The distance functions decide the weight of inserting, deleting,
+and renaming nodes in the AST tree.
+
+\subsubsection{Cannonicalization of the AST Representation}
+
+Because of the high complexity, we prune the tree to only include the CUDA kernel part.
+Since two codes might have different AST representation but same semantic meaning,
+we perform a normalization step on the AST before computing the distance.
+We first replace all the identifiers with a canonical name. Identifiers that are not within
+the body of the function are deleted, since they are given as part of the template code.
+Identifiers within the function body are computed based on
+a hash of how the identifier is assigned to within the code.
+Literals (such as integers) are ignored since they do not contribute to any structural
+difference in the code (they do contribute to the hash calculation for the identifiers however).
+{\tt for} and {\tt do} while loops are rewritten to their {\tt while} representation,
+conditional expressions (expressions of the form {\tt var = cond ? then : else }) are rewritten
+to {\tt if (cond) \{ var = then; \} else \{ var = else; \}},
+{\tt if} conditions are rewritten so that the biggest node is within the {\tt then} branch
+of the condition. Finally, for compound expressions are canonicallize the code based on the
+following rewrite rules:
+
+\begin{itemize}
+  \item Types of variable declarations are removed : statements such as {\tt int x = 4;}
+  are replaced wth {\tt x = 4;}
+  \item Non-side effecting statements are pruned : statements are {\tt x;} or {\tt f();} where
+  {\tt f} is known to be a pure function get pruned
+  \item Compound binary expressions are reordered based on operator precidence:
+  $a \, \mathtt{op}_1  (b \, \mathtt{op}_2 \, c) \rightarrow (b \, \mathtt{op}_2 \, c) \, \mathtt{op}_1 \, a$
+  iff $\mathtt{op}_2$ has lower precidence than $\mathtt{op}_1$
+  \item Leaf binary operations are reordered based on the lexographical ordering
+  of the leafs :
+  $a \, \mathtt{op} \, b \rightarrow b \, \mathtt{op} \, a$ iff $b$ is lexographically less than $a$
+  \item Strength reduction is applied : expressions such as {\tt x * 2} get replaced by {\tt x << 1}.
+  \item Constant propagation is applied : expressions such as {\tt a = 3; b = a * 4;} get replaced
+  by {\tt a = 3; b = 12;}
+\end{itemize}
+
+To lexographically order the AST leaf node we use the follwing heuristic:
+literals of the same type use the $<$ operation for ordering,
+literals of different types are first ordered based on their value and then,
+in case of a tie, based on the bytecount of their type, literal nodes are always lexographically
+less than identifiers, and identifiers use string lexographical ordering.
+
+In cases where a compound node cannot be canonicallized, we mark the node for
+special processing during the distance calculation. During computation, the edit
+distance of these nodes is computed as the minimum distance of its children.
+
+When computing the edit distance, the cost for replacement of an identifier is
+proportional to the Levenshtein distance of strings. Deletion and insersions
+contribute 1 to the cost.
+
+\subsubsection{Zhang-Shasha Tree Edit Distance}
+
+
+
+\subsection{Memory Access Similarity}
+
+
+
+\section{Backend Implementation}
+
+The implementation is divided into two parts.
+
+
+\subsection{C++ Parser}
+
+The first is a C++ library the uses CLANG RecursiveAST interface to parse CUDA code
+and storing the Abstract Syntax Tree (AST) nodes in a mutable representation
+We developed a new AST interface, since the one provided by CLANG is immutable.
+Our AST interface stores not only the node information, but also the location
+of the code within the input file, the text underlying the node, and parent child
+relashionship. Once the parsing is complete, our datastructure dumps the information
+into JSON form. A C++ expression such as {\tt x + 1} generates the following JSON
+output:
+
+\begin{verbatim}
+  {
+    type: "BinaryExpression",
+    operator: "*",
+    left: {
+      type: "Identifier",
+      name: "x",
+      loc: {
+        start: { line: 2, column: 8 },
+        end:   { line: 2, column: 9 }
+      }
+    },
+    right: {
+      type: "Literal",
+      value: 1,
+      loc: {
+        start: { line: 2, column: 10 },
+        end:   { line: 2, column: 11 }
+      }
+    }
+  }
+\end{verbatim}
+
+We use the Mozzila AST specification, to name the fields within the JSON datastructure.
+While not a standard, it is the only documented JavaScript AST serialization specification
+that we are aware of. Futhermore, tools to read, verify, and traverse the AST in the
+Mozilla Specification exist.
+
+
+
+\subsection{C++ Parser}
+
+\subsection{JavaScript Transpiler}
+
+
+Since JavaScript does not contain type information, and types are needed to
+properly maintain the semantics of C++ --- such as truncation of floats when
+assigned to integers or offset calculation for array indexing. The transpiler
+adds type information in the {\tt functionStack\$} type field. Code such as
+{\tt int x = 1.2;} results in the following JavaScript code
+
+\begin{verbatim}
+  functionStack$['x'] = Math.floor(1.2);
+  lib.setType(functionStack$, 'x', {
+    type: 'TypeExpression',
+    addressSpace: [''],
+    qualifiers: [],
+    bases: ['int']
+  });
+\end{verbatim}
+
+The type information is queried when calculating the offset in the heap when
+indexing an array. For example, for code such as
+
+\begin{verbatim}
+  int * y;
+  double * x;
+  ....
+  x[2] = 5 + y[1];
+\end{verbatim}
+
+then the element size of the array {\tt y} is $\mathtt{sizeof(int)} = 4$.
+So, {\tt y[1]} causes $4$ bytes to be read from index $4$ of {\tt y} and
+interpreted as an integer. Similarly, $\mathtt{sizeof(double)} = 8$ bytes
+must be set at index $2 * \mathtt{sizeof(double)} = 16$ from array {\tt x}
+as a double precision number.
+
+\section{Runtime}
+
+
+\subsection{C++ Types}
+
+Unlike
+
+\subsection{The C++ Heap}
+
+\subsection{CUDA Execution}
+
+
+\subsection{Avoiding Blocking}
+
+\subsection{Maintaining the SourceMap}
+
+
+\section{FrontEnd Implementation}
+
+
+
+\section{Results}
+
+
+
+\section{Limitations}
+
+\section{Future Work}
+
+\bibliographystyle{acm-sigchi}
+\bibliography{sample}
+\end{document}
