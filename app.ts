@@ -19,7 +19,7 @@ function visualize() {
   var dom = document.getElementById("visualization");
   var rect = lib.viz.gridVisualization({
     blockDim: new lib.cuda.Dim3(4, 4),
-    gridDim: new lib.cuda.Dim3(16, 16)
+    gridDim: new lib.cuda.Dim3(8, 8)
     });
     React.render(rect, dom);
   }
