@@ -124,13 +124,16 @@ integrated with the course's system.
 Since template code was provided to the students, and the code follows the course
 lectures, structural similarity within the solutions should be common. To hone in
 on the visualization, we mine the dataset (which contains a sampling of 100 programs
-from each lab~\footnote{The database contains over 2 million programs, but since
-the code similarity algorithm is computationally expensive ($O(n^4)$ in time and $O(n^2)$ in space),
-we were not able to perform full correlation between the codes}). Similarity between
-two codes is measured using a modified version of the Zhang-Shasha tree edit distance algorithm.
+from each lab picked from compilable programs in a  from over 2 million program
+database~\footnote{We are limited to a small set of programs because
+of the computational complexity of the algorithm. In the comming weeks we plan on
+we plan on performing full correlation between the codes. since
+the code similarity algorithm is computationally expensive}.
 
-We use the Zhang-Shasha algorithm measure the distance between two trees with respenct to
-distance functions. The algorithm determines the distance between two pairs of ASTs by
+We use the Zhang-Shasha algorithm measure the distance between two trees with respect to
+distance functions. The algorithm complexity is $O(n^4)$ in time and $O(n^2)$ in space, but
+that's midigated by the fact that this computation is done on the client's machine.
+Zhang-Shasha's algorithm determines the distance between two pairs of ASTs by
 calculating the number of insersions, deletions, and renaming of the nodes
 required to equate the AST nodes. Since two noes might be different in the AST but semantically
 the same, we perform canonicalization to mimic semantic equivalence. Since we still want
@@ -166,7 +169,8 @@ following rewrite rules:
   \item Leaf binary operations are reordered based on the lexographical ordering
   of the leafs :
   $a \, \mathtt{op} \, b \rightarrow b \, \mathtt{op} \, a$ iff $b$ is lexographically less than $a$
-  \item Strength reduction is applied : expressions such as {\tt x * 2} get replaced by {\tt x << 1}.
+  \item Strength reduction is applied : expressions such as {\tt x * 2} get replaced by {\tt x << 1} or
+  {\tt x * 1 = x}.
   \item Constant propagation is applied : expressions such as {\tt a = 3; b = a * 4;} get replaced
   by {\tt a = 3; b = 12;}
 \end{itemize}
