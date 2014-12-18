@@ -85,6 +85,8 @@ breaklinks=true,
   specialized GPU hardware, the JavaScript code is executed
   in the student's browser. During the JavaScript code execution, a visualization
   of the memory region is displayed along with it's access pattern.
+  Since CUDA memory accesses are linearized, the tool makes use of source code
+  classication to reconstruct the unlinearized access.
   The tool will be deployed in the course's next installment in January 2015.
 \end{abstract}
 
@@ -93,9 +95,45 @@ breaklinks=true,
 \section{Introduction}
 
 
+With the expantion of the reach of programming courses through Massive Open Online Courses,
+educators are rethinking the way these courses are offered. The expectation that a 
+student would setup a development environment (setting a compiler, learning 
+new tools for debugging, and setting up an IDE) would limit the reach of the course, since
+it would exclude people who cannot install such software or cannot afford it. 
+Futhermore, it requires at least a week for students to orient themselves with the 
+new flow, which is long for the relatively short courses.
+Thus multiple courses now offer a way to how on the problem through web interfaces.
 
-\section{Motivation}
+The trend is not limitated to educators. Microsoft~\cite{1_visualstudio.com_2014} and Eclipse~\cite{orion} both have an online
+version of their IDE and compiler. Similarly, most languages now offer a playground area
+where users can post and evaluate code.
 
+All of these systems assume that you are running generic code, but what if you'd like
+to teach a course that requires special hardware. Furthremore, the hardware cannot be
+emulated. This was the challenge faced when we setup the Coursera Hetrogenous Parallel
+Programming course. We would like users to have as much control while still maintaining
+availability and fairness\footnote{The system is live today at {\tt webgpu.hwu.crhc.illinois.edu}}. 
+
+Based on user's surveys the most common complain is the limited number of developer tools
+offered through the site. In this project we develop a tool to visualize how a CUDA
+program executes and how memory is addressed. We first write a traslator from 
+CUDA to JavaScript that maintains the original semantics.
+We classify labs from previous iterations of the course, which contain the most
+common techniques for CUDA execution and 
+memory addressing. Then, given a buggy peice of code we find the closest lab to 
+not only determine how to layout the visualization, but also determine the 
+unlinearlized memory access.
+An overview of our pipeline is show in figure~\ref{fig:pipeline}.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.9\columnwidth]{flow}
+\caption{The pipeline of our project. In this flow code is first
+parsed, transcompiled, classified, and then visualized.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Previous Work}
 
 
 Due to the fact we think sequentially, parallel programming is hard to get
@@ -104,7 +142,10 @@ parallel code. Logic errors such as race conditions, deadlocks, and starvation
 cause indeterministicly generate unexpected outcome or cause system errors.
 Since parallel languages are also hosted within a low level language,
 you inherit aditional problems such as: unsafe type casts, buffer overflows,
-bad array index calculations.
+bad array index calculations. The variety of these bugs makes courses such 
+as HPP not approcahable for sutdents who do not percervere for the first few 
+weeks.
+
 
 Current CUDA debugging tools such as Nsight for Visual Studio or {\tt cuda-gdb}
 for Unix operate by suspending the GPU. This means that one needs at least two
@@ -114,12 +155,171 @@ different workflow, and because these tools are proprietery cannot not be easily
 integrated with the course's system.
 
 
-\subsection{Background}
+Other than low level debugging tools, we are not aware of any work on 
+to visualize CUDA program execution --- and certainly not one that 
+does so by transpiling CUDA to JavaScript.
 
-\section{Dataset}
 
 
-\subsection{Code Similarity}
+\section{C++ Parser}
+
+The first is a C++ library the uses CLANG RecursiveAST~\cite{lattner2004llvm} interface to parse CUDA code
+and storing the Abstract Syntax Tree (AST) nodes in a mutable representation
+We developed a new AST interface, since the one provided by CLANG is immutable.
+Our AST interface stores not only the node information, but also the location
+of the code within the input file, the text underlying the node, and parent child
+relashionship. Once the parsing is complete, our datastructure dumps the information
+into JSON form. A C++ expression such as {\tt x + 1} generates the following JSON
+output:
+
+\begin{verbatim}
+  {
+    type: "BinaryExpression",
+    operator: "*",
+    left: {
+      type: "Identifier",
+      name: "x",
+      loc: {
+        start: { line: 2, column: 8 },
+        end:   { line: 2, column: 9 }
+      }
+    },
+    right: {
+      type: "Literal",
+      value: 1,
+      loc: {
+        start: { line: 2, column: 10 },
+        end:   { line: 2, column: 11 }
+      }
+    }
+  }
+\end{verbatim}
+
+We use the Mozzila AST specification, to name the fields within the JSON datastructure.
+While not a standard, it is the only documented JavaScript AST serialization specification
+that we are aware of. Futhermore, tools to read, verify, and traverse the AST in the
+Mozilla Specification exist.
+
+Even though the input source code might not be parsable as CUDA code without macro expantion,
+our tool performs the macro expansion but generates the source mapping to the original 
+unprocessed text.
+
+
+\section{JavaScript Transpiler}
+
+The JavaScript source-to-source compiler can be divided into multiple steps.
+First, code must maintain the same type meaning --- even though JavaScript 
+is dynamically typed, second it must be performant, finally it must contain
+enought meta data to backtrack to the original input program.
+
+\subsection{Pointer Types in JavaScript}
+
+Since JavaScript does not contain type information, and types are needed to
+properly maintain the semantics of C++ --- such as truncation of floats when
+assigned to integers or offset calculation for array indexing. The transpiler
+adds type information in the {\tt functionStack\$} type field. Code such as
+{\tt int x = 1.2;} results in the following JavaScript code
+
+\begin{verbatim}
+  functionStack$['x'] = Math.floor(1.2);
+  lib.setType(functionStack$, 'x', {
+    type: 'TypeExpression',
+    addressSpace: [''],
+    qualifiers: [],
+    bases: ['int']
+  });
+\end{verbatim}
+
+The type information is queried when calculating the offset in the heap when
+indexing an array. For example, for code such as
+
+\begin{verbatim}
+  int * y;
+  double * x;
+  ....
+  x[2] = 5 + y[1];
+\end{verbatim}
+
+then the element size of the array {\tt y} is $\mathtt{sizeof(int)} = 4$.
+So, {\tt y[1]} causes $4$ bytes to be read from index $4$ of {\tt y} and
+interpreted as an integer. Similarly, $\mathtt{sizeof(double)} = 8$ bytes
+must be set at index $2 * \mathtt{sizeof(double)} = 16$ from array {\tt x}
+as a double precision number.
+
+
+\section{Runtime}
+
+Several design decisions in the runtime were influenced by the limitations
+of current JavaScript engines~\cite{vilk2014doppio,vouillon2013bytecode,zakai2011emscripten}.
+We try to make use as much of the newer JavaScript features as possible that are
+able to achieve good performance, while still maintaing shims to allow us
+to support older browers. The runtime therefore makes heavy use of WebWorkers~\cite{green2012web}, 
+TypedArrays~\cite{matsakistyped, grimmer2014efficient}, promises~\cite{kambona2013evaluation,bonetta2013tigerquoll},
+and generators in our implementation. 
+
+\subsection{C++ Types}
+
+JavaScript contains only one literal numeric type: an IEEE double 
+precision double. To emulate the other types in JavaScript effiently we
+again use TypedArrays since they are able to represent 8, 16, and 32 bit
+signed and unsigned integers. Scalar C++ operations on these types get
+translated as operations on a 1 element array of the corresponding type.
+To emulate 64 bit integers, we use two 32 bit integers and perform the
+high and low bit calculation~\cite{warren2013hacker}.
+We experimented with other ways of emulating 64bit integers, but found 
+using 32bits was the most efficient.
+
+\subsection{The C++ Heap}
+
+We use TypedArrays to model the C++ Heap. This is now a common technique 
+when transpiling from unmanaged languages. At the initialization of the 
+program, then runtime allocates a slab of memory. This memory is then
+used as a pool where allocations are honored by taking a slab of the 
+buffer.
+
+Since CUDA memory is in a different address space than the host memory,
+the runtime creates two heaps. Errors are thrown if operations done on
+the allocated memory result in undefined behavior (operating on GPU
+memory using host memory functions for example).
+
+\subsection{CUDA Execution}
+
+
+We use a combination of asynchonus operations and true multithreading
+to simulate CUDA execution. The code kernel invocations are dispatched
+into a thread pool. Each thread pool then invokes a collection in a 
+round robin way generating a promise. Only when the promises are fulfilled
+between all the threads can program continue execution. By performing
+this technique we do not perform any blocking operation on the main UI
+thread.
+
+Since JavaScript threads cannot share data, we develope a communication
+language between threads and the master thread (which has the data). A
+thread requesting data from global memory generates a message which the
+master thread corresponds to. Effectively we translate the shared threaded
+execution model to a message passing actor model.
+
+\subsection{Performance}
+
+When trying to emulate the exeution of GPU code, one must observe that GPUs
+are well suited for the types of labs in the HPP MOOC and that CUDA is a 
+low level programming language. Given that JavaScript is dynamically typed,
+we make use of a lot of performance oprtunities afforeded to us by the standard.
+We use TypedArrays~\cite{guha2010essence,maffeis2008operational} to emulate the heap,
+for example, while webworkers are used
+to make use of multiple threads of execution.
+
+By creating artificial boundaries within functions, we are able to schedule
+the code to run on the main thread while maintaining the UI's responsiveness.
+Furthremore, we store all stack information in a special variable which 
+allows us pause and resume the execution frame at any point.
+
+To maintain the same execution time as CUDA, we rescale the inputs to be a
+tenth of the size of data that is traditionally given for lab execution.
+
+
+
+\section{Code Similarity}
 
 Since template code was provided to the students, and the code follows the course
 lectures, structural similarity within the solutions should be common. To hone in
@@ -130,7 +330,7 @@ of the computational complexity of the algorithm. In the comming weeks we plan o
 we plan on performing full correlation between the codes. since
 the code similarity algorithm is computationally expensive}.
 
-We use the Zhang-Shasha algorithm measure the distance between two trees with respect to
+We use the Zhang-Shasha~\cite{zhang1989simple} algorithm measure the distance between two trees with respect to
 distance functions. The algorithm complexity is $O(n^4)$ in time and $O(n^2)$ in space, but
 that's midigated by the fact that this computation is done on the client's machine.
 Zhang-Shasha's algorithm determines the distance between two pairs of ASTs by
@@ -178,8 +378,9 @@ following rewrite rules:
 To lexographically order the AST leaf node we use the follwing heuristic:
 literals of the same type use the $<$ operation for ordering,
 literals of different types are first ordered based on their value and then,
-in case of a tie, based on the bytecount of their type, literal nodes are always lexographically
-less than identifiers, and identifiers use string lexographical ordering.
+in case of a tie, the tie is broken by considering the bytesize of the types,
+literal nodes are always lexographically less than identifiers,
+and identifiers use string lexographical ordering.
 
 In cases where a compound node cannot be canonicallized, we mark the node for
 special processing during the distance calculation. During computation, the edit
@@ -197,108 +398,26 @@ contribute 1 to the cost.
 
 
 
-\section{Backend Implementation}
-
-The implementation is divided into two parts.
-
-
-\subsection{C++ Parser}
-
-The first is a C++ library the uses CLANG RecursiveAST interface to parse CUDA code
-and storing the Abstract Syntax Tree (AST) nodes in a mutable representation
-We developed a new AST interface, since the one provided by CLANG is immutable.
-Our AST interface stores not only the node information, but also the location
-of the code within the input file, the text underlying the node, and parent child
-relashionship. Once the parsing is complete, our datastructure dumps the information
-into JSON form. A C++ expression such as {\tt x + 1} generates the following JSON
-output:
-
-\begin{verbatim}
-  {
-    type: "BinaryExpression",
-    operator: "*",
-    left: {
-      type: "Identifier",
-      name: "x",
-      loc: {
-        start: { line: 2, column: 8 },
-        end:   { line: 2, column: 9 }
-      }
-    },
-    right: {
-      type: "Literal",
-      value: 1,
-      loc: {
-        start: { line: 2, column: 10 },
-        end:   { line: 2, column: 11 }
-      }
-    }
-  }
-\end{verbatim}
-
-We use the Mozzila AST specification, to name the fields within the JSON datastructure.
-While not a standard, it is the only documented JavaScript AST serialization specification
-that we are aware of. Futhermore, tools to read, verify, and traverse the AST in the
-Mozilla Specification exist.
-
-
-
-\subsection{C++ Parser}
-
-\subsection{JavaScript Transpiler}
-
-
-Since JavaScript does not contain type information, and types are needed to
-properly maintain the semantics of C++ --- such as truncation of floats when
-assigned to integers or offset calculation for array indexing. The transpiler
-adds type information in the {\tt functionStack\$} type field. Code such as
-{\tt int x = 1.2;} results in the following JavaScript code
-
-\begin{verbatim}
-  functionStack$['x'] = Math.floor(1.2);
-  lib.setType(functionStack$, 'x', {
-    type: 'TypeExpression',
-    addressSpace: [''],
-    qualifiers: [],
-    bases: ['int']
-  });
-\end{verbatim}
-
-The type information is queried when calculating the offset in the heap when
-indexing an array. For example, for code such as
-
-\begin{verbatim}
-  int * y;
-  double * x;
-  ....
-  x[2] = 5 + y[1];
-\end{verbatim}
-
-then the element size of the array {\tt y} is $\mathtt{sizeof(int)} = 4$.
-So, {\tt y[1]} causes $4$ bytes to be read from index $4$ of {\tt y} and
-interpreted as an integer. Similarly, $\mathtt{sizeof(double)} = 8$ bytes
-must be set at index $2 * \mathtt{sizeof(double)} = 16$ from array {\tt x}
-as a double precision number.
-
-\section{Runtime}
-
-
-\subsection{C++ Types}
-
-Unlike
-
-\subsection{The C++ Heap}
-
-\subsection{CUDA Execution}
-
-
-\subsection{Avoiding Blocking}
-
-\subsection{Maintaining the SourceMap}
-
-
 \section{FrontEnd Implementation}
 
+We use React~\cite{reynders2014multi} to implement our visualization.
+React constructs a virtual DOM and only performs DOM updates when
+the tree is different enough from the one being displayed. 
+By having batched rendering, versus fragmented ones, we 
+were able to achive good performance over a pure SVG based 
+rendering.
+
+Furthremore, by having each thread be a react component, our code
+is very simple to reason about. React also provides good binding 
+between the data and visual elements. Changing the data in 
+one of it's components triggers a rerendering of that component.
+If a component has children, then all of the children may get
+rerendered as well.
+
+React also contains Mixins to memoize some rendering. If a 
+component is requested to be redrawn, then React can ignore 
+that request if it can show that the compoent data did not 
+mutate.
 
 
 \section{Results}

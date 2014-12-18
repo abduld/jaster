@@ -3,44 +3,47 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: sigchi-sample.aux
 The style file: acm-sigchi.bst
 Database file #1: sample.bib
-You've used 7 entries,
+Warning--can't use both volume and number fields in bonetta2013tigerquoll
+Warning--empty journal in matsakistyped
+You've used 16 entries,
             2243 wiz_defined-function locations,
-            566 strings with 4949 characters,
-and the built_in function-call counts, 2053 in all, are:
-= -- 191
-> -- 72
+            609 strings with 6539 characters,
+and the built_in function-call counts, 5416 in all, are:
+= -- 530
+> -- 207
 < -- 0
-+ -- 31
-- -- 24
-* -- 122
-:= -- 310
-add.period$ -- 19
-call.type$ -- 7
-change.case$ -- 34
++ -- 90
+- -- 70
+* -- 318
+:= -- 839
+add.period$ -- 47
+call.type$ -- 16
+change.case$ -- 81
 chr.to.int$ -- 0
-cite$ -- 7
-duplicate$ -- 94
-empty$ -- 204
-format.name$ -- 24
-if$ -- 460
+cite$ -- 18
+duplicate$ -- 254
+empty$ -- 485
+format.name$ -- 70
+if$ -- 1203
 int.to.chr$ -- 0
-int.to.str$ -- 7
-missing$ -- 6
-newline$ -- 36
-num.names$ -- 10
-pop$ -- 58
+int.to.str$ -- 16
+missing$ -- 16
+newline$ -- 80
+num.names$ -- 32
+pop$ -- 127
 preamble$ -- 1
-purify$ -- 28
+purify$ -- 67
 quote$ -- 0
-skip$ -- 64
+skip$ -- 181
 stack$ -- 0
-substring$ -- 103
-swap$ -- 19
+substring$ -- 299
+swap$ -- 68
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 26
-warning$ -- 0
-while$ -- 19
-width$ -- 8
-write$ -- 69
+type$ -- 60
+warning$ -- 2
+while$ -- 55
+width$ -- 18
+write$ -- 166
+(There were 2 warnings)
