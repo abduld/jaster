@@ -9,11 +9,8 @@
 \BOOKMARK [2][-]{section*.10}{CUDA Execution}{section*.7}% 9
 \BOOKMARK [2][-]{section*.11}{Performance}{section*.7}% 10
 \BOOKMARK [1][-]{section*.12}{Code Similarity}{}% 11
-\BOOKMARK [2][-]{section*.13}{Cannonicalization of the AST Representation}{section*.12}% 12
-\BOOKMARK [3][-]{section*.14}{Zhang-Shasha Tree Edit Distance}{section*.13}% 13
-\BOOKMARK [2][-]{section*.15}{Memory Access Similarity}{section*.12}% 14
-\BOOKMARK [1][-]{section*.16}{FrontEnd Implementation}{}% 15
-\BOOKMARK [1][-]{section*.17}{Results}{}% 16
-\BOOKMARK [1][-]{section*.18}{Limitations}{}% 17
-\BOOKMARK [1][-]{section*.19}{Future Work}{}% 18
-\BOOKMARK [1][-]{section*.20}{REFERENCES }{}% 19
+\BOOKMARK [2][-]{section*.13}{Canonicalization of the AST Representation}{section*.12}% 12
+\BOOKMARK [2][-]{section*.14}{Classification in the Pipeline}{section*.12}% 13
+\BOOKMARK [1][-]{section*.15}{FrontEnd Implementation}{}% 14
+\BOOKMARK [1][-]{section*.16}{Limitations and Future Work}{}% 15
+\BOOKMARK [1][-]{section*.17}{REFERENCES }{}% 16
