@@ -1,18 +1,19 @@
+/// <reference path="../ref.ts" />
 
-/// <reference path="../../ref.ts" />
+module lib {
+    export module parallel {
+        export class Thread {
+            private id: string;
 
-import numerics = require("../type/numerics");
-import integer = require("../type/integer");
-import utils = require("../../utils/utils");
-export class Thread {
-        private id : string;
+            private threadIdx: lib.cuda.Dim3;
+            private blockIdx: lib.cuda.Dim3;
+            private blockDim: lib.cuda.Dim3;
+            private gridDim: lib.cuda.Dim3;
+            private gridIdx: lib.cuda.Dim3;
 
-private threadIdx : utils.Dim3;
-private blockIdx : utils.Dim3;
-private blockDim : utils.Dim3;
-private gridDim : utils.Dim3;
-private gridIdx : utils.Dim3;
-    constructor(id : string) {
-        this.id = id;
+            constructor(id: string) {
+                this.id = id;
+            }
+        }
     }
-    }
+}

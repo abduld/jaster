@@ -74,3 +74,4 @@ src/*js
 src/*js.map
 *.map
 src/**/*.js
+lib/**/*.js

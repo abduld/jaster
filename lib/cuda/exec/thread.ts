@@ -1,50 +1,45 @@
-
 /// <reference path="../../ref.ts" />
 
+module lib.cuda.exec {
 
-import cuda = require("./cuda");
-import block = require("./block");
-import thread = require("./thread");
-import grid = require("./grid");
-import warp = require("./warp");
-import utils = require("./../../utils/utils");
+    export class Thread {
+        error: lib.utils.Error = new lib.utils.Error();
+        threadIdx: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        blockIdx: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        blockDim: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        gridIdx: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        gridDim: lib.cuda.Dim3 = new lib.cuda.Dim3(0);
+        block: Block;
+        warp: Warp;
+        status: cuda.Status;
+        fun: Function = undefined;
+        args: Array<any> = [];
 
-class Thread {
-	error : utils.Error = new utils.Error();
-    threadIdx : utils.Dim3 = new utils.Dim3(0);
-    blockIdx : utils.Dim3 = new utils.Dim3(0);
-    blockDim : utils.Dim3 = new utils.Dim3(0);
-    gridIdx : utils.Dim3 = new utils.Dim3(0);
-    gridDim : utils.Dim3 = new utils.Dim3(0);
-    block : block;
-    warp : warp;
-    status : cuda.Status;
-    fun : Function = undefined;
-    args : Array<any> = [];
-    constructor(block : block, threadIdx : utils.Dim3, fun : Function, args : Array<any>) {
-        this.status = cuda.Status.Idle;
-        this.block = block;
-        this.blockIdx = block.blockIdx;
-        this.gridIdx = block.gridIdx;
-        this.gridDim = block.gridDim;
-        this.threadIdx = threadIdx;
-        this.args = args;
-        this.fun = fun;
-    }
-    run() {
-        var res : cuda.Status;
-        this.status = cuda.Status.Running;
-        try {
-            res = this.fun.apply(this, this.args);
-        } catch (err) {
-            res = err.code;
+        constructor(block: Block, threadIdx: lib.cuda.Dim3, fun: Function, args: Array<any>) {
+            this.status = cuda.Status.Idle;
+            this.block = block;
+            this.blockIdx = block.blockIdx;
+            this.gridIdx = block.gridIdx;
+            this.gridDim = block.gridDim;
+            this.threadIdx = threadIdx;
+            this.args = args;
+            this.fun = fun;
         }
-        this.status = cuda.Status.Complete;
-        return res;
-    }
-    terminate() {
-        this.status = cuda.Status.Stopped;
+
+        run() {
+            var res: cuda.Status;
+            this.status = cuda.Status.Running;
+            try {
+                res = this.fun.apply(this, this.args);
+            } catch (err) {
+                res = err.code;
+            }
+            this.status = cuda.Status.Complete;
+            return res;
+        }
+
+        terminate() {
+            this.status = cuda.Status.Stopped;
+        }
     }
 }
-
-export = Thread

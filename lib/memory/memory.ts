@@ -1,76 +1,87 @@
-/// <reference path="../../ref.ts" />
+/// <reference path="../ref.ts" />
+/// <reference path="../c/memory/memory.ts" />
 
-import numerics = require("./../type/numerics");
-import integer = require("./../type/integer");
-import utils = require("./../../utils/utils");
+module lib {
+    export module memory {
+        export module detail {
+            export import MemoryManager = lib.c.memory.MemoryManager;
+        }
+        export import AddressSpace = lib.c.memory.AddressSpace;
+        export class HostMemoryManager extends detail.MemoryManager {
+            constructor() {
+                super(AddressSpace.Host);
+            }
+        }
+        export class GlobalMemoryManager extends detail.MemoryManager {
+            constructor() {
+                super(AddressSpace.Global);
+            }
+        }
+        export class SharedMemoryManager extends detail.MemoryManager {
+            constructor() {
+                super(AddressSpace.Shared);
+            }
+        }
+        import CLiteralKind = lib.c.memory.CLiteralKind;
 
-export enum AddressSpace {
-    Shared,
-    Global,
-    Host
-};
-export class MemoryObject {
-    public id: string;
-    public data: DataView;
-    public addressSpace : AddressSpace;
-    constructor(id: string, addressSpace : AddressSpace, data: DataView) {
-        this.id = id;
-        this.addressSpace = addressSpace;
-        this.data = data;
-    }
-    get(idx: number): any {
-        return this.data[idx];
-    }
-    set(idx: number, val: any): any {
-        return this.data[idx] = val;
-    }
-};
-export class MemoryManager {
-    private addressSpace : AddressSpace;
-//private memmap: Map<string, MemoryObject> = new Map<string, MemoryObject>();
-    private MB: number = 1024;
-    private TOTAL_MEMORY : number;
-    private memory : ArrayBuffer;
-    private memoryOffset: number = 0;
+        var typeStringToCLiteralKind: { [key: string]: CLiteralKind; } = {
+            char: CLiteralKind.Int8,
+            int8: CLiteralKind.Int8,
+            uint: CLiteralKind.Uint32,
+            unsigned: CLiteralKind.Uint32,
+            "unsigned int": CLiteralKind.Uint32,
+            int: CLiteralKind.Int32,
+            int64_t: CLiteralKind.Int64,
+            float: CLiteralKind.Float,
+            double: CLiteralKind.Double
+        };
+        export function getElement(state, stack, ref, idx) {
+            var typ;
+            var mm;
+            var id = ref.id;
+            if (_.contains(["CUDAReference", "CReference"], ref.type)) {
+                ref = ref.mem;
+            }
+            if (ref.addressSpace === "Global") {
+                mm = state.globalMemory;
+            } else {
+                mm = state.hostMemory;
+            }
+            typ = stack["types"][id];
+            if (typ.type !== "ReferenceType") {
+                console.log("Invalid type " + JSON.stringify(typ));
+            }
+            typ = typ.kind;
+            if (typ.type === "ReferenceType") {
+                console.log("Unexpected type " + JSON.stringify(typ));
+            }
+            typ = typeStringToCLiteralKind[typ.bases[0]];
+            return ref.getElement(idx, typ);
+        }
+        export function setElement(state, stack, ref, idx, val) {
 
-    constructor(addressSpace : AddressSpace) {
-        this.TOTAL_MEMORY = 10 * this.MB;
-        this.addressSpace = addressSpace;
-        this.memory = new ArrayBuffer(this.TOTAL_MEMORY);
-    }
-
-    public malloc(n: number): MemoryObject {
-        var buffer = new MemoryObject(
-            utils.guuid(),
-            this.addressSpace,
-            new DataView(this.memory, this.memoryOffset, this.memoryOffset + n)
-        );
-    //this.memmap.set(buffer.id, buffer);
-        this.memoryOffset += n;
-        return buffer;
-    }
-    public free(mem : MemoryObject): void {
-        mem = undefined;
-    }
-    public ref(obj) {
-        return "todo";
-    }
-    public deref(mem) {
-        return mem[0];
-    }
-}
-export class HostMemoryManager extends MemoryManager {
-    constructor() {
-        super(AddressSpace.Host);
-    }
-}
-export class GlobalMemoryManager extends MemoryManager {
-    constructor() {
-        super(AddressSpace.Global);
-    }
-}
-export class SharedMemoryManager extends MemoryManager {
-    constructor() {
-        super(AddressSpace.Shared);
+            var typ;
+            var mm;
+            var id = ref.id;
+            if (_.contains(["CUDAReference", "CReference"], ref.type)) {
+                ref = ref.mem;
+            }
+            if (ref.addressSpace === "Global") {
+                mm = state.globalMemory;
+            } else {
+                mm = state.hostMemory;
+            }
+            typ = stack["types"][id];
+            if (typ.type !== "ReferenceType") {
+                console.log("Invalid type " + JSON.stringify(typ));
+            }
+            typ = typ.kind;
+            if (typ.type === "ReferenceType") {
+                console.log("Unexpected type " + JSON.stringify(typ));
+            }
+            typ = typeStringToCLiteralKind[typ.bases[0]];
+            var res = ref.setElement(idx, val, typ);
+            return res;
+        }
     }
 }

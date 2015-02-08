@@ -1,0 +1,94 @@
+\begin{thebibliography}{10}
+
+\bibitem{bonetta2013tigerquoll}
+Bonetta, D., Binder, W., and Pautasso, C.
+\newblock Tigerquoll: parallel event-based javascript.
+\newblock In {\em ACM SIGPLAN Notices}, vol.~48, ACM (2013), 251--260.
+
+\bibitem{green2012web}
+Green, I.
+\newblock {\em Web Workers: Multithreaded Programs in JavaScript}.
+\newblock " O'Reilly Media, Inc.", 2012.
+
+\bibitem{grimmer2014efficient}
+Grimmer, M., W{\"u}rthinger, T., W{\"o}{\ss}, A., and M{\"o}ssenb{\"o}ck, H.
+\newblock An efficient approach for accessing c data structures from
+  javascript.
+\newblock In {\em Proceedings of the 9th International Workshop on
+  Implementation, Compilation, Optimization of Object-Oriented Languages,
+  Programs and Systems PLE}, ACM (2014), 1.
+
+\bibitem{guha2010essence}
+Guha, A., Saftoiu, C., and Krishnamurthi, S.
+\newblock The essence of javascript.
+\newblock In {\em ECOOP 2010--Object-Oriented Programming}. Springer, 2010,
+  126--150.
+
+\bibitem{kambona2013evaluation}
+Kambona, K., Boix, E.~G., and De~Meuter, W.
+\newblock An evaluation of reactive programming and promises for structuring
+  collaborative web applications.
+\newblock In {\em Proceedings of the 7th Workshop on Dynamic Languages and
+  Applications}, ACM (2013), 3.
+
+\bibitem{lattner2004llvm}
+Lattner, C., and Adve, V.
+\newblock Llvm: A compilation framework for lifelong program analysis \&
+  transformation.
+\newblock In {\em Code Generation and Optimization, 2004. CGO 2004.
+  International Symposium on}, IEEE (2004), 75--86.
+
+\bibitem{maffeis2008operational}
+Maffeis, S., Mitchell, J.~C., and Taly, A.
+\newblock An operational semantics for javascript.
+\newblock In {\em Programming languages and systems}. Springer, 2008, 307--325.
+
+\bibitem{matsakistyped}
+Matsakis, N.~D., Herman, D., and Lomov, D.
+\newblock Typed objects in javascript.
+
+\bibitem{orion}
+Orion, E.
+\newblock Eclipse orion, 2014.
+
+\bibitem{reynders2014multi}
+Reynders, B., Devriese, D., and Piessens, F.
+\newblock Multi-tier functional reactive programming for the web.
+\newblock In {\em Proceedings of the 2014 ACM International Symposium on New
+  Ideas, New Paradigms, and Reflections on Programming \& Software}, ACM
+  (2014), 55--68.
+
+\bibitem{vilk2014doppio}
+Vilk, J., and Berger, E.~D.
+\newblock Doppio: breaking the browser language barrier.
+\newblock In {\em Proceedings of the 35th ACM SIGPLAN Conference on Programming
+  Language Design and Implementation}, ACM (2014), 52.
+
+\bibitem{1_visualstudio.com_2014}
+Visualstudio.com.
+\newblock Visual studio - microsoft developer tools, 2014.
+
+\bibitem{vouillon2013bytecode}
+Vouillon, J., and Balat, V.
+\newblock From bytecode to javascript: the js\_of\_ocaml compiler.
+\newblock {\em Software: Practice and Experience\/} (2013).
+
+\bibitem{warren2013hacker}
+Warren, H.~S.
+\newblock {\em Hacker's delight}.
+\newblock Pearson Education, 2013.
+
+\bibitem{zakai2011emscripten}
+Zakai, A.
+\newblock Emscripten: an llvm-to-javascript compiler.
+\newblock In {\em Proceedings of the ACM international conference companion on
+  Object oriented programming systems languages and applications companion},
+  ACM (2011), 301--312.
+
+\bibitem{zhang1989simple}
+Zhang, K., and Shasha, D.
+\newblock Simple fast algorithms for the editing distance between trees and
+  related problems.
+\newblock {\em SIAM journal on computing 18}, 6 (1989), 1245--1262.
+
+\end{thebibliography}

@@ -1,5 +1,4 @@
-
-/// <reference path="../../ref.ts" />
+/// <reference path="../ref.ts" />
 module System {
     "use strict";
 }

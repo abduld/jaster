@@ -1,4 +1,3 @@
-
 /// <reference path='../../utils/utils.ts' />
 /// <reference path='detail.ts' />
 /// <reference path='int32.ts' />
@@ -11,7 +10,7 @@ module lib.c.type {
     import utils = lib.utils;
     export module detail {
         export class Int64 implements CLiteral, IntegerTraits, SignedIntegerTraits {
-            private value:Int32Array;
+            private value: Int32Array;
             MAX_VALUE: number = NaN;
             MIN_VALUE: number = NaN;
             KIND: CLiteralKind = CLiteralKind.Int32;
@@ -27,7 +26,7 @@ module lib.c.type {
             highest = () => new Int64(this.MAX_VALUE);
             infinity = () => new Int64(0);
 
-            constructor(low ?:number, high?:number) {
+            constructor(low?: number, high?: number) {
                 this.value = new Int32Array(2);
                 if (low && high) {
                     this.value[0] = low;
@@ -38,21 +37,21 @@ module lib.c.type {
                 }
             }
 
-            getLow():number {
+            getLow(): number {
                 return this.value[0];
             }
 
-            getHigh():number {
+            getHigh(): number {
                 return this.value[1];
             }
 
-            getValue():Int8Array {
+            getValue(): Int8Array {
                 return this.value;
             }
 
             // lifted from
             // http://docs.closure-library.googlecode.com/git/local_closure_goog_math_long.js.source.html
-            add(other:CLiteral):CLiteral {
+            add(other: CLiteral): CLiteral {
                 if (other.KIND === this.KIND) {
                     var o = <Int64> other;
                     var a48: number = this.getHigh() >>> 16;
@@ -86,44 +85,44 @@ module lib.c.type {
                 return new Int64(low.getValue()[0] & 0x7FFFFFFF, high.getValue()[0]);
             }
 
-            addTo(other:CLiteral):CLiteral {
+            addTo(other: CLiteral): CLiteral {
                 this.value = <Int32Array> this.add(other).getValue();
                 return this;
             }
 
-            sub(other:CLiteral):CLiteral {
+            sub(other: CLiteral): CLiteral {
                 return this.add(other.negate());
             }
 
-            subFrom(other:CLiteral):CLiteral {
+            subFrom(other: CLiteral): CLiteral {
                 this.value = <Int32Array> this.sub(other).getValue();
                 return this;
             }
 
-            mul(other:CLiteral):CLiteral {
+            mul(other: CLiteral): CLiteral {
                 throw "Unimplemented";
                 return new Int64(0, 0);
             }
 
-            mulBy(other:CLiteral):CLiteral {
+            mulBy(other: CLiteral): CLiteral {
                 throw "Unimplemented";
                 return this;
             }
 
-            div(other:CLiteral):CLiteral {
+            div(other: CLiteral): CLiteral {
                 throw "Unimplemented";
                 return new Int64(0, 0);
             }
 
-            divBy(other:CLiteral):CLiteral {
+            divBy(other: CLiteral): CLiteral {
                 throw "Unimplemented";
                 return this;
             }
 
-            negate():CLiteral {
+            negate(): CLiteral {
                 return new Int64(-this.getLow(), -this.getHigh());
             }
-}
+        }
         CLiteralKindMap.set(CLiteralKind.Int64, Int64);
         utils.applyMixins(Int64, [IntegerTraits, SignedIntegerTraits]);
     }

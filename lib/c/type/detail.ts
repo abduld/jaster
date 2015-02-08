@@ -1,4 +1,3 @@
-
 /// <reference path='../../utils/mixin.ts' />
 
 module lib.c.type.detail {

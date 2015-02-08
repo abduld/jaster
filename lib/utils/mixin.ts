@@ -1,5 +1,3 @@
-﻿
-
 module lib {
     export module utils {
         export function applyMixins(derivedCtor: any, baseCtors: any[]) {

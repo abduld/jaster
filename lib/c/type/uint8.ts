@@ -1,4 +1,3 @@
-﻿
 /// <reference path='../../utils/utils.ts' />
 /// <reference path='detail.ts' />
 
@@ -91,6 +90,7 @@ module lib.c.type {
             negate(): CLiteral {
                 return utils.castTo<CLiteral>(new Uint8(-this.value_[0]));
             }
+
             value(): number {
                 return this.value_[0];
             }
