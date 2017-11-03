@@ -1,6 +1,8 @@
 react-typescript-definitions
 ============================
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/abduld/jaster.svg)](https://greenkeeper.io/)
+
 React.d.ts, file with ambient type declarations for working with Facebook React.
 
 With typings for React 0.12 (PARTIAL), 0.10.0 and TS 1.1, kinda incomplete, so **pull requests are welcome**.
